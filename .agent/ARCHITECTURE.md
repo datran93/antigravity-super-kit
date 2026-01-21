@@ -7,8 +7,8 @@
 ## 📋 Overview
 
 Antigravity Kit is a modular system consisting of:
-- **16 Specialist Agents** - Role-based AI personas
-- **40 Skills** - Domain-specific knowledge modules
+- **19 Specialist Agents** - Role-based AI personas
+- **36 Skills** - Domain-specific knowledge modules
 - **11 Workflows** - Slash command procedures
 
 ---
@@ -18,16 +18,16 @@ Antigravity Kit is a modular system consisting of:
 ```
 .agent/
 ├── ARCHITECTURE.md          # This file
-├── agents/                  # 16 Specialist Agents
-├── skills/                  # 40 Skills
+├── agents/                  # 19 Specialist Agents
+├── skills/                  # 36 Skills
 ├── workflows/               # 11 Slash Commands
 ├── rules/                   # Global Rules
-└── .shared/                 # Shared Resources
+└── scripts/                 # Master Validation Scripts
 ```
 
 ---
 
-## 🤖 Agents (16)
+## 🤖 Agents (19)
 
 Specialist AI personas for different domains.
 
@@ -48,13 +48,16 @@ Specialist AI personas for different domains.
 | `performance-optimizer` | Speed, Web Vitals | performance-profiling |
 | `seo-specialist` | Ranking, visibility | seo-fundamentals, geo-fundamentals |
 | `documentation-writer` | Manuals, docs | documentation-templates |
+| `product-manager` | Requirements, user stories | plan-writing, brainstorming |
+| `qa-automation-engineer` | E2E testing, CI pipelines | webapp-testing, testing-patterns |
+| `code-archaeologist` | Legacy code, refactoring | clean-code, code-review-checklist |
 | `explorer-agent` | Codebase analysis | - |
 
 ---
 
-## 🧠 Skills (40)
+## 🧩 Skills (36)
 
-Domain-specific knowledge modules. Skills are loaded on-demand based on task context.
+Modular knowledge domains that agents can load on-demand. based on task context.
 
 ### Frontend & UI
 | Skill | Description |
@@ -200,13 +203,57 @@ skill-name/
 
 ---
 
+## � Scripts (2)
+
+Master validation scripts that orchestrate skill-level scripts.
+
+### Master Scripts
+
+| Script | Purpose | When to Use |
+|--------|---------|-------------|
+| `checklist.py` | Priority-based validation (Core checks) | Development, pre-commit |
+| `verify_all.py` | Comprehensive verification (All checks) | Pre-deployment, releases |
+
+### Usage
+
+```bash
+# Quick validation during development
+python .agent/scripts/checklist.py .
+
+# Full verification before deployment
+python .agent/scripts/verify_all.py . --url http://localhost:3000
+```
+
+### What They Check
+
+**checklist.py** (Core checks):
+- Security (vulnerabilities, secrets)
+- Code Quality (lint, types)
+- Schema Validation
+- Test Suite
+- UX Audit
+- SEO Check
+
+**verify_all.py** (Full suite):
+- Everything in checklist.py PLUS:
+- Lighthouse (Core Web Vitals)
+- Playwright E2E
+- Bundle Analysis
+- Mobile Audit
+- i18n Check
+
+For details, see [scripts/README.md](scripts/README.md)
+
+---
+
 ## 📊 Statistics
 
 | Metric | Value |
 |--------|-------|
-| **Total Agents** | 16 |
-| **Total Skills** | 40 |
+| **Total Agents** | 19 |
+| **Total Skills** | 36 |
 | **Total Workflows** | 11 |
+| **Total Scripts** | 2 (master) + 18 (skill-level) |
 | **Coverage** | ~90% web/mobile development |
 
 ---

@@ -1,6 +1,11 @@
 # Antigravity Kit
+> AI Agent templates with Skills, Agents, and Workflows
 
-> **Version 2.0** - AI Agent templates with Skills, Agents, and Workflows
+<div  align="center">
+    <a href="https://unikorn.vn/p/antigravity-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/antigravity-kit?theme=dark" alt="Antigravity Kit - Nổi bật trên Unikorn.vn" style="width: 210px; height: 54px;" width="210" height="54" /></a>
+    <a href="https://unikorn.vn/p/antigravity-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/antigravity-kit/rank?theme=dark&type=daily" alt="Antigravity Kit - Hàng ngày" style="width: 250px; height: 64px;" width="250" height="64" /></a>
+    <a href="https://launch.j2team.dev/products/antigravity-kit" target="_blank"><img src="https://launch.j2team.dev/badge/antigravity-kit/dark" alt="Antigravity Kit on J2TEAM Launch" width="250" height="54" /></a>
+</div>
 
 ## Quick Install
 
@@ -21,16 +26,16 @@ This installs the `.agent` folder containing all templates into your project.
 
 | Component | Count | Description |
 |-----------|-------|-------------|
-| **Agents** | 16 | Specialist AI personas (frontend, backend, security, etc.) |
-| **Skills** | 40 | Domain-specific knowledge modules |
+| **Agents** | 19 | Specialist AI personas (frontend, backend, security, PM, QA, etc.) |
+| **Skills** | 36 | Domain-specific knowledge modules |
 | **Workflows** | 11 | Slash command procedures |
 
 ## Structure
 
 ```
 .agent/
-├── agents/          # 16 Specialist Agents
-├── skills/          # 40 Skills
+├── agents/          # 19 Specialist Agents
+├── skills/          # 36 Skills
 ├── workflows/       # 11 Slash Commands
 ├── rules/           # Workspace Rules
 └── ARCHITECTURE.md  # Full documentation
@@ -76,6 +81,8 @@ Example:
 /debug why login fails
 ```
 
+**📖 Full Guide:** See [Creating a Web App Example](https://antigravity-kit.vercel.app//docs/guide/examples/web-app) for a complete step-by-step tutorial.
+
 ### Using Rules
 
 Rules in `.agent/rules/` are automatically applied. The main configuration file is `GEMINI.md`.
@@ -100,7 +107,8 @@ ag-kit init --dry-run      # Preview actions without executing
 
 ## Documentation
 
-See [ARCHITECTURE.md](.agent/ARCHITECTURE.md) for full documentation on agents, skills, and workflows.
+- **[Web App Example](https://antigravity-kit.vercel.app//docs/guide/examples/web-app)** - Step-by-step guide to creating a web application
+- **[Online Docs](https://antigravity-kit.vercel.app//docs)** - Browse all documentation online
 
 ## Buy me coffee
 

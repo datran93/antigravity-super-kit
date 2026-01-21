@@ -26,16 +26,16 @@ This installs the `.agent` folder containing all templates into your project.
 
 | Component | Count | Description |
 |-----------|-------|-------------|
-| **Agents** | 16 | Specialist AI personas (frontend, backend, security, etc.) |
-| **Skills** | 40 | Domain-specific knowledge modules |
+| **Agents** | 19 | Specialist AI personas (frontend, backend, security, PM, QA, etc.) |
+| **Skills** | 36 | Domain-specific knowledge modules |
 | **Workflows** | 11 | Slash command procedures |
 
 ## Structure
 
 ```
 .agent/
-├── agents/          # 16 Specialist Agents
-├── skills/          # 40 Skills
+├── agents/          # 19 Specialist Agents
+├── skills/          # 36 Skills
 ├── workflows/       # 11 Slash Commands
 ├── rules/           # Workspace Rules
 └── ARCHITECTURE.md  # Full documentation

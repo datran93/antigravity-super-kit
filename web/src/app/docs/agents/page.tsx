@@ -34,6 +34,50 @@ export default function AgentsPage() {
             name: "game-developer",
             desc: "Specialized Game Logic & Assets & Performance. Expert in game development patterns."
         },
+        {
+            name: "devops-engineer",
+            desc: "Infrastructure & CI/CD Expert (Docker + Kubernetes + GitHub Actions). Automates deployment pipelines."
+        },
+        {
+            name: "database-architect",
+            desc: "Database Design & Optimization Expert (SQL + NoSQL). Creates efficient schemas and query strategies."
+        },
+        {
+            name: "documentation-writer",
+            desc: "Technical Documentation Specialist. Creates clear API docs, README files, and developer guides."
+        },
+        {
+            name: "performance-optimizer",
+            desc: "Performance Profiling & Optimization Expert. Identifies bottlenecks and implements caching strategies."
+        },
+        {
+            name: "code-archaeologist",
+            desc: "Legacy Code Explorer & Analyzer. Understands and documents complex existing codebases."
+        },
+        {
+            name: "explorer-agent",
+            desc: "Codebase Discovery & Navigation. Finds relevant files, dependencies, and code patterns quickly."
+        },
+        {
+            name: "penetration-tester",
+            desc: "Ethical Hacking & Vulnerability Discovery. Simulates attacks to find security weaknesses."
+        },
+        {
+            name: "test-engineer",
+            desc: "Test Strategy & Implementation. Designs comprehensive testing approaches for quality assurance."
+        },
+        {
+            name: "qa-automation-engineer",
+            desc: "QA & Test Automation Specialist (Unit + Integration + E2E). Builds automated test pipelines."
+        },
+        {
+            name: "product-manager",
+            desc: "Product Strategy & Requirements. Translates business needs into technical specifications."
+        },
+        {
+            name: "seo-specialist",
+            desc: "Search Engine Optimization Expert. Improves visibility and ranking in search results."
+        },
     ];
 
     return (
