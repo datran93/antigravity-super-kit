@@ -33,9 +33,9 @@ export default function SkillsPage() {
                     Unlike hard-coded templates, skills teach <em>principles</em> — enabling agents to make contextual decisions rather than copying patterns.
                 </p>
                 <div className="mt-2 p-4 rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/20 mb-6">
-                    <p className="text-sm text-blue-900 dark:text-blue-100 mb-0 flex items-start gap-2">
-                        <Lightbulb className="w-4 h-4 mt-0.5 shrink-0" />
-                        <strong className="font-semibold">Note:</strong> Skills are loaded on-demand based on task context. You don't need to configure anything manually.
+                    <p className="text-sm text-blue-900 dark:text-blue-100 mb-0">
+                        <Lightbulb className="w-4 h-4 inline" />
+                        <strong className="font-semibold"> Note:</strong> Skills are loaded on-demand based on task context. You don't need to configure anything manually.
                     </p>
                 </div>
             </section>

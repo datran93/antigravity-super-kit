@@ -66,9 +66,9 @@ export default function WorkflowsPage() {
                 </div>
 
                 <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
-                    <p className="text-sm text-blue-900 dark:text-blue-100 mb-0 flex items-start gap-2">
-                        <Lightbulb className="w-4 h-4 mt-0.5 shrink-0" />
-                        <span><strong>Tip:</strong> Some workflows have a <code className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 font-mono text-xs">// turbo</code> annotation that allows auto-running safe commands without user approval.</span>
+                    <p className="text-sm text-blue-900 dark:text-blue-100 mb-0">
+                        <Lightbulb className="w-4 h-4 inline" />
+                        <strong className="font-semibold"> Tip:</strong> Some workflows have a <code className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 font-mono text-xs">// turbo</code> annotation that allows auto-running safe commands without user approval.
                     </p>
                 </div>
             </section>

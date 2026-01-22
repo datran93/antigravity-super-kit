@@ -2,7 +2,7 @@
 
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
-import { Button } from './ui/button';
+import { Button } from '../../../ui/button';
 
 export default function ThemeToggle() {
     const [mounted, setMounted] = useState(false);

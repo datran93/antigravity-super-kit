@@ -3,22 +3,29 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CoffeeIcon, Heart, QrCodeIcon } from 'lucide-react';
+import { CoffeeIcon, Heart, QrCodeIcon, User } from 'lucide-react';
 
-export default function DonateDialog() {
+interface DonateDialogProps {
+    className?: string;
+}
+
+export default function DonateDialog({ className }: DonateDialogProps) {
     const [showQR, setShowQR] = useState(false);
 
     return (
         <Dialog>
-            <DialogTrigger render={<Button variant="outline" />}>
+            <DialogTrigger render={<Button variant="outline" className={className} />}>
                 <Heart className="w-3 h-3 mr-1.5 text-red-500" />
                 Donate
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Support Antigravity Kit</DialogTitle>
-                    <DialogDescription>
-                        Your support helps maintain and improve this project. Choose your preferred donation method below.
+                    <DialogTitle className="flex items-center gap-2">
+                        <span>Fuel the Developer</span>
+                    </DialogTitle>
+                    <DialogDescription className="space-y-2 pt-2">
+                        Hi! I'm <strong>Vu</strong>. I am currently unemployed and dedicating my full time to building this kit. <br />
+                        Your support literally keeps me alive and coding! If you find this tool helpful, please consider buying me a coffee.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -80,6 +87,27 @@ export default function DonateDialog() {
                             </div>
                         </div>
                     )}
+
+                    {/* Hire Me Option */}
+                    {/* <a
+                        href="https://www.linkedin.com/in/vudovn" // Assuming this link based on username, user can update
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-blue-500/50 dark:hover:border-blue-500/50 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all group"
+                    >
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/20">
+                            <span className="text-xl">
+                                <User />
+                            </span>
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-zinc-900 dark:text-zinc-50 mb-0.5">Hire Me!</div>
+                            <div className="text-sm text-zinc-600 dark:text-zinc-400">View my profile & portfolio</div>
+                        </div>
+                        <svg className="w-5 h-5 text-zinc-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a> */}
                 </div>
 
                 <DialogFooter>

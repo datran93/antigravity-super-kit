@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import DonateDialog from '@/components/layout/header/components/donate-dialog';
+import { GithubIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const navSections = [
     {
@@ -90,6 +93,17 @@ export default function MobileMenu() {
                                 </div>
                             ))}
                         </nav>
+
+                        {/* Mobile Action Buttons */}
+                        <div className="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-800 flex gap-3">
+                            <DonateDialog className="" />
+                            <Link href="https://github.com/vudovn/antigravity-kit" target="_blank" rel="noopener noreferrer">
+                                <Button variant="outline" className="w-full justify-start">
+                                    <GithubIcon className="w-4 h-4 mr-2" />
+                                    GitHub
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 </div>
             )}

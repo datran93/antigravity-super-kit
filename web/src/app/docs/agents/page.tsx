@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Lightbulb } from "lucide-react";
 
 export default function AgentsPage() {
     const agents = [
@@ -131,6 +132,7 @@ Use the backend-specialist to design API architecture`}</code>
 
                 <div className="p-4 rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/20 mb-6">
                     <p className="text-sm text-blue-900 dark:text-blue-200">
+                        <Lightbulb className="w-4 h-4 inline" />
                         <strong className="font-semibold">Tip:</strong> Agents can work together! Use the <code className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 font-mono text-xs">orchestrator</code> agent to coordinate multiple specialists on complex tasks.
                     </p>
                 </div>

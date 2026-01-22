@@ -118,6 +118,12 @@ ag-kit init --dry-run      # Preview actions without executing
   </a>
 </p>
 
+<p align="center"> - or - </p>
+
+<p align="center">
+  <img src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg" alt="Buy me coffee" width="200" />
+</p>
+
 ## License
 
 MIT © Vudovn

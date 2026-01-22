@@ -1,8 +1,8 @@
 import Link from "next/link";
 import MobileMenu from "@/components/layout/header/components/mobile-menu";
 import SearchDialog from "@/components/layout/header/components/search-dialog";
-import ThemeToggle from "@/components/theme-toggle";
-import DonateDialog from "@/components/donate-dialog";
+import ThemeToggle from "@/components/layout/header/components/theme-toggle";
+import DonateDialog from "@/components/layout/header/components/donate-dialog";
 import { Button } from "@/components/ui/button";
 import { GithubIcon } from "lucide-react";
 
@@ -33,7 +33,7 @@ export default function Header() {
                         <nav className="hidden sm:flex items-center gap-1 flex-1 min-w-0">
                             <DonateDialog />
                             <Link href="https://github.com/vudovn/antigravity-kit" target="_blank" rel="noopener noreferrer">
-                                <Button variant="outline" size="sm" className="hidden md:flex">
+                                <Button variant="outline" className="hidden md:flex">
                                     <GithubIcon className="w-4 h-4 mr-2" />
                                     GitHub
                                 </Button>

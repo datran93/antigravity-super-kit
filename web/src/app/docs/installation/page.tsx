@@ -34,9 +34,9 @@ export default function InstallationPage() {
                 <CodeBlock code="npx @vudovn/ag-kit init" />
 
                 <div className="mt-2 p-4 rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/20 mb-6">
-                    <p className="text-sm text-blue-900 dark:text-blue-100 mb-0 flex items-start gap-2">
-                        <Lightbulb className="w-4 h-4 mt-0.5 shrink-0" />
-                        <strong className="font-semibold">Note:</strong> This command will create a <code className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 font-mono text-xs">.agent</code> folder in your current directory containing all templates.
+                    <p className="text-sm text-blue-900 dark:text-blue-100 mb-0 ">
+                        <Lightbulb className="w-4 h-4 inline" />
+                        <strong className="font-semibold "> Note:</strong> This command will create a <code className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 font-mono text-xs">.agent</code> folder in your current directory containing all templates.
                     </p>
                 </div>
             </section>
@@ -55,9 +55,9 @@ export default function InstallationPage() {
                 <CodeBlock className="mt-2" code={`cd your-project && ag-kit init`} />
                 <small> Read other commands in <Link className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300" href="/docs/commands">cli commands</Link> documentation.</small>
                 <div className="mt-2 p-4 rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/20 mb-6">
-                    <p className="text-sm text-blue-900 dark:text-blue-100 mb-0 flex items-start gap-2">
-                        <Lightbulb className="w-4 h-4 mt-0.5 shrink-0" />
-                        <strong className="font-semibold">Note:</strong> Init command will create a <code className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 font-mono text-xs">.agent</code> folder in your current directory containing all templates.
+                    <p className="text-sm text-blue-900 dark:text-blue-100 mb-0 ">
+                        <Lightbulb className="w-4 h-4 inline" />
+                        <strong className="font-semibold"> Note:</strong> Init command will create a <code className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 font-mono text-xs">.agent</code> folder in your current directory containing all templates.
                     </p>
                 </div>
             </section>
