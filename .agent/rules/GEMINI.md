@@ -2,9 +2,8 @@
 trigger: always_on
 ---
 
-# GEMINI.md - Maestro Configuration
+# GEMINI.md - Antigravity Kit
 
-> Maestro AI Development Orchestrator
 > This file defines how the AI behaves in this workspace.
 
 ---
@@ -36,7 +35,7 @@ Agent activated → Check frontmatter "skills:" field
 
 ---
 
-## �📥 REQUEST CLASSIFIER (STEP 2)
+## 📥 REQUEST CLASSIFIER (STEP 2)
 
 **Before ANY action, classify the request:**
 

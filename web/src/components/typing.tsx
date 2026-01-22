@@ -6,7 +6,7 @@ export default function Typing() {
     return (
         <Typewriter
             options={{
-                strings: ['40+ skills', '11 workflows', '16 Agents', 'Open Source'],
+                strings: ['35+ skills', '11 workflows', '19 Agents', 'Open Source'],
                 autoStart: true,
                 loop: true,
                 delay: 75,
