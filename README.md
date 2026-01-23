@@ -23,37 +23,9 @@ ag-kit init
 
 This installs the `.agent` folder containing all templates into your project.
 
-## What's Included
-
-| Component     | Count | Description                                                        |
-| ------------- | ----- | ------------------------------------------------------------------ |
-| **Agents**    | 19    | Specialist AI personas (frontend, backend, security, PM, QA, etc.) |
-| **Skills**    | 36    | Domain-specific knowledge modules                                  |
-| **Workflows** | 11    | Slash command procedures                                           |
-
-## Structure
-
-```
-.agent/
-├── agents/          # 19 Specialist Agents
-├── skills/          # 36 Skills
-├── workflows/       # 11 Slash Commands
-├── rules/           # Workspace Rules
-└── ARCHITECTURE.md  # Full documentation
-```
-
 ## Usage
 
 ### Using Agents
-
-Mention an agent by name to invoke specialized expertise:
-
-```
-Use the security-auditor agent to review authentication
-Use the frontend-specialist to analyze React components
-```
-
-### ✨ NEW: Intelligent Routing (Auto Agent Selection)
 
 **No need to mention agents explicitly!** The system automatically detects and applies the right specialist(s):
 
@@ -83,12 +55,6 @@ AI: 🤖 Using @debugger for systematic analysis...
 - ✅ Transparent - shows which agent is being used
 - ✅ Can still override by mentioning agent explicitly
 
-📖 **Learn more:** [Intelligent Routing Guide](.agent/docs/intelligent-routing-guide.md)
-
-### Using Skills
-
-Skills are loaded automatically based on task context. The AI reads skill descriptions and applies relevant knowledge.
-
 ### Using Workflows
 
 Invoke workflows with slash commands:
@@ -115,11 +81,9 @@ Example:
 /debug why login fails
 ```
 
-**📖 Full Guide:** See [Creating a Web App Example](https://antigravity-kit.vercel.app//docs/guide/examples/web-app) for a complete step-by-step tutorial.
+### Using Skills
 
-### Using Rules
-
-Rules in `.agent/rules/` are automatically applied. The main configuration file is `GEMINI.md`.
+Skills are loaded automatically based on task context. The AI reads skill descriptions and applies relevant knowledge.
 
 ## CLI Tool
 
