@@ -1,12 +1,7 @@
 [
     {
-        "name": "react-patterns",
-        "description": "React hooks, state, performance",
-        "category": "Frontend & UI"
-    },
-    {
-        "name": "nextjs-best-practices",
-        "description": "App Router, Server Components",
+        "name": "nextjs-react-expert",
+        "description": "Next.js App Router, React hooks, Server Components, performance",
         "category": "Frontend & UI"
     },
     {
@@ -17,6 +12,11 @@
     {
         "name": "frontend-design",
         "description": "UI/UX patterns, design systems",
+        "category": "Frontend & UI"
+    },
+    {
+        "name": "web-design-guidelines",
+        "description": "Professional web design standards, 50 styles, 21 palettes",
         "category": "Frontend & UI"
     },
     {

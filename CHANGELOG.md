@@ -2,37 +2,58 @@
 
 All notable changes to the Antigravity Kit will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-01-26
+
 ### Added
 
-- **Intelligent Agent Routing**: Automatic agent selection system that analyzes user requests and routes them to the appropriate specialist(s) without requiring explicit agent mentions
-    - Adds new `intelligent-routing` skill in `.agent/skills/intelligent-routing/`
-    - Integrates automatic routing into GEMINI.md TIER 0 rules
-    - Provides transparent agent selection with user notification (e.g., "🤖 Applying @security-auditor...")
-    - Maintains compatibility with explicit agent mentions and slash commands
-    - Includes comprehensive documentation in `.agent/docs/intelligent-routing-guide.md`
-- Updated README.md with new "Intelligent Routing" section showcasing the automatic agent selection feature
-- Added User Guide for Intelligent Routing with examples and FAQ
+- **Agent Flow Documentation**: New comprehensive workflow documentation
+    - Added `.agent/AGENT_FLOW.md` - Complete agent flow architecture guide
+    - Documented Agent Routing Checklist (mandatory steps before code/design work)
+    - Documented Socratic Gate Protocol for requirement clarification
+    - Added Cross-Skill References pattern documentation
+- **New Skills**:
+    - `nextjs-react-expert` - Consolidated Next.js and React expertise
+    - `web-design-guidelines` - Professional web design standards and patterns
 
 ### Changed
 
-- Enhanced GEMINI.md with new STEP 3 (Intelligent Agent Routing) in the request processing pipeline
-- Updated agent orchestration workflow to work seamlessly with automatic routing
+- **Skill Consolidation**: Merged `nextjs-best-practices` and `react-patterns` into unified `nextjs-react-expert` skill
+- **Architecture Updates**:
+    - Enhanced `.agent/ARCHITECTURE.md` with improved flow diagrams
+    - Updated `.agent/rules/GEMINI.md` with Agent Routing Checklist
+- **Agent Updates**:
+    - Updated `frontend-specialist.md` with new skill references
+    - Updated `qa-automation-engineer.md` with enhanced testing workflows
+- **Frontend Design Skill**: Enhanced `frontend-design/SKILL.md` with cross-references to `web-design-guidelines`
 
-## [1.0.0] - Unreleased
+### Removed
+
+- Deprecated `nextjs-best-practices` skill (consolidated into `nextjs-react-expert`)
+- Deprecated `react-patterns` skill (consolidated into `nextjs-react-expert`)
+
+### Fixed
+
+- **Agent Flow Accuracy**: Corrected misleading terminology in AGENT_FLOW.md
+    - Changed "Parallel Execution" → "Sequential Multi-Domain Execution"
+    - Changed "Integration Layer" → "Code Coherence" with accurate description
+    - Added reality notes about AI's sequential processing vs. simulated multi-agent behavior
+    - Clarified that scripts require user approval (not auto-executed)
+
+## [2.0.0] - Unreleased
 
 ### Initial Release
 
 - Initial release of Antigravity Kit
-- 19 specialized AI agents
-- 36 domain-specific skills
+- 20 specialized AI agents
+- 37 domain-specific skills
 - 11 workflow slash commands
 - CLI tool for easy installation and updates
 - Comprehensive documentation and architecture guide
 
-[Unreleased]: https://github.com/vudovn/antigravity-kit/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/vudovn/antigravity-kit/releases/tag/v1.0.0
+[Unreleased]: https://github.com/vudovn/antigravity-kit/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/vudovn/antigravity-kit/releases/tag/v2.0.0
