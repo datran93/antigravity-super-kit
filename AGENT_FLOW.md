@@ -127,6 +127,7 @@ User Input Types:
 #### Socratic Gate Protocol
 
 Before implementation, verify:
+
 - **New Feature** → ASK 3 strategic questions
 - **Bug Fix** → Confirm understanding + ask impact
 - **Vague request** → Ask Purpose, Users, Scope
@@ -137,12 +138,12 @@ Before implementation, verify:
 
 Before ANY code/design work:
 
-| Step | Check | If Unchecked |
-|------|-------|--------------|
-| 1 | Identify correct agent | → Analyze request domain |
-| 2 | Read agent's .md file | → Open `.agent/agents/{agent}.md` |
-| 3 | Announce agent | → `🤖 Applying knowledge of @[agent]...` |
-| 4 | Load skills from frontmatter | → Check `skills:` field |
+| Step | Check                        | If Unchecked                             |
+| ---- | ---------------------------- | ---------------------------------------- |
+| 1    | Identify correct agent       | → Analyze request domain                 |
+| 2    | Read agent's .md file        | → Open `.agent/agents/{agent}.md`        |
+| 3    | Announce agent               | → `🤖 Applying knowledge of @[agent]...` |
+| 4    | Load skills from frontmatter | → Check `skills:` field                  |
 
 ```
 Request Domain → Agent Mapping:
@@ -150,7 +151,7 @@ Request Domain → Agent Mapping:
 ┌──────────────────────┬─────────────────────┬──────────────────────────┐
 │ Domain               │ Primary Agent       │ Skills Loaded            │
 ├──────────────────────┼─────────────────────┼──────────────────────────┤
-│ UI/UX Design         │ frontend-specialist │ nextjs-react-expert      │
+│ UI/UX Design         │ frontend-specialist │ react-best-practices      │
 │                      │                     │ frontend-design          │
 │                      │                     │ tailwind-patterns        │
 |                      │                     │ web-design-guidelines    │
@@ -461,7 +462,7 @@ User Request: "Build a Next.js dashboard with authentication"
 
 4. AGENT ASSIGNMENT
    ├─ frontend-specialist
-   │   └─ Skills: nextjs-react-expert, tailwind-patterns, frontend-design
+   │   └─ Skills: react-best-practices, tailwind-patterns, frontend-design
    ├─ backend-specialist
    │   └─ Skills: api-patterns, nodejs-best-practices
    ├─ database-architect

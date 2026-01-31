@@ -23,7 +23,17 @@ const navSections = [
     {
         title: 'Guide',
         items: [
-            { href: '/docs/guide/examples/web-app', label: 'Example: Create Web App' },
+            { href: '/docs/guide/examples/brainstorm', label: 'Structured Brainstorming' },
+            { href: '/docs/guide/examples/plan', label: 'Project Planning' },
+            { href: '/docs/guide/examples/create', label: 'Create New Application' },
+            { href: '/docs/guide/examples/new-feature', label: 'Add a New Feature' },
+            { href: '/docs/guide/examples/ui-design', label: 'Advanced UI Design' },
+            { href: '/docs/guide/examples/debugging', label: 'Systematic Debugging' },
+            { href: '/docs/guide/examples/test', label: 'Test Generation' },
+            { href: '/docs/guide/examples/preview', label: 'Preview Management' },
+            { href: '/docs/guide/examples/status', label: 'Project Status' },
+            { href: '/docs/guide/examples/orchestration', label: 'Multi-Agent Orchestration' },
+            { href: '/docs/guide/examples/deployment', label: 'Production Deployment' },
         ],
     },
     {

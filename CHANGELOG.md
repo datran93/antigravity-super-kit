@@ -17,12 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Documented Socratic Gate Protocol for requirement clarification
     - Added Cross-Skill References pattern documentation
 - **New Skills**:
-    - `nextjs-react-expert` - Consolidated Next.js and React expertise
+    - `react-best-practices` - Consolidated Next.js and React expertise
     - `web-design-guidelines` - Professional web design standards and patterns
 
 ### Changed
 
-- **Skill Consolidation**: Merged `nextjs-best-practices` and `react-patterns` into unified `nextjs-react-expert` skill
+- **Skill Consolidation**: Merged `nextjs-best-practices` and `react-patterns` into unified `react-best-practices` skill
 - **Architecture Updates**:
     - Enhanced `.agent/ARCHITECTURE.md` with improved flow diagrams
     - Updated `.agent/rules/GEMINI.md` with Agent Routing Checklist
@@ -33,8 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Deprecated `nextjs-best-practices` skill (consolidated into `nextjs-react-expert`)
-- Deprecated `react-patterns` skill (consolidated into `nextjs-react-expert`)
+- Deprecated `nextjs-best-practices` skill (consolidated into `react-best-practices`)
+- Deprecated `react-patterns` skill (consolidated into `react-best-practices`)
 
 ### Fixed
 

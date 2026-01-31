@@ -37,7 +37,7 @@ export default function DocsPage() {
                     </a>.
                 </p>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
-                    Whether you're an individual developer or part of a larger team, Antigravity Kit helps you build better software faster with 40+ skills, 16 specialist agents, and 11 production-ready workflows.
+                    Whether you're an individual developer or part of a larger team, Antigravity Kit helps you build better software faster with {skills.length}+ skills, {agents.length}+ specialist agents, and {workflows.length}+ production-ready workflows.
                 </p>
             </section>
 
