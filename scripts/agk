@@ -75,9 +75,28 @@ update_agent() {
     log_success ".agent updated successfully!"
 }
 
+# Status command
+status_agent() {
+    sync_repo
+
+    if [ ! -d "$TARGET_AGENT_DIR" ]; then
+        log_error ".agent folder not found locally."
+        exit 1
+    fi
+
+    log_info "Checking for updates..."
+    if diff -r -q "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR" > /dev/null; then
+        log_success "Your .agent folder is up to date."
+    else
+        echo -e "${BLUE}[INFO]${NC} Updates are available. Run 'agk update' to apply them."
+        echo "Changes:"
+        diff -r --brief "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR" | grep -v "\.git" # Filter git stuff if any, though source shouldn't have it inside .agent
+    fi
+}
+
 # Usage
 usage() {
-    echo "Usage: $0 {install|update}"
+    echo "Usage: $0 {install|update|status}"
     exit 1
 }
 
@@ -88,6 +107,9 @@ case "$1" in
         ;;
     update)
         update_agent
+        ;;
+    status)
+        status_agent
         ;;
     *)
         usage

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Auto-caching of `antigravity-kit` repository
         - `agk install`: Install agents to current project
         - `agk update`: Update agents in current project
+        - `agk status`: Check if agents are up to date
 - **Agent Updates**:
     - `backend-specialist`: Added partial Golang support
 

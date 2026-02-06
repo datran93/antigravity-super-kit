@@ -51,6 +51,9 @@ agk install
 
 # Update existing .agent folder to latest version
 agk update
+
+# Check if .agent folder is up to date
+agk status
 ```
 
 ### 2. Using Agents
