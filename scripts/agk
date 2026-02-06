@@ -65,8 +65,7 @@ update_agent() {
         log_info ".agent folder not found. Starting fresh installation..."
     else
         log_info "Updating .agent folder..."
-        # Backup? Maybe not needed for simple update, but good practice.
-        # For now, just recursive copy/overwrite.
+        rm -rf "$TARGET_AGENT_DIR"
     fi
 
     cp -R "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR"
