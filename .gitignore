@@ -4,3 +4,5 @@ node_modules/
 antigravity-doc
 tests
 others
+# Dont ignore .agent/ folder
+!.agent/

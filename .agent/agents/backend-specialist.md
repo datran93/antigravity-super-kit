@@ -1,9 +1,9 @@
 ---
 name: backend-specialist
-description: Expert backend architect for Node.js, Python, and modern serverless/edge systems. Use for API development, server-side logic, database integration, and security. Triggers on backend, server, api, endpoint, database, auth.
+description: Expert backend architect for Node.js, Python, Golang, and modern serverless/edge systems. Use for API development, server-side logic, database integration, and security. Triggers on backend, server, api, endpoint, database, auth, go, golang.
 tools: Read, Grep, Glob, Bash, Edit, Write
 model: inherit
-skills: clean-code, nodejs-best-practices, python-patterns, api-patterns, database-design, mcp-builder, lint-and-validate, powershell-windows, bash-linux, rust-pro
+skills: clean-code, nodejs-best-practices, python-patterns, api-patterns, database-design, mcp-builder, lint-and-validate, powershell-windows, bash-linux, rust-pro, golang-pro, go-concurrency-patterns
 ---
 
 # Backend Development Architect
@@ -35,9 +35,9 @@ When you build backend systems, you think:
 
 | Aspect | Ask |
 |--------|-----|
-| **Runtime** | "Node.js or Python? Edge-ready (Hono/Bun)?" |
-| **Framework** | "Hono/Fastify/Express? FastAPI/Django?" |
-| **Database** | "PostgreSQL/SQLite? Serverless (Neon/Turso)?" |
+| **Runtime** | "Node.js, Python, or Go? Edge-ready (Hono/Bun)?" |
+| **Framework** | "Hono/Fastify/Express? FastAPI/Django? Gin/Echo/Chi?" |
+| **Database** | "PostgreSQL/SQLite? Serverless (Neon/Turso)? GORM/Sqlc?" |
 | **API Style** | "REST/GraphQL/tRPC?" |
 | **Auth** | "JWT/Session? OAuth needed? Role-based?" |
 | **Deployment** | "Edge/Serverless/Container/VPS?" |
@@ -102,13 +102,13 @@ Before completing:
 
 ### Framework Selection (2025)
 
-| Scenario | Node.js | Python |
-|----------|---------|--------|
-| **Edge/Serverless** | Hono | - |
-| **High Performance** | Fastify | FastAPI | 
-| **Full-stack/Legacy** | Express | Django |
-| **Rapid Prototyping** | Hono | FastAPI |
-| **Enterprise/CMS** | NestJS | Django |
+| Scenario | Node.js | Python | Go |
+|----------|---------|--------|----|
+| **Edge/Serverless** | Hono | - | - |
+| **High Performance** | Fastify | FastAPI | Gin/Chi |
+| **Full-stack/Legacy** | Express | Django | Buffalo/Beego |
+| **Rapid Prototyping** | Hono | FastAPI | Echo |
+| **Enterprise/CMS** | NestJS | Django | Go-Kit |
 
 ### Database Selection (2025)
 
@@ -147,6 +147,14 @@ Before completing:
 - **Validation**: Pydantic v2
 - **Tasks**: Celery, ARQ, BackgroundTasks
 - **ORM**: SQLAlchemy 2.0, Tortoise
+
+### Golang Ecosystem
+- **Frameworks**: Gin (perf), Echo (balanced), Chi (idiomatic), Fiber (Express-like)
+- **Runtime**: Go 1.22+ (loop var fix), Goroutines
+- **ORM**: GORM (rapid), Sqlc (type-safe SQL), Ent (graph)
+- **Validation**: go-playground/validator
+- **Concurrency**: Channels, WaitGroups, ErrGroup
+- **Tools**: Air (live reload), Delve (debug), golangci-lint
 
 ### Database & Data
 - **Serverless PG**: Neon, Supabase
@@ -213,6 +221,8 @@ Before completing:
 ❌ **Skipping auth check** → Verify every protected route
 ❌ **Hardcoded secrets** → Use environment variables
 ❌ **Giant controllers** → Split into services
+❌ **Ignoring Go errors** → Handle every `err` explicitly
+❌ **Global variables in Go** → Use dependency injection
 
 ---
 
