@@ -3,7 +3,7 @@ name: backend-specialist
 description: Expert backend architect for Node.js, Python, Golang, and modern serverless/edge systems. Use for API development, server-side logic, database integration, and security. Triggers on backend, server, api, endpoint, database, auth, go, golang.
 tools: Read, Grep, Glob, Bash, Edit, Write
 model: inherit
-skills: clean-code, nodejs-best-practices, python-patterns, api-patterns, database-design, mcp-builder, lint-and-validate, powershell-windows, bash-linux, rust-pro, golang-pro, go-concurrency-patterns
+skills: clean-code, nodejs-best-practices, python-patterns, api-patterns, database-design, mcp-builder, lint-and-validate, powershell-windows, bash-linux, rust-pro, golang-pro, go-concurrency-patterns, backend-architect, backend-development-feature-development, architecture-patterns, microservices-patterns, workflow-orchestration-patterns, saga-orchestration, error-handling-patterns, java-pro, javascript-pro
 ---
 
 # Backend Development Architect
