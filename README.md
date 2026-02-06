@@ -10,18 +10,18 @@
 
 ## Quick Install
 
-```bash
-npx @vudovn/ag-kit init
-```
-
-Or install globally:
+Clone the repository and link the `agk` script to your path for global access:
 
 ```bash
-npm install -g @vudovn/ag-kit
-ag-kit init
-```
+# 1. Clone the repository (if not already done)
+git clone git@github.com:Dang-Hai-Tran/antigravity-kit.git ~/.antigravity/cache/antigravity-kit
 
-This installs the `.agent` folder containing all templates into your project.
+# 2. Link the script to your bin
+sudo ln -s ~/.antigravity/cache/antigravity-kit/scripts/agk /usr/local/bin/agk
+
+# 3. Verify installation
+agk
+```
 
 ### ⚠️ Important Note on `.gitignore`
 If you are using AI-powered editors like **Cursor** or **Windsurf**, adding the `.agent/` folder to your `.gitignore` may prevent the IDE from indexing the workflows. This results in slash commands (like `/plan`, `/debug`) not appearing in the chat suggestion dropdown.
@@ -42,7 +42,18 @@ To keep the `.agent/` folder local (not tracked by Git) while maintaining AI fun
 
 ## Usage
 
-### Using Agents
+### 1. Initialize/Update Agents
+Run this in any project root to install or update the `.agent` folder:
+
+```bash
+# Install .agent folder into current directory
+agk install
+
+# Update existing .agent folder to latest version
+agk update
+```
+
+### 2. Using Agents
 
 **No need to mention agents explicitly!** The system automatically detects and applies the right specialist(s):
 
@@ -73,7 +84,7 @@ AI: 🤖 Using @debugger for systematic analysis...
 - ✅ Transparent - shows which agent is being used
 - ✅ Can still override by mentioning agent explicitly
 
-### Using Workflows
+### 3. Using Workflows
 
 Invoke workflows with slash commands:
 
@@ -99,47 +110,10 @@ Example:
 /debug why login fails
 ```
 
-### Using Skills
+### 4. Using Skills
 
 Skills are loaded automatically based on task context. The AI reads skill descriptions and applies relevant knowledge.
 
-## CLI Tool
-
-| Command         | Description                               |
-| --------------- | ----------------------------------------- |
-| `ag-kit init`   | Install `.agent` folder into your project |
-| `ag-kit update` | Update to the latest version              |
-| `ag-kit status` | Check installation status                 |
-
-### Options
-
-```bash
-ag-kit init --force        # Overwrite existing .agent folder
-ag-kit init --path ./myapp # Install in specific directory
-ag-kit init --branch dev   # Use specific branch
-ag-kit init --quiet        # Suppress output (for CI/CD)
-ag-kit init --dry-run      # Preview actions without executing
-```
-
-## Documentation
-
-- **[Web App Example](https://antigravity-kit.vercel.app//docs/guide/examples/brainstorm)** - Step-by-step guide to creating a web application
-- **[Online Docs](https://antigravity-kit.vercel.app//docs)** - Browse all documentation online
-
-## Buy me coffee
-
-<p align="center">
-  <a href="https://buymeacoffee.com/vudovn">
-    <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" />
-  </a>
-</p>
-
-<p align="center"> - or - </p>
-
-<p align="center">
-  <img src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg" alt="Buy me coffee" width="200" />
-</p>
-
 ## License
 
-MIT © Vudovn
+MIT © datran

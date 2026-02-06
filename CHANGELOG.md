@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [2.1.0] - 2026-02-06
+- **New Features**:
+    - `agk` - Global CLI script for easy installation and updates of `.agent` folder
+        - Auto-caching of `antigravity-kit` repository
+        - `agk install`: Install agents to current project
+        - `agk update`: Update agents in current project
+- **Agent Updates**:
+    - `backend-specialist`: Added partial Golang support
+
 ## [2.0.2] - 2026-02-04
 - **New Skills**:
     - `rust-pro` - Master Rust 1.75+ 
@@ -63,5 +72,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI tool for easy installation and updates
 - Comprehensive documentation and architecture guide
 
-[Unreleased]: https://github.com/vudovn/antigravity-kit/compare/v2.0.0...HEAD
-[2.0.0]: https://github.com/vudovn/antigravity-kit/releases/tag/v2.0.0
+[Unreleased]: https://github.com/datran/antigravity-kit/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/datran/antigravity-kit/releases/tag/v2.0.0
