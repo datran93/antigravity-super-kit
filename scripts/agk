@@ -31,12 +31,10 @@ sync_repo() {
     
     if [ -d "$CACHE_DIR/$REPO_NAME" ]; then
         log_info "Updating cached repository..."
-        cd "$CACHE_DIR/$REPO_NAME" || exit
-        git pull origin main
+        (cd "$CACHE_DIR/$REPO_NAME" && git pull origin main)
     else
         log_info "Cloning repository to cache..."
-        cd "$CACHE_DIR" || exit
-        git clone "$REPO_URL"
+        (cd "$CACHE_DIR" && git clone "$REPO_URL")
     fi
     
     if [ $? -ne 0 ]; then
