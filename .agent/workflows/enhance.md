@@ -1,5 +1,7 @@
 ---
-description: Add or update features in existing application. Used for iterative development.
+description:
+  Add or update features in existing application. Used for iterative
+  development.
 ---
 
 # /enhance - Update Application
@@ -24,12 +26,13 @@ This command adds features or makes updates to existing application.
    - Check dependencies
 
 3. **Present Plan to User** (for major changes)
+
    ```
    "To add admin panel:
    - I'll create 15 new files
    - Update 8 files
    - Takes ~10 minutes
-   
+
    Should I start?"
    ```
 
@@ -59,5 +62,6 @@ This command adds features or makes updates to existing application.
 ## Caution
 
 - Get approval for major changes
-- Warn on conflicting requests (e.g., "use Firebase" when project uses PostgreSQL)
+- Warn on conflicting requests (e.g., "use Firebase" when project uses
+  PostgreSQL)
 - Commit each change with git

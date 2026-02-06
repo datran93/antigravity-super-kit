@@ -1,11 +1,17 @@
 ---
 name: architecture-patterns
-description: Implement proven backend architecture patterns including Clean Architecture, Hexagonal Architecture, and Domain-Driven Design. Use when architecting complex backend systems or refactoring existing applications for better maintainability.
+description:
+  Implement proven backend architecture patterns including Clean Architecture,
+  Hexagonal Architecture, and Domain-Driven Design. Use when architecting
+  complex backend systems or refactoring existing applications for better
+  maintainability.
 ---
 
 # Architecture Patterns
 
-Master proven backend architecture patterns including Clean Architecture, Hexagonal Architecture, and Domain-Driven Design to build maintainable, testable, and scalable systems.
+Master proven backend architecture patterns including Clean Architecture,
+Hexagonal Architecture, and Domain-Driven Design to build maintainable,
+testable, and scalable systems.
 
 ## Use this skill when
 
@@ -30,8 +36,10 @@ Master proven backend architecture patterns including Clean Architecture, Hexago
 3. Define module boundaries, interfaces, and dependency rules.
 4. Provide migration steps and validation checks.
 
-Refer to `resources/implementation-playbook.md` for detailed patterns, checklists, and templates.
+Refer to `resources/implementation-playbook.md` for detailed patterns,
+checklists, and templates.
 
 ## Resources
 
-- `resources/implementation-playbook.md` for detailed patterns, checklists, and templates.
+- `resources/implementation-playbook.md` for detailed patterns, checklists, and
+  templates.

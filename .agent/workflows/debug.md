@@ -1,5 +1,6 @@
 ---
-description: Debugging command. Activates DEBUG mode for systematic problem investigation.
+description:
+  Debugging command. Activates DEBUG mode for systematic problem investigation.
 ---
 
 # /debug - Systematic Problem Investigation
@@ -10,7 +11,8 @@ $ARGUMENTS
 
 ## Purpose
 
-This command activates DEBUG mode for systematic investigation of issues, errors, or unexpected behavior.
+This command activates DEBUG mode for systematic investigation of issues,
+errors, or unexpected behavior.
 
 ---
 
@@ -42,34 +44,37 @@ When `/debug` is triggered:
 
 ## Output Format
 
-```markdown
+````markdown
 ## 🔍 Debug: [Issue]
 
 ### 1. Symptom
+
 [What's happening]
 
 ### 2. Information Gathered
+
 - Error: `[error message]`
 - File: `[filepath]`
 - Line: [line number]
 
 ### 3. Hypotheses
+
 1. ❓ [Most likely cause]
 2. ❓ [Second possibility]
 3. ❓ [Less likely cause]
 
 ### 4. Investigation
 
-**Testing hypothesis 1:**
-[What I checked] → [Result]
+**Testing hypothesis 1:** [What I checked] → [Result]
 
-**Testing hypothesis 2:**
-[What I checked] → [Result]
+**Testing hypothesis 2:** [What I checked] → [Result]
 
 ### 5. Root Cause
+
 🎯 **[Explanation of why this happened]**
 
 ### 6. Fix
+
 ```[language]
 // Before
 [broken code]
@@ -77,9 +82,12 @@ When `/debug` is triggered:
 // After
 [fixed code]
 ```
+````
 
 ### 7. Prevention
+
 🛡️ [How to prevent this in the future]
+
 ```
 
 ---
@@ -87,10 +95,10 @@ When `/debug` is triggered:
 ## Examples
 
 ```
-/debug login not working
-/debug API returns 500
-/debug form doesn't submit
+
+/debug login not working /debug API returns 500 /debug form doesn't submit
 /debug data not saving
+
 ```
 
 ---
@@ -101,3 +109,4 @@ When `/debug` is triggered:
 - **Test hypotheses** - don't guess randomly
 - **Explain why** - not just what to fix
 - **Prevent recurrence** - add tests, validation
+```

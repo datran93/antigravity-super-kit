@@ -1,16 +1,21 @@
 ---
 name: intelligent-routing
-description: Automatic agent selection and intelligent task routing. Analyzes user requests and automatically selects the best specialist agent(s) without requiring explicit user mentions.
+description:
+  Automatic agent selection and intelligent task routing. Analyzes user requests
+  and automatically selects the best specialist agent(s) without requiring
+  explicit user mentions.
 version: 1.0.0
 ---
 
 # Intelligent Agent Routing
 
-**Purpose**: Automatically analyze user requests and route them to the most appropriate specialist agent(s) without requiring explicit user mentions.
+**Purpose**: Automatically analyze user requests and route them to the most
+appropriate specialist agent(s) without requiring explicit user mentions.
 
 ## Core Principle
 
-> **The AI should act as an intelligent Project Manager**, analyzing each request and automatically selecting the best specialist(s) for the job.
+> **The AI should act as an intelligent Project Manager**, analyzing each
+> request and automatically selecting the best specialist(s) for the job.
 
 ## How It Works
 
@@ -35,21 +40,21 @@ graph TD
 
 **Use this matrix to automatically select agents:**
 
-| User Intent         | Keywords                                   | Selected Agent(s)                           | Auto-invoke? |
-| ------------------- | ------------------------------------------ | ------------------------------------------- | ------------ |
-| **Authentication**  | "login", "auth", "signup", "password"      | `security-auditor` + `backend-specialist`   | ✅ YES       |
-| **UI Component**    | "button", "card", "layout", "style"        | `frontend-specialist`                       | ✅ YES       |
-| **Mobile UI**       | "screen", "navigation", "touch", "gesture" | `mobile-developer`                          | ✅ YES       |
-| **API Endpoint**    | "endpoint", "route", "API", "POST", "GET"  | `backend-specialist`                        | ✅ YES       |
-| **Database**        | "schema", "migration", "query", "table"    | `database-architect` + `backend-specialist` | ✅ YES       |
-| **Bug Fix**         | "error", "bug", "not working", "broken"    | `debugger`                                  | ✅ YES       |
-| **Test**            | "test", "coverage", "unit", "e2e"          | `test-engineer`                             | ✅ YES       |
-| **Deployment**      | "deploy", "production", "CI/CD", "docker"  | `devops-engineer`                           | ✅ YES       |
-| **Security Review** | "security", "vulnerability", "exploit"     | `security-auditor` + `penetration-tester`   | ✅ YES       |
-| **Performance**     | "slow", "optimize", "performance", "speed" | `performance-optimizer`                     | ✅ YES       |
+| User Intent         | Keywords                                       | Selected Agent(s)                           | Auto-invoke? |
+| ------------------- | ---------------------------------------------- | ------------------------------------------- | ------------ |
+| **Authentication**  | "login", "auth", "signup", "password"          | `security-auditor` + `backend-specialist`   | ✅ YES       |
+| **UI Component**    | "button", "card", "layout", "style"            | `frontend-specialist`                       | ✅ YES       |
+| **Mobile UI**       | "screen", "navigation", "touch", "gesture"     | `mobile-developer`                          | ✅ YES       |
+| **API Endpoint**    | "endpoint", "route", "API", "POST", "GET"      | `backend-specialist`                        | ✅ YES       |
+| **Database**        | "schema", "migration", "query", "table"        | `database-architect` + `backend-specialist` | ✅ YES       |
+| **Bug Fix**         | "error", "bug", "not working", "broken"        | `debugger`                                  | ✅ YES       |
+| **Test**            | "test", "coverage", "unit", "e2e"              | `test-engineer`                             | ✅ YES       |
+| **Deployment**      | "deploy", "production", "CI/CD", "docker"      | `devops-engineer`                           | ✅ YES       |
+| **Security Review** | "security", "vulnerability", "exploit"         | `security-auditor` + `penetration-tester`   | ✅ YES       |
+| **Performance**     | "slow", "optimize", "performance", "speed"     | `performance-optimizer`                     | ✅ YES       |
 | **Product Def**     | "requirements", "user story", "backlog", "MVP" | `product-owner`                             | ✅ YES       |
-| **New Feature**     | "build", "create", "implement", "new app"  | `orchestrator` → multi-agent                | ⚠️ ASK FIRST |
-| **Complex Task**    | Multiple domains detected                  | `orchestrator` → multi-agent                | ⚠️ ASK FIRST |
+| **New Feature**     | "build", "create", "implement", "new app"      | `orchestrator` → multi-agent                | ⚠️ ASK FIRST |
+| **Complex Task**    | Multiple domains detected                      | `orchestrator` → multi-agent                | ⚠️ ASK FIRST |
 
 ### 3. Automatic Routing Protocol
 
@@ -60,23 +65,23 @@ Before responding to ANY request:
 ```javascript
 // Pseudo-code for decision tree
 function analyzeRequest(userMessage) {
-    // 1. Classify request type
-    const requestType = classifyRequest(userMessage);
+  // 1. Classify request type
+  const requestType = classifyRequest(userMessage);
 
-    // 2. Detect domains
-    const domains = detectDomains(userMessage);
+  // 2. Detect domains
+  const domains = detectDomains(userMessage);
 
-    // 3. Determine complexity
-    const complexity = assessComplexity(domains);
+  // 3. Determine complexity
+  const complexity = assessComplexity(domains);
 
-    // 4. Select agent(s)
-    if (complexity === "SIMPLE" && domains.length === 1) {
-        return selectSingleAgent(domains[0]);
-    } else if (complexity === "MODERATE" && domains.length <= 2) {
-        return selectMultipleAgents(domains);
-    } else {
-        return "orchestrator"; // Complex task
-    }
+  // 4. Select agent(s)
+  if (complexity === "SIMPLE" && domains.length === 1) {
+    return selectSingleAgent(domains[0]);
+  } else if (complexity === "MODERATE" && domains.length <= 2) {
+    return selectMultipleAgents(domains);
+  } else {
+    return "orchestrator"; // Complex task
+  }
 }
 ```
 
@@ -116,7 +121,8 @@ function analyzeRequest(userMessage) {
 
 ### Multi-Domain Tasks (Auto-invoke Orchestrator)
 
-If request matches **2+ domains from different categories**, automatically use `orchestrator`:
+If request matches **2+ domains from different categories**, automatically use
+`orchestrator`:
 
 ```text
 Example: "Create a secure login system with dark mode UI"
@@ -171,13 +177,14 @@ Example: "Create a secure login system with dark mode UI"
 ```markdown
 🤖 **Applying knowledge of `@frontend-specialist`...**
 
-I will create the component with the following characteristics:
-[Continue with specialized response]
+I will create the component with the following characteristics: [Continue with
+specialized response]
 ```
 
 ### Rule 3: Seamless Experience
 
-**The user should not notice a difference from talking to the right specialist directly.**
+**The user should not notice a difference from talking to the right specialist
+directly.**
 
 ### Rule 4: Override Capability
 
@@ -296,9 +303,9 @@ Verify: Systematic debugging approach
 If this is the first interaction in a project:
 
 ```markdown
-💡 **Tip**: I am configured with automatic specialist agent selection.
-I will always choose the most suitable specialist for your task. You can
-still mention agents explicitly with `@agent-name` if you prefer.
+💡 **Tip**: I am configured with automatic specialist agent selection. I will
+always choose the most suitable specialist for your task. You can still mention
+agents explicitly with `@agent-name` if you prefer.
 ```
 
 ## Debugging Agent Selection
@@ -328,7 +335,8 @@ Show selection reasoning:
 ✅ Override capability for explicit agent mentions  
 ✅ Fallback to orchestrator for complex tasks
 
-**Result**: User gets specialist-level responses without needing to know the system architecture.
+**Result**: User gets specialist-level responses without needing to know the
+system architecture.
 
 ---
 

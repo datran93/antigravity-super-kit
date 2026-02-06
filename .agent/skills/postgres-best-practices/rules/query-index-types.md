@@ -7,7 +7,8 @@ tags: indexes, btree, gin, brin, hash, index-types
 
 ## Choose the Right Index Type for Your Data
 
-Different index types excel at different query patterns. The default B-tree isn't always optimal.
+Different index types excel at different query patterns. The default B-tree
+isn't always optimal.
 
 **Incorrect (B-tree for JSONB containment):**
 
@@ -42,4 +43,5 @@ create index events_time_idx on events using brin (created_at);
 create index sessions_token_idx on sessions using hash (token);
 ```
 
-Reference: [Index Types](https://www.postgresql.org/docs/current/indexes-types.html)
+Reference:
+[Index Types](https://www.postgresql.org/docs/current/indexes-types.html)

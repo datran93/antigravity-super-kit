@@ -7,7 +7,8 @@ tags: connections, timeout, idle, resource-management
 
 ## Configure Idle Connection Timeouts
 
-Idle connections waste resources. Configure timeouts to automatically reclaim them.
+Idle connections waste resources. Configure timeouts to automatically reclaim
+them.
 
 **Incorrect (connections held indefinitely):**
 
@@ -43,4 +44,5 @@ server_idle_timeout = 60
 client_idle_timeout = 300
 ```
 
-Reference: [Connection Timeouts](https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-IDLE-IN-TRANSACTION-SESSION-TIMEOUT)
+Reference:
+[Connection Timeouts](https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-IDLE-IN-TRANSACTION-SESSION-TIMEOUT)

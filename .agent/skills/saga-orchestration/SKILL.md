@@ -1,11 +1,15 @@
 ---
 name: saga-orchestration
-description: Implement saga patterns for distributed transactions and cross-aggregate workflows. Use when coordinating multi-step business processes, handling compensating transactions, or managing long-running workflows.
+description:
+  Implement saga patterns for distributed transactions and cross-aggregate
+  workflows. Use when coordinating multi-step business processes, handling
+  compensating transactions, or managing long-running workflows.
 ---
 
 # Saga Orchestration
 
-Patterns for managing distributed transactions and long-running business processes.
+Patterns for managing distributed transactions and long-running business
+processes.
 
 ## Do not use this skill when
 
@@ -17,7 +21,8 @@ Patterns for managing distributed transactions and long-running business process
 - Clarify goals, constraints, and required inputs.
 - Apply relevant best practices and validate outcomes.
 - Provide actionable steps and verification.
-- If detailed examples are required, open `resources/implementation-playbook.md`.
+- If detailed examples are required, open
+  `resources/implementation-playbook.md`.
 
 ## Use this skill when
 

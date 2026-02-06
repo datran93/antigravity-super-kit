@@ -1,5 +1,7 @@
 ---
-description: Structured brainstorming for projects and features. Explores multiple options before implementation.
+description:
+  Structured brainstorming for projects and features. Explores multiple options
+  before implementation.
 ---
 
 # /brainstorm - Structured Idea Exploration
@@ -10,7 +12,8 @@ $ARGUMENTS
 
 ## Purpose
 
-This command activates BRAINSTORM mode for structured idea exploration. Use when you need to explore options before committing to an implementation.
+This command activates BRAINSTORM mode for structured idea exploration. Use when
+you need to explore options before committing to an implementation.
 
 ---
 
@@ -40,18 +43,22 @@ When `/brainstorm` is triggered:
 ## 🧠 Brainstorm: [Topic]
 
 ### Context
+
 [Brief problem statement]
 
 ---
 
 ### Option A: [Name]
+
 [Description]
 
 ✅ **Pros:**
+
 - [benefit 1]
 - [benefit 2]
 
 ❌ **Cons:**
+
 - [drawback 1]
 
 📊 **Effort:** Low | Medium | High
@@ -59,12 +66,15 @@ When `/brainstorm` is triggered:
 ---
 
 ### Option B: [Name]
+
 [Description]
 
 ✅ **Pros:**
+
 - [benefit 1]
 
 ❌ **Cons:**
+
 - [drawback 1]
 - [drawback 2]
 
@@ -73,12 +83,15 @@ When `/brainstorm` is triggered:
 ---
 
 ### Option C: [Name]
+
 [Description]
 
 ✅ **Pros:**
+
 - [benefit 1]
 
 ❌ **Cons:**
+
 - [drawback 1]
 
 📊 **Effort:** Low | Medium | High

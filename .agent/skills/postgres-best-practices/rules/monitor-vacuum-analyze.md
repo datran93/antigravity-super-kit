@@ -7,7 +7,8 @@ tags: vacuum, analyze, statistics, maintenance, autovacuum
 
 ## Maintain Table Statistics with VACUUM and ANALYZE
 
-Outdated statistics cause the query planner to make poor decisions. VACUUM reclaims space, ANALYZE updates statistics.
+Outdated statistics cause the query planner to make poor decisions. VACUUM
+reclaims space, ANALYZE updates statistics.
 
 **Incorrect (stale statistics):**
 
@@ -52,4 +53,5 @@ alter table orders set (
 select * from pg_stat_progress_vacuum;
 ```
 
-Reference: [VACUUM](https://supabase.com/docs/guides/database/database-size#vacuum-operations)
+Reference:
+[VACUUM](https://supabase.com/docs/guides/database/database-size#vacuum-operations)

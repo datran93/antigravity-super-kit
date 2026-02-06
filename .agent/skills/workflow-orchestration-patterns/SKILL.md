@@ -1,16 +1,23 @@
 ---
 name: workflow-orchestration-patterns
-description: Design durable workflows with Temporal for distributed systems. Covers workflow vs activity separation, saga patterns, state management, and determinism constraints. Use when building long-running processes, distributed transactions, or microservice orchestration.
+description:
+  Design durable workflows with Temporal for distributed systems. Covers
+  workflow vs activity separation, saga patterns, state management, and
+  determinism constraints. Use when building long-running processes, distributed
+  transactions, or microservice orchestration.
 ---
 
 # Workflow Orchestration Patterns
 
-Master workflow orchestration architecture with Temporal, covering fundamental design decisions, resilience patterns, and best practices for building reliable distributed systems.
+Master workflow orchestration architecture with Temporal, covering fundamental
+design decisions, resilience patterns, and best practices for building reliable
+distributed systems.
 
 ## Use this skill when
 
 - Working on workflow orchestration patterns tasks or workflows
-- Needing guidance, best practices, or checklists for workflow orchestration patterns
+- Needing guidance, best practices, or checklists for workflow orchestration
+  patterns
 
 ## Do not use this skill when
 
@@ -22,7 +29,8 @@ Master workflow orchestration architecture with Temporal, covering fundamental d
 - Clarify goals, constraints, and required inputs.
 - Apply relevant best practices and validate outcomes.
 - Provide actionable steps and verification.
-- If detailed examples are required, open `resources/implementation-playbook.md`.
+- If detailed examples are required, open
+  `resources/implementation-playbook.md`.
 
 ## When to Use Workflow Orchestration
 
@@ -33,7 +41,8 @@ Master workflow orchestration architecture with Temporal, covering fundamental d
 - **Long-running workflows** (hours to years) with automatic state persistence
 - **Failure recovery** that must resume from last successful step
 - **Business processes**: bookings, orders, campaigns, approvals
-- **Entity lifecycle management**: inventory tracking, account management, cart workflows
+- **Entity lifecycle management**: inventory tracking, account management, cart
+  workflows
 - **Infrastructure automation**: CI/CD pipelines, provisioning, deployments
 - **Human-in-the-loop** systems requiring timeouts and escalations
 
@@ -98,7 +107,8 @@ Is it orchestration/decision logic? → Workflow
 
 **Purpose**: Implement distributed transactions with rollback capability
 
-**Pattern** (Source: temporal.io/blog/compensating-actions-part-of-a-complete-breakfast-with-sagas):
+**Pattern** (Source:
+temporal.io/blog/compensating-actions-part-of-a-complete-breakfast-with-sagas):
 
 ```
 For each step:

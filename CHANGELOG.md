@@ -5,6 +5,7 @@ All notable changes to the Antigravity Kit will be documented in this file.
 ## [Unreleased]
 
 ## [2.1.0] - 2026-02-06
+
 - **New Features**:
     - `agk` - Global CLI script for easy installation and updates of `.agent` folder
         - Auto-caching of `antigravity-kit` repository
@@ -15,11 +16,11 @@ All notable changes to the Antigravity Kit will be documented in this file.
     - `backend-specialist`: Added partial Golang support
 
 ## [2.0.2] - 2026-02-04
+
 - **New Skills**:
-    - `rust-pro` - Master Rust 1.75+ 
+    - `rust-pro` - Master Rust 1.75+
 - **Agent Workflows**:
     - Updated `orchestrate.md` fix output turkish
-
 
 ## [2.0.1] - 2026-01-26
 

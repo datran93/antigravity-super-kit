@@ -1,5 +1,7 @@
 ---
-description: Create project plan using project-planner agent. No code writing - only plan file generation.
+description:
+  Create project plan using project-planner agent. No code writing - only plan
+  file generation.
 ---
 
 # /plan - Project Planning Mode
@@ -45,18 +47,19 @@ RULES:
 
 ## Expected Output
 
-| Deliverable | Location |
-|-------------|----------|
-| Project Plan | `docs/PLAN-{task-slug}.md` |
-| Task Breakdown | Inside plan file |
-| Agent Assignments | Inside plan file |
-| Verification Checklist | Phase X in plan file |
+| Deliverable            | Location                   |
+| ---------------------- | -------------------------- |
+| Project Plan           | `docs/PLAN-{task-slug}.md` |
+| Task Breakdown         | Inside plan file           |
+| Agent Assignments      | Inside plan file           |
+| Verification Checklist | Phase X in plan file       |
 
 ---
 
 ## After Planning
 
 Tell user:
+
 ```
 [OK] Plan created: docs/PLAN-{slug}.md
 
@@ -70,13 +73,13 @@ Next steps:
 
 ## Naming Examples
 
-| Request | Plan File |
-|---------|-----------|
+| Request                           | Plan File                     |
+| --------------------------------- | ----------------------------- |
 | `/plan e-commerce site with cart` | `docs/PLAN-ecommerce-cart.md` |
-| `/plan mobile app for fitness` | `docs/PLAN-fitness-app.md` |
-| `/plan add dark mode feature` | `docs/PLAN-dark-mode.md` |
-| `/plan fix authentication bug` | `docs/PLAN-auth-fix.md` |
-| `/plan SaaS dashboard` | `docs/PLAN-saas-dashboard.md` |
+| `/plan mobile app for fitness`    | `docs/PLAN-fitness-app.md`    |
+| `/plan add dark mode feature`     | `docs/PLAN-dark-mode.md`      |
+| `/plan fix authentication bug`    | `docs/PLAN-auth-fix.md`       |
+| `/plan SaaS dashboard`            | `docs/PLAN-saas-dashboard.md` |
 
 ---
 

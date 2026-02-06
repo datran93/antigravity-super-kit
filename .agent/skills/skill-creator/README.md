@@ -4,20 +4,30 @@
 
 ## What It Does
 
-The skill-creator automates the entire workflow of creating new CLI skills for GitHub Copilot CLI and Claude Code. It guides you through brainstorming, applies standardized templates, validates content quality, and handles installation—all while following Anthropic's official best practices.
+The skill-creator automates the entire workflow of creating new CLI skills for
+GitHub Copilot CLI and Claude Code. It guides you through brainstorming, applies
+standardized templates, validates content quality, and handles installation—all
+while following Anthropic's official best practices.
 
 ## Key Features
 
-- **🎯 Interactive Brainstorming** - Collaborative session to define skill purpose and scope
-- **✨ Template Automation** - Automatic file generation with zero manual configuration
-- **🔍 Quality Validation** - Built-in checks for YAML, content quality, and writing style
-- **📦 Flexible Installation** - Choose repository-only, global, or hybrid installation
-- **📊 Visual Progress Bar** - Real-time progress indicator showing completion status (e.g., `[████████████░░░░░░] 60% - Step 3/5`)
-- **🔗 Prompt Engineer Integration** - Optional enhancement using prompt-engineer skill
+- **🎯 Interactive Brainstorming** - Collaborative session to define skill
+  purpose and scope
+- **✨ Template Automation** - Automatic file generation with zero manual
+  configuration
+- **🔍 Quality Validation** - Built-in checks for YAML, content quality, and
+  writing style
+- **📦 Flexible Installation** - Choose repository-only, global, or hybrid
+  installation
+- **📊 Visual Progress Bar** - Real-time progress indicator showing completion
+  status (e.g., `[████████████░░░░░░] 60% - Step 3/5`)
+- **🔗 Prompt Engineer Integration** - Optional enhancement using
+  prompt-engineer skill
 
 ## When to Use
 
 Use this skill when you want to:
+
 - Create a new CLI skill following official standards
 - Extend CLI functionality with custom capabilities
 - Package domain knowledge into a reusable skill format
@@ -49,13 +59,16 @@ ln -sf "$(pwd)/.claude/skills/skill-creator" ~/.claude/skills/skill-creator
 ```
 
 **Benefits of global installation:**
+
 - Works in any directory
 - Auto-updates when you `git pull` the repository
 - No configuration files needed
 
 ### Repository-Only Installation
 
-If you prefer to use the skill only within this repository, no installation is needed. The skill will be available when working in the `cli-ai-skills` directory.
+If you prefer to use the skill only within this repository, no installation is
+needed. The skill will be available when working in the `cli-ai-skills`
+directory.
 
 ## Usage
 
@@ -72,6 +85,7 @@ claude "create a skill that helps with git workflows"
 ```
 
 The skill will guide you through with visual progress tracking:
+
 1. **Brainstorming** (20%) - Define purpose, triggers, and type
 2. **Prompt Enhancement** (40%, optional) - Enhance with prompt-engineer skill
 3. **File Generation** (60%) - Create files from templates
@@ -79,6 +93,7 @@ The skill will guide you through with visual progress tracking:
 5. **Installation** (100%) - Choose local, global, or both
 
 Each phase displays a progress bar:
+
 ```
 [████████████░░░░░░] 60% - Step 3/5: File Generation
 ```
@@ -92,6 +107,7 @@ Each phase displays a progress bar:
 ```
 
 The skill will:
+
 - Use the specialized `code-skill-template.md`
 - Ask about specific frameworks (React, Vue, etc.)
 - Include code examples in the `examples/` folder
@@ -103,6 +119,7 @@ The skill will:
 ```
 
 The skill will:
+
 - Use `documentation-skill-template.md`
 - Ask about documentation formats
 - Set up references for style guides
@@ -114,6 +131,7 @@ The skill will:
 ```
 
 The skill will:
+
 - Generate files only in `.github/skills/`
 - Skip Claude-specific installation
 - Validate against Copilot requirements
@@ -167,6 +185,7 @@ When you create a skill, this structure is generated:
 ## Configuration
 
 **No configuration needed!** This skill uses runtime discovery to:
+
 - Detect installed platforms (Copilot CLI, Claude Code)
 - Find repository root automatically
 - Extract author info from git config
@@ -175,6 +194,7 @@ When you create a skill, this structure is generated:
 ## Validation
 
 Every skill created is automatically validated for:
+
 - ✅ **YAML Frontmatter** - Required fields and format
 - ✅ **Description Format** - Third-person, trigger phrases
 - ✅ **Word Count** - 1,500-2,000 ideal, under 5,000 max
@@ -185,8 +205,10 @@ Every skill created is automatically validated for:
 
 This skill leverages several established methodologies:
 
-- **Progressive Disclosure** - 3-level content hierarchy (metadata → SKILL.md → bundled resources)
-- **Bundled Resources Pattern** - References, examples, and scripts as separate files
+- **Progressive Disclosure** - 3-level content hierarchy (metadata → SKILL.md →
+  bundled resources)
+- **Bundled Resources Pattern** - References, examples, and scripts as separate
+  files
 - **Anthropic Best Practices** - Official skill development standards
 - **Zero-Config Design** - Runtime discovery, no hardcoded values
 - **Template-Driven Generation** - Consistent structure across all skills
@@ -205,6 +227,7 @@ cd cli-ai-skills
 ### "Platform not detected" Warning
 
 If platforms aren't detected:
+
 1. Choose "Repository only" installation
 2. Manually specify platform during setup
 3. Install globally later using provided commands
@@ -212,6 +235,7 @@ If platforms aren't detected:
 ### Validation Failures
 
 If validation finds issues:
+
 - Review suggestions in the output
 - Choose automatic fixes for common problems
 - Manually edit files for complex issues
@@ -222,6 +246,7 @@ If validation finds issues:
 ### Prompt Engineer Integration
 
 Enhance your skill descriptions with AI:
+
 1. Enable during Phase 2 (Prompt Refinement)
 2. Skill will invoke `prompt-engineer` automatically
 3. Review enhanced output before proceeding
@@ -229,6 +254,7 @@ Enhance your skill descriptions with AI:
 ### Bundled Resources
 
 For complex skills, use bundled resources:
+
 - **references/** - Detailed documentation (no word limit)
 - **examples/** - Working code samples users can run
 - **scripts/** - Automation utilities loaded on demand
@@ -236,6 +262,7 @@ For complex skills, use bundled resources:
 ### Version Management
 
 Update existing skills:
+
 ```bash
 scripts/update-skill-version.sh your-skill-name 1.1.0
 ```
@@ -243,6 +270,7 @@ scripts/update-skill-version.sh your-skill-name 1.1.0
 ## Contributing
 
 Created a useful skill? Share it:
+
 1. Ensure validation passes
 2. Add usage examples
 3. Update main README.md
@@ -251,13 +279,15 @@ Created a useful skill? Share it:
 ## Resources
 
 - **Writing Style Guide:** `resources/templates/writing-style-guide.md`
-- **Anthropic Official Guide:** https://github.com/anthropics/claude-plugins-official
+- **Anthropic Official Guide:**
+  https://github.com/anthropics/claude-plugins-official
 - **Templates Directory:** `resources/templates/`
 - **Validation Scripts:** `scripts/validate-*.sh`
 
 ## Support
 
 For issues or questions:
+
 - Check existing skills in `.github/skills/` for examples
 - Review `resources/skills-development.md` for methodology
 - Open an issue in the repository

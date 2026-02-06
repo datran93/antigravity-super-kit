@@ -1,6 +1,7 @@
 # API Design Principles Implementation Playbook
 
-This file contains detailed patterns, checklists, and code samples referenced by the skill.
+This file contains detailed patterns, checklists, and code samples referenced by
+the skill.
 
 ## Core Concepts
 
@@ -474,9 +475,11 @@ def create_context():
 
 ### REST APIs
 
-1. **Consistent Naming**: Use plural nouns for collections (`/users`, not `/user`)
+1. **Consistent Naming**: Use plural nouns for collections (`/users`, not
+   `/user`)
 2. **Stateless**: Each request contains all necessary information
-3. **Use HTTP Status Codes Correctly**: 2xx success, 4xx client errors, 5xx server errors
+3. **Use HTTP Status Codes Correctly**: 2xx success, 4xx client errors, 5xx
+   server errors
 4. **Version Your API**: Plan for breaking changes from day one
 5. **Pagination**: Always paginate large collections
 6. **Rate Limiting**: Protect your API with rate limits
@@ -494,19 +497,23 @@ def create_context():
 
 ## Common Pitfalls
 
-- **Over-fetching/Under-fetching (REST)**: Fixed in GraphQL but requires DataLoaders
+- **Over-fetching/Under-fetching (REST)**: Fixed in GraphQL but requires
+  DataLoaders
 - **Breaking Changes**: Version APIs or use deprecation strategies
 - **Inconsistent Error Formats**: Standardize error responses
 - **Missing Rate Limits**: APIs without limits are vulnerable to abuse
 - **Poor Documentation**: Undocumented APIs frustrate developers
-- **Ignoring HTTP Semantics**: POST for idempotent operations breaks expectations
+- **Ignoring HTTP Semantics**: POST for idempotent operations breaks
+  expectations
 - **Tight Coupling**: API structure shouldn't mirror database schema
 
 ## Resources
 
 - **references/rest-best-practices.md**: Comprehensive REST API design guide
-- **references/graphql-schema-design.md**: GraphQL schema patterns and anti-patterns
-- **references/api-versioning-strategies.md**: Versioning approaches and migration paths
+- **references/graphql-schema-design.md**: GraphQL schema patterns and
+  anti-patterns
+- **references/api-versioning-strategies.md**: Versioning approaches and
+  migration paths
 - **assets/rest-api-template.py**: FastAPI REST API template
 - **assets/graphql-schema-template.graphql**: Complete GraphQL schema example
 - **assets/api-design-checklist.md**: Pre-implementation review checklist

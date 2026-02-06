@@ -7,7 +7,8 @@ tags: rls, performance, security, optimization
 
 ## Optimize RLS Policies for Performance
 
-Poorly written RLS policies can cause severe performance issues. Use subqueries and indexes strategically.
+Poorly written RLS policies can cause severe performance issues. Use subqueries
+and indexes strategically.
 
 **Incorrect (function called for every row):**
 
@@ -54,4 +55,5 @@ Always add indexes on columns used in RLS policies:
 create index orders_user_id_idx on orders (user_id);
 ```
 
-Reference: [RLS Performance](https://supabase.com/docs/guides/database/postgres/row-level-security#rls-performance-recommendations)
+Reference:
+[RLS Performance](https://supabase.com/docs/guides/database/postgres/row-level-security#rls-performance-recommendations)

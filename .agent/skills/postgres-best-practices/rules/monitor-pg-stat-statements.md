@@ -7,7 +7,8 @@ tags: pg-stat-statements, monitoring, statistics, performance
 
 ## Enable pg_stat_statements for Query Analysis
 
-pg_stat_statements tracks execution statistics for all queries, helping identify slow and frequent queries.
+pg_stat_statements tracks execution statistics for all queries, helping identify
+slow and frequent queries.
 
 **Incorrect (no visibility into query patterns):**
 
@@ -52,4 +53,5 @@ where mean_exec_time > 100  -- > 100ms average
 order by mean_exec_time desc;
 ```
 
-Reference: [pg_stat_statements](https://supabase.com/docs/guides/database/extensions/pg_stat_statements)
+Reference:
+[pg_stat_statements](https://supabase.com/docs/guides/database/extensions/pg_stat_statements)

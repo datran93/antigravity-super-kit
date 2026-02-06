@@ -1,5 +1,7 @@
 ---
-description: Create new application command. Triggers App Builder skill and starts interactive dialogue with user.
+description:
+  Create new application command. Triggers App Builder skill and starts
+  interactive dialogue with user.
 ---
 
 # /create - Create Application
@@ -52,6 +54,7 @@ This command starts a new application creation process.
 ## Before Starting
 
 If request is unclear, ask these questions:
+
 - What type of application?
 - What are the basic features?
 - Who will use it?

@@ -1,6 +1,9 @@
 ---
 name: brainstorming
-description: Socratic questioning protocol + user communication. MANDATORY for complex requests, new features, or unclear requirements. Includes progress reporting and error handling.
+description:
+  Socratic questioning protocol + user communication. MANDATORY for complex
+  requests, new features, or unclear requirements. Includes progress reporting
+  and error handling.
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -14,12 +17,12 @@ allowed-tools: Read, Glob, Grep
 
 ### When to Trigger
 
-| Pattern | Action |
-|---------|--------|
-| "Build/Create/Make [thing]" without details | 🛑 ASK 3 questions |
-| Complex feature or architecture | 🛑 Clarify before implementing |
-| Update/change request | 🛑 Confirm scope |
-| Vague requirements | 🛑 Ask purpose, users, constraints |
+| Pattern                                     | Action                             |
+| ------------------------------------------- | ---------------------------------- |
+| "Build/Create/Make [thing]" without details | 🛑 ASK 3 questions                 |
+| Complex feature or architecture             | 🛑 Clarify before implementing     |
+| Update/change request                       | 🛑 Confirm scope                   |
+| Vague requirements                          | 🛑 Ask purpose, users, constraints |
 
 ### 🚫 MANDATORY: 3 Questions Before Implementation
 
@@ -38,12 +41,12 @@ allowed-tools: Read, Glob, Grep
 
 ### Core Principles
 
-| Principle | Meaning |
-|-----------|---------|
-| **Questions Reveal Consequences** | Each question connects to an architectural decision |
-| **Context Before Content** | Understand greenfield/feature/refactor/debug context first |
-| **Minimum Viable Questions** | Each question must eliminate implementation paths |
-| **Generate Data, Not Assumptions** | Don't guess—ask with trade-offs |
+| Principle                          | Meaning                                                    |
+| ---------------------------------- | ---------------------------------------------------------- |
+| **Questions Reveal Consequences**  | Each question connects to an architectural decision        |
+| **Context Before Content**         | Understand greenfield/feature/refactor/debug context first |
+| **Minimum Viable Questions**       | Each question must eliminate implementation paths          |
+| **Generate Data, Not Assumptions** | Don't guess—ask with trade-offs                            |
 
 ### Question Generation Process
 
@@ -62,18 +65,18 @@ allowed-tools: Read, Glob, Grep
 **Question:** [Clear question]
 
 **Why This Matters:**
+
 - [Architectural consequence]
 - [Affects: cost/complexity/timeline/scale]
 
-**Options:**
-| Option | Pros | Cons | Best For |
-|--------|------|------|----------|
-| A | [+] | [-] | [Use case] |
+**Options:** | Option | Pros | Cons | Best For |
+|--------|------|------|----------| | A | [+] | [-] | [Use case] |
 
 **If Not Specified:** [Default + rationale]
 ```
 
-**For detailed domain-specific question banks and algorithms**, see: `dynamic-questioning.md`
+**For detailed domain-specific question banks and algorithms**, see:
+`dynamic-questioning.md`
 
 ---
 
@@ -83,19 +86,19 @@ allowed-tools: Read, Glob, Grep
 
 ### Status Board Format
 
-| Agent | Status | Current Task | Progress |
-|-------|--------|--------------|----------|
+| Agent        | Status     | Current Task       | Progress     |
+| ------------ | ---------- | ------------------ | ------------ |
 | [Agent Name] | ✅🔄⏳❌⚠️ | [Task description] | [% or count] |
 
 ### Status Icons
 
-| Icon | Meaning | Usage |
-|------|---------|-------|
-| ✅ | Completed | Task finished successfully |
-| 🔄 | Running | Currently executing |
-| ⏳ | Waiting | Blocked, waiting for dependency |
-| ❌ | Error | Failed, needs attention |
-| ⚠️ | Warning | Potential issue, not blocking |
+| Icon | Meaning   | Usage                           |
+| ---- | --------- | ------------------------------- |
+| ✅   | Completed | Task finished successfully      |
+| 🔄   | Running   | Currently executing             |
+| ⏳   | Waiting   | Blocked, waiting for dependency |
+| ❌   | Error     | Failed, needs attention         |
+| ⚠️   | Warning   | Potential issue, not blocking   |
 
 ---
 
@@ -114,12 +117,12 @@ allowed-tools: Read, Glob, Grep
 
 ### Error Categories
 
-| Category | Response Strategy |
-|----------|-------------------|
-| **Port Conflict** | Offer alternative port or close existing |
-| **Dependency Missing** | Auto-install or ask permission |
-| **Build Failure** | Show specific error + suggested fix |
-| **Unclear Error** | Ask for specifics: screenshot, console output |
+| Category               | Response Strategy                             |
+| ---------------------- | --------------------------------------------- |
+| **Port Conflict**      | Offer alternative port or close existing      |
+| **Dependency Missing** | Auto-install or ask permission                |
+| **Build Failure**      | Show specific error + suggested fix           |
+| **Unclear Error**      | Ask for specifics: screenshot, console output |
 
 ---
 
@@ -140,24 +143,24 @@ allowed-tools: Read, Glob, Grep
 
 ## Communication Principles
 
-| Principle | Implementation |
-|-----------|----------------|
-| **Concise** | No unnecessary details, get to point |
-| **Visual** | Use emojis (✅🔄⏳❌) for quick scanning |
-| **Specific** | "~2 minutes" not "wait a bit" |
-| **Alternatives** | Offer multiple paths when stuck |
-| **Proactive** | Suggest next step after completion |
+| Principle        | Implementation                           |
+| ---------------- | ---------------------------------------- |
+| **Concise**      | No unnecessary details, get to point     |
+| **Visual**       | Use emojis (✅🔄⏳❌) for quick scanning |
+| **Specific**     | "~2 minutes" not "wait a bit"            |
+| **Alternatives** | Offer multiple paths when stuck          |
+| **Proactive**    | Suggest next step after completion       |
 
 ---
 
 ## Anti-Patterns (AVOID)
 
-| Anti-Pattern | Why |
-|--------------|-----|
+| Anti-Pattern                              | Why                          |
+| ----------------------------------------- | ---------------------------- |
 | Jumping to solutions before understanding | Wastes time on wrong problem |
-| Assuming requirements without asking | Creates wrong output |
-| Over-engineering first version | Delays value delivery |
-| Ignoring constraints | Creates unusable solutions |
-| "I think" phrases | Uncertainty → Ask instead |
+| Assuming requirements without asking      | Creates wrong output         |
+| Over-engineering first version            | Delays value delivery        |
+| Ignoring constraints                      | Creates unusable solutions   |
+| "I think" phrases                         | Uncertainty → Ask instead    |
 
 ---
