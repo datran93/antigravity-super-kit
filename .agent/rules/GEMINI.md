@@ -75,8 +75,10 @@ Before modifying: Check `CODEBASE.md` → Identify dependents → Update ALL tog
 
 ### 🗺️ System Map
 
-> 🔴 Read `ARCHITECTURE.md` at session start. Paths: Agents `.agent/` | Skills `.agent/skills/` | Scripts
-> `.agent/skills/<skill>/scripts/`
+> 🔴 Read `ARCHITECTURE.md` at session start. Read `AGENT_FLOW.md` to understand the complete workflow for responding to
+> user requests.
+
+Paths: Agents `.agent/` | Skills `.agent/skills/` | Scripts `.agent/skills/<skill>/scripts/`
 
 ### 🧠 Read → Understand → Apply
 
