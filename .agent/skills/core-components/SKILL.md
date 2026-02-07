@@ -1,16 +1,15 @@
 ---
 name: core-components
 description:
-  Core component library and design system patterns. Use when building UI, using
-  design tokens, or working with the component library.
+  Core component library and design system patterns. Use when building UI, using design tokens, or working with the
+  component library.
 ---
 
 # Core Components
 
 ## Design System Overview
 
-Use components from your core library instead of raw platform components. This
-ensures consistent styling and behavior.
+Use components from your core library instead of raw platform components. This ensures consistent styling and behavior.
 
 ## Design Tokens
 
@@ -114,13 +113,7 @@ Typography with token support:
 Interactive button with variants:
 
 ```tsx
-<Button
-  onPress={handlePress}
-  variant="solid"
-  size="md"
-  isLoading={loading}
-  isDisabled={disabled}
->
+<Button onPress={handlePress} variant="solid" size="md" isLoading={loading} isDisabled={disabled}>
   Click Me
 </Button>
 ```
@@ -187,13 +180,7 @@ const MyScreen = () => (
 ### List Item Layout
 
 ```tsx
-<HStack
-  padding="$4"
-  gap="$3"
-  alignItems="center"
-  borderBottomWidth={1}
-  borderColor="$borderLight"
->
+<HStack padding="$4" gap="$3" alignItems="center" borderBottomWidth={1} borderColor="$borderLight">
   <Avatar source={{ uri: imageUrl }} size="md" />
   <VStack flex={1}>
     <Text fontWeight="$semibold">{title}</Text>
@@ -240,17 +227,8 @@ interface CardProps {
   children: React.ReactNode;
 }
 
-const Card = ({
-  padding = "$4",
-  variant = "elevated",
-  children,
-}: CardProps) => (
-  <Box
-    padding={padding}
-    backgroundColor="$backgroundPrimary"
-    borderRadius="$lg"
-    {...variantStyles[variant]}
-  >
+const Card = ({ padding = "$4", variant = "elevated", children }: CardProps) => (
+  <Box padding={padding} backgroundColor="$backgroundPrimary" borderRadius="$lg" {...variantStyles[variant]}>
     {children}
   </Box>
 );

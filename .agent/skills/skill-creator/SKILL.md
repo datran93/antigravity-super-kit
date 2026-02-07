@@ -1,9 +1,8 @@
 ---
 name: skill-creator
 description:
-  "This skill should be used when the user asks to create a new skill, build a
-  skill, make a custom skill, develop a CLI skill, or wants to extend the CLI
-  with new capabilities. Automates the entire skill creation workflow from
+  "This skill should be used when the user asks to create a new skill, build a skill, make a custom skill, develop a CLI
+  skill, or wants to extend the CLI with new capabilities. Automates the entire skill creation workflow from
   brainstorming to installation."
 version: 1.3.0
 author: Eric Andrade
@@ -19,10 +18,9 @@ risk: safe
 
 ## Purpose
 
-To create new CLI skills following Anthropic's official best practices with zero
-manual configuration. This skill automates brainstorming, template application,
-validation, and installation processes while maintaining progressive disclosure
-patterns and writing style standards.
+To create new CLI skills following Anthropic's official best practices with zero manual configuration. This skill
+automates brainstorming, template application, validation, and installation processes while maintaining progressive
+disclosure patterns and writing style standards.
 
 ## When to Use This Skill
 
@@ -36,12 +34,9 @@ This skill should be used when:
 
 ## Core Capabilities
 
-1. **Interactive Brainstorming** - Collaborative session to define skill purpose
-   and scope
-2. **Prompt Enhancement** - Optional integration with prompt-engineer skill for
-   refinement
-3. **Template Application** - Automatic file generation from standardized
-   templates
+1. **Interactive Brainstorming** - Collaborative session to define skill purpose and scope
+2. **Prompt Enhancement** - Optional integration with prompt-engineer skill for refinement
+3. **Template Application** - Automatic file generation from standardized templates
 4. **Validation** - YAML, content, and style checks against Anthropic standards
 5. **Installation** - Local repository or global installation with symlinks
 6. **Progress Tracking** - Visual gauge showing completion status at each step
@@ -94,8 +89,8 @@ EMAIL=$(git config user.email || echo "")
 
 ### Progress Tracking Guidelines
 
-Throughout the workflow, display a visual progress bar before starting each
-phase to keep the user informed. The progress bar format is:
+Throughout the workflow, display a visual progress bar before starting each phase to keep the user informed. The
+progress bar format is:
 
 ```
 [████████████░░░░░░] 60% - Step 3/5: Creating SKILL.md
@@ -104,8 +99,7 @@ phase to keep the user informed. The progress bar format is:
 **Format specifications:**
 
 - 20 characters wide (use █ for filled, ░ for empty)
-- Percentage based on current step (Step 1=20%, Step 2=40%, Step 3=60%, Step
-  4=80%, Step 5=100%)
+- Percentage based on current step (Step 1=20%, Step 2=40%, Step 3=60%, Step 4=80%, Step 5=100%)
 - Step counter showing current/total (e.g., "Step 3/5")
 - Brief description of current phase
 
@@ -144,8 +138,7 @@ Display progress:
 1. **What should this skill do?** (Free-form description)
    - Example: "Help users debug Python code by analyzing stack traces"
 2. **When should it trigger?** (Provide 3-5 trigger phrases)
-   - Example: "debug Python error", "analyze stack trace", "fix Python
-     exception"
+   - Example: "debug Python error", "analyze stack trace", "fix Python exception"
 
 3. **What type of skill is this?**
    - [ ] General purpose (default template)
@@ -183,8 +176,7 @@ Update progress:
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
-**Ask the user:** "Would you like to refine the skill description using the
-prompt-engineer skill?"
+**Ask the user:** "Would you like to refine the skill description using the prompt-engineer skill?"
 
 - [ ] Yes - Use prompt-engineer to enhance clarity and structure
 - [ ] No - Proceed with current description
@@ -243,8 +235,7 @@ fi
 **Apply templates:**
 
 1. **SKILL.md** - Use appropriate template:
-   - `skill-template-copilot.md`, `skill-template-claude.md`, or
-     `skill-template-codex.md`
+   - `skill-template-copilot.md`, `skill-template-claude.md`, or `skill-template-codex.md`
    - Substitute placeholders:
      - `{{SKILL_NAME}}` → kebab-case name
      - `{{DESCRIPTION}}` → one-line description
@@ -381,12 +372,9 @@ Update progress:
 
 **Ask the user:** "How would you like to install this skill?"
 
-- [ ] **Repository only** - Files created in `.github/skills/` (works when in
-      repo)
-- [ ] **Global installation** - Create symlinks in `~/.copilot/skills/` (works
-      everywhere)
-- [ ] **Both** - Repository + global symlinks (recommended, auto-updates with
-      git pull)
+- [ ] **Repository only** - Files created in `.github/skills/` (works when in repo)
+- [ ] **Global installation** - Create symlinks in `~/.copilot/skills/` (works everywhere)
+- [ ] **Both** - Repository + global symlinks (recommended, auto-updates with git pull)
 - [ ] **Skip installation** - Just create files
 
 **If global installation selected:**
@@ -565,8 +553,7 @@ This skill includes additional resources in subdirectories:
 
 Detailed documentation loaded when needed:
 
-- `anthropic-best-practices.md` - Official Anthropic skill development
-  guidelines
+- `anthropic-best-practices.md` - Official Anthropic skill development guidelines
 - `writing-style-guide.md` - Writing standards and examples
 - `progressive-disclosure.md` - Content organization patterns
 - `validation-checklist.md` - Pre-commit quality checks
@@ -597,8 +584,7 @@ Executable utilities for skill maintenance:
 
 **Symlink Strategy:**
 
-- Always use absolute paths:
-  `ln -sf /full/path/to/source ~/.copilot/skills/name`
+- Always use absolute paths: `ln -sf /full/path/to/source ~/.copilot/skills/name`
 - Verify symlink before considering installation complete
 - Benefits: Auto-updates when repository is pulled
 

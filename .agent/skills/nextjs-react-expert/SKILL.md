@@ -1,28 +1,24 @@
 ---
 name: react-best-practices
 description:
-  React and Next.js performance optimization from Vercel Engineering. Use when
-  building React components, optimizing performance, eliminating waterfalls,
-  reducing bundle size, reviewing code for performance issues, or implementing
+  React and Next.js performance optimization from Vercel Engineering. Use when building React components, optimizing
+  performance, eliminating waterfalls, reducing bundle size, reviewing code for performance issues, or implementing
   server/client-side optimizations.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Next.js & React Performance Expert
 
-> **From Vercel Engineering** - 57 optimization rules prioritized by impact
-> **Philosophy:** Eliminate waterfalls first, optimize bundles second, then
-> micro-optimize.
+> **From Vercel Engineering** - 57 optimization rules prioritized by impact **Philosophy:** Eliminate waterfalls first,
+> optimize bundles second, then micro-optimize.
 
 ---
 
 ## 🎯 Selective Reading Rule (MANDATORY)
 
-**Read ONLY sections relevant to your task!** Check the content map below and
-load what you need.
+**Read ONLY sections relevant to your task!** Check the content map below and load what you need.
 
-> 🔴 **For performance reviews: Start with CRITICAL sections (1-2), then move to
-> HIGH/MEDIUM.**
+> 🔴 **For performance reviews: Start with CRITICAL sections (1-2), then move to HIGH/MEDIUM.**
 
 ---
 
@@ -180,8 +176,7 @@ Before shipping to production:
 
 ### For New Features:
 
-1. Check **Section 1 & 2** while building (prevent waterfalls, keep bundle
-   small)
+1. Check **Section 1 & 2** while building (prevent waterfalls, keep bundle small)
 2. Use server components by default (Section 3)
 3. Apply memoization for expensive operations (Section 5)
 
@@ -203,11 +198,9 @@ Before shipping to production:
 
 ## 📚 Learning Path
 
-**Beginner (Focus on Critical):** → Section 1: Eliminating Waterfalls → Section
-2: Bundle Size Optimization
+**Beginner (Focus on Critical):** → Section 1: Eliminating Waterfalls → Section 2: Bundle Size Optimization
 
-**Intermediate (Add High Priority):** → Section 3: Server-Side Performance →
-Section 5: Re-render Optimization
+**Intermediate (Add High Priority):** → Section 3: Server-Side Performance → Section 5: Re-render Optimization
 
 **Advanced (Full Optimization):** → All sections + Section 8: Advanced Patterns
 
@@ -225,43 +218,39 @@ Section 5: Re-render Optimization
 
 ### Section 1: Eliminating Waterfalls (CRITICAL)
 
-**Impact:** Each waterfall adds 100-500ms+ latency **Key Concepts:** Parallel
-fetching, Promise.all(), Suspense boundaries, preloading
+**Impact:** Each waterfall adds 100-500ms+ latency **Key Concepts:** Parallel fetching, Promise.all(), Suspense
+boundaries, preloading
 
 ### Section 2: Bundle Size Optimization (CRITICAL)
 
-**Impact:** Directly affects Time to Interactive, Largest Contentful Paint **Key
-Concepts:** Dynamic imports, tree-shaking, barrel import avoidance
+**Impact:** Directly affects Time to Interactive, Largest Contentful Paint **Key Concepts:** Dynamic imports,
+tree-shaking, barrel import avoidance
 
 ### Section 3: Server-Side Performance (HIGH)
 
-**Impact:** Faster server responses, better SEO **Key Concepts:** Parallel
-server fetching, streaming, API route optimization
+**Impact:** Faster server responses, better SEO **Key Concepts:** Parallel server fetching, streaming, API route
+optimization
 
 ### Section 4: Client-Side Data Fetching (MEDIUM-HIGH)
 
-**Impact:** Reduces redundant requests, better UX **Key Concepts:** SWR
-deduplication, localStorage caching, event listeners
+**Impact:** Reduces redundant requests, better UX **Key Concepts:** SWR deduplication, localStorage caching, event
+listeners
 
 ### Section 5: Re-render Optimization (MEDIUM)
 
-**Impact:** Smoother UI, less wasted computation **Key Concepts:** React.memo,
-useMemo, useCallback, component structure
+**Impact:** Smoother UI, less wasted computation **Key Concepts:** React.memo, useMemo, useCallback, component structure
 
 ### Section 6: Rendering Performance (MEDIUM)
 
-**Impact:** Better rendering efficiency **Key Concepts:** Virtualization, image
-optimization, layout thrashing
+**Impact:** Better rendering efficiency **Key Concepts:** Virtualization, image optimization, layout thrashing
 
 ### Section 7: JavaScript Performance (LOW-MEDIUM)
 
-**Impact:** Incremental improvements in hot paths **Key Concepts:** Loop
-optimization, caching, RegExp hoisting
+**Impact:** Incremental improvements in hot paths **Key Concepts:** Loop optimization, caching, RegExp hoisting
 
 ### Section 8: Advanced Patterns (VARIABLE)
 
-**Impact:** Specific use cases **Key Concepts:** useLatest hook, init-once
-patterns, event handler refs
+**Impact:** Specific use cases **Key Concepts:** useLatest hook, init-once patterns, event handler refs
 
 ---
 
@@ -285,5 +274,4 @@ patterns, event handler refs
 
 ---
 
-**Source:** Vercel Engineering **Date:** January 2026 **Version:** 1.0.0 **Total
-Rules:** 57 across 8 categories
+**Source:** Vercel Engineering **Date:** January 2026 **Version:** 1.0.0 **Total Rules:** 57 across 8 categories

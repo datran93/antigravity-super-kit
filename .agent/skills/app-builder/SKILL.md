@@ -1,21 +1,18 @@
 ---
 name: app-builder
 description:
-  Main application building orchestrator. Creates full-stack applications from
-  natural language requests. Determines project type, selects tech stack,
-  coordinates agents.
+  Main application building orchestrator. Creates full-stack applications from natural language requests. Determines
+  project type, selects tech stack, coordinates agents.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Agent
 ---
 
 # App Builder - Application Building Orchestrator
 
-> Analyzes user's requests, determines tech stack, plans structure, and
-> coordinates agents.
+> Analyzes user's requests, determines tech stack, plans structure, and coordinates agents.
 
 ## 🎯 Selective Reading Rule
 
-**Read ONLY files relevant to the request!** Check the content map, find what
-you need.
+**Read ONLY files relevant to the request!** Check the content map, find what you need.
 
 | File                    | Description                            | When to Read                        |
 | ----------------------- | -------------------------------------- | ----------------------------------- |

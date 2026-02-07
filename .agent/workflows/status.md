@@ -1,6 +1,5 @@
 ---
-description:
-  Display agent and project status. Progress tracking and status board.
+description: Display agent and project status. Progress tracking and status board.
 ---
 
 # /status - Show Status

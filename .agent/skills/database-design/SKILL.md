@@ -1,8 +1,7 @@
 ---
 name: database-design
 description:
-  Database design principles and decision-making. Schema design, indexing
-  strategy, ORM selection, serverless databases.
+  Database design principles and decision-making. Schema design, indexing strategy, ORM selection, serverless databases.
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
@@ -12,8 +11,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 
 ## 🎯 Selective Reading Rule
 
-**Read ONLY files relevant to the request!** Check the content map, find what
-you need.
+**Read ONLY files relevant to the request!** Check the content map, find what you need.
 
 | File                    | Description                           | When to Read       |
 | ----------------------- | ------------------------------------- | ------------------ |
@@ -48,6 +46,5 @@ Before designing schema:
 
 ## Anti-Patterns
 
-❌ Default to PostgreSQL for simple apps (SQLite may suffice) ❌ Skip indexing
-❌ Use SELECT \* in production ❌ Store JSON when structured data is better ❌
-Ignore N+1 queries
+❌ Default to PostgreSQL for simple apps (SQLite may suffice) ❌ Skip indexing ❌ Use SELECT \* in production ❌ Store
+JSON when structured data is better ❌ Ignore N+1 queries

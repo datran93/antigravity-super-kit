@@ -1,7 +1,6 @@
 # Common Patterns Library
 
-Ready-to-use regex and glob patterns for skill triggers. Copy and customize for
-your skills.
+Ready-to-use regex and glob patterns for skill triggers. Copy and customize for your skills.
 
 ---
 

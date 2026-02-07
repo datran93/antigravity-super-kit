@@ -1,8 +1,7 @@
 # Touch Psychology Reference
 
-> Deep dive into mobile touch interaction, Fitts' Law for touch, thumb zone
-> anatomy, gesture psychology, and haptic feedback. **This is the mobile
-> equivalent of ux-psychology.md - CRITICAL for all mobile work.**
+> Deep dive into mobile touch interaction, Fitts' Law for touch, thumb zone anatomy, gesture psychology, and haptic
+> feedback. **This is the mobile equivalent of ux-psychology.md - CRITICAL for all mobile work.**
 
 ---
 
@@ -535,6 +534,5 @@ Warning:  Attention needed
 
 ---
 
-> **Remember:** Every touch is a conversation between user and device. Make it
-> feel natural, responsive, and respectful of human fingers—not precise cursor
-> points.
+> **Remember:** Every touch is a conversation between user and device. Make it feel natural, responsive, and respectful
+> of human fingers—not precise cursor points.

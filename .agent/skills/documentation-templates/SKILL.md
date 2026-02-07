@@ -1,8 +1,7 @@
 ---
 name: documentation-templates
 description:
-  Documentation templates and structure guidelines. README, API docs, code
-  comments, and AI-friendly documentation.
+  Documentation templates and structure guidelines. README, API docs, code comments, and AI-friendly documentation.
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -69,8 +68,8 @@ MIT
 
 Get a user by ID.
 
-**Parameters:** | Name | Type | Required | Description |
-|------|------|----------|-------------| | id | string | Yes | User ID |
+**Parameters:** | Name | Type | Required | Description | |------|------|----------|-------------| | id | string | Yes |
+User ID |
 
 **Response:**
 

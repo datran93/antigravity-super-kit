@@ -1,8 +1,7 @@
 # Mobile Testing Patterns
 
-> **Mobile testing is NOT web testing. Different constraints, different
-> strategies.** This file teaches WHEN to use each testing approach and WHY.
-> **Code examples are minimal - focus on decision-making.**
+> **Mobile testing is NOT web testing. Different constraints, different strategies.** This file teaches WHEN to use each
+> testing approach and WHY. **Code examples are minimal - focus on decision-making.**
 
 ---
 
@@ -356,6 +355,5 @@ Before writing tests, answer:
 4. **What's platform-specific?** → Test on both platforms
 5. **What happens offline?** → Test that scenario
 
-> **Remember:** Good mobile testing is about testing the RIGHT things, not
-> EVERYTHING. A flaky E2E test is worse than no test. A failing unit test that
-> catches a bug is worth 100 passing trivial tests.
+> **Remember:** Good mobile testing is about testing the RIGHT things, not EVERYTHING. A flaky E2E test is worse than no
+> test. A failing unit test that catches a bug is worth 100 passing trivial tests.

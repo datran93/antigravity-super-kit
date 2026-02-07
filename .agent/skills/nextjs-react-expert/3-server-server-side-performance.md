@@ -1,7 +1,7 @@
 # 3. Server-Side Performance
 
-> **Impact:** HIGH **Focus:** Optimizing server-side rendering and data fetching
-> eliminates server-side waterfalls and reduces response times.
+> **Impact:** HIGH **Focus:** Optimizing server-side rendering and data fetching eliminates server-side waterfalls and
+> reduces response times.
 
 ---
 
@@ -20,14 +20,12 @@ This section contains **7 rules** focused on server-side performance.
 
 **Impact: CRITICAL (prevents unauthorized access to server mutations)**
 
-Server Actions (functions with `"use server"`) are exposed as public endpoints,
-just like API routes. Always verify authentication and authorization **inside**
-each Server Action—do not rely solely on middleware, layout guards, or
+Server Actions (functions with `"use server"`) are exposed as public endpoints, just like API routes. Always verify
+authentication and authorization **inside** each Server Action—do not rely solely on middleware, layout guards, or
 page-level checks, as Server Actions can be invoked directly.
 
-Next.js documentation explicitly states: "Treat Server Actions with the same
-security considerations as public-facing API endpoints, and verify if the user
-is allowed to perform a mutation."
+Next.js documentation explicitly states: "Treat Server Actions with the same security considerations as public-facing
+API endpoints, and verify if the user is allowed to perform a mutation."
 
 **Incorrect (no authentication check):**
 
@@ -109,8 +107,7 @@ export async function updateProfile(data: unknown) {
 }
 ```
 
-Reference:
-[https://nextjs.org/docs/app/guides/authentication](https://nextjs.org/docs/app/guides/authentication)
+Reference: [https://nextjs.org/docs/app/guides/authentication](https://nextjs.org/docs/app/guides/authentication)
 
 ---
 
@@ -123,9 +120,8 @@ Reference:
 
 **Impact: LOW (reduces network payload by avoiding duplicate serialization)**
 
-RSC→client serialization deduplicates by object reference, not value. Same
-reference = serialized once; new reference = serialized again. Do
-transformations (`.toSorted()`, `.filter()`, `.map()`) in client, not server.
+RSC→client serialization deduplicates by object reference, not value. Same reference = serialized once; new reference =
+serialized again. Do transformations (`.toSorted()`, `.filter()`, `.map()`) in client, not server.
 
 **Incorrect (duplicates array):**
 
@@ -149,10 +145,8 @@ const sorted = useMemo(() => [...usernames].sort(), [usernames]);
 
 Deduplication works recursively. Impact varies by data type:
 
-- `string[]`, `number[]`, `boolean[]`: **HIGH impact** - array + all primitives
-  fully duplicated
-- `object[]`: **LOW impact** - array duplicated, but nested objects deduplicated
-  by reference
+- `string[]`, `number[]`, `boolean[]`: **HIGH impact** - array + all primitives fully duplicated
+- `object[]`: **LOW impact** - array duplicated, but nested objects deduplicated by reference
 
 ```tsx
 // string[] - duplicates everything
@@ -165,8 +159,7 @@ users={[{id:1},{id:2}]} sorted={users.toSorted()} // sends 2 arrays + 2 unique o
 **Operations breaking deduplication (create new references):**
 
 - Arrays: `.toSorted()`, `.filter()`, `.map()`, `.slice()`, `[...arr]`
-- Objects: `{...obj}`, `Object.assign()`, `structuredClone()`,
-  `JSON.parse(JSON.stringify())`
+- Objects: `{...obj}`, `Object.assign()`, `structuredClone()`, `JSON.parse(JSON.stringify())`
 
 **More examples:**
 
@@ -181,8 +174,7 @@ users={[{id:1},{id:2}]} sorted={users.toSorted()} // sends 2 arrays + 2 unique o
 // Do filtering/destructuring in client
 ```
 
-**Exception:** Pass derived data when transformation is expensive or client
-doesn't need original.
+**Exception:** Pass derived data when transformation is expensive or client doesn't need original.
 
 ---
 
@@ -193,8 +185,8 @@ doesn't need original.
 
 ## Cross-Request LRU Caching
 
-`React.cache()` only works within one request. For data shared across sequential
-requests (user clicks button A then button B), use an LRU cache.
+`React.cache()` only works within one request. For data shared across sequential requests (user clicks button A then
+button B), use an LRU cache.
 
 **Implementation:**
 
@@ -219,19 +211,15 @@ export async function getUser(id: string) {
 // Request 2: cache hit, no DB query
 ```
 
-Use when sequential user actions hit multiple endpoints needing the same data
-within seconds.
+Use when sequential user actions hit multiple endpoints needing the same data within seconds.
 
-**With Vercel's [Fluid Compute](https://vercel.com/docs/fluid-compute):** LRU
-caching is especially effective because multiple concurrent requests can share
-the same function instance and cache. This means the cache persists across
+**With Vercel's [Fluid Compute](https://vercel.com/docs/fluid-compute):** LRU caching is especially effective because
+multiple concurrent requests can share the same function instance and cache. This means the cache persists across
 requests without needing external storage like Redis.
 
-**In traditional serverless:** Each invocation runs in isolation, so consider
-Redis for cross-process caching.
+**In traditional serverless:** Each invocation runs in isolation, so consider Redis for cross-process caching.
 
-Reference:
-[https://github.com/isaacs/node-lru-cache](https://github.com/isaacs/node-lru-cache)
+Reference: [https://github.com/isaacs/node-lru-cache](https://github.com/isaacs/node-lru-cache)
 
 ---
 
@@ -242,10 +230,9 @@ Reference:
 
 ## Minimize Serialization at RSC Boundaries
 
-The React Server/Client boundary serializes all object properties into strings
-and embeds them in the HTML response and subsequent RSC requests. This
-serialized data directly impacts page weight and load time, so **size matters a
-lot**. Only pass fields that the client actually uses.
+The React Server/Client boundary serializes all object properties into strings and embeds them in the HTML response and
+subsequent RSC requests. This serialized data directly impacts page weight and load time, so **size matters a lot**.
+Only pass fields that the client actually uses.
 
 **Incorrect (serializes all 50 fields):**
 
@@ -284,8 +271,7 @@ function Profile({ name }: { name: string }) {
 
 ## Parallel Data Fetching with Component Composition
 
-React Server Components execute sequentially within a tree. Restructure with
-composition to parallelize data fetching.
+React Server Components execute sequentially within a tree. Restructure with composition to parallelize data fetching.
 
 **Incorrect (Sidebar waits for Page's fetch to complete):**
 
@@ -369,8 +355,7 @@ export default function Page() {
 
 ## Per-Request Deduplication with React.cache()
 
-Use `React.cache()` for server-side request deduplication. Authentication and
-database queries benefit most.
+Use `React.cache()` for server-side request deduplication. Authentication and database queries benefit most.
 
 **Usage:**
 
@@ -386,13 +371,12 @@ export const getCurrentUser = cache(async () => {
 });
 ```
 
-Within a single request, multiple calls to `getCurrentUser()` execute the query
-only once.
+Within a single request, multiple calls to `getCurrentUser()` execute the query only once.
 
 **Avoid inline objects as arguments:**
 
-`React.cache()` uses shallow equality (`Object.is`) to determine cache hits.
-Inline objects create new references each call, preventing cache hits.
+`React.cache()` uses shallow equality (`Object.is`) to determine cache hits. Inline objects create new references each
+call, preventing cache hits.
 
 **Incorrect (always cache miss):**
 
@@ -428,9 +412,8 @@ getUser(params); // Cache hit (same reference)
 
 **Next.js-Specific Note:**
 
-In Next.js, the `fetch` API is automatically extended with request memoization.
-Requests with the same URL and options are automatically deduplicated within a
-single request, so you don't need `React.cache()` for `fetch` calls. However,
+In Next.js, the `fetch` API is automatically extended with request memoization. Requests with the same URL and options
+are automatically deduplicated within a single request, so you don't need `React.cache()` for `fetch` calls. However,
 `React.cache()` is still essential for other async tasks:
 
 - Database queries (Prisma, Drizzle, etc.)
@@ -452,9 +435,8 @@ Reference: [React.cache documentation](https://react.dev/reference/react/cache)
 
 ## Use after() for Non-Blocking Operations
 
-Use Next.js's `after()` to schedule work that should execute after a response is
-sent. This prevents logging, analytics, and other side effects from blocking the
-response.
+Use Next.js's `after()` to schedule work that should execute after a response is sent. This prevents logging, analytics,
+and other side effects from blocking the response.
 
 **Incorrect (blocks response):**
 
@@ -490,8 +472,7 @@ export async function POST(request: Request) {
   // Log after response is sent
   after(async () => {
     const userAgent = (await headers()).get("user-agent") || "unknown";
-    const sessionCookie =
-      (await cookies()).get("session-id")?.value || "anonymous";
+    const sessionCookie = (await cookies()).get("session-id")?.value || "anonymous";
 
     logUserAction({ sessionCookie, userAgent });
   });

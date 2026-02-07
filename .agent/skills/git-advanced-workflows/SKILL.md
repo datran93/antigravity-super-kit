@@ -1,16 +1,15 @@
 ---
 name: git-advanced-workflows
 description:
-  Master advanced Git workflows including rebasing, cherry-picking, bisect,
-  worktrees, and reflog to maintain clean history and recover from any
-  situation. Use when managing complex Git histories, collaborating on feature
-  branches, or troubleshooting repository issues.
+  Master advanced Git workflows including rebasing, cherry-picking, bisect, worktrees, and reflog to maintain clean
+  history and recover from any situation. Use when managing complex Git histories, collaborating on feature branches, or
+  troubleshooting repository issues.
 ---
 
 # Git Advanced Workflows
 
-Master advanced Git techniques to maintain clean history, collaborate
-effectively, and recover from any situation with confidence.
+Master advanced Git techniques to maintain clean history, collaborate effectively, and recover from any situation with
+confidence.
 
 ## Do not use this skill when
 
@@ -22,8 +21,7 @@ effectively, and recover from any situation with confidence.
 - Clarify goals, constraints, and required inputs.
 - Apply relevant best practices and validate outcomes.
 - Provide actionable steps and verification.
-- If detailed examples are required, open
-  `resources/implementation-playbook.md`.
+- If detailed examples are required, open `resources/implementation-playbook.md`.
 
 ## Use this skill when
 
@@ -66,8 +64,7 @@ git rebase -i abc123
 
 ### 2. Cherry-Picking
 
-Apply specific commits from one branch to another without merging entire
-branches.
+Apply specific commits from one branch to another without merging entire branches.
 
 ```bash
 # Cherry-pick single commit
@@ -363,16 +360,13 @@ git commit -m "cherry-pick: apply specific changes from abc123"
 
 ## Best Practices
 
-1. **Always Use --force-with-lease**: Safer than --force, prevents overwriting
-   others' work
-2. **Rebase Only Local Commits**: Don't rebase commits that have been pushed and
-   shared
+1. **Always Use --force-with-lease**: Safer than --force, prevents overwriting others' work
+2. **Rebase Only Local Commits**: Don't rebase commits that have been pushed and shared
 3. **Descriptive Commit Messages**: Future you will thank present you
 4. **Atomic Commits**: Each commit should be a single logical change
 5. **Test Before Force Push**: Ensure history rewrite didn't break anything
 6. **Keep Reflog Aware**: Remember reflog is your safety net for 90 days
-7. **Branch Before Risky Operations**: Create backup branch before complex
-   rebases
+7. **Branch Before Risky Operations**: Create backup branch before complex rebases
 
 ```bash
 # Safe force push
@@ -420,8 +414,7 @@ git branch recovered-branch abc123
 ## Resources
 
 - **references/git-rebase-guide.md**: Deep dive into interactive rebase
-- **references/git-conflict-resolution.md**: Advanced conflict resolution
-  strategies
+- **references/git-conflict-resolution.md**: Advanced conflict resolution strategies
 - **references/git-history-rewriting.md**: Safely rewriting Git history
 - **assets/git-workflow-checklist.md**: Pre-PR cleanup checklist
 - **assets/git-aliases.md**: Useful Git aliases for advanced workflows

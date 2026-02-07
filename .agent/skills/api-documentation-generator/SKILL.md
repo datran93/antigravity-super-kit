@@ -1,17 +1,16 @@
 ---
 name: api-documentation-generator
 description:
-  "Generate comprehensive, developer-friendly API documentation from code,
-  including endpoints, parameters, examples, and best practices"
+  "Generate comprehensive, developer-friendly API documentation from code, including endpoints, parameters, examples,
+  and best practices"
 ---
 
 # API Documentation Generator
 
 ## Overview
 
-Automatically generate clear, comprehensive API documentation from your
-codebase. This skill helps you create professional documentation that includes
-endpoint descriptions, request/response examples, authentication details, error
+Automatically generate clear, comprehensive API documentation from your codebase. This skill helps you create
+professional documentation that includes endpoint descriptions, request/response examples, authentication details, error
 handling, and usage guidelines.
 
 Perfect for REST APIs, GraphQL APIs, and WebSocket APIs.
@@ -112,47 +111,39 @@ Creates a new user account.
 
 **Authentication:** Required (Bearer token)
 
-**Request Body:** \`\`\`json { "email": "user@example.com", // Required: Valid
-email address "password": "SecurePass123!", // Required: Min 8 chars, 1
-uppercase, 1 number "name": "John Doe", // Required: 2-50 characters "role":
-"user" // Optional: "user" or "admin" (default: "user") } \`\`\`
+**Request Body:** \`\`\`json { "email": "user@example.com", // Required: Valid email address "password":
+"SecurePass123!", // Required: Min 8 chars, 1 uppercase, 1 number "name": "John Doe", // Required: 2-50 characters
+"role": "user" // Optional: "user" or "admin" (default: "user") } \`\`\`
 
-**Success Response (201 Created):** \`\`\`json { "id": "usr_1234567890",
-"email": "user@example.com", "name": "John Doe", "role": "user", "createdAt":
-"2026-01-20T10:30:00Z", "emailVerified": false } \`\`\`
+**Success Response (201 Created):** \`\`\`json { "id": "usr_1234567890", "email": "user@example.com", "name": "John
+Doe", "role": "user", "createdAt": "2026-01-20T10:30:00Z", "emailVerified": false } \`\`\`
 
 **Error Responses:**
 
-- `400 Bad Request` - Invalid input data \`\`\`json { "error":
-  "VALIDATION_ERROR", "message": "Invalid email format", "field": "email" }
-  \`\`\`
+- `400 Bad Request` - Invalid input data \`\`\`json { "error": "VALIDATION_ERROR", "message": "Invalid email format",
+  "field": "email" } \`\`\`
 
-- `409 Conflict` - Email already exists \`\`\`json { "error": "EMAIL_EXISTS",
-  "message": "An account with this email already exists" } \`\`\`
+- `409 Conflict` - Email already exists \`\`\`json { "error": "EMAIL_EXISTS", "message": "An account with this email
+  already exists" } \`\`\`
 
 - `401 Unauthorized` - Missing or invalid authentication token
 
-**Example Request (cURL):** \`\`\`bash curl -X POST
-https://api.example.com/api/v1/users \
+**Example Request (cURL):** \`\`\`bash curl -X POST https://api.example.com/api/v1/users \
  -H "Authorization: Bearer YOUR_TOKEN" \
  -H "Content-Type: application/json" \
- -d '{ "email": "user@example.com", "password": "SecurePass123!", "name": "John
-Doe" }' \`\`\`
+ -d '{ "email": "user@example.com", "password": "SecurePass123!", "name": "John Doe" }' \`\`\`
 
-**Example Request (JavaScript):** \`\`\`javascript const response = await
-fetch('https://api.example.com/api/v1/users', { method: 'POST', headers: {
-'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body:
-JSON.stringify({ email: 'user@example.com', password: 'SecurePass123!', name:
-'John Doe' }) });
+**Example Request (JavaScript):** \`\`\`javascript const response = await fetch('https://api.example.com/api/v1/users',
+{ method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body:
+JSON.stringify({ email: 'user@example.com', password: 'SecurePass123!', name: 'John Doe' }) });
 
 const user = await response.json(); console.log(user); \`\`\`
 
 **Example Request (Python):** \`\`\`python import requests
 
-response = requests.post( 'https://api.example.com/api/v1/users', headers={
-'Authorization': f'Bearer {token}', 'Content-Type': 'application/json' }, json={
-'email': 'user@example.com', 'password': 'SecurePass123!', 'name': 'John Doe' }
-)
+response = requests.post( 'https://api.example.com/api/v1/users', headers={ 'Authorization': f'Bearer {token}',
+'Content-Type': 'application/json' }, json={ 'email': 'user@example.com', 'password': 'SecurePass123!', 'name': 'John
+Doe' } )
 
 user = response.json() print(user) \`\`\`
 ```
@@ -164,19 +155,17 @@ user = response.json() print(user) \`\`\`
 
 Fetch user information by ID.
 
-**Query:** \`\`\`graphql query GetUser($id: ID!) { user(id: $id) { id email name
-role createdAt posts { id title publishedAt } } } \`\`\`
+**Query:** \`\`\`graphql query GetUser($id: ID!) { user(id: $id) { id email name role createdAt posts { id title
+publishedAt } } } \`\`\`
 
 **Variables:** \`\`\`json { "id": "usr_1234567890" } \`\`\`
 
-**Response:** \`\`\`json { "data": { "user": { "id": "usr_1234567890", "email":
-"user@example.com", "name": "John Doe", "role": "user", "createdAt":
-"2026-01-20T10:30:00Z", "posts": [ { "id": "post_123", "title": "My First Post",
+**Response:** \`\`\`json { "data": { "user": { "id": "usr_1234567890", "email": "user@example.com", "name": "John Doe",
+"role": "user", "createdAt": "2026-01-20T10:30:00Z", "posts": [ { "id": "post_123", "title": "My First Post",
 "publishedAt": "2026-01-21T14:00:00Z" } ] } } } \`\`\`
 
-**Errors:** \`\`\`json { "errors": [ { "message": "User not found",
-"extensions": { "code": "USER_NOT_FOUND", "userId": "usr_1234567890" } } ] }
-\`\`\`
+**Errors:** \`\`\`json { "errors": [ { "message": "User not found", "extensions": { "code": "USER_NOT_FOUND", "userId":
+"usr_1234567890" } } ] } \`\`\`
 ```
 
 ### Example 3: Authentication Documentation
@@ -190,11 +179,10 @@ All API requests require authentication using Bearer tokens.
 
 **Endpoint:** `POST /api/v1/auth/login`
 
-**Request:** \`\`\`json { "email": "user@example.com", "password":
-"your-password" } \`\`\`
+**Request:** \`\`\`json { "email": "user@example.com", "password": "your-password" } \`\`\`
 
-**Response:** \`\`\`json { "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-"expiresIn": 3600, "refreshToken": "refresh_token_here" } \`\`\`
+**Response:** \`\`\`json { "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "expiresIn": 3600, "refreshToken":
+"refresh_token_here" } \`\`\`
 
 ### Using the Token
 
@@ -289,8 +277,7 @@ Tokens expire after 1 hour. Use the refresh token to get a new access token:
 
 ### Problem: Documentation Gets Out of Sync
 
-**Symptoms:** Examples don't work, parameters are wrong, endpoints return
-different data **Solution:**
+**Symptoms:** Examples don't work, parameters are wrong, endpoints return different data **Solution:**
 
 - Generate docs from code comments/annotations
 - Use tools like Swagger/OpenAPI
@@ -299,8 +286,7 @@ different data **Solution:**
 
 ### Problem: Missing Error Documentation
 
-**Symptoms:** Users don't know how to handle errors, support tickets increase
-**Solution:**
+**Symptoms:** Users don't know how to handle errors, support tickets increase **Solution:**
 
 - Document every possible error code
 - Provide clear error messages
@@ -387,5 +373,5 @@ Export collection for easy testing:
 
 ---
 
-**Pro Tip:** Keep your API documentation as close to your code as possible. Use
-tools that generate docs from code comments to ensure they stay in sync!
+**Pro Tip:** Keep your API documentation as close to your code as possible. Use tools that generate docs from code
+comments to ensure they stay in sync!

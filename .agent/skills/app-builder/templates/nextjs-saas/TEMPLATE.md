@@ -1,8 +1,6 @@
 ---
 name: nextjs-saas
-description:
-  Next.js SaaS template principles (2026 Standards). React 19, Server Actions,
-  Auth.js v6.
+description: Next.js SaaS template principles (2026 Standards). React 19, Server Actions, Auth.js v6.
 ---
 
 # Next.js SaaS Template (Updated 2026)

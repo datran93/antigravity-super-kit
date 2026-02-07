@@ -1,16 +1,15 @@
 ---
 name: database-migration
 description:
-  Execute database migrations across ORMs and platforms with zero-downtime
-  strategies, data transformation, and rollback procedures. Use when migrating
-  databases, changing schemas, performing data transformations, or implementing
+  Execute database migrations across ORMs and platforms with zero-downtime strategies, data transformation, and rollback
+  procedures. Use when migrating databases, changing schemas, performing data transformations, or implementing
   zero-downtime deployment strategies.
 ---
 
 # Database Migration
 
-Master database schema and data migrations across ORMs (Sequelize, TypeORM,
-Prisma), including rollback strategies and zero-downtime deployments.
+Master database schema and data migrations across ORMs (Sequelize, TypeORM, Prisma), including rollback strategies and
+zero-downtime deployments.
 
 ## Do not use this skill when
 
@@ -22,8 +21,7 @@ Prisma), including rollback strategies and zero-downtime deployments.
 - Clarify goals, constraints, and required inputs.
 - Apply relevant best practices and validate outcomes.
 - Provide actionable steps and verification.
-- If detailed examples are required, open
-  `resources/implementation-playbook.md`.
+- If detailed examples are required, open `resources/implementation-playbook.md`.
 
 ## Use this skill when
 
@@ -223,9 +221,7 @@ module.exports = {
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     // Get all records
-    const [users] = await queryInterface.sequelize.query(
-      "SELECT id, address_string FROM users",
-    );
+    const [users] = await queryInterface.sequelize.query("SELECT id, address_string FROM users");
 
     // Transform each record
     for (const user of users) {
@@ -287,10 +283,9 @@ module.exports = {
         { transaction },
       );
 
-      await queryInterface.sequelize.query(
-        "UPDATE users SET verified = true WHERE email_verified_at IS NOT NULL",
-        { transaction },
-      );
+      await queryInterface.sequelize.query("UPDATE users SET verified = true WHERE email_verified_at IS NOT NULL", {
+        transaction,
+      });
 
       await transaction.commit();
     } catch (error) {
@@ -311,9 +306,7 @@ module.exports = {
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     // Create backup table
-    await queryInterface.sequelize.query(
-      "CREATE TABLE users_backup AS SELECT * FROM users",
-    );
+    await queryInterface.sequelize.query("CREATE TABLE users_backup AS SELECT * FROM users");
 
     try {
       // Perform migration
@@ -335,9 +328,7 @@ module.exports = {
     } catch (error) {
       // Restore from backup
       await queryInterface.sequelize.query("DROP TABLE users");
-      await queryInterface.sequelize.query(
-        "CREATE TABLE users AS SELECT * FROM users_backup",
-      );
+      await queryInterface.sequelize.query("CREATE TABLE users AS SELECT * FROM users_backup");
       await queryInterface.dropTable("users_backup");
       throw error;
     }

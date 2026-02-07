@@ -1,15 +1,14 @@
 ---
 name: go-concurrency-patterns
 description:
-  Master Go concurrency with goroutines, channels, sync primitives, and context.
-  Use when building concurrent Go applications, implementing worker pools, or
-  debugging race conditions.
+  Master Go concurrency with goroutines, channels, sync primitives, and context. Use when building concurrent Go
+  applications, implementing worker pools, or debugging race conditions.
 ---
 
 # Go Concurrency Patterns
 
-Production patterns for Go concurrency including goroutines, channels,
-synchronization primitives, and context management.
+Production patterns for Go concurrency including goroutines, channels, synchronization primitives, and context
+management.
 
 ## Use this skill when
 
@@ -30,8 +29,7 @@ synchronization primitives, and context management.
 - Clarify goals, constraints, and required inputs.
 - Apply relevant best practices and validate outcomes.
 - Provide actionable steps and verification.
-- If detailed examples are required, open
-  `resources/implementation-playbook.md`.
+- If detailed examples are required, open `resources/implementation-playbook.md`.
 
 ## Resources
 

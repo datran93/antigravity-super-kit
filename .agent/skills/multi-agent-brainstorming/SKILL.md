@@ -1,9 +1,8 @@
 ---
 name: multi-agent-brainstorming
 description: >
-  Use this skill when a design or idea requires higher confidence, risk
-  reduction, or formal review. This skill orchestrates a structured, sequential
-  multi-agent design review where each agent has a strict, non-overlapping role.
+  Use this skill when a design or idea requires higher confidence, risk reduction, or formal review. This skill
+  orchestrates a structured, sequential multi-agent design review where each agent has a strict, non-overlapping role.
   It prevents blind spots, false confidence, and premature convergence.
 ---
 
@@ -11,8 +10,8 @@ description: >
 
 ## Purpose
 
-Transform a single-agent design into a **robust, review-validated design** by
-simulating a formal peer-review process using multiple constrained agents.
+Transform a single-agent design into a **robust, review-validated design** by simulating a formal peer-review process
+using multiple constrained agents.
 
 This skill exists to:
 
@@ -22,8 +21,7 @@ This skill exists to:
 - stress-test designs before implementation
 - prevent idea swarm chaos
 
-This is **not parallel brainstorming**. It is **sequential design review with
-enforced roles**.
+This is **not parallel brainstorming**. It is **sequential design review with enforced roles**.
 
 ---
 
@@ -242,9 +240,8 @@ You may exit multi-agent brainstorming **only when all are true**:
 - Arbiter has declared the design acceptable
 - If any criterion is unmet:
 - Continue review
-- Do NOT proceed to implementation If this skill was invoked by a routing or
-  orchestration layer, you MUST report the final disposition explicitly as one
-  of: APPROVED, REVISE, or REJECT, with a brief rationale.
+- Do NOT proceed to implementation If this skill was invoked by a routing or orchestration layer, you MUST report the
+  final disposition explicitly as one of: APPROVED, REVISE, or REJECT, with a brief rationale.
 
 ---
 

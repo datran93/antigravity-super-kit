@@ -1,8 +1,6 @@
 ---
 name: pc-games
-description:
-  PC and console game development principles. Engine selection, platform
-  features, optimization strategies.
+description: PC and console game development principles. Engine selection, platform features, optimization strategies.
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
@@ -143,5 +141,4 @@ Map ACTIONS, not buttons:
 
 ---
 
-> **Remember:** Engine is a tool. Master the principles, then adapt to any
-> engine.
+> **Remember:** Engine is a tool. Master the principles, then adapt to any engine.

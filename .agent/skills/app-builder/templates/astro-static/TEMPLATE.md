@@ -1,8 +1,6 @@
 ---
 name: astro-static
-description:
-  Astro static site template principles. Content-focused websites, blogs,
-  documentation.
+description: Astro static site template principles. Content-focused websites, blogs, documentation.
 ---
 
 # Astro Static Site Template

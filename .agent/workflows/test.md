@@ -1,6 +1,5 @@
 ---
-description:
-  Test generation and test running command. Creates and executes tests for code.
+description: Test generation and test running command. Creates and executes tests for code.
 ---
 
 # /test - Test Generation and Execution
@@ -109,6 +108,7 @@ Total: 15 tests (14 passed, 1 failed)
 ## Save & Notify
 
 After test completion:
+
 - Save test results to `.agent/docs/TEST-{slug}.md`
 - **Slug generation**: Extract 2-3 key words from test target → lowercase → hyphen-separated → max 30 chars
   - Example: "auth.service.ts" → `TEST-auth-service.md`
@@ -139,9 +139,7 @@ describe("AuthService", () => {
       const credentials = { email: "test@test.com", password: "wrong" };
 
       // Act & Assert
-      await expect(authService.login(credentials)).rejects.toThrow(
-        "Invalid credentials",
-      );
+      await expect(authService.login(credentials)).rejects.toThrow("Invalid credentials");
     });
   });
 });

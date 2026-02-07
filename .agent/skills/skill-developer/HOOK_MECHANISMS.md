@@ -75,8 +75,7 @@ ACTION: Use Skill tool BEFORE responding
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-Claude sees this output as additional context before processing the user's
-prompt.
+Claude sees this output as additional context before processing the user's prompt.
 
 ---
 
@@ -164,8 +163,7 @@ File: form/src/services/user.ts
 💡 TIP: Add '// @skip-validation' comment to skip future checks
 ```
 
-Claude receives this message and understands it needs to use the skill before
-retrying the edit.
+Claude receives this message and understands it needs to use the skill before retrying the edit.
 
 ---
 
@@ -214,8 +212,7 @@ Claude sees error, responds:
 
 ### Purpose
 
-Prevent repeated nagging in the same session - once Claude uses a skill, don't
-block again.
+Prevent repeated nagging in the same session - once Claude uses a skill, don't block again.
 
 ### State File Location
 
@@ -249,11 +246,9 @@ block again.
 
 ### Limitation
 
-The hook cannot detect when the skill is _actually_ invoked - it just blocks
-once per session per skill. This means:
+The hook cannot detect when the skill is _actually_ invoked - it just blocks once per session per skill. This means:
 
-- If Claude doesn't use the skill but makes a different edit, it won't block
-  again
+- If Claude doesn't use the skill but makes a different edit, it won't block again
 - Trust that Claude follows the instruction
 - Future enhancement: detect actual Skill tool usage
 

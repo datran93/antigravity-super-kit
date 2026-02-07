@@ -8,9 +8,8 @@ description: Plan and implement UI
 
 # ui-ux-pro-max
 
-Comprehensive design guide for web and mobile applications. Contains 50+ styles,
-97 color palettes, 57 font pairings, 99 UX guidelines, and 25 chart types across
-9 technology stacks. Searchable database with priority-based recommendations.
+Comprehensive design guide for web and mobile applications. Contains 50+ styles, 97 color palettes, 57 font pairings, 99
+UX guidelines, and 25 chart types across 9 technology stacks. Searchable database with priority-based recommendations.
 
 ## Prerequisites
 
@@ -44,8 +43,7 @@ winget install Python.Python.3.12
 
 ## How to Use This Workflow
 
-When user requests UI/UX work (design, build, create, implement, review, fix,
-improve), follow this workflow:
+When user requests UI/UX work (design, build, create, implement, review, fix, improve), follow this workflow:
 
 ### Step 1: Analyze User Requirements
 
@@ -58,8 +56,7 @@ Extract key information from user request:
 
 ### Step 2: Generate Design System (REQUIRED)
 
-**Always start with `--design-system`** to get comprehensive recommendations
-with reasoning:
+**Always start with `--design-system`** to get comprehensive recommendations with reasoning:
 
 ```bash
 python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "<product_type> <industry> <keywords>" --design-system [-p "Project Name"]
@@ -80,8 +77,7 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "beauty spa wellness serv
 
 ### Step 2b: Persist Design System (Master + Overrides Pattern)
 
-To save the design system for hierarchical retrieval across sessions, add
-`--persist`:
+To save the design system for hierarchical retrieval across sessions, add `--persist`:
 
 ```bash
 python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "<query>" --design-system --persist -p "Project Name"
@@ -104,8 +100,7 @@ This also creates:
 
 **How hierarchical retrieval works:**
 
-1. When building a specific page (e.g., "Checkout"), first check
-   `design-system/pages/checkout.md`
+1. When building a specific page (e.g., "Checkout"), first check `design-system/pages/checkout.md`
 2. If the page file exists, its rules **override** the Master file
 3. If not, use `design-system/MASTER.md` exclusively
 
@@ -129,16 +124,14 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "<keyword>" --domain <dom
 
 ### Step 4: Stack Guidelines (Default: html-tailwind)
 
-Get implementation-specific best practices. If user doesn't specify a stack,
-**default to `html-tailwind`**.
+Get implementation-specific best practices. If user doesn't specify a stack, **default to `html-tailwind`**.
 
 ```bash
 python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "<keyword>" --stack html-tailwind
 ```
 
-Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`,
-`swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose` ,
-`jetpack-compose`
+Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`,
+`jetpack-compose` , `jetpack-compose`
 
 ---
 
@@ -193,8 +186,7 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`,
 python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "beauty spa wellness service elegant" --design-system -p "Serenity Spa"
 ```
 
-**Output:** Complete design system with pattern, style, colors, typography,
-effects, and anti-patterns.
+**Output:** Complete design system with pattern, style, colors, typography, effects, and anti-patterns.
 
 ### Step 3: Supplement with Detailed Searches (as needed)
 
@@ -235,8 +227,7 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "fintech crypto" --design
 1. **Be specific with keywords** - "healthcare SaaS dashboard" > "app"
 2. **Search multiple times** - Different keywords reveal different insights
 3. **Combine domains** - Style + Typography + Color = Complete design system
-4. **Always check UX** - Search "animation", "z-index", "accessibility" for
-   common issues
+4. **Always check UX** - Search "animation", "z-index", "accessibility" for common issues
 5. **Use stack flag** - Get implementation-specific best practices
 6. **Iterate** - If first search doesn't match, try different keywords
 
@@ -250,7 +241,7 @@ These are frequently overlooked issues that make UI look unprofessional:
 
 | Rule                       | Do                                              | Don't                                  |
 | -------------------------- | ----------------------------------------------- | -------------------------------------- |
-| **No emoji icons**         | Use SVG icons (Heroicons, Lucide, Simple Icons) | Use emojis like 🎨 🚀 ⚙️ as UI icons      |
+| **No emoji icons**         | Use SVG icons (Heroicons, Lucide, Simple Icons) | Use emojis like 🎨 🚀 ⚙️ as UI icons   |
 | **Stable hover states**    | Use color/opacity transitions on hover          | Use scale transforms that shift layout |
 | **Correct brand logos**    | Research official SVG from Simple Icons         | Guess or use incorrect logo paths      |
 | **Consistent icon sizing** | Use fixed viewBox (24x24) with w-6 h-6          | Mix different icon sizes randomly      |
@@ -327,6 +318,7 @@ Before delivering UI code, verify these items:
 ## Save & Notify
 
 After UI/UX implementation:
+
 - Save design system summary to `.agent/docs/UIUX-{slug}.md`
 - **Slug generation**: Extract 2-3 key words from project → lowercase → hyphen-separated → max 30 chars
   - Example: "beauty spa landing page" → `UIUX-beauty-spa.md`

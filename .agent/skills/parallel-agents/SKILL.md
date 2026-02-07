@@ -1,9 +1,8 @@
 ---
 name: parallel-agents
 description:
-  Multi-agent orchestration patterns. Use when multiple independent tasks can
-  run with different domain expertise or when comprehensive analysis requires
-  multiple perspectives.
+  Multi-agent orchestration patterns. Use when multiple independent tasks can run with different domain expertise or
+  when comprehensive analysis requires multiple perspectives.
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -13,9 +12,8 @@ allowed-tools: Read, Glob, Grep
 
 ## Overview
 
-This skill enables coordinating multiple specialized agents through Claude
-Code's native agent system. Unlike external scripts, this approach keeps all
-orchestration within Claude's control.
+This skill enables coordinating multiple specialized agents through Claude Code's native agent system. Unlike external
+scripts, this approach keeps all orchestration within Claude's control.
 
 ## When to Use Orchestration
 

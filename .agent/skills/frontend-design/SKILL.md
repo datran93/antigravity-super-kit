@@ -1,9 +1,8 @@
 ---
 name: frontend-design
 description:
-  Create distinctive, production-grade frontend interfaces with intentional
-  aesthetics, high craft, and non-generic visual identity. Use when building or
-  styling web UIs, components, pages, dashboards, or frontend applications.
+  Create distinctive, production-grade frontend interfaces with intentional aesthetics, high craft, and non-generic
+  visual identity. Use when building or styling web UIs, components, pages, dashboards, or frontend applications.
 license: Complete terms in LICENSE.txt
 ---
 
@@ -26,21 +25,16 @@ This skill prioritizes **intentional design systems**, not default frameworks.
 
 Every output must satisfy **all four**:
 
-1. **Intentional Aesthetic Direction** A named, explicit design stance (e.g.
-   _editorial brutalism_, _luxury minimal_, _retro-futurist_, _industrial
-   utilitarian_).
+1. **Intentional Aesthetic Direction** A named, explicit design stance (e.g. _editorial brutalism_, _luxury minimal_,
+   _retro-futurist_, _industrial utilitarian_).
 
-2. **Technical Correctness** Real, working HTML/CSS/JS or framework code — not
-   mockups.
+2. **Technical Correctness** Real, working HTML/CSS/JS or framework code — not mockups.
 
-3. **Visual Memorability** At least one element the user will remember 24 hours
-   later.
+3. **Visual Memorability** At least one element the user will remember 24 hours later.
 
-4. **Cohesive Restraint** No random decoration. Every flourish must serve the
-   aesthetic thesis.
+4. **Cohesive Restraint** No random decoration. Every flourish must serve the aesthetic thesis.
 
-❌ No default layouts ❌ No design-by-components ❌ No “safe” palettes or fonts
-✅ Strong opinions, well executed
+❌ No default layouts ❌ No design-by-components ❌ No “safe” palettes or fonts ✅ Strong opinions, well executed
 
 ---
 
@@ -106,8 +100,7 @@ Examples (non-exhaustive):
 
 Answer:
 
-> “If this were screenshotted with the logo removed, how would someone recognize
-> it?”
+> “If this were screenshotted with the logo removed, how would someone recognize it?”
 
 This anchor must be visible in the final UI.
 
@@ -229,9 +222,8 @@ Explicitly state:
 
 ## 7. Anti-Patterns (Immediate Failure)
 
-❌ Inter/Roboto/system fonts ❌ Purple-on-white SaaS gradients ❌ Default
-Tailwind/ShadCN layouts ❌ Symmetrical, predictable sections ❌ Overused AI
-design tropes ❌ Decoration without intent
+❌ Inter/Roboto/system fonts ❌ Purple-on-white SaaS gradients ❌ Default Tailwind/ShadCN layouts ❌ Symmetrical,
+predictable sections ❌ Overused AI design tropes ❌ Decoration without intent
 
 If the design could be mistaken for a template → restart.
 

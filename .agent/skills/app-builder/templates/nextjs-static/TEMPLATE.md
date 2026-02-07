@@ -1,8 +1,6 @@
 ---
 name: nextjs-static
-description:
-  Modern template for Next.js 16, React 19 & Tailwind v4. Optimized for Landing
-  pages and Portfolios.
+description: Modern template for Next.js 16, React 19 & Tailwind v4. Optimized for Landing pages and Portfolios.
 ---
 
 # Next.js Static Site Template (Modern Edition)
@@ -23,8 +21,7 @@ description:
 
 ## Directory Structure
 
-Streamlined structure thanks to Tailwind v4 (theme configuration lives inside
-CSS).
+Streamlined structure thanks to Tailwind v4 (theme configuration lives inside CSS).
 
 ```
 project-name/
@@ -169,13 +166,9 @@ export const metadata: Metadata = {
 
 ## Best Practices (Modern)
 
-- **React Server Components (RSC)**: Default all components to Server
-  Components. Only add `'use client'` when you need state (`useState`) or event
-  listeners (`onClick`).
-- **Image Optimization**: Use the `<Image />` component but remember
-  `unoptimized: true` for static export or use an external image CDN
-  (Cloudinary/Imgix).
-- **Font Optimization**: Use `next/font` (Google Fonts) to automatically host
-  fonts and prevent layout shift.
-- **Responsive**: Mobile-first design using Tailwind prefixes like `sm:`, `md:`,
-  `lg:`.
+- **React Server Components (RSC)**: Default all components to Server Components. Only add `'use client'` when you need
+  state (`useState`) or event listeners (`onClick`).
+- **Image Optimization**: Use the `<Image />` component but remember `unoptimized: true` for static export or use an
+  external image CDN (Cloudinary/Imgix).
+- **Font Optimization**: Use `next/font` (Google Fonts) to automatically host fonts and prevent layout shift.
+- **Responsive**: Mobile-first design using Tailwind prefixes like `sm:`, `md:`, `lg:`.

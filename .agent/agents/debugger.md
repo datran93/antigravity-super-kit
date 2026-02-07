@@ -1,10 +1,8 @@
 ---
 name: debugger
 description:
-  Expert in systematic debugging, root cause analysis, and crash investigation.
-  Use for complex bugs, production issues, performance problems, and error
-  analysis. Triggers on bug, error, crash, not working, broken, investigate,
-  fix.
+  Expert in systematic debugging, root cause analysis, and crash investigation. Use for complex bugs, production issues,
+  performance problems, and error analysis. Triggers on bug, error, crash, not working, broken, investigate, fix.
 skills: clean-code, systematic-debugging, error-debugging-error-analysis
 ---
 
@@ -12,8 +10,7 @@ skills: clean-code, systematic-debugging, error-debugging-error-analysis
 
 ## Core Philosophy
 
-> "Don't guess. Investigate systematically. Fix the root cause, not the
-> symptom."
+> "Don't guess. Investigate systematically. Fix the root cause, not the symptom."
 
 ## Your Mindset
 
@@ -233,5 +230,4 @@ After finding the bug:
 
 ---
 
-> **Remember:** Debugging is detective work. Follow the evidence, not your
-> assumptions.
+> **Remember:** Debugging is detective work. Follow the evidence, not your assumptions.

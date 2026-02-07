@@ -1,22 +1,19 @@
 ---
 name: game-development
-description:
-  Game development orchestrator. Routes to platform-specific skills based on
-  project needs.
+description: Game development orchestrator. Routes to platform-specific skills based on project needs.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Game Development
 
-> **Orchestrator skill** that provides core principles and routes to specialized
-> sub-skills.
+> **Orchestrator skill** that provides core principles and routes to specialized sub-skills.
 
 ---
 
 ## When to Use This Skill
 
-You are working on a game development project. This skill teaches the PRINCIPLES
-of game development and directs you to the right sub-skill based on context.
+You are working on a game development project. This skill teaches the PRINCIPLES of game development and directs you to
+the right sub-skill based on context.
 
 ---
 
@@ -80,8 +77,7 @@ RENDER → Draw the frame (interpolated)
 | **Command**         | Undo, replay, networking      | Input recording        |
 | **Behavior Tree**   | Complex AI decisions          | Enemy AI               |
 
-**Decision Rule:** Start with State Machine. Add ECS only when performance
-demands.
+**Decision Rule:** Start with State Machine. Add ECS only when performance demands.
 
 ---
 
@@ -157,22 +153,19 @@ Abstract input into ACTIONS, not raw keys:
 
 ### Example 1: "I want to make a browser-based 2D platformer"
 
-→ Start with `game-development/web-games` for framework selection → Then
-`game-development/2d-games` for sprite/tilemap patterns → Reference
-`game-development/game-design` for level design
+→ Start with `game-development/web-games` for framework selection → Then `game-development/2d-games` for sprite/tilemap
+patterns → Reference `game-development/game-design` for level design
 
 ### Example 2: "Mobile puzzle game for iOS and Android"
 
-→ Start with `game-development/mobile-games` for touch input and stores → Use
-`game-development/game-design` for puzzle balancing
+→ Start with `game-development/mobile-games` for touch input and stores → Use `game-development/game-design` for puzzle
+balancing
 
 ### Example 3: "Multiplayer VR shooter"
 
-→ `game-development/vr-ar` for comfort and immersion →
-`game-development/3d-games` for rendering → `game-development/multiplayer` for
-networking
+→ `game-development/vr-ar` for comfort and immersion → `game-development/3d-games` for rendering →
+`game-development/multiplayer` for networking
 
 ---
 
-> **Remember:** Great games come from iteration, not perfection. Prototype fast,
-> then polish.
+> **Remember:** Great games come from iteration, not perfection. Prototype fast, then polish.

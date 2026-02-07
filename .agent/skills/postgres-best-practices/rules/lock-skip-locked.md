@@ -7,8 +7,7 @@ tags: skip-locked, queue, workers, concurrency
 
 ## Use SKIP LOCKED for Non-Blocking Queue Processing
 
-When multiple workers process a queue, SKIP LOCKED allows workers to process
-different rows without waiting.
+When multiple workers process a queue, SKIP LOCKED allows workers to process different rows without waiting.
 
 **Incorrect (workers block each other):**
 
@@ -52,5 +51,4 @@ where id = (
 returning *;
 ```
 
-Reference:
-[SELECT FOR UPDATE SKIP LOCKED](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE)
+Reference: [SELECT FOR UPDATE SKIP LOCKED](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE)

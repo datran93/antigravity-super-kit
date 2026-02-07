@@ -1,8 +1,6 @@
 ---
 name: mobile-games
-description:
-  Mobile game development principles. Touch input, battery, performance, app
-  stores.
+description: Mobile game development principles. Touch input, battery, performance, app stores.
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
@@ -107,5 +105,4 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 
 ---
 
-> **Remember:** Mobile is the most constrained platform. Respect battery and
-> attention.
+> **Remember:** Mobile is the most constrained platform. Respect battery and attention.

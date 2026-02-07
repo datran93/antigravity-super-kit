@@ -1,13 +1,11 @@
 ---
 name: nuxt-app
-description:
-  Nuxt 4 full-stack template. Vue 3 (Vapor), Pinia, Tailwind v4, Prisma.
+description: Nuxt 4 full-stack template. Vue 3 (Vapor), Pinia, Tailwind v4, Prisma.
 ---
 
 # Nuxt 4 Full-Stack Template (2026 Edition)
 
-Mẫu template Full-Stack hiện đại cho Nuxt 4, tối ưu hóa hiệu suất với Vue Vapor
-Mode và Tailwind v4.
+Mẫu template Full-Stack hiện đại cho Nuxt 4, tối ưu hóa hiệu suất với Vue Vapor Mode và Tailwind v4.
 
 ## Tech Stack
 
@@ -134,9 +132,8 @@ project-name/
   // Component này sẽ compile sang chế độ Vapor (No VDOM)
   </script>
   ```
-- **Data Fetching**: Sử dụng `useFetch` với `server: false` cho các tác vụ
-  client-only, hoặc dùng Server Functions để type-safety tốt hơn.
-- **State**: Dùng `defineStore` (Pinia) cho global state, `useState` của Nuxt
-  cho state đơn giản chia sẻ giữa Server/Client.
-- **Type Safety**: Tự động tạo type cho API routes (`$fetch` typed
-  automatically).
+- **Data Fetching**: Sử dụng `useFetch` với `server: false` cho các tác vụ client-only, hoặc dùng Server Functions để
+  type-safety tốt hơn.
+- **State**: Dùng `defineStore` (Pinia) cho global state, `useState` của Nuxt cho state đơn giản chia sẻ giữa
+  Server/Client.
+- **Type Safety**: Tự động tạo type cho API routes (`$fetch` typed automatically).

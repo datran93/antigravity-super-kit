@@ -1,8 +1,8 @@
 ---
 name: plan-writing
 description:
-  Structured task planning with clear breakdowns, dependencies, and verification
-  criteria. Use when implementing features, refactoring, or any multi-step work.
+  Structured task planning with clear breakdowns, dependencies, and verification criteria. Use when implementing
+  features, refactoring, or any multi-step work.
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -12,8 +12,7 @@ allowed-tools: Read, Glob, Grep
 
 ## Overview
 
-This skill provides a framework for breaking down work into clear, actionable
-tasks with verification criteria.
+This skill provides a framework for breaking down work into clear, actionable tasks with verification criteria.
 
 ## Task Breakdown Principles
 
@@ -104,8 +103,7 @@ tasks with verification criteria.
 | Database       | `schema_validator.py`                     |
 | Full-stack     | Mix of above based on what you touched    |
 
-**Wrong:** Adding all scripts to every plan **Right:** Only scripts relevant to
-THIS task
+**Wrong:** Adding all scripts to every plan **Right:** Only scripts relevant to THIS task
 
 ---
 
@@ -136,8 +134,7 @@ One sentence: What are we building/fixing?
 - [ ] [Main success criteria]
 ```
 
-> **That's it.** No phases, no sub-sections unless truly needed. Keep it
-> minimal. Add complexity only when required.
+> **That's it.** No phases, no sub-sections unless truly needed. Keep it minimal. Add complexity only when required.
 
 ## Notes
 

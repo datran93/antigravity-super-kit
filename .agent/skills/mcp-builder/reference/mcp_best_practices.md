@@ -45,8 +45,8 @@ Follow these standardized naming patterns:
 
 - Examples: `slack-mcp-server`, `github-mcp-server`, `jira-mcp-server`
 
-The name should be general, descriptive of the service being integrated, easy to
-infer from the task description, and without version numbers.
+The name should be general, descriptive of the service being integrated, easy to infer from the task description, and
+without version numbers.
 
 ---
 
@@ -55,8 +55,7 @@ infer from the task description, and without version numbers.
 ### Tool Naming
 
 1. **Use snake_case**: `search_users`, `create_project`, `get_channel_info`
-2. **Include service prefix**: Anticipate that your MCP server may be used
-   alongside other MCP servers
+2. **Include service prefix**: Anticipate that your MCP server may be used alongside other MCP servers
    - Use `slack_send_message` instead of just `send_message`
    - Use `github_create_issue` instead of just `create_issue`
 3. **Be action-oriented**: Start with verbs (get, list, search, create, etc.)
@@ -66,8 +65,7 @@ infer from the task description, and without version numbers.
 
 - Tool descriptions must narrowly and unambiguously describe functionality
 - Descriptions must precisely match actual functionality
-- Provide tool annotations (readOnlyHint, destructiveHint, idempotentHint,
-  openWorldHint)
+- Provide tool annotations (readOnlyHint, destructiveHint, idempotentHint, openWorldHint)
 - Keep tool operations focused and atomic
 
 ---
@@ -99,10 +97,8 @@ For tools that list resources:
 
 - **Always respect the `limit` parameter**
 - **Implement pagination**: Use `offset` or cursor-based pagination
-- **Return pagination metadata**: Include `has_more`,
-  `next_offset`/`next_cursor`, `total_count`
-- **Never load all results into memory**: Especially important for large
-  datasets
+- **Return pagination metadata**: Include `has_more`, `next_offset`/`next_cursor`, `total_count`
+- **Never load all results into memory**: Especially important for large datasets
 - **Default to reasonable limits**: 20-50 items is typical
 
 Example pagination response:
@@ -220,8 +216,8 @@ Provide annotations to help clients understand tool behavior:
 | `idempotentHint`  | boolean | false   | Repeated calls with same args have no additional effect |
 | `openWorldHint`   | boolean | true    | Tool interacts with external entities                   |
 
-**Important**: Annotations are hints, not security guarantees. Clients should
-not make security-critical decisions based solely on annotations.
+**Important**: Annotations are hints, not security guarantees. Clients should not make security-critical decisions based
+solely on annotations.
 
 ---
 

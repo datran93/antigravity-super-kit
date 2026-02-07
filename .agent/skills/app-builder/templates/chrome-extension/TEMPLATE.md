@@ -1,7 +1,6 @@
 ---
 name: chrome-extension
-description:
-  Chrome Extension template principles. Manifest V3, React, TypeScript.
+description: Chrome Extension template principles. Manifest V3, React, TypeScript.
 ---
 
 # Chrome Extension Template

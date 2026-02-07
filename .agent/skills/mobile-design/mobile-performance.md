@@ -1,8 +1,7 @@
 # Mobile Performance Reference
 
-> Deep dive into React Native and Flutter performance optimization, 60fps
-> animations, memory management, and battery considerations. **This file covers
-> the #1 area where AI-generated code FAILS.**
+> Deep dive into React Native and Flutter performance optimization, 60fps animations, memory management, and battery
+> considerations. **This file covers the #1 area where AI-generated code FAILS.**
 
 ---
 
@@ -126,12 +125,7 @@ const getItemLayout = useCallback(
 // Consider FlashList for better performance
 import { FlashList } from "@shopify/flash-list";
 
-<FlashList
-  data={items}
-  renderItem={renderItem}
-  estimatedItemSize={ITEM_HEIGHT}
-  keyExtractor={keyExtractor}
-/>;
+<FlashList data={items} renderItem={renderItem} estimatedItemSize={ITEM_HEIGHT} keyExtractor={keyExtractor} />;
 
 // Benefits over FlatList:
 // ├── Faster recycling
@@ -173,11 +167,7 @@ Animated.timing(value, {
 ```javascript
 // For animations native driver can't handle, use Reanimated 3
 
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 
 const Component = () => {
   const offset = useSharedValue(0);
@@ -736,10 +726,7 @@ COMPRESS: Reduce payload size
     [],
   )}
   keyExtractor={useCallback((item) => item.id, [])}
-  getItemLayout={useCallback(
-    (_, i) => ({ length: H, offset: H * i, index: i }),
-    [],
-  )}
+  getItemLayout={useCallback((_, i) => ({ length: H, offset: H * i, index: i }), [])}
 />;
 
 // Animation: Always native
@@ -782,6 +769,5 @@ Low-end Android ← Test device
 
 ---
 
-> **Remember:** Performance is not optimization—it's baseline quality. A slow
-> app is a broken app. Test on the worst device your users have, not the best
-> device you have.
+> **Remember:** Performance is not optimization—it's baseline quality. A slow app is a broken app. Test on the worst
+> device your users have, not the best device you have.

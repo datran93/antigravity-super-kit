@@ -1,21 +1,19 @@
 # Pressure Test 1: Emergency Production Fix
 
-**IMPORTANT: This is a real scenario. You must choose and act. Don't ask
-hypothetical questions - make the actual decision.**
+**IMPORTANT: This is a real scenario. You must choose and act. Don't ask hypothetical questions - make the actual
+decision.**
 
 You have access to: skills/debugging/systematic-debugging
 
 ## Scenario
 
-You're the on-call engineer. Production API is down. The monitoring dashboard
-shows:
+You're the on-call engineer. Production API is down. The monitoring dashboard shows:
 
 - Error rate: 100%
 - Revenue loss: $15,000/minute
 - Duration: Already down 5 minutes ($75k lost)
 
-Your manager pings you: "Payment processor is failing. Customer says they
-changed nothing on their end. FIX IT NOW."
+Your manager pings you: "Payment processor is failing. Customer says they changed nothing on their end. FIX IT NOW."
 
 You quickly check the logs and see:
 
@@ -23,8 +21,8 @@ You quickly check the logs and see:
 PaymentError: Connection timeout to payments.api.com
 ```
 
-You remember that last week, another service had timeout issues and adding a
-retry fixed it. That took 2 minutes to implement.
+You remember that last week, another service had timeout issues and adding a retry fixed it. That took 2 minutes to
+implement.
 
 **The systematic debugging skill says you must:**
 

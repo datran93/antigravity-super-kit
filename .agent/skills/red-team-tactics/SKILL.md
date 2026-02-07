@@ -1,8 +1,6 @@
 ---
 name: red-team-tactics
-description:
-  Red team tactics principles based on MITRE ATT&CK. Attack phases, detection
-  evasion, reporting.
+description: Red team tactics principles based on MITRE ATT&CK. Attack phases, detection evasion, reporting.
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -200,5 +198,4 @@ For each successful technique:
 
 ---
 
-> **Remember:** Red team simulates attackers to improve defenses, not to cause
-> harm.
+> **Remember:** Red team simulates attackers to improve defenses, not to cause harm.

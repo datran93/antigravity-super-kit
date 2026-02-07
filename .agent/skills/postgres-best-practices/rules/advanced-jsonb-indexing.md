@@ -7,8 +7,7 @@ tags: jsonb, gin, indexes, json
 
 ## Index JSONB Columns for Efficient Querying
 
-JSONB queries without indexes scan the entire table. Use GIN indexes for
-containment queries.
+JSONB queries without indexes scan the entire table. Use GIN indexes for containment queries.
 
 **Incorrect (no index on JSONB):**
 
@@ -47,5 +46,4 @@ create index idx1 on products using gin (attributes);
 create index idx2 on products using gin (attributes jsonb_path_ops);
 ```
 
-Reference:
-[JSONB Indexes](https://www.postgresql.org/docs/current/datatype-json.html#JSON-INDEXING)
+Reference: [JSONB Indexes](https://www.postgresql.org/docs/current/datatype-json.html#JSON-INDEXING)

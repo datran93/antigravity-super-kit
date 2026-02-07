@@ -7,8 +7,7 @@ tags: indexes, composite-index, multi-column, query-optimization
 
 ## Create Composite Indexes for Multi-Column Queries
 
-When queries filter on multiple columns, a composite index is more efficient
-than separate single-column indexes.
+When queries filter on multiple columns, a composite index is more efficient than separate single-column indexes.
 
 **Incorrect (separate indexes require bitmap scan):**
 
@@ -42,5 +41,4 @@ create index idx on orders (status, created_at);
 -- Does NOT work for: WHERE created_at > '2024-01-01' (leftmost prefix rule)
 ```
 
-Reference:
-[Multicolumn Indexes](https://www.postgresql.org/docs/current/indexes-multicolumn.html)
+Reference: [Multicolumn Indexes](https://www.postgresql.org/docs/current/indexes-multicolumn.html)

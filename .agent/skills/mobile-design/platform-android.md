@@ -1,7 +1,7 @@
 # Android Platform Guidelines
 
-> Material Design 3 essentials, Android design conventions, Roboto typography,
-> and native patterns. **Read this file when building for Android devices.**
+> Material Design 3 essentials, Android design conventions, Roboto typography, and native patterns. **Read this file
+> when building for Android devices.**
 
 ---
 
@@ -663,6 +663,5 @@ if (reduceMotion) {
 
 ---
 
-> **Remember:** Android users expect Material Design. Custom designs that ignore
-> Material patterns feel foreign and broken. Use Material components as your
-> foundation, customize thoughtfully.
+> **Remember:** Android users expect Material Design. Custom designs that ignore Material patterns feel foreign and
+> broken. Use Material components as your foundation, customize thoughtfully.

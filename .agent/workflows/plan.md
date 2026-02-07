@@ -68,6 +68,7 @@ Next steps:
 ```
 
 Save plan summary to `.agent/docs/PLAN-{slug}.md` and notify:
+
 - **Slug generation**: Extract 2-3 key words from request → lowercase → hyphen-separated → max 30 chars
   - Example: "e-commerce site with cart" → `PLAN-ecommerce-cart.md`
 - Notify: `✅ PLAN summary saved: .agent/docs/PLAN-{slug}.md`

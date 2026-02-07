@@ -1,21 +1,20 @@
 ---
 name: intelligent-routing
 description:
-  Automatic agent selection and intelligent task routing. Analyzes user requests
-  and automatically selects the best specialist agent(s) without requiring
-  explicit user mentions.
+  Automatic agent selection and intelligent task routing. Analyzes user requests and automatically selects the best
+  specialist agent(s) without requiring explicit user mentions.
 version: 1.0.0
 ---
 
 # Intelligent Agent Routing
 
-**Purpose**: Automatically analyze user requests and route them to the most
-appropriate specialist agent(s) without requiring explicit user mentions.
+**Purpose**: Automatically analyze user requests and route them to the most appropriate specialist agent(s) without
+requiring explicit user mentions.
 
 ## Core Principle
 
-> **The AI should act as an intelligent Project Manager**, analyzing each
-> request and automatically selecting the best specialist(s) for the job.
+> **The AI should act as an intelligent Project Manager**, analyzing each request and automatically selecting the best
+> specialist(s) for the job.
 
 ## How It Works
 
@@ -121,8 +120,7 @@ function analyzeRequest(userMessage) {
 
 ### Multi-Domain Tasks (Auto-invoke Orchestrator)
 
-If request matches **2+ domains from different categories**, automatically use
-`orchestrator`:
+If request matches **2+ domains from different categories**, automatically use `orchestrator`:
 
 ```text
 Example: "Create a secure login system with dark mode UI"
@@ -177,14 +175,12 @@ Example: "Create a secure login system with dark mode UI"
 ```markdown
 🤖 **Applying knowledge of `@frontend-specialist`...**
 
-I will create the component with the following characteristics: [Continue with
-specialized response]
+I will create the component with the following characteristics: [Continue with specialized response]
 ```
 
 ### Rule 3: Seamless Experience
 
-**The user should not notice a difference from talking to the right specialist
-directly.**
+**The user should not notice a difference from talking to the right specialist directly.**
 
 ### Rule 4: Override Capability
 
@@ -303,9 +299,8 @@ Verify: Systematic debugging approach
 If this is the first interaction in a project:
 
 ```markdown
-💡 **Tip**: I am configured with automatic specialist agent selection. I will
-always choose the most suitable specialist for your task. You can still mention
-agents explicitly with `@agent-name` if you prefer.
+💡 **Tip**: I am configured with automatic specialist agent selection. I will always choose the most suitable specialist
+for your task. You can still mention agents explicitly with `@agent-name` if you prefer.
 ```
 
 ## Debugging Agent Selection
@@ -335,8 +330,7 @@ Show selection reasoning:
 ✅ Override capability for explicit agent mentions  
 ✅ Fallback to orchestrator for complex tasks
 
-**Result**: User gets specialist-level responses without needing to know the
-system architecture.
+**Result**: User gets specialist-level responses without needing to know the system architecture.
 
 ---
 

@@ -1,12 +1,11 @@
 # Error Handling Patterns Implementation Playbook
 
-This file contains detailed patterns, checklists, and code samples referenced by
-the skill.
+This file contains detailed patterns, checklists, and code samples referenced by the skill.
 
 # Error Handling Patterns
 
-Build resilient applications with robust error handling strategies that
-gracefully handle failures and provide excellent debugging experiences.
+Build resilient applications with robust error handling strategies that gracefully handle failures and provide excellent
+debugging experiences.
 
 ## When to Use This Skill
 
@@ -232,10 +231,7 @@ if (result.ok) {
 }
 
 // Chaining Results
-function chain<T, U, E>(
-  result: Result<T, E>,
-  fn: (value: T) => Result<U, E>,
-): Result<U, E> {
+function chain<T, U, E>(result: Result<T, E>, fn: (value: T) => Result<U, E>): Result<U, E> {
   return result.ok ? fn(result.value) : result;
 }
 ```
@@ -488,10 +484,7 @@ class ErrorCollector {
     if (this.errors.length === 1) {
       throw this.errors[0];
     }
-    throw new AggregateError(
-      this.errors,
-      `${this.errors.length} errors occurred`,
-    );
+    throw new AggregateError(this.errors, `${this.errors.length} errors occurred`);
   }
 }
 
@@ -634,10 +627,8 @@ def process_order(order_id: str) -> Order:
 
 ## Resources
 
-- **references/exception-hierarchy-design.md**: Designing error class
-  hierarchies
-- **references/error-recovery-strategies.md**: Recovery patterns for different
-  scenarios
+- **references/exception-hierarchy-design.md**: Designing error class hierarchies
+- **references/error-recovery-strategies.md**: Recovery patterns for different scenarios
 - **references/async-error-handling.md**: Handling errors in concurrent code
 - **assets/error-handling-checklist.md**: Review checklist for error handling
 - **assets/error-message-guide.md**: Writing helpful error messages

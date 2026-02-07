@@ -1,9 +1,8 @@
 ---
 name: brainstorming
 description:
-  Socratic questioning protocol + user communication. MANDATORY for complex
-  requests, new features, or unclear requirements. Includes progress reporting
-  and error handling.
+  Socratic questioning protocol + user communication. MANDATORY for complex requests, new features, or unclear
+  requirements. Includes progress reporting and error handling.
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -69,14 +68,12 @@ allowed-tools: Read, Glob, Grep
 - [Architectural consequence]
 - [Affects: cost/complexity/timeline/scale]
 
-**Options:** | Option | Pros | Cons | Best For |
-|--------|------|------|----------| | A | [+] | [-] | [Use case] |
+**Options:** | Option | Pros | Cons | Best For | |--------|------|------|----------| | A | [+] | [-] | [Use case] |
 
 **If Not Specified:** [Default + rationale]
 ```
 
-**For detailed domain-specific question banks and algorithms**, see:
-`dynamic-questioning.md`
+**For detailed domain-specific question banks and algorithms**, see: `dynamic-questioning.md`
 
 ---
 

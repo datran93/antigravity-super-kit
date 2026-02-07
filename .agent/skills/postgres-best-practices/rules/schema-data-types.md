@@ -7,8 +7,7 @@ tags: data-types, schema, storage, performance
 
 ## Choose Appropriate Data Types
 
-Using the right data types reduces storage, improves query performance, and
-prevents bugs.
+Using the right data types reduces storage, improves query performance, and prevents bugs.
 
 **Incorrect (wrong data types):**
 

@@ -1,12 +1,11 @@
 # Go Concurrency Patterns Implementation Playbook
 
-This file contains detailed patterns, checklists, and code samples referenced by
-the skill.
+This file contains detailed patterns, checklists, and code samples referenced by the skill.
 
 # Go Concurrency Patterns
 
-Production patterns for Go concurrency including goroutines, channels,
-synchronization primitives, and context management.
+Production patterns for Go concurrency including goroutines, channels, synchronization primitives, and context
+management.
 
 ## When to Use This Skill
 

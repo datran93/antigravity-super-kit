@@ -2,17 +2,14 @@
 
 ## Overview
 
-When you fix a bug caused by invalid data, adding validation at one place feels
-sufficient. But that single check can be bypassed by different code paths,
-refactoring, or mocks.
+When you fix a bug caused by invalid data, adding validation at one place feels sufficient. But that single check can be
+bypassed by different code paths, refactoring, or mocks.
 
-**Core principle:** Validate at EVERY layer data passes through. Make the bug
-structurally impossible.
+**Core principle:** Validate at EVERY layer data passes through. Make the bug structurally impossible.
 
 ## Why Multiple Layers
 
-Single validation: "We fixed the bug" Multiple layers: "We made the bug
-impossible"
+Single validation: "We fixed the bug" Multiple layers: "We made the bug impossible"
 
 Different layers catch different cases:
 
@@ -67,9 +64,7 @@ async function gitInit(directory: string) {
     const tmpDir = normalize(resolve(tmpdir()));
 
     if (!normalized.startsWith(tmpDir)) {
-      throw new Error(
-        `Refusing git init outside temp dir during tests: ${directory}`,
-      );
+      throw new Error(`Refusing git init outside temp dir during tests: ${directory}`);
     }
   }
   // ... proceed
@@ -123,8 +118,7 @@ Bug: Empty `projectDir` caused `git init` in source code
 
 ## Key Insight
 
-All four layers were necessary. During testing, each layer caught bugs the
-others missed:
+All four layers were necessary. During testing, each layer caught bugs the others missed:
 
 - Different code paths bypassed entry validation
 - Mocks bypassed business logic checks

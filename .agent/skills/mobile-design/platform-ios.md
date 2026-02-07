@@ -1,8 +1,7 @@
 # iOS Platform Guidelines
 
-> Human Interface Guidelines (HIG) essentials, iOS design conventions, SF Pro
-> typography, and native patterns. **Read this file when building for
-> iPhone/iPad.**
+> Human Interface Guidelines (HIG) essentials, iOS design conventions, SF Pro typography, and native patterns. **Read
+> this file when building for iPhone/iPad.**
 
 ---
 
@@ -559,6 +558,5 @@ AccessibilityInfo.isReduceMotionEnabled()
 
 ---
 
-> **Remember:** iOS users have strong expectations from other iOS apps.
-> Deviating from HIG patterns feels "broken" to them. When in doubt, use the
-> native component.
+> **Remember:** iOS users have strong expectations from other iOS apps. Deviating from HIG patterns feels "broken" to
+> them. When in doubt, use the native component.

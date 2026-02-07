@@ -1,8 +1,6 @@
 ---
 name: flutter-app
-description:
-  Flutter mobile app template principles. Riverpod, Go Router, clean
-  architecture.
+description: Flutter mobile app template principles. Riverpod, Go Router, clean architecture.
 ---
 
 # Flutter App Template

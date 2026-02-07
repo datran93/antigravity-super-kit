@@ -1,8 +1,6 @@
 ---
 name: geo-fundamentals
-description:
-  Generative Engine Optimization for AI search engines (ChatGPT, Claude,
-  Perplexity).
+description: Generative Engine Optimization for AI search engines (ChatGPT, Claude, Perplexity).
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -146,8 +144,7 @@ How AI engines select content to cite:
 
 ---
 
-> **Remember:** AI cites content that's clear, authoritative, and easy to
-> extract. Be the best answer.
+> **Remember:** AI cites content that's clear, authoritative, and easy to extract. Be the best answer.
 
 ---
 

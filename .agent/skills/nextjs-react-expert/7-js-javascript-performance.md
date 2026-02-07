@@ -1,7 +1,6 @@
 # 7. JavaScript Performance
 
-> **Impact:** LOW-MEDIUM **Focus:** Micro-optimizations for hot paths can add up
-> to meaningful improvements.
+> **Impact:** LOW-MEDIUM **Focus:** Micro-optimizations for hot paths can add up to meaningful improvements.
 
 ---
 
@@ -18,9 +17,8 @@ This section contains **12 rules** focused on javascript performance.
 
 ## Avoid Layout Thrashing
 
-Avoid interleaving style writes with layout reads. When you read a layout
-property (like `offsetWidth`, `getBoundingClientRect()`, or
-`getComputedStyle()`) between style changes, the browser is forced to trigger a
+Avoid interleaving style writes with layout reads. When you read a layout property (like `offsetWidth`,
+`getBoundingClientRect()`, or `getComputedStyle()`) between style changes, the browser is forced to trigger a
 synchronous reflow.
 
 **This is OK (browser batches style changes):**
@@ -119,13 +117,11 @@ function Box({ isHighlighted }: { isHighlighted: boolean }) {
 }
 ```
 
-Prefer CSS classes over inline styles when possible. CSS files are cached by the
-browser, and classes provide better separation of concerns and are easier to
-maintain.
+Prefer CSS classes over inline styles when possible. CSS files are cached by the browser, and classes provide better
+separation of concerns and are easier to maintain.
 
-See [this gist](https://gist.github.com/paulirish/5d52fb081b3570c81e3a) and
-[CSS Triggers](https://csstriggers.com/) for more information on layout-forcing
-operations.
+See [this gist](https://gist.github.com/paulirish/5d52fb081b3570c81e3a) and [CSS Triggers](https://csstriggers.com/) for
+more information on layout-forcing operations.
 
 ---
 
@@ -162,8 +158,7 @@ function processOrders(orders: Order[], users: User[]) {
 }
 ```
 
-Build map once (O(n)), then all lookups are O(1). For 1000 orders × 1000 users:
-1M ops → 2K ops.
+Build map once (O(n)), then all lookups are O(1). For 1000 orders × 1000 users: 1M ops → 2K ops.
 
 ---
 
@@ -203,8 +198,8 @@ for (let i = 0; i < len; i++) {
 
 ## Cache Repeated Function Calls
 
-Use a module-level Map to cache function results when the same function is
-called repeatedly with the same inputs during render.
+Use a module-level Map to cache function results when the same function is called repeatedly with the same inputs during
+render.
 
 **Incorrect (redundant computation):**
 
@@ -272,8 +267,7 @@ function onAuthChange() {
 }
 ```
 
-Use a Map (not a hook) so it works everywhere: utilities, event handlers, not
-just React components.
+Use a Map (not a hook) so it works everywhere: utilities, event handlers, not just React components.
 
 Reference:
 [How we made the Vercel Dashboard twice as fast](https://vercel.com/blog/how-we-made-the-vercel-dashboard-twice-as-fast)
@@ -287,8 +281,7 @@ Reference:
 
 ## Cache Storage API Calls
 
-`localStorage`, `sessionStorage`, and `document.cookie` are synchronous and
-expensive. Cache reads in memory.
+`localStorage`, `sessionStorage`, and `document.cookie` are synchronous and expensive. Cache reads in memory.
 
 **Incorrect (reads storage on every call):**
 
@@ -317,8 +310,7 @@ function setLocalStorage(key: string, value: string) {
 }
 ```
 
-Use a Map (not a hook) so it works everywhere: utilities, event handlers, not
-just React components.
+Use a Map (not a hook) so it works everywhere: utilities, event handlers, not just React components.
 
 **Cookie caching:**
 
@@ -327,9 +319,7 @@ let cookieCache: Record<string, string> | null = null;
 
 function getCookie(name: string) {
   if (!cookieCache) {
-    cookieCache = Object.fromEntries(
-      document.cookie.split("; ").map((c) => c.split("=")),
-    );
+    cookieCache = Object.fromEntries(document.cookie.split("; ").map((c) => c.split("=")));
   }
   return cookieCache[name];
 }
@@ -337,8 +327,7 @@ function getCookie(name: string) {
 
 **Important (invalidate on external changes):**
 
-If storage can change externally (another tab, server-set cookies), invalidate
-cache:
+If storage can change externally (another tab, server-set cookies), invalidate cache:
 
 ```typescript
 window.addEventListener("storage", (e) => {
@@ -361,8 +350,7 @@ document.addEventListener("visibilitychange", () => {
 
 ## Combine Multiple Array Iterations
 
-Multiple `.filter()` or `.map()` calls iterate the array multiple times. Combine
-into one loop.
+Multiple `.filter()` or `.map()` calls iterate the array multiple times. Combine into one loop.
 
 **Incorrect (3 iterations):**
 
@@ -395,12 +383,11 @@ for (const user of users) {
 
 ## Early Length Check for Array Comparisons
 
-When comparing arrays with expensive operations (sorting, deep equality,
-serialization), check lengths first. If lengths differ, the arrays cannot be
-equal.
+When comparing arrays with expensive operations (sorting, deep equality, serialization), check lengths first. If lengths
+differ, the arrays cannot be equal.
 
-In real-world applications, this optimization is especially valuable when the
-comparison runs in hot paths (event handlers, render loops).
+In real-world applications, this optimization is especially valuable when the comparison runs in hot paths (event
+handlers, render loops).
 
 **Incorrect (always runs expensive comparison):**
 
@@ -411,8 +398,8 @@ function hasChanges(current: string[], original: string[]) {
 }
 ```
 
-Two O(n log n) sorts run even when `current.length` is 5 and `original.length`
-is 100. There is also overhead of joining the arrays and comparing the strings.
+Two O(n log n) sorts run even when `current.length` is 5 and `original.length` is 100. There is also overhead of joining
+the arrays and comparing the strings.
 
 **Correct (O(1) length check first):**
 
@@ -437,8 +424,7 @@ function hasChanges(current: string[], original: string[]) {
 This new approach is more efficient because:
 
 - It avoids the overhead of sorting and joining the arrays when lengths differ
-- It avoids consuming memory for the joined strings (especially important for
-  large arrays)
+- It avoids consuming memory for the joined strings (especially important for large arrays)
 - It avoids mutating the original arrays
 - It returns early when a difference is found
 
@@ -502,8 +488,7 @@ function validateUsers(users: User[]) {
 
 ## Hoist RegExp Creation
 
-Don't create RegExp inside render. Hoist to module scope or memoize with
-`useMemo()`.
+Don't create RegExp inside render. Hoist to module scope or memoize with `useMemo()`.
 
 **Incorrect (new RegExp every render):**
 
@@ -549,8 +534,7 @@ regex.test("foo"); // false, lastIndex = 0
 
 ## Use Loop for Min/Max Instead of Sort
 
-Finding the smallest or largest element only requires a single pass through the
-array. Sorting is wasteful and slower.
+Finding the smallest or largest element only requires a single pass through the array. Sorting is wasteful and slower.
 
 **Incorrect (O(n log n) - sort to find latest):**
 
@@ -622,11 +606,9 @@ const min = Math.min(...numbers);
 const max = Math.max(...numbers);
 ```
 
-This works for small arrays, but can be slower or just throw an error for very
-large arrays due to spread operator limitations. Maximal array length is
-approximately 124000 in Chrome 143 and 638000 in Safari 18; exact numbers may
-vary - see [the fiddle](https://jsfiddle.net/qw1jabsx/4/). Use the loop approach
-for reliability.
+This works for small arrays, but can be slower or just throw an error for very large arrays due to spread operator
+limitations. Maximal array length is approximately 124000 in Chrome 143 and 638000 in Safari 18; exact numbers may
+vary - see [the fiddle](https://jsfiddle.net/qw1jabsx/4/). Use the loop approach for reliability.
 
 ---
 
@@ -662,8 +644,8 @@ items.filter(item => allowedIds.has(item.id))
 
 ## Use toSorted() Instead of sort() for Immutability
 
-`.sort()` mutates the array in place, which can cause bugs with React state and
-props. Use `.toSorted()` to create a new sorted array without mutation.
+`.sort()` mutates the array in place, which can cause bugs with React state and props. Use `.toSorted()` to create a new
+sorted array without mutation.
 
 **Incorrect (mutates original array):**
 
@@ -693,15 +675,13 @@ function UserList({ users }: { users: User[] }) {
 
 **Why this matters in React:**
 
-1. Props/state mutations break React's immutability model - React expects props
-   and state to be treated as read-only
-2. Causes stale closure bugs - Mutating arrays inside closures (callbacks,
-   effects) can lead to unexpected behavior
+1. Props/state mutations break React's immutability model - React expects props and state to be treated as read-only
+2. Causes stale closure bugs - Mutating arrays inside closures (callbacks, effects) can lead to unexpected behavior
 
 **Browser support (fallback for older browsers):**
 
-`.toSorted()` is available in all modern browsers (Chrome 110+, Safari 16+,
-Firefox 115+, Node.js 20+). For older environments, use spread operator:
+`.toSorted()` is available in all modern browsers (Chrome 110+, Safari 16+, Firefox 115+, Node.js 20+). For older
+environments, use spread operator:
 
 ```typescript
 // Fallback for older browsers

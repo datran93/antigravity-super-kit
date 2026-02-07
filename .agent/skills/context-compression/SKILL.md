@@ -1,18 +1,15 @@
 ---
 name: context-compression
-description:
-  "Design and evaluate compression strategies for long-running sessions"
+description: "Design and evaluate compression strategies for long-running sessions"
 source: "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering/tree/main/skills/context-compression"
 risk: safe
 ---
 
 # Context Compression Strategies
 
-When agent sessions generate millions of tokens of conversation history,
-compression becomes mandatory. The naive approach is aggressive compression to
-minimize tokens per request. The correct optimization target is tokens per task:
-total tokens consumed to complete a task, including re-fetching costs when
-compression loses critical information.
+When agent sessions generate millions of tokens of conversation history, compression becomes mandatory. The naive
+approach is aggressive compression to minimize tokens per request. The correct optimization target is tokens per task:
+total tokens consumed to complete a task, including re-fetching costs when compression loses critical information.
 
 ## When to Activate
 
@@ -26,46 +23,38 @@ Activate this skill when:
 
 ## Core Concepts
 
-Context compression trades token savings against information loss. Three
-production-ready approaches exist:
+Context compression trades token savings against information loss. Three production-ready approaches exist:
 
-1. **Anchored Iterative Summarization**: Maintain structured, persistent
-   summaries with explicit sections for session intent, file modifications,
-   decisions, and next steps. When compression triggers, summarize only the
-   newly-truncated span and merge with the existing summary. Structure forces
-   preservation by dedicating sections to specific information types.
+1. **Anchored Iterative Summarization**: Maintain structured, persistent summaries with explicit sections for session
+   intent, file modifications, decisions, and next steps. When compression triggers, summarize only the newly-truncated
+   span and merge with the existing summary. Structure forces preservation by dedicating sections to specific
+   information types.
 
-2. **Opaque Compression**: Produce compressed representations optimized for
-   reconstruction fidelity. Achieves highest compression ratios (99%+) but
-   sacrifices interpretability. Cannot verify what was preserved.
+2. **Opaque Compression**: Produce compressed representations optimized for reconstruction fidelity. Achieves highest
+   compression ratios (99%+) but sacrifices interpretability. Cannot verify what was preserved.
 
-3. **Regenerative Full Summary**: Generate detailed structured summaries on each
-   compression. Produces readable output but may lose details across repeated
-   compression cycles due to full regeneration rather than incremental merging.
+3. **Regenerative Full Summary**: Generate detailed structured summaries on each compression. Produces readable output
+   but may lose details across repeated compression cycles due to full regeneration rather than incremental merging.
 
-The critical insight: structure forces preservation. Dedicated sections act as
-checklists that the summarizer must populate, preventing silent information
-drift.
+The critical insight: structure forces preservation. Dedicated sections act as checklists that the summarizer must
+populate, preventing silent information drift.
 
 ## Detailed Topics
 
 ### Why Tokens-Per-Task Matters
 
-Traditional compression metrics target tokens-per-request. This is the wrong
-optimization. When compression loses critical details like file paths or error
-messages, the agent must re-fetch information, re-explore approaches, and waste
-tokens recovering context.
+Traditional compression metrics target tokens-per-request. This is the wrong optimization. When compression loses
+critical details like file paths or error messages, the agent must re-fetch information, re-explore approaches, and
+waste tokens recovering context.
 
-The right metric is tokens-per-task: total tokens consumed from task start to
-completion. A compression strategy saving 0.5% more tokens but causing 20% more
-re-fetching costs more overall.
+The right metric is tokens-per-task: total tokens consumed from task start to completion. A compression strategy saving
+0.5% more tokens but causing 20% more re-fetching costs more overall.
 
 ### The Artifact Trail Problem
 
-Artifact trail integrity is the weakest dimension across all compression
-methods, scoring 2.2-2.5 out of 5.0 in evaluations. Even structured
-summarization with explicit file sections struggles to maintain complete file
-tracking across long sessions.
+Artifact trail integrity is the weakest dimension across all compression methods, scoring 2.2-2.5 out of 5.0 in
+evaluations. Even structured summarization with explicit file sections struggles to maintain complete file tracking
+across long sessions.
 
 Coding agents need to know:
 
@@ -74,8 +63,8 @@ Coding agents need to know:
 - Which files were read but not changed
 - Function names, variable names, error messages
 
-This problem likely requires specialized handling beyond general summarization:
-a separate artifact index or explicit file-state tracking in agent scaffolding.
+This problem likely requires specialized handling beyond general summarization: a separate artifact index or explicit
+file-state tracking in agent scaffolding.
 
 ### Structured Summary Sections
 
@@ -109,8 +98,7 @@ Effective structured summaries include explicit sections:
 3. Update documentation
 ```
 
-This structure prevents silent loss of file paths or decisions because each
-section must be explicitly addressed.
+This structure prevents silent loss of file paths or decisions because each section must be explicitly addressed.
 
 ### Compression Trigger Strategies
 
@@ -123,17 +111,15 @@ When to trigger compression matters as much as how to compress:
 | Importance-based | Compress low-relevance sections first | Complex but preserves signal             |
 | Task-boundary    | Compress at logical task completions  | Clean summaries but unpredictable timing |
 
-The sliding window approach with structured summaries provides the best balance
-of predictability and quality for most coding agent use cases.
+The sliding window approach with structured summaries provides the best balance of predictability and quality for most
+coding agent use cases.
 
 ### Probe-Based Evaluation
 
-Traditional metrics like ROUGE or embedding similarity fail to capture
-functional compression quality. A summary may score high on lexical overlap
-while missing the one file path the agent needs.
+Traditional metrics like ROUGE or embedding similarity fail to capture functional compression quality. A summary may
+score high on lexical overlap while missing the one file path the agent needs.
 
-Probe-based evaluation directly measures functional quality by asking questions
-after compression:
+Probe-based evaluation directly measures functional quality by asking questions after compression:
 
 | Probe Type   | What It Tests     | Example Question                            |
 | ------------ | ----------------- | ------------------------------------------- |
@@ -142,52 +128,45 @@ after compression:
 | Continuation | Task planning     | "What should we do next?"                   |
 | Decision     | Reasoning chain   | "What did we decide about the Redis issue?" |
 
-If compression preserved the right information, the agent answers correctly. If
-not, it guesses or hallucinates.
+If compression preserved the right information, the agent answers correctly. If not, it guesses or hallucinates.
 
 ### Evaluation Dimensions
 
 Six dimensions capture compression quality for coding agents:
 
-1. **Accuracy**: Are technical details correct? File paths, function names,
-   error codes.
+1. **Accuracy**: Are technical details correct? File paths, function names, error codes.
 2. **Context Awareness**: Does the response reflect current conversation state?
 3. **Artifact Trail**: Does the agent know which files were read or modified?
 4. **Completeness**: Does the response address all parts of the question?
 5. **Continuity**: Can work continue without re-fetching information?
 6. **Instruction Following**: Does the response respect stated constraints?
 
-Accuracy shows the largest variation between compression methods (0.6 point
-gap). Artifact trail is universally weak (2.2-2.5 range).
+Accuracy shows the largest variation between compression methods (0.6 point gap). Artifact trail is universally weak
+(2.2-2.5 range).
 
 ## Practical Guidance
 
 ### Three-Phase Compression Workflow
 
-For large codebases or agent systems exceeding context windows, apply
-compression through three phases:
+For large codebases or agent systems exceeding context windows, apply compression through three phases:
 
-1. **Research Phase**: Produce a research document from architecture diagrams,
-   documentation, and key interfaces. Compress exploration into a structured
-   analysis of components and dependencies. Output: single research document.
+1. **Research Phase**: Produce a research document from architecture diagrams, documentation, and key interfaces.
+   Compress exploration into a structured analysis of components and dependencies. Output: single research document.
 
-2. **Planning Phase**: Convert research into implementation specification with
-   function signatures, type definitions, and data flow. A 5M token codebase
-   compresses to approximately 2,000 words of specification.
+2. **Planning Phase**: Convert research into implementation specification with function signatures, type definitions,
+   and data flow. A 5M token codebase compresses to approximately 2,000 words of specification.
 
-3. **Implementation Phase**: Execute against the specification. Context remains
-   focused on the spec rather than raw codebase exploration.
+3. **Implementation Phase**: Execute against the specification. Context remains focused on the spec rather than raw
+   codebase exploration.
 
 ### Using Example Artifacts as Seeds
 
-When provided with a manual migration example or reference PR, use it as a
-template to understand the target pattern. The example reveals constraints that
-static analysis cannot surface: which invariants must hold, which services break
-on changes, and what a clean migration looks like.
+When provided with a manual migration example or reference PR, use it as a template to understand the target pattern.
+The example reveals constraints that static analysis cannot surface: which invariants must hold, which services break on
+changes, and what a clean migration looks like.
 
-This is particularly important when the agent cannot distinguish essential
-complexity (business requirements) from accidental complexity (legacy
-workarounds). The example artifact encodes that distinction.
+This is particularly important when the agent cannot distinguish essential complexity (business requirements) from
+accidental complexity (legacy workarounds). The example artifact encodes that distinction.
 
 ### Implementing Anchored Iterative Summarization
 
@@ -225,9 +204,8 @@ workarounds). The example artifact encodes that distinction.
 | Regenerative       | 98.7%             | 3.44          | Good quality, moderate compression      |
 | Opaque             | 99.3%             | 3.35          | Best compression, quality loss          |
 
-The 0.7% additional tokens retained by structured summarization buys 0.35
-quality points. For any task where re-fetching costs matter, this trade-off
-favors structured approaches.
+The 0.7% additional tokens retained by structured summarization buys 0.35 quality points. For any task where re-fetching
+costs matter, this trade-off favors structured approaches.
 
 ## Examples
 
@@ -250,8 +228,7 @@ Debug 401 Unauthorized error on /api/auth/login despite valid credentials.
 
 ## Root Cause
 
-Stale Redis connection in session store. JWT generated correctly but session
-could not be persisted.
+Stale Redis connection in session store. JWT generated correctly but session could not be persisted.
 
 ## Files Modified
 
@@ -278,17 +255,15 @@ After compression, asking "What was the original error?":
 
 Good response (structured summarization):
 
-> "The original error was a 401 Unauthorized response from the /api/auth/login
-> endpoint. Users received this error with valid credentials. Root cause was
-> stale Redis connection in session store."
+> "The original error was a 401 Unauthorized response from the /api/auth/login endpoint. Users received this error with
+> valid credentials. Root cause was stale Redis connection in session store."
 
 Poor response (aggressive compression):
 
-> "We were debugging an authentication issue. The login was failing. We fixed
-> some configuration problems."
+> "We were debugging an authentication issue. The login was failing. We fixed some configuration problems."
 
-The structured response preserves endpoint, error code, and root cause. The
-aggressive response loses all technical detail.
+The structured response preserves endpoint, error code, and root cause. The aggressive response loses all technical
+detail.
 
 ## Guidelines
 
@@ -314,8 +289,7 @@ This skill connects to several others in the collection:
 
 Internal reference:
 
-- [Evaluation Framework Reference](./references/evaluation-framework.md) -
-  Detailed probe types and scoring rubrics
+- [Evaluation Framework Reference](./references/evaluation-framework.md) - Detailed probe types and scoring rubrics
 
 Related skills in this collection:
 
@@ -327,12 +301,12 @@ External resources:
 
 - Factory Research: Evaluating Context Compression for AI Agents (December 2025)
 - Research on LLM-as-judge evaluation methodology (Zheng et al., 2023)
-- Netflix Engineering: "The Infinite Software Crisis" - Three-phase workflow and
-  context compression at scale (AI Summit 2025)
+- Netflix Engineering: "The Infinite Software Crisis" - Three-phase workflow and context compression at scale (AI
+  Summit 2025)
 
 ---
 
 ## Skill Metadata
 
-**Created**: 2025-12-22 **Last Updated**: 2025-12-26 **Author**: Agent Skills
-for Context Engineering Contributors **Version**: 1.1.0
+**Created**: 2025-12-22 **Last Updated**: 2025-12-26 **Author**: Agent Skills for Context Engineering Contributors
+**Version**: 1.1.0

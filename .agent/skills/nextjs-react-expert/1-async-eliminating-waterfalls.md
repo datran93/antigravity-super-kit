@@ -1,8 +1,7 @@
 # 1. Eliminating Waterfalls
 
-> **Impact:** CRITICAL **Focus:** Waterfalls are the #1 performance killer. Each
-> sequential await adds full network latency. Eliminating them yields the
-> largest gains.
+> **Impact:** CRITICAL **Focus:** Waterfalls are the #1 performance killer. Each sequential await adds full network
+> latency. Eliminating them yields the largest gains.
 
 ---
 
@@ -19,8 +18,7 @@ This section contains **5 rules** focused on eliminating waterfalls.
 
 ## Defer Await Until Needed
 
-Move `await` operations into the branches where they're actually used to avoid
-blocking code paths that don't need them.
+Move `await` operations into the branches where they're actually used to avoid blocking code paths that don't need them.
 
 **Incorrect (blocks both branches):**
 
@@ -90,8 +88,8 @@ async function updateResource(resourceId: string, userId: string) {
 }
 ```
 
-This optimization is especially valuable when the skipped branch is frequently
-taken, or when the deferred operation is expensive.
+This optimization is especially valuable when the skipped branch is frequently taken, or when the deferred operation is
+expensive.
 
 ---
 
@@ -102,8 +100,8 @@ taken, or when the deferred operation is expensive.
 
 ## Dependency-Based Parallelization
 
-For operations with partial dependencies, use `better-all` to maximize
-parallelism. It automatically starts each task at the earliest possible moment.
+For operations with partial dependencies, use `better-all` to maximize parallelism. It automatically starts each task at
+the earliest possible moment.
 
 **Incorrect (profile waits for config unnecessarily):**
 
@@ -138,15 +136,10 @@ We can also create all the promises first, and do `Promise.all()` at the end.
 const userPromise = fetchUser();
 const profilePromise = userPromise.then((user) => fetchProfile(user.id));
 
-const [user, config, profile] = await Promise.all([
-  userPromise,
-  fetchConfig(),
-  profilePromise,
-]);
+const [user, config, profile] = await Promise.all([userPromise, fetchConfig(), profilePromise]);
 ```
 
-Reference:
-[https://github.com/shuding/better-all](https://github.com/shuding/better-all)
+Reference: [https://github.com/shuding/better-all](https://github.com/shuding/better-all)
 
 ---
 
@@ -157,8 +150,7 @@ Reference:
 
 ## Prevent Waterfall Chains in API Routes
 
-In API routes and Server Actions, start independent operations immediately, even
-if you don't await them yet.
+In API routes and Server Actions, start independent operations immediately, even if you don't await them yet.
 
 **Incorrect (config waits for auth, data waits for both):**
 
@@ -178,16 +170,13 @@ export async function GET(request: Request) {
   const sessionPromise = auth();
   const configPromise = fetchConfig();
   const session = await sessionPromise;
-  const [config, data] = await Promise.all([
-    configPromise,
-    fetchData(session.user.id),
-  ]);
+  const [config, data] = await Promise.all([configPromise, fetchData(session.user.id)]);
   return Response.json({ data, config });
 }
 ```
 
-For operations with more complex dependency chains, use `better-all` to
-automatically maximize parallelism (see Dependency-Based Parallelization).
+For operations with more complex dependency chains, use `better-all` to automatically maximize parallelism (see
+Dependency-Based Parallelization).
 
 ---
 
@@ -198,8 +187,7 @@ automatically maximize parallelism (see Dependency-Based Parallelization).
 
 ## Promise.all() for Independent Operations
 
-When async operations have no interdependencies, execute them concurrently using
-`Promise.all()`.
+When async operations have no interdependencies, execute them concurrently using `Promise.all()`.
 
 **Incorrect (sequential execution, 3 round trips):**
 
@@ -212,11 +200,7 @@ const comments = await fetchComments();
 **Correct (parallel execution, 1 round trip):**
 
 ```typescript
-const [user, posts, comments] = await Promise.all([
-  fetchUser(),
-  fetchPosts(),
-  fetchComments(),
-]);
+const [user, posts, comments] = await Promise.all([fetchUser(), fetchPosts(), fetchComments()]);
 ```
 
 ---
@@ -228,8 +212,8 @@ const [user, posts, comments] = await Promise.all([
 
 ## Strategic Suspense Boundaries
 
-Instead of awaiting data in async components before returning JSX, use Suspense
-boundaries to show the wrapper UI faster while data loads.
+Instead of awaiting data in async components before returning JSX, use Suspense boundaries to show the wrapper UI faster
+while data loads.
 
 **Incorrect (wrapper blocked by data fetching):**
 
@@ -309,8 +293,8 @@ function DataSummary({ dataPromise }: { dataPromise: Promise<Data> }) {
 }
 ```
 
-Both components share the same promise, so only one fetch occurs. Layout renders
-immediately while both components wait together.
+Both components share the same promise, so only one fetch occurs. Layout renders immediately while both components wait
+together.
 
 **When NOT to use this pattern:**
 
@@ -319,5 +303,4 @@ immediately while both components wait together.
 - Small, fast queries where suspense overhead isn't worth it
 - When you want to avoid layout shift (loading → content jump)
 
-**Trade-off:** Faster initial paint vs potential layout shift. Choose based on
-your UX priorities.
+**Trade-off:** Faster initial paint vs potential layout shift. Choose based on your UX priorities.

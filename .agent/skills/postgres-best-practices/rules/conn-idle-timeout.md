@@ -7,8 +7,7 @@ tags: connections, timeout, idle, resource-management
 
 ## Configure Idle Connection Timeouts
 
-Idle connections waste resources. Configure timeouts to automatically reclaim
-them.
+Idle connections waste resources. Configure timeouts to automatically reclaim them.
 
 **Incorrect (connections held indefinitely):**
 

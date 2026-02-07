@@ -2,10 +2,9 @@
 
 ## Overview
 
-This document provides Node/TypeScript-specific best practices and examples for
-implementing MCP servers using the MCP TypeScript SDK. It covers project
-structure, server setup, tool registration patterns, input validation with Zod,
-error handling, and complete working examples.
+This document provides Node/TypeScript-specific best practices and examples for implementing MCP servers using the MCP
+TypeScript SDK. It covers project structure, server setup, tool registration patterns, input validation with Zod, error
+handling, and complete working examples.
 
 ---
 
@@ -64,13 +63,10 @@ The official MCP TypeScript SDK provides:
 
 **IMPORTANT - Use Modern APIs Only:**
 
-- **DO use**: `server.registerTool()`, `server.registerResource()`,
-  `server.registerPrompt()`
-- **DO NOT use**: Old deprecated APIs such as `server.tool()`,
-  `server.setRequestHandler(ListToolsRequestSchema, ...)`, or manual handler
-  registration
-- The `register*` methods provide better type safety, automatic schema handling,
-  and are the recommended approach
+- **DO use**: `server.registerTool()`, `server.registerResource()`, `server.registerPrompt()`
+- **DO NOT use**: Old deprecated APIs such as `server.tool()`, `server.setRequestHandler(ListToolsRequestSchema, ...)`,
+  or manual handler registration
+- The `register*` methods provide better type safety, automatic schema handling, and are the recommended approach
 
 See the MCP SDK documentation in the references for complete details.
 
@@ -111,8 +107,8 @@ Create the following structure for Node/TypeScript MCP servers:
 
 ### Tool Naming
 
-Use snake_case for tool names (e.g., "search_users", "create_project",
-"get_channel_info") with clear, action-oriented names.
+Use snake_case for tool names (e.g., "search_users", "create_project", "get_channel_info") with clear, action-oriented
+names.
 
 **Avoid Naming Conflicts**: Include the service context to prevent overlaps:
 
@@ -122,12 +118,10 @@ Use snake_case for tool names (e.g., "search_users", "create_project",
 
 ### Tool Structure
 
-Tools are registered using the `registerTool` method with the following
-requirements:
+Tools are registered using the `registerTool` method with the following requirements:
 
 - Use Zod schemas for runtime input validation and type safety
-- The `description` field must be explicitly provided - JSDoc comments are NOT
-  automatically extracted
+- The `description` field must be explicitly provided - JSDoc comments are NOT automatically extracted
 - Explicitly provide `title`, `description`, `inputSchema`, and `annotations`
 - The `inputSchema` must be a Zod schema object (not a JSON schema)
 - Type all parameters and return values explicitly
@@ -149,25 +143,12 @@ const UserSearchInputSchema = z
       .min(2, "Query must be at least 2 characters")
       .max(200, "Query must not exceed 200 characters")
       .describe("Search string to match against names/emails"),
-    limit: z
-      .number()
-      .int()
-      .min(1)
-      .max(100)
-      .default(20)
-      .describe("Maximum results to return"),
-    offset: z
-      .number()
-      .int()
-      .min(0)
-      .default(0)
-      .describe("Number of results to skip for pagination"),
+    limit: z.number().int().min(1).max(100).default(20).describe("Maximum results to return"),
+    offset: z.number().int().min(0).default(0).describe("Number of results to skip for pagination"),
     response_format: z
       .nativeEnum(ResponseFormat)
       .default(ResponseFormat.MARKDOWN)
-      .describe(
-        "Output format: 'markdown' for human-readable or 'json' for machine-readable",
-      ),
+      .describe("Output format: 'markdown' for human-readable or 'json' for machine-readable"),
   })
   .strict();
 
@@ -315,10 +296,7 @@ import { z } from "zod";
 // Basic schema with validation
 const CreateUserSchema = z
   .object({
-    name: z
-      .string()
-      .min(1, "Name is required")
-      .max(100, "Name must not exceed 100 characters"),
+    name: z.string().min(1, "Name is required").max(100, "Name must not exceed 100 characters"),
     email: z.string().email("Invalid email format"),
     age: z
       .number()
@@ -335,27 +313,13 @@ enum ResponseFormat {
 }
 
 const SearchSchema = z.object({
-  response_format: z
-    .nativeEnum(ResponseFormat)
-    .default(ResponseFormat.MARKDOWN)
-    .describe("Output format"),
+  response_format: z.nativeEnum(ResponseFormat).default(ResponseFormat.MARKDOWN).describe("Output format"),
 });
 
 // Optional fields with defaults
 const PaginationSchema = z.object({
-  limit: z
-    .number()
-    .int()
-    .min(1)
-    .max(100)
-    .default(20)
-    .describe("Maximum results to return"),
-  offset: z
-    .number()
-    .int()
-    .min(0)
-    .default(0)
-    .describe("Number of results to skip"),
+  limit: z.number().int().min(1).max(100).default(20).describe("Maximum results to return"),
+  offset: z.number().int().min(0).default(0).describe("Number of results to skip"),
 });
 ```
 
@@ -374,9 +338,7 @@ const inputSchema = z.object({
   response_format: z
     .nativeEnum(ResponseFormat)
     .default(ResponseFormat.MARKDOWN)
-    .describe(
-      "Output format: 'markdown' for human-readable or 'json' for machine-readable",
-    ),
+    .describe("Output format: 'markdown' for human-readable or 'json' for machine-readable"),
 });
 ```
 
@@ -413,10 +375,7 @@ async function listItems(params: z.infer<typeof ListSchema>) {
     offset: params.offset,
     items: data.items,
     has_more: data.total > params.offset + data.items.length,
-    next_offset:
-      data.total > params.offset + data.items.length
-        ? params.offset + data.items.length
-        : undefined,
+    next_offset: data.total > params.offset + data.items.length ? params.offset + data.items.length : undefined,
   };
 
   return JSON.stringify(response, null, 2);
@@ -521,17 +480,14 @@ async function fetchData(resourceId: string): Promise<ResourceData> {
 
 // Bad: Promise chains
 function fetchData(resourceId: string): Promise<ResourceData> {
-  return axios
-    .get(`${API_URL}/resource/${resourceId}`)
-    .then((response) => response.data); // Harder to read and maintain
+  return axios.get(`${API_URL}/resource/${resourceId}`).then((response) => response.data); // Harder to read and maintain
 }
 ```
 
 ## TypeScript Best Practices
 
 1. **Use Strict TypeScript**: Enable strict mode in tsconfig.json
-2. **Define Interfaces**: Create clear interface definitions for all data
-   structures
+2. **Define Interfaces**: Create clear interface definitions for all data structures
 3. **Avoid `any`**: Use proper types or `unknown` instead of `any`
 4. **Zod for Runtime Validation**: Use Zod schemas to validate external data
 5. **Type Guards**: Create type guard functions for complex type checking
@@ -661,25 +617,12 @@ const UserSearchInputSchema = z
       .min(2, "Query must be at least 2 characters")
       .max(200, "Query must not exceed 200 characters")
       .describe("Search string to match against names/emails"),
-    limit: z
-      .number()
-      .int()
-      .min(1)
-      .max(100)
-      .default(20)
-      .describe("Maximum results to return"),
-    offset: z
-      .number()
-      .int()
-      .min(0)
-      .default(0)
-      .describe("Number of results to skip for pagination"),
+    limit: z.number().int().min(1).max(100).default(20).describe("Maximum results to return"),
+    offset: z.number().int().min(0).default(0).describe("Number of results to skip for pagination"),
     response_format: z
       .nativeEnum(ResponseFormat)
       .default(ResponseFormat.MARKDOWN)
-      .describe(
-        "Output format: 'markdown' for human-readable or 'json' for machine-readable",
-      ),
+      .describe("Output format: 'markdown' for human-readable or 'json' for machine-readable"),
   })
   .strict();
 
@@ -949,10 +892,8 @@ Your implementation MUST prioritize composability and code reuse:
 
 2. **Avoid Duplication**:
    - NEVER copy-paste similar code between tools
-   - If you find yourself writing similar logic twice, extract it into a
-     function
-   - Common operations like pagination, filtering, field selection, and
-     formatting should be shared
+   - If you find yourself writing similar logic twice, extract it into a function
+   - Common operations like pagination, filtering, field selection, and formatting should be shared
    - Authentication/authorization logic should be centralized
 
 ## Building and Running
@@ -970,8 +911,7 @@ npm start
 npm run dev
 ```
 
-Always ensure `npm run build` completes successfully before considering the
-implementation complete.
+Always ensure `npm run build` completes successfully before considering the implementation complete.
 
 ## Quality Checklist
 
@@ -990,14 +930,11 @@ Before finalizing your Node/TypeScript MCP server implementation, ensure:
 - [ ] FOCUSED IMPLEMENTATION: Most important and valuable tools implemented
 - [ ] All tools registered using `registerTool` with complete configuration
 - [ ] All tools include `title`, `description`, `inputSchema`, and `annotations`
-- [ ] Annotations correctly set (readOnlyHint, destructiveHint, idempotentHint,
-      openWorldHint)
-- [ ] All tools use Zod schemas for runtime input validation with `.strict()`
-      enforcement
+- [ ] Annotations correctly set (readOnlyHint, destructiveHint, idempotentHint, openWorldHint)
+- [ ] All tools use Zod schemas for runtime input validation with `.strict()` enforcement
 - [ ] All Zod schemas have proper constraints and descriptive error messages
 - [ ] All tools have comprehensive descriptions with explicit input/output types
-- [ ] Descriptions include return value examples and complete schema
-      documentation
+- [ ] Descriptions include return value examples and complete schema documentation
 - [ ] Error messages are clear, actionable, and educational
 
 ### TypeScript Quality
@@ -1006,8 +943,7 @@ Before finalizing your Node/TypeScript MCP server implementation, ensure:
 - [ ] Strict TypeScript is enabled in tsconfig.json
 - [ ] No use of `any` type - use `unknown` or proper types instead
 - [ ] All async functions have explicit Promise<T> return types
-- [ ] Error handling uses proper type guards (e.g., `axios.isAxiosError`,
-      `z.ZodError`)
+- [ ] Error handling uses proper type guards (e.g., `axios.isAxiosError`, `z.ZodError`)
 
 ### Advanced Features (where applicable)
 
@@ -1027,8 +963,7 @@ Before finalizing your Node/TypeScript MCP server implementation, ensure:
 ### Code Quality
 
 - [ ] Pagination is properly implemented where applicable
-- [ ] Large responses check CHARACTER_LIMIT constant and truncate with clear
-      messages
+- [ ] Large responses check CHARACTER_LIMIT constant and truncate with clear messages
 - [ ] Filtering options are provided for potentially large result sets
 - [ ] All network operations handle timeouts and connection errors gracefully
 - [ ] Common functionality is extracted into reusable functions

@@ -1,10 +1,8 @@
 # Dynamic Question Generation
 
-> **PRINCIPLE:** Questions are not about gathering data—they are about
-> **revealing architectural consequences**.
+> **PRINCIPLE:** Questions are not about gathering data—they are about **revealing architectural consequences**.
 >
-> Every question must connect to a concrete implementation decision that affects
-> cost, complexity, or timeline.
+> Every question must connect to a concrete implementation decision that affects cost, complexity, or timeline.
 
 ---
 
@@ -15,8 +13,7 @@
 A good question is not "What color do you want?" but:
 
 ```markdown
-❌ BAD: "What authentication method?" ✅ GOOD: "Should users sign up with
-email/password or social login?
+❌ BAD: "What authentication method?" ✅ GOOD: "Should users sign up with email/password or social login?
 
 Impact:
 
@@ -56,12 +53,10 @@ If a question doesn't reduce implementation paths → **DELETE IT**.
 ### 4. Questions Generate Data, Not Assumptions
 
 ```markdown
-❌ ASSUMPTION: "User probably wants Stripe for payments" ✅ QUESTION: "Which
-payment provider fits your needs?
+❌ ASSUMPTION: "User probably wants Stripe for payments" ✅ QUESTION: "Which payment provider fits your needs?
 
-Stripe → Best documentation, 2.9% + $0.30, US-centric LemonSqueezy → Merchant of
-Record, 5% + $0.50, global taxes Paddle → Complex pricing, handles EU VAT,
-enterprise focus"
+Stripe → Best documentation, 2.9% + $0.30, US-centric LemonSqueezy → Merchant of Record, 5% + $0.50, global taxes Paddle
+→ Complex pricing, handles EU VAT, enterprise focus"
 ```
 
 ---
@@ -152,9 +147,8 @@ Based on your request for [DOMAIN] [FEATURE]:
 - [Explain architectural consequence]
 - [Affects: cost / complexity / timeline / scale]
 
-**Options:** | Option | Pros | Cons | Best For |
-|--------|------|------|----------| | A | [Advantage] | [Disadvantage] | [Use
-case] | | B | [Advantage] | [Disadvantage] | [Use case] |
+**Options:** | Option | Pros | Cons | Best For | |--------|------|------|----------| | A | [Advantage] | [Disadvantage]
+| [Use case] | | B | [Advantage] | [Disadvantage] | [Use case] |
 
 **If Not Specified:** [Default choice + rationale]
 

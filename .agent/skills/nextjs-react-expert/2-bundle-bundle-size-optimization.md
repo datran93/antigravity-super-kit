@@ -1,7 +1,7 @@
 # 2. Bundle Size Optimization
 
-> **Impact:** CRITICAL **Focus:** Reducing initial bundle size improves Time to
-> Interactive and Largest Contentful Paint.
+> **Impact:** CRITICAL **Focus:** Reducing initial bundle size improves Time to Interactive and Largest Contentful
+> Paint.
 
 ---
 
@@ -18,18 +18,14 @@ This section contains **5 rules** focused on bundle size optimization.
 
 ## Avoid Barrel File Imports
 
-Import directly from source files instead of barrel files to avoid loading
-thousands of unused modules. **Barrel files** are entry points that re-export
-multiple modules (e.g., `index.js` that does `export * from './module'`).
+Import directly from source files instead of barrel files to avoid loading thousands of unused modules. **Barrel files**
+are entry points that re-export multiple modules (e.g., `index.js` that does `export * from './module'`).
 
-Popular icon and component libraries can have **up to 10,000 re-exports** in
-their entry file. For many React packages, **it takes 200-800ms just to import
-them**, affecting both development speed and production cold starts.
+Popular icon and component libraries can have **up to 10,000 re-exports** in their entry file. For many React packages,
+**it takes 200-800ms just to import them**, affecting both development speed and production cold starts.
 
-**Why tree-shaking doesn't help:** When a library is marked as external (not
-bundled), the bundler can't optimize it. If you bundle it to enable
-tree-shaking, builds become substantially slower analyzing the entire module
-graph.
+**Why tree-shaking doesn't help:** When a library is marked as external (not bundled), the bundler can't optimize it. If
+you bundle it to enable tree-shaking, builds become substantially slower analyzing the entire module graph.
 
 **Incorrect (imports entire library):**
 
@@ -70,13 +66,10 @@ import { Check, X, Menu } from "lucide-react";
 // Automatically transformed to direct imports at build time
 ```
 
-Direct imports provide 15-70% faster dev boot, 28% faster builds, 40% faster
-cold starts, and significantly faster HMR.
+Direct imports provide 15-70% faster dev boot, 28% faster builds, 40% faster cold starts, and significantly faster HMR.
 
-Libraries commonly affected: `lucide-react`, `@mui/material`,
-`@mui/icons-material`, `@tabler/icons-react`, `react-icons`,
-`@headlessui/react`, `@radix-ui/react-*`, `lodash`, `ramda`, `date-fns`, `rxjs`,
-`react-use`.
+Libraries commonly affected: `lucide-react`, `@mui/material`, `@mui/icons-material`, `@tabler/icons-react`,
+`react-icons`, `@headlessui/react`, `@radix-ui/react-*`, `lodash`, `ramda`, `date-fns`, `rxjs`, `react-use`.
 
 Reference:
 [How we optimized package imports in Next.js](https://vercel.com/blog/how-we-optimized-package-imports-in-next-js)
@@ -106,9 +99,7 @@ function AnimationPlayer({
 
   useEffect(() => {
     if (enabled && !frames && typeof window !== "undefined") {
-      import("./animation-frames.js")
-        .then((mod) => setFrames(mod.frames))
-        .catch(() => setEnabled(false));
+      import("./animation-frames.js").then((mod) => setFrames(mod.frames)).catch(() => setEnabled(false));
     }
   }, [enabled, frames, setEnabled]);
 
@@ -117,8 +108,8 @@ function AnimationPlayer({
 }
 ```
 
-The `typeof window !== 'undefined'` check prevents bundling this module for SSR,
-optimizing server bundle size and build speed.
+The `typeof window !== 'undefined'` check prevents bundling this module for SSR, optimizing server bundle size and build
+speed.
 
 ---
 
@@ -129,8 +120,7 @@ optimizing server bundle size and build speed.
 
 ## Defer Non-Critical Third-Party Libraries
 
-Analytics, logging, and error tracking don't block user interaction. Load them
-after hydration.
+Analytics, logging, and error tracking don't block user interaction. Load them after hydration.
 
 **Incorrect (blocks initial bundle):**
 
@@ -154,10 +144,7 @@ export default function RootLayout({ children }) {
 ```tsx
 import dynamic from "next/dynamic";
 
-const Analytics = dynamic(
-  () => import("@vercel/analytics/react").then((m) => m.Analytics),
-  { ssr: false },
-);
+const Analytics = dynamic(() => import("@vercel/analytics/react").then((m) => m.Analytics), { ssr: false });
 
 export default function RootLayout({ children }) {
   return (
@@ -197,10 +184,7 @@ function CodePanel({ code }: { code: string }) {
 ```tsx
 import dynamic from "next/dynamic";
 
-const MonacoEditor = dynamic(
-  () => import("./monaco-editor").then((m) => m.MonacoEditor),
-  { ssr: false },
-);
+const MonacoEditor = dynamic(() => import("./monaco-editor").then((m) => m.MonacoEditor), { ssr: false });
 
 function CodePanel({ code }: { code: string }) {
   return <MonacoEditor value={code} />;
@@ -246,11 +230,9 @@ function FlagsProvider({ children, flags }: Props) {
     }
   }, [flags.editorEnabled]);
 
-  return (
-    <FlagsContext.Provider value={flags}>{children}</FlagsContext.Provider>
-  );
+  return <FlagsContext.Provider value={flags}>{children}</FlagsContext.Provider>;
 }
 ```
 
-The `typeof window !== 'undefined'` check prevents bundling preloaded modules
-for SSR, optimizing server bundle size and build speed.
+The `typeof window !== 'undefined'` check prevents bundling preloaded modules for SSR, optimizing server bundle size and
+build speed.

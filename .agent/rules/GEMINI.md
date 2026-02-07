@@ -10,25 +10,22 @@ trigger: always_on
 
 ## CRITICAL: AGENT & SKILL PROTOCOL (START HERE)
 
-> **MANDATORY:** You MUST read the appropriate agent file and its skills BEFORE
-> performing any implementation. This is the highest priority rule.
+> **MANDATORY:** You MUST read the appropriate agent file and its skills BEFORE performing any implementation. This is
+> the highest priority rule.
 
 ### 1. Modular Skill Loading Protocol
 
-Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Read
-specific sections.
+Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Read specific sections.
 
-- **Selective Reading:** DO NOT read ALL files in a skill folder. Read
-  `SKILL.md` first, then only read sections matching the user's request.
-- **Rule Priority:** P0 (GEMINI.md) > P1 (Agent .md) > P2 (SKILL.md). All rules
-  are binding.
+- **Selective Reading:** DO NOT read ALL files in a skill folder. Read `SKILL.md` first, then only read sections
+  matching the user's request.
+- **Rule Priority:** P0 (GEMINI.md) > P1 (Agent .md) > P2 (SKILL.md). All rules are binding.
 
 ### 2. Enforcement Protocol
 
 1. **When agent is activated:**
    - ✅ Activate: Read Rules → Check Frontmatter → Load SKILL.md → Apply All.
-2. **Forbidden:** Never skip reading agent rules or skill instructions. "Read →
-   Understand → Apply" is mandatory.
+2. **Forbidden:** Never skip reading agent rules or skill instructions. "Read → Understand → Apply" is mandatory.
 
 ---
 
@@ -49,16 +46,13 @@ specific sections.
 
 ## 🤖 INTELLIGENT AGENT ROUTING (STEP 2 - AUTO)
 
-**ALWAYS ACTIVE: Before responding to ANY request, automatically analyze and
-select the best agent(s).**
+**ALWAYS ACTIVE: Before responding to ANY request, automatically analyze and select the best agent(s).**
 
-> 🔴 **MANDATORY:** You MUST follow the protocol defined in
-> `@[skills/intelligent-routing]`.
+> 🔴 **MANDATORY:** You MUST follow the protocol defined in `@[skills/intelligent-routing]`.
 
 ### Auto-Selection Protocol
 
-1. **Analyze (Silent)**: Detect domains (Frontend, Backend, Security, etc.) from
-   user request.
+1. **Analyze (Silent)**: Detect domains (Frontend, Backend, Security, etc.) from user request.
 2. **Select Agent(s)**: Choose the most appropriate specialist(s).
 3. **Inform User**: Concisely state which expertise is being applied.
 4. **Apply**: Generate response using the selected agent's persona and rules.
@@ -77,8 +71,7 @@ When auto-applying an agent, inform the user:
 
 1. **Silent Analysis**: No verbose meta-commentary ("I am analyzing...").
 2. **Respect Overrides**: If user mentions `@agent`, use it.
-3. **Complex Tasks**: For multi-domain requests, use `orchestrator` and ask
-   Socratic questions first.
+3. **Complex Tasks**: For multi-domain requests, use `orchestrator` and ask Socratic questions first.
 
 ### ⚠️ AGENT ROUTING CHECKLIST (MANDATORY BEFORE EVERY CODE/DESIGN RESPONSE)
 
@@ -97,9 +90,8 @@ When auto-applying an agent, inform the user:
 - ❌ Skipping the announcement = **USER CANNOT VERIFY AGENT WAS USED**
 - ❌ Ignoring agent-specific rules (e.g., Purple Ban) = **QUALITY FAILURE**
 
-> 🔴 **Self-Check Trigger:** Every time you are about to write code or create
-> UI, ask yourself: "Have I completed the Agent Routing Checklist?" If NO →
-> Complete it first.
+> 🔴 **Self-Check Trigger:** Every time you are about to write code or create UI, ask yourself: "Have I completed the
+> Agent Routing Checklist?" If NO → Complete it first.
 
 ---
 
@@ -132,8 +124,7 @@ When user's prompt is NOT in English:
 
 ### 🗺️ System Map Read
 
-> 🔴 **MANDATORY:** Read `ARCHITECTURE.md` at session start to understand
-> Agents, Skills, and Scripts.
+> 🔴 **MANDATORY:** Read `ARCHITECTURE.md` at session start to understand Agents, Skills, and Scripts.
 
 **Path Awareness:**
 
@@ -174,8 +165,7 @@ When user's prompt is NOT in English:
 
 ### 🛑 GLOBAL SOCRATIC GATE (TIER 0)
 
-**MANDATORY: Every user request must pass through the Socratic Gate before ANY
-tool use or implementation.**
+**MANDATORY: Every user request must pass through the Socratic Gate before ANY tool use or implementation.**
 
 | Request Type            | Strategy       | Required Action                                                   |
 | ----------------------- | -------------- | ----------------------------------------------------------------- |
@@ -188,18 +178,15 @@ tool use or implementation.**
 **Protocol:**
 
 1. **Never Assume:** If even 1% is unclear, ASK.
-2. **Handle Spec-heavy Requests:** When user gives a list (Answers 1, 2, 3...),
-   do NOT skip the gate. Instead, ask about **Trade-offs** or **Edge Cases**
-   (e.g., "LocalStorage confirmed, but should we handle data clearing or
-   versioning?") before starting.
-3. **Wait:** Do NOT invoke subagents or write code until the user clears the
-   Gate.
+2. **Handle Spec-heavy Requests:** When user gives a list (Answers 1, 2, 3...), do NOT skip the gate. Instead, ask about
+   **Trade-offs** or **Edge Cases** (e.g., "LocalStorage confirmed, but should we handle data clearing or versioning?")
+   before starting.
+3. **Wait:** Do NOT invoke subagents or write code until the user clears the Gate.
 4. **Reference:** Full protocol in `@[skills/brainstorming]`.
 
 ### 🏁 Final Checklist Protocol
 
-**Trigger:** When the user says "son kontrolleri yap", "final checks", "çalıştır
-tüm testleri", or similar phrases.
+**Trigger:** When the user says "son kontrolleri yap", "final checks", "çalıştır tüm testleri", or similar phrases.
 
 | Task Stage       | Command                                            | Purpose                        |
 | ---------------- | -------------------------------------------------- | ------------------------------ |
@@ -208,14 +195,12 @@ tüm testleri", or similar phrases.
 
 **Priority Execution Order:**
 
-1. **Security** → 2. **Lint** → 3. **Schema** → 4. **Tests** → 5. **UX** → 6.
-   **Seo** → 7. **Lighthouse/E2E**
+1. **Security** → 2. **Lint** → 3. **Schema** → 4. **Tests** → 5. **UX** → 6. **Seo** → 7. **Lighthouse/E2E**
 
 **Rules:**
 
 - **Completion:** A task is NOT finished until `checklist.py` returns success.
-- **Reporting:** If it fails, fix the **Critical** blockers first
-  (Security/Lint).
+- **Reporting:** If it fails, fix the **Critical** blockers first (Security/Lint).
 
 **Available Scripts (12 total):**
 
@@ -234,8 +219,7 @@ tüm testleri", or similar phrases.
 | `lighthouse_audit.py`      | performance-profiling | Before deploy       |
 | `playwright_runner.py`     | webapp-testing        | Before deploy       |
 
-> 🔴 **Agents & Skills can invoke ANY script** via
-> `python .agent/skills/<skill>/scripts/<script>.py`
+> 🔴 **Agents & Skills can invoke ANY script** via `python .agent/skills/<skill>/scripts/<script>.py`
 
 ### 🎭 Gemini Mode Mapping
 
@@ -252,8 +236,8 @@ tüm testleri", or similar phrases.
 3. SOLUTIONING → Architecture, design (NO CODE!)
 4. IMPLEMENTATION → Code + tests
 
-> 🔴 **Edit mode:** If multi-file or structural change → Offer to create
-> `{task-slug}.md`. For single-file fixes → Proceed directly.
+> 🔴 **Edit mode:** If multi-file or structural change → Offer to create `{task-slug}.md`. For single-file fixes →
+> Proceed directly.
 
 ---
 
@@ -316,8 +300,7 @@ tüm testleri", or similar phrases.
 
 - **Verify**: `.agent/scripts/verify_all.py`, `.agent/scripts/checklist.py`
 - **Scanners**: `security_scan.py`, `dependency_analyzer.py`
-- **Audits**: `ux_audit.py`, `mobile_audit.py`, `lighthouse_audit.py`,
-  `seo_checker.py`
+- **Audits**: `ux_audit.py`, `mobile_audit.py`, `lighthouse_audit.py`, `seo_checker.py`
 - **Test**: `playwright_runner.py`, `test_runner.py`
 
 ---

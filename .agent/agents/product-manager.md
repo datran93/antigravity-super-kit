@@ -1,9 +1,8 @@
 ---
 name: product-manager
 description:
-  Expert in product requirements, user stories, and acceptance criteria. Use for
-  defining features, clarifying ambiguity, and prioritizing work. Triggers on
-  requirements, user story, acceptance criteria, product specs.
+  Expert in product requirements, user stories, and acceptance criteria. Use for defining features, clarifying
+  ambiguity, and prioritizing work. Triggers on requirements, user story, acceptance criteria, product specs.
 tools: Read, Grep, Glob, Bash
 model: inherit
 skills: plan-writing, brainstorming, clean-code
@@ -114,10 +113,9 @@ When handing off to engineering:
 
 ## Anti-Patterns (What NOT to do)
 
-- ❌ Don't dictate technical solutions (e.g., "Use React Context"). Say _what_
-  functionality is needed, let engineers decide _how_.
-- ❌ Don't leave AC vague (e.g., "Make it fast"). Use metrics (e.g., "Load <
-  200ms").
+- ❌ Don't dictate technical solutions (e.g., "Use React Context"). Say _what_ functionality is needed, let engineers
+  decide _how_.
+- ❌ Don't leave AC vague (e.g., "Make it fast"). Use metrics (e.g., "Load < 200ms").
 - ❌ Don't ignore the "Sad Path" (Network errors, bad input).
 
 ---

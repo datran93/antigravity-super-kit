@@ -1,7 +1,6 @@
 # 6. Rendering Performance
 
-> **Impact:** MEDIUM **Focus:** Optimizing the rendering process reduces the
-> work the browser needs to do.
+> **Impact:** MEDIUM **Focus:** Optimizing the rendering process reduces the work the browser needs to do.
 
 ---
 
@@ -18,8 +17,8 @@ This section contains **9 rules** focused on rendering performance.
 
 ## Animate SVG Wrapper Instead of SVG Element
 
-Many browsers don't have hardware acceleration for CSS3 animations on SVG
-elements. Wrap SVG in a `<div>` and animate the wrapper instead.
+Many browsers don't have hardware acceleration for CSS3 animations on SVG elements. Wrap SVG in a `<div>` and animate
+the wrapper instead.
 
 **Incorrect (animating SVG directly - no hardware acceleration):**
 
@@ -47,9 +46,8 @@ function LoadingSpinner() {
 }
 ```
 
-This applies to all CSS transforms and transitions (`transform`, `opacity`,
-`translate`, `scale`, `rotate`). The wrapper div allows browsers to use GPU
-acceleration for smoother animations.
+This applies to all CSS transforms and transitions (`transform`, `opacity`, `translate`, `scale`, `rotate`). The wrapper
+div allows browsers to use GPU acceleration for smoother animations.
 
 ---
 
@@ -88,8 +86,7 @@ function MessageList({ messages }: { messages: Message[] }) {
 }
 ```
 
-For 1000 messages, browser skips layout/paint for ~990 off-screen items (10×
-faster initial render).
+For 1000 messages, browser skips layout/paint for ~990 off-screen items (10× faster initial render).
 
 ---
 
@@ -124,13 +121,10 @@ function Container() {
 }
 ```
 
-This is especially helpful for large and static SVG nodes, which can be
-expensive to recreate on every render.
+This is especially helpful for large and static SVG nodes, which can be expensive to recreate on every render.
 
-**Note:** If your project has
-[React Compiler](https://react.dev/learn/react-compiler) enabled, the compiler
-automatically hoists static JSX elements and optimizes component re-renders,
-making manual hoisting unnecessary.
+**Note:** If your project has [React Compiler](https://react.dev/learn/react-compiler) enabled, the compiler
+automatically hoists static JSX elements and optimizes component re-renders, making manual hoisting unnecessary.
 
 ---
 
@@ -141,9 +135,8 @@ making manual hoisting unnecessary.
 
 ## Optimize SVG Precision
 
-Reduce SVG coordinate precision to decrease file size. The optimal precision
-depends on the viewBox size, but in general reducing precision should be
-considered.
+Reduce SVG coordinate precision to decrease file size. The optimal precision depends on the viewBox size, but in general
+reducing precision should be considered.
 
 **Incorrect (excessive precision):**
 
@@ -172,9 +165,8 @@ npx svgo --precision=1 --multipass icon.svg
 
 ## Prevent Hydration Mismatch Without Flickering
 
-When rendering content that depends on client-side storage (localStorage,
-cookies), avoid both SSR breakage and post-hydration flickering by injecting a
-synchronous script that updates the DOM before React hydrates.
+When rendering content that depends on client-side storage (localStorage, cookies), avoid both SSR breakage and
+post-hydration flickering by injecting a synchronous script that updates the DOM before React hydrates.
 
 **Incorrect (breaks SSR):**
 
@@ -207,8 +199,8 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
 }
 ```
 
-Component first renders with default value (`light`), then updates after
-hydration, causing a visible flash of incorrect content.
+Component first renders with default value (`light`), then updates after hydration, causing a visible flash of incorrect
+content.
 
 **Correct (no flicker, no hydration mismatch):**
 
@@ -235,12 +227,11 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
 }
 ```
 
-The inline script executes synchronously before showing the element, ensuring
-the DOM already has the correct value. No flickering, no hydration mismatch.
+The inline script executes synchronously before showing the element, ensuring the DOM already has the correct value. No
+flickering, no hydration mismatch.
 
-This pattern is especially useful for theme toggles, user preferences,
-authentication states, and any client-only data that should render immediately
-without flashing default values.
+This pattern is especially useful for theme toggles, user preferences, authentication states, and any client-only data
+that should render immediately without flashing default values.
 
 ---
 
@@ -251,11 +242,9 @@ without flashing default values.
 
 ## Suppress Expected Hydration Mismatches
 
-In SSR frameworks (e.g., Next.js), some values are intentionally different on
-server vs client (random IDs, dates, locale/timezone formatting). For these
-_expected_ mismatches, wrap the dynamic text in an element with
-`suppressHydrationWarning` to prevent noisy warnings. Do not use this to hide
-real bugs. Don’t overuse it.
+In SSR frameworks (e.g., Next.js), some values are intentionally different on server vs client (random IDs, dates,
+locale/timezone formatting). For these _expected_ mismatches, wrap the dynamic text in an element with
+`suppressHydrationWarning` to prevent noisy warnings. Do not use this to hide real bugs. Don’t overuse it.
 
 **Incorrect (known mismatch warnings):**
 
@@ -282,8 +271,7 @@ function Timestamp() {
 
 ## Use Activity Component for Show/Hide
 
-Use React's `<Activity>` to preserve state/DOM for expensive components that
-frequently toggle visibility.
+Use React's `<Activity>` to preserve state/DOM for expensive components that frequently toggle visibility.
 
 **Usage:**
 
@@ -310,8 +298,8 @@ Avoids expensive re-renders and state loss.
 
 ## Use Explicit Conditional Rendering
 
-Use explicit ternary operators (`? :`) instead of `&&` for conditional rendering
-when the condition can be `0`, `NaN`, or other falsy values that render.
+Use explicit ternary operators (`? :`) instead of `&&` for conditional rendering when the condition can be `0`, `NaN`,
+or other falsy values that render.
 
 **Incorrect (renders "0" when count is 0):**
 
@@ -344,8 +332,8 @@ function Badge({ count }: { count: number }) {
 
 ## Use useTransition Over Manual Loading States
 
-Use `useTransition` instead of manual `useState` for loading states. This
-provides built-in `isPending` state and automatically manages transitions.
+Use `useTransition` instead of manual `useState` for loading states. This provides built-in `isPending` state and
+automatically manages transitions.
 
 **Incorrect (manual loading state):**
 
@@ -405,10 +393,8 @@ function SearchResults() {
 
 **Benefits:**
 
-- **Automatic pending state**: No need to manually manage
-  `setIsLoading(true/false)`
-- **Error resilience**: Pending state correctly resets even if the transition
-  throws
+- **Automatic pending state**: No need to manually manage `setIsLoading(true/false)`
+- **Error resilience**: Pending state correctly resets even if the transition throws
 - **Better responsiveness**: Keeps the UI responsive during updates
 - **Interrupt handling**: New transitions automatically cancel pending ones
 

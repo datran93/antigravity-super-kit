@@ -1,7 +1,6 @@
 # skill-rules.json - Complete Reference
 
-Complete schema and configuration reference for
-`.claude/skills/skill-rules.json`.
+Complete schema and configuration reference for `.claude/skills/skill-rules.json`.
 
 ## Table of Contents
 
@@ -18,8 +17,7 @@ Complete schema and configuration reference for
 
 **Path:** `.claude/skills/skill-rules.json`
 
-This JSON file defines all skills and their trigger conditions for the
-auto-activation system.
+This JSON file defines all skills and their trigger conditions for the auto-activation system.
 
 ---
 
@@ -123,15 +121,7 @@ Complete example of a blocking guardrail skill with all features:
     "priority": "critical",
 
     "promptTriggers": {
-      "keywords": [
-        "prisma",
-        "database",
-        "table",
-        "column",
-        "schema",
-        "query",
-        "migration"
-      ],
+      "keywords": ["prisma", "database", "table", "column", "schema", "query", "migration"],
       "intentPatterns": [
         "(add|create|implement).*?(user|login|auth|tracking|feature)",
         "(modify|update|change).*?(table|column|schema|field)",
@@ -234,10 +224,7 @@ Complete example of a suggestion-based domain skill:
     },
 
     "fileTriggers": {
-      "pathPatterns": [
-        "frontend/src/features/submissions/**/*.tsx",
-        "frontend/src/features/submissions/**/*.ts"
-      ],
+      "pathPatterns": ["frontend/src/features/submissions/**/*.tsx", "frontend/src/features/submissions/**/*.ts"],
       "pathExclusions": ["**/*.test.tsx", "**/*.test.ts"]
     }
   }

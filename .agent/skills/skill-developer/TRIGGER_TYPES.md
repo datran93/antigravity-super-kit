@@ -1,7 +1,6 @@
 # Trigger Types - Complete Guide
 
-Complete reference for configuring skill triggers in Claude Code's skill
-auto-activation system.
+Complete reference for configuring skill triggers in Claude Code's skill auto-activation system.
 
 ## Table of Contents
 
@@ -50,13 +49,11 @@ Topic-based activation where user explicitly mentions the subject.
 
 ### How It Works
 
-Regex pattern matching to detect user's intent even when they don't mention the
-topic explicitly.
+Regex pattern matching to detect user's intent even when they don't mention the topic explicitly.
 
 ### Use For
 
-Action-based activation where user describes what they want to do rather than
-the specific topic.
+Action-based activation where user describes what they want to do rather than the specific topic.
 
 ### Configuration
 
@@ -195,13 +192,11 @@ form/src/workflow-definitions/**/*.json # Workflow definitions
 
 ### How It Works
 
-Regex pattern matching against the file's actual content (what's inside the
-file).
+Regex pattern matching against the file's actual content (what's inside the file).
 
 ### Use For
 
-Technology-specific activation based on what the code imports or uses (Prisma,
-controllers, specific libraries).
+Technology-specific activation based on what the code imports or uses (Prisma, controllers, specific libraries).
 
 ### Configuration
 
@@ -272,17 +267,15 @@ useState|useEffect              # React hooks
 
 ### DO:
 
-✅ Use specific, unambiguous keywords ✅ Test all patterns with real examples ✅
-Include common variations ✅ Use non-greedy regex: `.*?` ✅ Escape special
-characters in content patterns ✅ Add exclusions for test files ✅ Make file
+✅ Use specific, unambiguous keywords ✅ Test all patterns with real examples ✅ Include common variations ✅ Use
+non-greedy regex: `.*?` ✅ Escape special characters in content patterns ✅ Add exclusions for test files ✅ Make file
 path patterns narrow and specific
 
 ### DON'T:
 
-❌ Use overly generic keywords ("system", "work") ❌ Make intent patterns too
-broad (false positives) ❌ Make patterns too specific (false negatives) ❌
-Forget to test with regex tester (https://regex101.com/) ❌ Use greedy regex:
-`.*` instead of `.*?` ❌ Match too broadly in file paths
+❌ Use overly generic keywords ("system", "work") ❌ Make intent patterns too broad (false positives) ❌ Make patterns
+too specific (false negatives) ❌ Forget to test with regex tester (https://regex101.com/) ❌ Use greedy regex: `.*`
+instead of `.*?` ❌ Match too broadly in file paths
 
 ### Testing Your Triggers
 
@@ -310,6 +303,5 @@ EOF
 **Related Files:**
 
 - [SKILL.md](SKILL.md) - Main skill guide
-- [SKILL_RULES_REFERENCE.md](SKILL_RULES_REFERENCE.md) - Complete
-  skill-rules.json schema
+- [SKILL_RULES_REFERENCE.md](SKILL_RULES_REFERENCE.md) - Complete skill-rules.json schema
 - [PATTERNS_LIBRARY.md](PATTERNS_LIBRARY.md) - Ready-to-use pattern library

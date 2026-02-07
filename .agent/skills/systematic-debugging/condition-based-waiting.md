@@ -2,11 +2,10 @@
 
 ## Overview
 
-Flaky tests often guess at timing with arbitrary delays. This creates race
-conditions where tests pass on fast machines but fail under load or in CI.
+Flaky tests often guess at timing with arbitrary delays. This creates race conditions where tests pass on fast machines
+but fail under load or in CI.
 
-**Core principle:** Wait for the actual condition you care about, not a guess
-about how long it takes.
+**Core principle:** Wait for the actual condition you care about, not a guess about how long it takes.
 
 ## When to Use
 
@@ -76,9 +75,7 @@ async function waitFor<T>(
     if (result) return result;
 
     if (Date.now() - startTime > timeoutMs) {
-      throw new Error(
-        `Timeout waiting for ${description} after ${timeoutMs}ms`,
-      );
+      throw new Error(`Timeout waiting for ${description} after ${timeoutMs}ms`);
     }
 
     await new Promise((r) => setTimeout(r, 10)); // Poll every 10ms
@@ -86,20 +83,16 @@ async function waitFor<T>(
 }
 ```
 
-See `condition-based-waiting-example.ts` in this directory for complete
-implementation with domain-specific helpers (`waitForEvent`,
-`waitForEventCount`, `waitForEventMatch`) from actual debugging session.
+See `condition-based-waiting-example.ts` in this directory for complete implementation with domain-specific helpers
+(`waitForEvent`, `waitForEventCount`, `waitForEventMatch`) from actual debugging session.
 
 ## Common Mistakes
 
-**❌ Polling too fast:** `setTimeout(check, 1)` - wastes CPU **✅ Fix:** Poll
-every 10ms
+**❌ Polling too fast:** `setTimeout(check, 1)` - wastes CPU **✅ Fix:** Poll every 10ms
 
-**❌ No timeout:** Loop forever if condition never met **✅ Fix:** Always
-include timeout with clear error
+**❌ No timeout:** Loop forever if condition never met **✅ Fix:** Always include timeout with clear error
 
-**❌ Stale data:** Cache state before loop **✅ Fix:** Call getter inside loop
-for fresh data
+**❌ Stale data:** Cache state before loop **✅ Fix:** Call getter inside loop for fresh data
 
 ## When Arbitrary Timeout IS Correct
 

@@ -1,7 +1,7 @@
 # 5. Re-render Optimization
 
-> **Impact:** MEDIUM **Focus:** Reducing unnecessary re-renders minimizes wasted
-> computation and improves UI responsiveness.
+> **Impact:** MEDIUM **Focus:** Reducing unnecessary re-renders minimizes wasted computation and improves UI
+> responsiveness.
 
 ---
 
@@ -18,10 +18,9 @@ This section contains **12 rules** focused on re-render optimization.
 
 ## Calculate Derived State During Rendering
 
-If a value can be computed from current props/state, do not store it in state or
-update it in an effect. Derive it during render to avoid extra renders and state
-drift. Do not set state in effects solely in response to prop changes; prefer
-derived values or keyed resets instead.
+If a value can be computed from current props/state, do not store it in state or update it in an effect. Derive it
+during render to avoid extra renders and state drift. Do not set state in effects solely in response to prop changes;
+prefer derived values or keyed resets instead.
 
 **Incorrect (redundant state and effect):**
 
@@ -51,8 +50,7 @@ function Form() {
 }
 ```
 
-References:
-[You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect)
+References: [You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect)
 
 ---
 
@@ -63,8 +61,7 @@ References:
 
 ## Defer State Reads to Usage Point
 
-Don't subscribe to dynamic state (searchParams, localStorage) if you only read
-it inside callbacks.
+Don't subscribe to dynamic state (searchParams, localStorage) if you only read it inside callbacks.
 
 **Incorrect (subscribes to all searchParams changes):**
 
@@ -104,10 +101,9 @@ function ShareButton({ chatId }: { chatId: string }) {
 
 ## Do not wrap a simple expression with a primitive result type in useMemo
 
-When an expression is simple (few logical or arithmetical operators) and has a
-primitive result type (boolean, number, string), do not wrap it in `useMemo`.
-Calling `useMemo` and comparing hook dependencies may consume more resources
-than the expression itself.
+When an expression is simple (few logical or arithmetical operators) and has a primitive result type (boolean, number,
+string), do not wrap it in `useMemo`. Calling `useMemo` and comparing hook dependencies may consume more resources than
+the expression itself.
 
 **Incorrect:**
 
@@ -142,11 +138,9 @@ function Header({ user, notifications }: Props) {
 
 ## Extract Default Non-primitive Parameter Value from Memoized Component to Constant
 
-When memoized component has a default value for some non-primitive optional
-parameter, such as an array, function, or object, calling the component without
-that parameter results in broken memoization. This is because new value
-instances are created on every rerender, and they do not pass strict equality
-comparison in `memo()`.
+When memoized component has a default value for some non-primitive optional parameter, such as an array, function, or
+object, calling the component without that parameter results in broken memoization. This is because new value instances
+are created on every rerender, and they do not pass strict equality comparison in `memo()`.
 
 To address this issue, extract the default value into a constant.
 
@@ -183,8 +177,7 @@ const UserAvatar = memo(function UserAvatar({ onClick = NOOP }: { onClick?: () =
 
 ## Extract to Memoized Components
 
-Extract expensive work into memoized components to enable early returns before
-computation.
+Extract expensive work into memoized components to enable early returns before computation.
 
 **Incorrect (computes avatar even when loading):**
 
@@ -218,10 +211,8 @@ function Profile({ user, loading }: Props) {
 }
 ```
 
-**Note:** If your project has
-[React Compiler](https://react.dev/learn/react-compiler) enabled, manual
-memoization with `memo()` and `useMemo()` is not necessary. The compiler
-automatically optimizes re-renders.
+**Note:** If your project has [React Compiler](https://react.dev/learn/react-compiler) enabled, manual memoization with
+`memo()` and `useMemo()` is not necessary. The compiler automatically optimizes re-renders.
 
 ---
 
@@ -278,9 +269,8 @@ useEffect(() => {
 
 ## Put Interaction Logic in Event Handlers
 
-If a side effect is triggered by a specific user action (submit, click, drag),
-run it in that event handler. Do not model the action as state + effect; it
-makes effects re-run on unrelated changes and can duplicate the action.
+If a side effect is triggered by a specific user action (submit, click, drag), run it in that event handler. Do not
+model the action as state + effect; it makes effects re-run on unrelated changes and can duplicate the action.
 
 **Incorrect (event modeled as state + effect):**
 
@@ -327,8 +317,7 @@ Reference:
 
 ## Subscribe to Derived State
 
-Subscribe to derived boolean state instead of continuous values to reduce
-re-render frequency.
+Subscribe to derived boolean state instead of continuous values to reduce re-render frequency.
 
 **Incorrect (re-renders on every pixel change):**
 
@@ -358,9 +347,8 @@ function Sidebar() {
 
 ## Use Functional setState Updates
 
-When updating state based on the current state value, use the functional update
-form of setState instead of directly referencing the state variable. This
-prevents stale closures, eliminates unnecessary dependencies, and creates stable
+When updating state based on the current state value, use the functional update form of setState instead of directly
+referencing the state variable. This prevents stale closures, eliminates unnecessary dependencies, and creates stable
 callback references.
 
 **Incorrect (requires state as dependency):**
@@ -386,9 +374,8 @@ function TodoList() {
 }
 ```
 
-The first callback is recreated every time `items` changes, which can cause
-child components to re-render unnecessarily. The second callback has a stale
-closure bug—it will always reference the initial `items` value.
+The first callback is recreated every time `items` changes, which can cause child components to re-render unnecessarily.
+The second callback has a stale closure bug—it will always reference the initial `items` value.
 
 **Correct (stable callbacks, no stale closures):**
 
@@ -412,11 +399,9 @@ function TodoList() {
 
 **Benefits:**
 
-1. **Stable callback references** - Callbacks don't need to be recreated when
-   state changes
+1. **Stable callback references** - Callbacks don't need to be recreated when state changes
 2. **No stale closures** - Always operates on the latest state value
-3. **Fewer dependencies** - Simplifies dependency arrays and reduces memory
-   leaks
+3. **Fewer dependencies** - Simplifies dependency arrays and reduces memory leaks
 4. **Prevents bugs** - Eliminates the most common source of React closure bugs
 
 **When to use functional updates:**
@@ -432,10 +417,9 @@ function TodoList() {
 - Setting state from props/arguments only: `setName(newName)`
 - State doesn't depend on previous value
 
-**Note:** If your project has
-[React Compiler](https://react.dev/learn/react-compiler) enabled, the compiler
-can automatically optimize some cases, but functional updates are still
-recommended for correctness and to prevent stale closure bugs.
+**Note:** If your project has [React Compiler](https://react.dev/learn/react-compiler) enabled, the compiler can
+automatically optimize some cases, but functional updates are still recommended for correctness and to prevent stale
+closure bugs.
 
 ---
 
@@ -446,9 +430,8 @@ recommended for correctness and to prevent stale closure bugs.
 
 ## Use Lazy State Initialization
 
-Pass a function to `useState` for expensive initial values. Without the function
-form, the initializer runs on every render even though the value is only used
-once.
+Pass a function to `useState` for expensive initial values. Without the function form, the initializer runs on every
+render even though the value is only used once.
 
 **Incorrect (runs on every render):**
 
@@ -464,9 +447,7 @@ function FilteredList({ items }: { items: Item[] }) {
 
 function UserProfile() {
   // JSON.parse runs on every render
-  const [settings, setSettings] = useState(
-    JSON.parse(localStorage.getItem("settings") || "{}"),
-  );
+  const [settings, setSettings] = useState(JSON.parse(localStorage.getItem("settings") || "{}"));
 
   return <SettingsForm settings={settings} onChange={setSettings} />;
 }
@@ -494,13 +475,11 @@ function UserProfile() {
 }
 ```
 
-Use lazy initialization when computing initial values from
-localStorage/sessionStorage, building data structures (indexes, maps), reading
-from the DOM, or performing heavy transformations.
+Use lazy initialization when computing initial values from localStorage/sessionStorage, building data structures
+(indexes, maps), reading from the DOM, or performing heavy transformations.
 
-For simple primitives (`useState(0)`), direct references
-(`useState(props.value)`), or cheap literals (`useState({})`), the function form
-is unnecessary.
+For simple primitives (`useState(0)`), direct references (`useState(props.value)`), or cheap literals (`useState({})`),
+the function form is unnecessary.
 
 ---
 
@@ -511,8 +490,7 @@ is unnecessary.
 
 ## Use Transitions for Non-Urgent Updates
 
-Mark frequent, non-urgent state updates as transitions to maintain UI
-responsiveness.
+Mark frequent, non-urgent state updates as transitions to maintain UI responsiveness.
 
 **Incorrect (blocks UI on every scroll):**
 
@@ -553,10 +531,9 @@ function ScrollTracker() {
 
 ## Use useRef for Transient Values
 
-When a value changes frequently and you don't want a re-render on every update
-(e.g., mouse trackers, intervals, transient flags), store it in `useRef` instead
-of `useState`. Keep component state for UI; use refs for temporary DOM-adjacent
-values. Updating a ref does not trigger a re-render.
+When a value changes frequently and you don't want a re-render on every update (e.g., mouse trackers, intervals,
+transient flags), store it in `useRef` instead of `useState`. Keep component state for UI; use refs for temporary
+DOM-adjacent values. Updating a ref does not trigger a re-render.
 
 **Incorrect (renders every update):**
 

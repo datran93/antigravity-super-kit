@@ -2,12 +2,10 @@
 
 ## Overview
 
-Bugs often manifest deep in the call stack (git init in wrong directory, file
-created in wrong location, database opened with wrong path). Your instinct is to
-fix where the error appears, but that's treating a symptom.
+Bugs often manifest deep in the call stack (git init in wrong directory, file created in wrong location, database opened
+with wrong path). Your instinct is to fix where the error appears, but that's treating a symptom.
 
-**Core principle:** Trace backward through the call chain until you find the
-original trigger, then fix at the source.
+**Core principle:** Trace backward through the call chain until you find the original trigger, then fix at the source.
 
 ## When to Use
 
@@ -167,15 +165,13 @@ digraph principle {
 }
 ```
 
-**NEVER fix just where the error appears.** Trace back to find the original
-trigger.
+**NEVER fix just where the error appears.** Trace back to find the original trigger.
 
 ## Stack Trace Tips
 
-**In tests:** Use `console.error()` not logger - logger may be suppressed
-**Before operation:** Log before the dangerous operation, not after it fails
-**Include context:** Directory, cwd, environment variables, timestamps **Capture
-stack:** `new Error().stack` shows complete call chain
+**In tests:** Use `console.error()` not logger - logger may be suppressed **Before operation:** Log before the dangerous
+operation, not after it fails **Include context:** Directory, cwd, environment variables, timestamps **Capture stack:**
+`new Error().stack` shows complete call chain
 
 ## Real-World Impact
 

@@ -7,8 +7,7 @@ tags: explain, analyze, diagnostics, query-plan
 
 ## Use EXPLAIN ANALYZE to Diagnose Slow Queries
 
-EXPLAIN ANALYZE executes the query and shows actual timings, revealing the true
-performance bottlenecks.
+EXPLAIN ANALYZE executes the query and shows actual timings, revealing the true performance bottlenecks.
 
 **Incorrect (guessing at performance issues):**
 

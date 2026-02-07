@@ -1,12 +1,10 @@
 ---
 name: skill-developer
 description:
-  Create and manage Claude Code skills following Anthropic best practices. Use
-  when creating new skills, modifying skill-rules.json, understanding trigger
-  patterns, working with hooks, debugging skill activation, or implementing
-  progressive disclosure. Covers skill structure, YAML frontmatter, trigger
-  types (keywords, intent patterns, file paths, content patterns), enforcement
-  levels (block, suggest, warn), hook mechanisms (UserPromptSubmit, PreToolUse),
+  Create and manage Claude Code skills following Anthropic best practices. Use when creating new skills, modifying
+  skill-rules.json, understanding trigger patterns, working with hooks, debugging skill activation, or implementing
+  progressive disclosure. Covers skill structure, YAML frontmatter, trigger types (keywords, intent patterns, file
+  paths, content patterns), enforcement levels (block, suggest, warn), hook mechanisms (UserPromptSubmit, PreToolUse),
   session tracking, and the 500-line rule.
 ---
 
@@ -14,9 +12,8 @@ description:
 
 ## Purpose
 
-Comprehensive guide for creating and managing skills in Claude Code with
-auto-activation system, following Anthropic's official best practices including
-the 500-line rule and progressive disclosure pattern.
+Comprehensive guide for creating and managing skills in Claude Code with auto-activation system, following Anthropic's
+official best practices including the 500-line rule and progressive disclosure pattern.
 
 ## When to Use This Skill
 
@@ -52,13 +49,11 @@ Automatically activates when you mention:
 - **File**: `.claude/hooks/error-handling-reminder.ts`
 - **Trigger**: AFTER Claude finishes responding
 - **Purpose**: Gentle reminder to self-assess error handling in code written
-- **Method**: Analyzes edited files for risky patterns, displays reminder if
-  needed
+- **Method**: Analyzes edited files for risky patterns, displays reminder if needed
 - **Use Cases**: Error handling awareness without blocking friction
 
-**Philosophy Change (2025-10-27):** We moved away from blocking PreToolUse for
-Sentry/error handling. Instead, use gentle post-response reminders that don't
-block workflow but maintain code quality awareness.
+**Philosophy Change (2025-10-27):** We moved away from blocking PreToolUse for Sentry/error handling. Instead, use
+gentle post-response reminders that don't block workflow but maintain code quality awareness.
 
 ### Configuration File
 
@@ -140,8 +135,8 @@ Defines:
 ---
 name: my-new-skill
 description:
-  Brief description including keywords that trigger this skill. Mention topics,
-  file types, and use cases. Be explicit about trigger terms.
+  Brief description including keywords that trigger this skill. Mention topics, file types, and use cases. Be explicit
+  about trigger terms.
 ---
 
 # My New Skill
@@ -215,9 +210,8 @@ Based on testing:
 
 ### Step 5: Follow Anthropic Best Practices
 
-✅ Keep SKILL.md under 500 lines ✅ Use progressive disclosure with reference
-files ✅ Add table of contents to reference files > 100 lines ✅ Write detailed
-description with trigger keywords ✅ Test with 3+ real scenarios before
+✅ Keep SKILL.md under 500 lines ✅ Use progressive disclosure with reference files ✅ Add table of contents to
+reference files > 100 lines ✅ Write detailed description with trigger keywords ✅ Test with 3+ real scenarios before
 documenting ✅ Iterate based on actual usage
 
 ---
@@ -425,12 +419,10 @@ See [TRIGGER_TYPES.md](TRIGGER_TYPES.md) for complete details.
 
 ### Anthropic Best Practices
 
-✅ **500-line rule**: Keep SKILL.md under 500 lines ✅ **Progressive
-disclosure**: Use reference files for details ✅ **Table of contents**: Add to
-reference files > 100 lines ✅ **One level deep**: Don't nest references deeply
-✅ **Rich descriptions**: Include all trigger keywords (max 1024 chars) ✅
-**Test first**: Build 3+ evaluations before extensive documentation ✅ **Gerund
-naming**: Prefer verb + -ing (e.g., "processing-pdfs")
+✅ **500-line rule**: Keep SKILL.md under 500 lines ✅ **Progressive disclosure**: Use reference files for details ✅
+**Table of contents**: Add to reference files > 100 lines ✅ **One level deep**: Don't nest references deeply ✅ **Rich
+descriptions**: Include all trigger keywords (max 1024 chars) ✅ **Test first**: Build 3+ evaluations before extensive
+documentation ✅ **Gerund naming**: Prefer verb + -ing (e.g., "processing-pdfs")
 
 ### Troubleshoot
 
@@ -469,8 +461,7 @@ See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for complete debugging guide.
 
 ---
 
-**Skill Status**: COMPLETE - Restructured following Anthropic best practices ✅
-**Line Count**: < 500 (following 500-line rule) ✅ **Progressive Disclosure**:
-Reference files for detailed information ✅
+**Skill Status**: COMPLETE - Restructured following Anthropic best practices ✅ **Line Count**: < 500 (following
+500-line rule) ✅ **Progressive Disclosure**: Reference files for detailed information ✅
 
 **Next**: Create more skills, refine patterns based on usage

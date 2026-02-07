@@ -7,8 +7,7 @@ tags: privileges, security, roles, permissions
 
 ## Apply Principle of Least Privilege
 
-Grant only the minimum permissions required. Never use superuser for application
-queries.
+Grant only the minimum permissions required. Never use superuser for application queries.
 
 **Incorrect (overly broad permissions):**
 
@@ -52,5 +51,4 @@ revoke all on schema public from public;
 revoke all on all tables in schema public from public;
 ```
 
-Reference:
-[Roles and Privileges](https://supabase.com/blog/postgres-roles-and-privileges)
+Reference: [Roles and Privileges](https://supabase.com/blog/postgres-roles-and-privileges)

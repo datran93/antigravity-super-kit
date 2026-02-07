@@ -6,8 +6,8 @@ allowed-tools: Read, Glob, Grep, Bash
 
 # Lint and Validate Skill
 
-> **MANDATORY:** Run appropriate validation tools after EVERY code change. Do
-> not finish a task until the code is error-free.
+> **MANDATORY:** Run appropriate validation tools after EVERY code change. Do not finish a task until the code is
+> error-free.
 
 ### Procedures by Ecosystem
 
@@ -34,13 +34,12 @@ allowed-tools: Read, Glob, Grep, Bash
 
 - If `lint` fails: Fix the style or syntax issues immediately.
 - If `tsc` fails: Correct type mismatches before proceeding.
-- If no tool is configured: Check the project root for `.eslintrc`,
-  `tsconfig.json`, `pyproject.toml` and suggest creating one.
+- If no tool is configured: Check the project root for `.eslintrc`, `tsconfig.json`, `pyproject.toml` and suggest
+  creating one.
 
 ---
 
-**Strict Rule:** No code should be committed or reported as "done" without
-passing these checks.
+**Strict Rule:** No code should be committed or reported as "done" without passing these checks.
 
 ---
 

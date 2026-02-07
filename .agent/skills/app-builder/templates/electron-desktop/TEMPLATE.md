@@ -1,7 +1,6 @@
 ---
 name: electron-desktop
-description:
-  Electron desktop app template principles. Cross-platform, React, TypeScript.
+description: Electron desktop app template principles. Cross-platform, React, TypeScript.
 ---
 
 # Electron Desktop App Template

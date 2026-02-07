@@ -2,97 +2,66 @@
 
 **Version 1.0.0** Supabase January 2026
 
-> This document is optimized for AI agents and LLMs. Rules are prioritized by
-> performance impact.
+> This document is optimized for AI agents and LLMs. Rules are prioritized by performance impact.
 
 ---
 
 ## Abstract
 
-Comprehensive Postgres performance optimization guide for developers using
-Supabase and Postgres. Contains performance rules across 8 categories,
-prioritized by impact from critical (query performance, connection management)
-to incremental (advanced features). Each rule includes detailed explanations,
-incorrect vs. correct SQL examples, query plan analysis, and specific
-performance metrics to guide automated optimization and code generation.
+Comprehensive Postgres performance optimization guide for developers using Supabase and Postgres. Contains performance
+rules across 8 categories, prioritized by impact from critical (query performance, connection management) to incremental
+(advanced features). Each rule includes detailed explanations, incorrect vs. correct SQL examples, query plan analysis,
+and specific performance metrics to guide automated optimization and code generation.
 
 ---
 
 ## Table of Contents
 
 1. [Query Performance](#query-performance) - **CRITICAL**
-   - 1.1
-     [Add Indexes on WHERE and JOIN Columns](#11-add-indexes-on-where-and-join-columns)
-   - 1.2
-     [Choose the Right Index Type for Your Data](#12-choose-the-right-index-type-for-your-data)
-   - 1.3
-     [Create Composite Indexes for Multi-Column Queries](#13-create-composite-indexes-for-multi-column-queries)
-   - 1.4
-     [Use Covering Indexes to Avoid Table Lookups](#14-use-covering-indexes-to-avoid-table-lookups)
-   - 1.5
-     [Use Partial Indexes for Filtered Queries](#15-use-partial-indexes-for-filtered-queries)
+   - 1.1 [Add Indexes on WHERE and JOIN Columns](#11-add-indexes-on-where-and-join-columns)
+   - 1.2 [Choose the Right Index Type for Your Data](#12-choose-the-right-index-type-for-your-data)
+   - 1.3 [Create Composite Indexes for Multi-Column Queries](#13-create-composite-indexes-for-multi-column-queries)
+   - 1.4 [Use Covering Indexes to Avoid Table Lookups](#14-use-covering-indexes-to-avoid-table-lookups)
+   - 1.5 [Use Partial Indexes for Filtered Queries](#15-use-partial-indexes-for-filtered-queries)
 
 2. [Connection Management](#connection-management) - **CRITICAL**
-   - 2.1
-     [Configure Idle Connection Timeouts](#21-configure-idle-connection-timeouts)
-   - 2.2
-     [Set Appropriate Connection Limits](#22-set-appropriate-connection-limits)
-   - 2.3
-     [Use Connection Pooling for All Applications](#23-use-connection-pooling-for-all-applications)
-   - 2.4
-     [Use Prepared Statements Correctly with Pooling](#24-use-prepared-statements-correctly-with-pooling)
+   - 2.1 [Configure Idle Connection Timeouts](#21-configure-idle-connection-timeouts)
+   - 2.2 [Set Appropriate Connection Limits](#22-set-appropriate-connection-limits)
+   - 2.3 [Use Connection Pooling for All Applications](#23-use-connection-pooling-for-all-applications)
+   - 2.4 [Use Prepared Statements Correctly with Pooling](#24-use-prepared-statements-correctly-with-pooling)
 
 3. [Security & RLS](#security-rls) - **CRITICAL**
-   - 3.1
-     [Apply Principle of Least Privilege](#31-apply-principle-of-least-privilege)
-   - 3.2
-     [Enable Row Level Security for Multi-Tenant Data](#32-enable-row-level-security-for-multi-tenant-data)
-   - 3.3
-     [Optimize RLS Policies for Performance](#33-optimize-rls-policies-for-performance)
+   - 3.1 [Apply Principle of Least Privilege](#31-apply-principle-of-least-privilege)
+   - 3.2 [Enable Row Level Security for Multi-Tenant Data](#32-enable-row-level-security-for-multi-tenant-data)
+   - 3.3 [Optimize RLS Policies for Performance](#33-optimize-rls-policies-for-performance)
 
 4. [Schema Design](#schema-design) - **HIGH**
    - 4.1 [Choose Appropriate Data Types](#41-choose-appropriate-data-types)
    - 4.2 [Index Foreign Key Columns](#42-index-foreign-key-columns)
-   - 4.3
-     [Partition Large Tables for Better Performance](#43-partition-large-tables-for-better-performance)
-   - 4.4
-     [Select Optimal Primary Key Strategy](#44-select-optimal-primary-key-strategy)
-   - 4.5
-     [Use Lowercase Identifiers for Compatibility](#45-use-lowercase-identifiers-for-compatibility)
+   - 4.3 [Partition Large Tables for Better Performance](#43-partition-large-tables-for-better-performance)
+   - 4.4 [Select Optimal Primary Key Strategy](#44-select-optimal-primary-key-strategy)
+   - 4.5 [Use Lowercase Identifiers for Compatibility](#45-use-lowercase-identifiers-for-compatibility)
 
 5. [Concurrency & Locking](#concurrency-locking) - **MEDIUM-HIGH**
-   - 5.1
-     [Keep Transactions Short to Reduce Lock Contention](#51-keep-transactions-short-to-reduce-lock-contention)
-   - 5.2
-     [Prevent Deadlocks with Consistent Lock Ordering](#52-prevent-deadlocks-with-consistent-lock-ordering)
-   - 5.3
-     [Use Advisory Locks for Application-Level Locking](#53-use-advisory-locks-for-application-level-locking)
-   - 5.4
-     [Use SKIP LOCKED for Non-Blocking Queue Processing](#54-use-skip-locked-for-non-blocking-queue-processing)
+   - 5.1 [Keep Transactions Short to Reduce Lock Contention](#51-keep-transactions-short-to-reduce-lock-contention)
+   - 5.2 [Prevent Deadlocks with Consistent Lock Ordering](#52-prevent-deadlocks-with-consistent-lock-ordering)
+   - 5.3 [Use Advisory Locks for Application-Level Locking](#53-use-advisory-locks-for-application-level-locking)
+   - 5.4 [Use SKIP LOCKED for Non-Blocking Queue Processing](#54-use-skip-locked-for-non-blocking-queue-processing)
 
 6. [Data Access Patterns](#data-access-patterns) - **MEDIUM**
-   - 6.1
-     [Batch INSERT Statements for Bulk Data](#61-batch-insert-statements-for-bulk-data)
-   - 6.2
-     [Eliminate N+1 Queries with Batch Loading](#62-eliminate-n1-queries-with-batch-loading)
-   - 6.3
-     [Use Cursor-Based Pagination Instead of OFFSET](#63-use-cursor-based-pagination-instead-of-offset)
-   - 6.4
-     [Use UPSERT for Insert-or-Update Operations](#64-use-upsert-for-insert-or-update-operations)
+   - 6.1 [Batch INSERT Statements for Bulk Data](#61-batch-insert-statements-for-bulk-data)
+   - 6.2 [Eliminate N+1 Queries with Batch Loading](#62-eliminate-n1-queries-with-batch-loading)
+   - 6.3 [Use Cursor-Based Pagination Instead of OFFSET](#63-use-cursor-based-pagination-instead-of-offset)
+   - 6.4 [Use UPSERT for Insert-or-Update Operations](#64-use-upsert-for-insert-or-update-operations)
 
 7. [Monitoring & Diagnostics](#monitoring-diagnostics) - **LOW-MEDIUM**
-   - 7.1
-     [Enable pg_stat_statements for Query Analysis](#71-enable-pgstatstatements-for-query-analysis)
-   - 7.2
-     [Maintain Table Statistics with VACUUM and ANALYZE](#72-maintain-table-statistics-with-vacuum-and-analyze)
-   - 7.3
-     [Use EXPLAIN ANALYZE to Diagnose Slow Queries](#73-use-explain-analyze-to-diagnose-slow-queries)
+   - 7.1 [Enable pg_stat_statements for Query Analysis](#71-enable-pgstatstatements-for-query-analysis)
+   - 7.2 [Maintain Table Statistics with VACUUM and ANALYZE](#72-maintain-table-statistics-with-vacuum-and-analyze)
+   - 7.3 [Use EXPLAIN ANALYZE to Diagnose Slow Queries](#73-use-explain-analyze-to-diagnose-slow-queries)
 
 8. [Advanced Features](#advanced-features) - **LOW**
-   - 8.1
-     [Index JSONB Columns for Efficient Querying](#81-index-jsonb-columns-for-efficient-querying)
-   - 8.2
-     [Use tsvector for Full-Text Search](#82-use-tsvector-for-full-text-search)
+   - 8.1 [Index JSONB Columns for Efficient Querying](#81-index-jsonb-columns-for-efficient-querying)
+   - 8.2 [Use tsvector for Full-Text Search](#82-use-tsvector-for-full-text-search)
 
 ---
 
@@ -100,15 +69,14 @@ performance metrics to guide automated optimization and code generation.
 
 **Impact: CRITICAL**
 
-Slow queries, missing indexes, inefficient query plans. The most common source
-of Postgres performance issues.
+Slow queries, missing indexes, inefficient query plans. The most common source of Postgres performance issues.
 
 ### 1.1 Add Indexes on WHERE and JOIN Columns
 
 **Impact: CRITICAL (100-1000x faster queries on large tables)**
 
-Queries filtering or joining on unindexed columns cause full table scans, which
-become exponentially slower as tables grow.
+Queries filtering or joining on unindexed columns cause full table scans, which become exponentially slower as tables
+grow.
 
 **Incorrect (sequential scan on large table):**
 
@@ -146,8 +114,7 @@ Reference: https://supabase.com/docs/guides/database/query-optimization
 
 **Impact: HIGH (10-100x improvement with correct index type)**
 
-Different index types excel at different query patterns. The default B-tree
-isn't always optimal.
+Different index types excel at different query patterns. The default B-tree isn't always optimal.
 
 **Incorrect (B-tree for JSONB containment):**
 
@@ -187,8 +154,7 @@ Reference: https://www.postgresql.org/docs/current/indexes-types.html
 
 **Impact: HIGH (5-10x faster multi-column queries)**
 
-When queries filter on multiple columns, a composite index is more efficient
-than separate single-column indexes.
+When queries filter on multiple columns, a composite index is more efficient than separate single-column indexes.
 
 **Incorrect (separate indexes require bitmap scan):**
 
@@ -227,8 +193,7 @@ Reference: https://www.postgresql.org/docs/current/indexes-multicolumn.html
 
 **Impact: MEDIUM-HIGH (2-5x faster queries by eliminating heap fetches)**
 
-Covering indexes include all columns needed by a query, enabling index-only
-scans that skip the table entirely.
+Covering indexes include all columns needed by a query, enabling index-only scans that skip the table entirely.
 
 **Incorrect (index scan + heap fetch):**
 
@@ -263,8 +228,8 @@ Reference: https://www.postgresql.org/docs/current/indexes-index-only-scans.html
 
 **Impact: HIGH (5-20x smaller indexes, faster writes and queries)**
 
-Partial indexes only include rows matching a WHERE condition, making them
-smaller and faster when queries consistently filter on the same condition.
+Partial indexes only include rows matching a WHERE condition, making them smaller and faster when queries consistently
+filter on the same condition.
 
 **Incorrect (full index includes irrelevant rows):**
 
@@ -304,15 +269,14 @@ Reference: https://www.postgresql.org/docs/current/indexes-partial.html
 
 **Impact: CRITICAL**
 
-Connection pooling, limits, and serverless strategies. Critical for applications
-with high concurrency or serverless deployments.
+Connection pooling, limits, and serverless strategies. Critical for applications with high concurrency or serverless
+deployments.
 
 ### 2.1 Configure Idle Connection Timeouts
 
 **Impact: HIGH (Reclaim 30-50% of connection slots from idle clients)**
 
-Idle connections waste resources. Configure timeouts to automatically reclaim
-them.
+Idle connections waste resources. Configure timeouts to automatically reclaim them.
 
 **Incorrect (connections held indefinitely):**
 
@@ -345,8 +309,7 @@ client_idle_timeout = 300
 
 For pooled connections, configure at the pooler level:
 
-Reference:
-https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-IDLE-IN-TRANSACTION-SESSION-TIMEOUT
+Reference: https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-IDLE-IN-TRANSACTION-SESSION-TIMEOUT
 
 ---
 
@@ -354,8 +317,7 @@ https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-IDLE-IN-T
 
 **Impact: CRITICAL (Prevent database crashes and memory exhaustion)**
 
-Too many connections exhaust memory and degrade performance. Set limits based on
-available resources.
+Too many connections exhaust memory and degrade performance. Set limits based on available resources.
 
 **Incorrect (unlimited or excessive connections):**
 
@@ -386,8 +348,7 @@ select count(*), state from pg_stat_activity group by state;
 
 Monitor connection usage:
 
-Reference:
-https://supabase.com/docs/guides/platform/performance#connection-management
+Reference: https://supabase.com/docs/guides/platform/performance#connection-management
 
 ---
 
@@ -395,8 +356,7 @@ https://supabase.com/docs/guides/platform/performance#connection-management
 
 **Impact: CRITICAL (Handle 10-100x more concurrent users)**
 
-Postgres connections are expensive (1-3MB RAM each). Without pooling,
-applications exhaust connections under load.
+Postgres connections are expensive (1-3MB RAM each). Without pooling, applications exhaust connections under load.
 
 **Incorrect (new connection per request):**
 
@@ -424,13 +384,10 @@ select count(*) from pg_stat_activity;  -- 10 connections
 
 Pool modes:
 
-- **Transaction mode**: connection returned after each transaction (best for
-  most apps)
-- **Session mode**: connection held for entire session (needed for prepared
-  statements, temp tables)
+- **Transaction mode**: connection returned after each transaction (best for most apps)
+- **Session mode**: connection held for entire session (needed for prepared statements, temp tables)
 
-Reference:
-https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pooler
+Reference: https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pooler
 
 ---
 
@@ -438,8 +395,8 @@ https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pool
 
 **Impact: HIGH (Avoid prepared statement conflicts in pooled environments)**
 
-Prepared statements are tied to individual database connections. In
-transaction-mode pooling, connections are shared, causing conflicts.
+Prepared statements are tied to individual database connections. In transaction-mode pooling, connections are shared,
+causing conflicts.
 
 **Incorrect (named prepared statements with transaction pooling):**
 
@@ -472,8 +429,7 @@ deallocate get_user;
 
 Check your driver settings:
 
-Reference:
-https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pool-modes
+Reference: https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pool-modes
 
 ---
 
@@ -487,8 +443,7 @@ Row-Level Security policies, privilege management, and authentication patterns.
 
 **Impact: MEDIUM (Reduced attack surface, better audit trail)**
 
-Grant only the minimum permissions required. Never use superuser for application
-queries.
+Grant only the minimum permissions required. Never use superuser for application queries.
 
 **Incorrect (overly broad permissions):**
 
@@ -537,8 +492,7 @@ Reference: https://supabase.com/blog/postgres-roles-and-privileges
 
 **Impact: CRITICAL (Database-enforced tenant isolation, prevent data leaks)**
 
-Row Level Security (RLS) enforces data access at the database level, ensuring
-users only see their own data.
+Row Level Security (RLS) enforces data access at the database level, ensuring users only see their own data.
 
 **Incorrect (application-level filtering only):**
 
@@ -583,8 +537,7 @@ Reference: https://supabase.com/docs/guides/database/postgres/row-level-security
 
 **Impact: HIGH (5-10x faster RLS queries with proper patterns)**
 
-Poorly written RLS policies can cause severe performance issues. Use subqueries
-and indexes strategically.
+Poorly written RLS policies can cause severe performance issues. Use subqueries and indexes strategically.
 
 **Incorrect (function called for every row):**
 
@@ -621,11 +574,9 @@ create policy team_orders_policy on orders
 create index orders_user_id_idx on orders (user_id);
 ```
 
-Use security definer functions for complex checks: Always add indexes on columns
-used in RLS policies:
+Use security definer functions for complex checks: Always add indexes on columns used in RLS policies:
 
-Reference:
-https://supabase.com/docs/guides/database/postgres/row-level-security#rls-performance-recommendations
+Reference: https://supabase.com/docs/guides/database/postgres/row-level-security#rls-performance-recommendations
 
 ---
 
@@ -633,15 +584,13 @@ https://supabase.com/docs/guides/database/postgres/row-level-security#rls-perfor
 
 **Impact: HIGH**
 
-Table design, index strategies, partitioning, and data type selection.
-Foundation for long-term performance.
+Table design, index strategies, partitioning, and data type selection. Foundation for long-term performance.
 
 ### 4.1 Choose Appropriate Data Types
 
 **Impact: HIGH (50% storage reduction, faster comparisons)**
 
-Using the right data types reduces storage, improves query performance, and
-prevents bugs.
+Using the right data types reduces storage, improves query performance, and prevents bugs.
 
 **Incorrect (wrong data types):**
 
@@ -682,8 +631,7 @@ Reference: https://www.postgresql.org/docs/current/datatype.html
 
 **Impact: HIGH (10-100x faster JOINs and CASCADE operations)**
 
-Postgres does not automatically index foreign key columns. Missing indexes cause
-slow JOINs and CASCADE operations.
+Postgres does not automatically index foreign key columns. Missing indexes cause slow JOINs and CASCADE operations.
 
 **Incorrect (unindexed foreign key):**
 
@@ -729,8 +677,7 @@ where c.contype = 'f'
 
 Find missing FK indexes:
 
-Reference:
-https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-FK
+Reference: https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-FK
 
 ---
 
@@ -738,8 +685,7 @@ https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-FK
 
 **Impact: MEDIUM-HIGH (5-20x faster queries and maintenance on large tables)**
 
-Partitioning splits a large table into smaller pieces, improving query
-performance and maintenance operations.
+Partitioning splits a large table into smaller pieces, improving query performance and maintenance operations.
 
 **Incorrect (single large table):**
 
@@ -792,8 +738,7 @@ Reference: https://www.postgresql.org/docs/current/ddl-partitioning.html
 
 **Impact: HIGH (Better index locality, reduced fragmentation)**
 
-Primary key choice affects insert performance, index size, and replication
-efficiency.
+Primary key choice affects insert performance, index size, and replication efficiency.
 
 **Incorrect (problematic PK choices):**
 
@@ -835,24 +780,19 @@ create table events (
 Guidelines:
 
 - Single database: `bigint identity` (sequential, 8 bytes, SQL-standard)
-- Distributed/exposed IDs: UUIDv7 (requires pg_uuidv7) or ULID (time-ordered, no
-  fragmentation)
-- `serial` works but `identity` is SQL-standard and preferred for new
-  applications
-- Avoid random UUIDs (v4) as primary keys on large tables (causes index
-  fragmentation)
+- Distributed/exposed IDs: UUIDv7 (requires pg_uuidv7) or ULID (time-ordered, no fragmentation)
+- `serial` works but `identity` is SQL-standard and preferred for new applications
+- Avoid random UUIDs (v4) as primary keys on large tables (causes index fragmentation)
   [Identity Columns](https://www.postgresql.org/docs/current/sql-createtable.html#SQL-CREATETABLE-PARMS-GENERATED-IDENTITY)
 
 ---
 
 ### 4.5 Use Lowercase Identifiers for Compatibility
 
-**Impact: MEDIUM (Avoid case-sensitivity bugs with tools, ORMs, and AI
-assistants)**
+**Impact: MEDIUM (Avoid case-sensitivity bugs with tools, ORMs, and AI assistants)**
 
-PostgreSQL folds unquoted identifiers to lowercase. Quoted mixed-case
-identifiers require quotes forever and cause issues with tools, ORMs, and AI
-assistants that may not recognize them.
+PostgreSQL folds unquoted identifiers to lowercase. Quoted mixed-case identifiers require quotes forever and cause
+issues with tools, ORMs, and AI assistants that may not recognize them.
 
 **Incorrect (mixed-case identifiers):**
 
@@ -894,8 +834,7 @@ CREATE VIEW users AS SELECT "userId" AS user_id, "firstName" AS first_name FROM 
 
 Common sources of mixed-case identifiers:
 
-Reference:
-https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+Reference: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
 
 ---
 
@@ -903,15 +842,13 @@ https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENT
 
 **Impact: MEDIUM-HIGH**
 
-Transaction management, isolation levels, deadlock prevention, and lock
-contention patterns.
+Transaction management, isolation levels, deadlock prevention, and lock contention patterns.
 
 ### 5.1 Keep Transactions Short to Reduce Lock Contention
 
 **Impact: MEDIUM-HIGH (3-5x throughput improvement, fewer deadlocks)**
 
-Long-running transactions hold locks that block other queries. Keep transactions
-as short as possible.
+Long-running transactions hold locks that block other queries. Keep transactions as short as possible.
 
 **Incorrect (long transaction with external calls):**
 
@@ -956,8 +893,7 @@ Reference: https://www.postgresql.org/docs/current/tutorial-transactions.html
 
 **Impact: MEDIUM-HIGH (Eliminate deadlock errors, improve reliability)**
 
-Deadlocks occur when transactions lock resources in different orders. Always
-acquire locks in a consistent order.
+Deadlocks occur when transactions lock resources in different orders. Always acquire locks in a consistent order.
 
 **Incorrect (inconsistent lock ordering):**
 
@@ -1003,8 +939,7 @@ set log_lock_waits = on;
 set deadlock_timeout = '1s';
 ```
 
-Alternative: use a single statement to update atomically: Detect deadlocks in
-logs:
+Alternative: use a single statement to update atomically: Detect deadlocks in logs:
 [Deadlocks](https://www.postgresql.org/docs/current/explicit-locking.html#LOCKING-DEADLOCKS)
 
 ---
@@ -1013,8 +948,7 @@ logs:
 
 **Impact: MEDIUM (Efficient coordination without row-level lock overhead)**
 
-Advisory locks provide application-level coordination without requiring database
-rows to lock.
+Advisory locks provide application-level coordination without requiring database rows to lock.
 
 **Incorrect (creating rows just for locking):**
 
@@ -1057,8 +991,7 @@ if (acquired) {
 
 Try-lock for non-blocking operations:
 
-Reference:
-https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS
+Reference: https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS
 
 ---
 
@@ -1066,8 +999,7 @@ https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS
 
 **Impact: MEDIUM-HIGH (10x throughput for worker queues)**
 
-When multiple workers process a queue, SKIP LOCKED allows workers to process
-different rows without waiting.
+When multiple workers process a queue, SKIP LOCKED allows workers to process different rows without waiting.
 
 **Incorrect (workers block each other):**
 
@@ -1108,8 +1040,7 @@ returning *;
 
 Complete queue pattern:
 
-Reference:
-https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE
+Reference: https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE
 
 ---
 
@@ -1117,15 +1048,13 @@ https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE
 
 **Impact: MEDIUM**
 
-N+1 query elimination, batch operations, cursor-based pagination, and efficient
-data fetching.
+N+1 query elimination, batch operations, cursor-based pagination, and efficient data fetching.
 
 ### 6.1 Batch INSERT Statements for Bulk Data
 
 **Impact: MEDIUM (10-50x faster bulk inserts)**
 
-Individual INSERT statements have high overhead. Batch multiple rows in single
-statements or use COPY.
+Individual INSERT statements have high overhead. Batch multiple rows in single statements or use COPY.
 
 **Incorrect (individual inserts):**
 
@@ -1174,8 +1103,7 @@ Reference: https://www.postgresql.org/docs/current/sql-copy.html
 
 **Impact: MEDIUM-HIGH (10-100x fewer database round trips)**
 
-N+1 queries execute one query per item in a loop. Batch them into a single query
-using arrays or JOINs.
+N+1 queries execute one query per item in a loop. Batch them into a single query using arrays or JOINs.
 
 **Incorrect (N+1 queries):**
 
@@ -1223,8 +1151,7 @@ Reference: https://supabase.com/docs/guides/database/query-optimization
 
 **Impact: MEDIUM-HIGH (Consistent O(1) performance regardless of page depth)**
 
-OFFSET-based pagination scans all skipped rows, getting slower on deeper pages.
-Cursor pagination is O(1).
+OFFSET-based pagination scans all skipped rows, getting slower on deeper pages. Cursor pagination is O(1).
 
 **Incorrect (OFFSET pagination):**
 
@@ -1269,8 +1196,7 @@ Reference: https://supabase.com/docs/guides/database/pagination
 
 **Impact: MEDIUM (Atomic operation, eliminates race conditions)**
 
-Using separate SELECT-then-INSERT/UPDATE creates race conditions. Use INSERT ...
-ON CONFLICT for atomic upserts.
+Using separate SELECT-then-INSERT/UPDATE creates race conditions. Use INSERT ... ON CONFLICT for atomic upserts.
 
 **Incorrect (check-then-insert race condition):**
 
@@ -1307,8 +1233,7 @@ on conflict (page_id, user_id) do nothing;
 
 Insert-or-ignore pattern:
 
-Reference:
-https://www.postgresql.org/docs/current/sql-insert.html#SQL-ON-CONFLICT
+Reference: https://www.postgresql.org/docs/current/sql-insert.html#SQL-ON-CONFLICT
 
 ---
 
@@ -1316,15 +1241,13 @@ https://www.postgresql.org/docs/current/sql-insert.html#SQL-ON-CONFLICT
 
 **Impact: LOW-MEDIUM**
 
-Using pg_stat_statements, EXPLAIN ANALYZE, metrics collection, and performance
-diagnostics.
+Using pg_stat_statements, EXPLAIN ANALYZE, metrics collection, and performance diagnostics.
 
 ### 7.1 Enable pg_stat_statements for Query Analysis
 
 **Impact: LOW-MEDIUM (Identify top resource-consuming queries)**
 
-pg_stat_statements tracks execution statistics for all queries, helping identify
-slow and frequent queries.
+pg_stat_statements tracks execution statistics for all queries, helping identify slow and frequent queries.
 
 **Incorrect (no visibility into query patterns):**
 
@@ -1366,8 +1289,7 @@ order by mean_exec_time desc;
 
 Key metrics to monitor:
 
-Reference:
-https://supabase.com/docs/guides/database/extensions/pg_stat_statements
+Reference: https://supabase.com/docs/guides/database/extensions/pg_stat_statements
 
 ---
 
@@ -1375,8 +1297,7 @@ https://supabase.com/docs/guides/database/extensions/pg_stat_statements
 
 **Impact: MEDIUM (2-10x better query plans with accurate statistics)**
 
-Outdated statistics cause the query planner to make poor decisions. VACUUM
-reclaims space, ANALYZE updates statistics.
+Outdated statistics cause the query planner to make poor decisions. VACUUM reclaims space, ANALYZE updates statistics.
 
 **Incorrect (stale statistics):**
 
@@ -1418,8 +1339,7 @@ select * from pg_stat_progress_vacuum;
 
 Autovacuum tuning for busy tables:
 
-Reference:
-https://supabase.com/docs/guides/database/database-size#vacuum-operations
+Reference: https://supabase.com/docs/guides/database/database-size#vacuum-operations
 
 ---
 
@@ -1427,8 +1347,7 @@ https://supabase.com/docs/guides/database/database-size#vacuum-operations
 
 **Impact: LOW-MEDIUM (Identify exact bottlenecks in query execution)**
 
-EXPLAIN ANALYZE executes the query and shows actual timings, revealing the true
-performance bottlenecks.
+EXPLAIN ANALYZE executes the query and shows actual timings, revealing the true performance bottlenecks.
 
 **Incorrect (guessing at performance issues):**
 
@@ -1468,15 +1387,13 @@ Reference: https://supabase.com/docs/guides/database/inspect
 
 **Impact: LOW**
 
-Full-text search, JSONB optimization, PostGIS, extensions, and advanced Postgres
-features.
+Full-text search, JSONB optimization, PostGIS, extensions, and advanced Postgres features.
 
 ### 8.1 Index JSONB Columns for Efficient Querying
 
 **Impact: MEDIUM (10-100x faster JSONB queries with proper indexing)**
 
-JSONB queries without indexes scan the entire table. Use GIN indexes for
-containment queries.
+JSONB queries without indexes scan the entire table. Use GIN indexes for containment queries.
 
 **Incorrect (no index on JSONB):**
 
@@ -1512,8 +1429,7 @@ create index idx2 on products using gin (attributes jsonb_path_ops);
 
 Choose the right operator class:
 
-Reference:
-https://www.postgresql.org/docs/current/datatype-json.html#JSON-INDEXING
+Reference: https://www.postgresql.org/docs/current/datatype-json.html#JSON-INDEXING
 
 ---
 
@@ -1521,8 +1437,7 @@ https://www.postgresql.org/docs/current/datatype-json.html#JSON-INDEXING
 
 **Impact: MEDIUM (100x faster than LIKE, with ranking support)**
 
-LIKE with wildcards can't use indexes. Full-text search with tsvector is orders
-of magnitude faster.
+LIKE with wildcards can't use indexes. Full-text search with tsvector is orders of magnitude faster.
 
 **Incorrect (LIKE pattern matching):**
 

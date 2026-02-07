@@ -4,25 +4,19 @@
 
 ## What It Does
 
-The skill-creator automates the entire workflow of creating new CLI skills for
-GitHub Copilot CLI and Claude Code. It guides you through brainstorming, applies
-standardized templates, validates content quality, and handles installation—all
-while following Anthropic's official best practices.
+The skill-creator automates the entire workflow of creating new CLI skills for GitHub Copilot CLI and Claude Code. It
+guides you through brainstorming, applies standardized templates, validates content quality, and handles
+installation—all while following Anthropic's official best practices.
 
 ## Key Features
 
-- **🎯 Interactive Brainstorming** - Collaborative session to define skill
-  purpose and scope
-- **✨ Template Automation** - Automatic file generation with zero manual
-  configuration
-- **🔍 Quality Validation** - Built-in checks for YAML, content quality, and
-  writing style
-- **📦 Flexible Installation** - Choose repository-only, global, or hybrid
-  installation
-- **📊 Visual Progress Bar** - Real-time progress indicator showing completion
-  status (e.g., `[████████████░░░░░░] 60% - Step 3/5`)
-- **🔗 Prompt Engineer Integration** - Optional enhancement using
-  prompt-engineer skill
+- **🎯 Interactive Brainstorming** - Collaborative session to define skill purpose and scope
+- **✨ Template Automation** - Automatic file generation with zero manual configuration
+- **🔍 Quality Validation** - Built-in checks for YAML, content quality, and writing style
+- **📦 Flexible Installation** - Choose repository-only, global, or hybrid installation
+- **📊 Visual Progress Bar** - Real-time progress indicator showing completion status (e.g.,
+  `[████████████░░░░░░] 60% - Step 3/5`)
+- **🔗 Prompt Engineer Integration** - Optional enhancement using prompt-engineer skill
 
 ## When to Use
 
@@ -66,9 +60,8 @@ ln -sf "$(pwd)/.claude/skills/skill-creator" ~/.claude/skills/skill-creator
 
 ### Repository-Only Installation
 
-If you prefer to use the skill only within this repository, no installation is
-needed. The skill will be available when working in the `cli-ai-skills`
-directory.
+If you prefer to use the skill only within this repository, no installation is needed. The skill will be available when
+working in the `cli-ai-skills` directory.
 
 ## Usage
 
@@ -205,10 +198,8 @@ Every skill created is automatically validated for:
 
 This skill leverages several established methodologies:
 
-- **Progressive Disclosure** - 3-level content hierarchy (metadata → SKILL.md →
-  bundled resources)
-- **Bundled Resources Pattern** - References, examples, and scripts as separate
-  files
+- **Progressive Disclosure** - 3-level content hierarchy (metadata → SKILL.md → bundled resources)
+- **Bundled Resources Pattern** - References, examples, and scripts as separate files
 - **Anthropic Best Practices** - Official skill development standards
 - **Zero-Config Design** - Runtime discovery, no hardcoded values
 - **Template-Driven Generation** - Consistent structure across all skills
@@ -279,8 +270,7 @@ Created a useful skill? Share it:
 ## Resources
 
 - **Writing Style Guide:** `resources/templates/writing-style-guide.md`
-- **Anthropic Official Guide:**
-  https://github.com/anthropics/claude-plugins-official
+- **Anthropic Official Guide:** https://github.com/anthropics/claude-plugins-official
 - **Templates Directory:** `resources/templates/`
 - **Validation Scripts:** `scripts/validate-*.sh`
 

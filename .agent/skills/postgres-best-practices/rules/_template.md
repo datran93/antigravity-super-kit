@@ -1,7 +1,5 @@
 ---
-title:
-  Clear, Action-Oriented Title (e.g., "Use Partial Indexes for Filtered
-  Queries")
+title: Clear, Action-Oriented Title (e.g., "Use Partial Indexes for Filtered Queries")
 impact: MEDIUM
 impactDescription: 5-20x query speedup for filtered queries
 tags: indexes, query-optimization, performance
@@ -9,8 +7,7 @@ tags: indexes, query-optimization, performance
 
 ## [Rule Title]
 
-[1-2 sentence explanation of the problem and why it matters. Focus on
-performance impact.]
+[1-2 sentence explanation of the problem and why it matters. Focus on performance impact.]
 
 **Incorrect (describe the problem):**
 

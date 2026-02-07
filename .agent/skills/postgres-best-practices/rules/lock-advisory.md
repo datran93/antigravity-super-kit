@@ -7,8 +7,7 @@ tags: advisory-locks, coordination, application-locks
 
 ## Use Advisory Locks for Application-Level Locking
 
-Advisory locks provide application-level coordination without requiring database
-rows to lock.
+Advisory locks provide application-level coordination without requiring database rows to lock.
 
 **Incorrect (creating rows just for locking):**
 
@@ -54,5 +53,4 @@ if (acquired) {
 }
 ```
 
-Reference:
-[Advisory Locks](https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS)
+Reference: [Advisory Locks](https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS)

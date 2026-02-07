@@ -1,14 +1,12 @@
 ---
 description:
-  Coordinate multiple agents for complex tasks. Use for multi-perspective
-  analysis, comprehensive reviews, or tasks requiring different domain
-  expertise.
+  Coordinate multiple agents for complex tasks. Use for multi-perspective analysis, comprehensive reviews, or tasks
+  requiring different domain expertise.
 ---
 
 # Multi-Agent Orchestration
 
-You are now in **ORCHESTRATION MODE**. Your task: coordinate specialized agents
-to solve this complex problem.
+You are now in **ORCHESTRATION MODE**. Your task: coordinate specialized agents to solve this complex problem.
 
 ## Task to Orchestrate
 
@@ -20,8 +18,7 @@ $ARGUMENTS
 
 > ⚠️ **ORCHESTRATION = MINIMUM 3 DIFFERENT AGENTS**
 >
-> If you use fewer than 3 agents, you are NOT orchestrating - you're just
-> delegating.
+> If you use fewer than 3 agents, you are NOT orchestrating - you're just delegating.
 >
 > **Validation before completion:**
 >
@@ -45,8 +42,8 @@ $ARGUMENTS
 
 ## Pre-Flight: Mode Check
 
-| Current Mode | Task Type          | Action                                                      |
-| ------------ | ------------------ | ----------------------------------------------------------- |
+| Current Mode | Task Type          | Action                                                       |
+| ------------ | ------------------ | ------------------------------------------------------------ |
 | **plan**     | Any                | ✅ Proceed with planning-first approach                      |
 | **edit**     | Simple execution   | ✅ Proceed directly                                          |
 | **edit**     | Complex/multi-file | ⚠️ Ask: "This task requires planning. Switch to plan mode?"  |
@@ -63,8 +60,7 @@ $ARGUMENTS
 | 1    | `project-planner`           | Create docs/PLAN.md          |
 | 2    | (optional) `explorer-agent` | Codebase discovery if needed |
 
-> 🔴 **NO OTHER AGENTS during planning!** Only project-planner and
-> explorer-agent.
+> 🔴 **NO OTHER AGENTS during planning!** Only project-planner and explorer-agent.
 
 ### ⏸️ CHECKPOINT: User Approval
 
@@ -181,8 +177,7 @@ Use the project-planner agent to create PLAN.md:
 **TASK:** Create detailed PLAN.md based on ABOVE decisions. Do NOT infer from folder name.
 ```
 
-> ⚠️ **VIOLATION:** Invoking subagent without full context = subagent will make
-> wrong assumptions!
+> ⚠️ **VIOLATION:** Invoking subagent without full context = subagent will make wrong assumptions!
 
 ### Step 4: Verification (MANDATORY)
 
@@ -216,9 +211,9 @@ Combine all agent outputs into unified report.
 
 | #   | Agent               | Focus Area           | Status |
 | --- | ------------------- | -------------------- | ------ |
-| 1   | project-planner     | Task breakdown       | ✅      |
-| 2   | frontend-specialist | UI implementation    | ✅      |
-| 3   | test-engineer       | Verification scripts | ✅      |
+| 1   | project-planner     | Task breakdown       | ✅     |
+| 2   | frontend-specialist | UI implementation    | ✅     |
+| 3   | test-engineer       | Verification scripts | ✅     |
 
 ### Verification Scripts Executed
 
@@ -253,12 +248,12 @@ Before completing orchestration, verify:
 2. ✅ **Scripts Executed:** At least `security_scan.py` ran
 3. ✅ **Report Generated:** Orchestration Report with all agents listed
 
-> **If any check fails → DO NOT mark orchestration complete. Invoke more agents
-> or run scripts.**
+> **If any check fails → DO NOT mark orchestration complete. Invoke more agents or run scripts.**
 
 ### Step 6: Save & Notify
 
 After orchestration completes:
+
 - Save orchestration report to `.agent/docs/ORCHESTRATE-{slug}.md`
 - **Slug generation**: Extract 2-3 key words from task → lowercase → hyphen-separated → max 30 chars
   - Example: "full-stack e-commerce" → `ORCHESTRATE-ecommerce-app.md`
@@ -266,5 +261,4 @@ After orchestration completes:
 
 ---
 
-**Begin orchestration now. Select 3+ agents, execute sequentially, run
-verification scripts, synthesize results.**
+**Begin orchestration now. Select 3+ agents, execute sequentially, run verification scripts, synthesize results.**

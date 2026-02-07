@@ -7,8 +7,7 @@ tags: full-text-search, tsvector, gin, search
 
 ## Use tsvector for Full-Text Search
 
-LIKE with wildcards can't use indexes. Full-text search with tsvector is orders
-of magnitude faster.
+LIKE with wildcards can't use indexes. Full-text search with tsvector is orders of magnitude faster.
 
 **Incorrect (LIKE pattern matching):**
 
@@ -53,5 +52,4 @@ to_tsquery('postgresql | mysql')
 to_tsquery('post:*')
 ```
 
-Reference:
-[Full Text Search](https://supabase.com/docs/guides/database/full-text-search)
+Reference: [Full Text Search](https://supabase.com/docs/guides/database/full-text-search)

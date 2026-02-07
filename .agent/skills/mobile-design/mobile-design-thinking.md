@@ -1,9 +1,7 @@
 # Mobile Design Thinking
 
-> **This file prevents AI from using memorized patterns and forces genuine
-> thinking.** Mechanisms to prevent standard AI training defaults in mobile
-> development. **The mobile equivalent of frontend's layout decomposition
-> approach.**
+> **This file prevents AI from using memorized patterns and forces genuine thinking.** Mechanisms to prevent standard AI
+> training defaults in mobile development. **The mobile equivalent of frontend's layout decomposition approach.**
 
 ---
 
@@ -45,8 +43,8 @@
 
 ### Using These Patterns Automatically is FORBIDDEN!
 
-The following patterns are "defaults" that AIs learned from training data.
-Before using any of these, **QUESTION them and CONSIDER ALTERNATIVES!**
+The following patterns are "defaults" that AIs learned from training data. Before using any of these, **QUESTION them
+and CONSIDER ALTERNATIVES!**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -298,8 +296,7 @@ GESTURE: [Gesture Type]
 | "Offline support exists" (but error message is generic) | "What can user actually do offline?"            |
 | "Loading state exists" (but just a spinner)             | "Does user know how long to wait?"              |
 
-> 🔴 **Passing the checklist is NOT the goal. Creating great mobile UX IS the
-> goal.**
+> 🔴 **Passing the checklist is NOT the goal. Creating great mobile UX IS the goal.**
 
 ---
 
@@ -356,6 +353,5 @@ Platform: iOS / Android / Both
 
 ---
 
-> **Remember:** If you chose a solution "because that's how it's always done,"
-> you chose WITHOUT THINKING. Every project is unique. Every context is
-> different. Every user behavior is specific. **THINK, then code.**
+> **Remember:** If you chose a solution "because that's how it's always done," you chose WITHOUT THINKING. Every project
+> is unique. Every context is different. Every user behavior is specific. **THINK, then code.**

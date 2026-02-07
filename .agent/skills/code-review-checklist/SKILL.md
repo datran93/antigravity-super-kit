@@ -1,7 +1,6 @@
 ---
 name: code-review-checklist
-description:
-  Code review guidelines covering code quality, security, and best practices.
+description: Code review guidelines covering code quality, security, and best practices.
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -56,19 +55,16 @@ allowed-tools: Read, Glob, Grep
 ### Logic & Hallucinations
 
 - [ ] **Chain of Thought:** Does the logic follow a verifiable path?
-- [ ] **Edge Cases:** Did the AI account for empty states, timeouts, and partial
-      failures?
-- [ ] **External State:** Is the code making safe assumptions about file systems
-      or networks?
+- [ ] **Edge Cases:** Did the AI account for empty states, timeouts, and partial failures?
+- [ ] **External State:** Is the code making safe assumptions about file systems or networks?
 
 ### Prompt Engineering Review
 
 ```markdown
 // ❌ Vague prompt in code const response = await ai.generate(userInput);
 
-// ✅ Structured & Safe prompt const response = await ai.generate({ system: "You
-are a specialized parser...", input: sanitize(userInput), schema: ResponseSchema
-});
+// ✅ Structured & Safe prompt const response = await ai.generate({ system: "You are a specialized parser...", input:
+sanitize(userInput), schema: ResponseSchema });
 ```
 
 ## Anti-Patterns to Flag

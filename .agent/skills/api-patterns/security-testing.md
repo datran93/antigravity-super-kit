@@ -1,7 +1,6 @@
 # API Security Testing
 
-> Principles for testing API security. OWASP API Top 10, authentication,
-> authorization testing.
+> Principles for testing API security. OWASP API Top 10, authentication, authorization testing.
 
 ---
 
@@ -70,8 +69,7 @@
 | Command        | System commands    |
 | LDAP           | Directory queries  |
 
-**Approach:** Test all parameters, try type coercion, test boundaries, check
-error messages.
+**Approach:** Test all parameters, try type coercion, test boundaries, check error messages.
 
 ---
 
@@ -83,8 +81,7 @@ error messages.
 | Bypass    | Headers, IP rotation     |
 | Scope     | Per-user, per-IP, global |
 
-**Bypass techniques:** X-Forwarded-For, different HTTP methods, case variations,
-API versioning.
+**Bypass techniques:** X-Forwarded-For, different HTTP methods, case variations, API versioning.
 
 ---
 
@@ -126,5 +123,4 @@ API versioning.
 
 ---
 
-> **Remember:** APIs are the backbone of modern apps. Test them like attackers
-> will.
+> **Remember:** APIs are the backbone of modern apps. Test them like attackers will.

@@ -1,7 +1,6 @@
 ---
 name: react-native-app
-description:
-  React Native mobile app template principles. Expo, TypeScript, navigation.
+description: React Native mobile app template principles. Expo, TypeScript, navigation.
 ---
 
 # React Native App Template (2026 Edition)
@@ -115,15 +114,9 @@ project-name/
 
 ## Best Practices (Updated)
 
-- **New Architecture**: Ensure `newArchEnabled: true` in `app.json` to leverage
-  TurboModules and Fabric Renderer.
-- **Typed Routes**: Use Expo Router's "Typed Routes" feature for type-safe
-  routing (e.g., `router.push('/path')`).
-- **React 19**: Reduce usage of `useMemo` or `useCallback` thanks to React
-  Compiler (if enabled).
-- **Components**: Build UI primitives (Box, Text) with NativeWind className for
-  reusability.
-- **Assets**: Use `expo-image` instead of default `<Image />` for better caching
-  and performance.
-- **API**: Always wrap API calls with TanStack Query, avoid direct calls in
-  `useEffect`.
+- **New Architecture**: Ensure `newArchEnabled: true` in `app.json` to leverage TurboModules and Fabric Renderer.
+- **Typed Routes**: Use Expo Router's "Typed Routes" feature for type-safe routing (e.g., `router.push('/path')`).
+- **React 19**: Reduce usage of `useMemo` or `useCallback` thanks to React Compiler (if enabled).
+- **Components**: Build UI primitives (Box, Text) with NativeWind className for reusability.
+- **Assets**: Use `expo-image` instead of default `<Image />` for better caching and performance.
+- **API**: Always wrap API calls with TanStack Query, avoid direct calls in `useEffect`.

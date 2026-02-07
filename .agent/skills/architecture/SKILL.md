@@ -1,21 +1,18 @@
 ---
 name: architecture
 description:
-  Architectural decision-making framework. Requirements analysis, trade-off
-  evaluation, ADR documentation. Use when making architecture decisions or
-  analyzing system design.
+  Architectural decision-making framework. Requirements analysis, trade-off evaluation, ADR documentation. Use when
+  making architecture decisions or analyzing system design.
 allowed-tools: Read, Glob, Grep
 ---
 
 # Architecture Decision Framework
 
-> "Requirements drive architecture. Trade-offs inform decisions. ADRs capture
-> rationale."
+> "Requirements drive architecture. Trade-offs inform decisions. ADRs capture rationale."
 
 ## 🎯 Selective Reading Rule
 
-**Read ONLY files relevant to the request!** Check the content map, find what
-you need.
+**Read ONLY files relevant to the request!** Check the content map, find what you need.
 
 | File                    | Description                              | When to Read                 |
 | ----------------------- | ---------------------------------------- | ---------------------------- |

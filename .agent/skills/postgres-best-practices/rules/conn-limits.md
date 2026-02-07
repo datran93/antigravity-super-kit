@@ -7,8 +7,7 @@ tags: connections, max-connections, limits, stability
 
 ## Set Appropriate Connection Limits
 
-Too many connections exhaust memory and degrade performance. Set limits based on
-available resources.
+Too many connections exhaust memory and degrade performance. Set limits based on available resources.
 
 **Incorrect (unlimited or excessive connections):**
 
@@ -42,5 +41,4 @@ Monitor connection usage:
 select count(*), state from pg_stat_activity group by state;
 ```
 
-Reference:
-[Database Connections](https://supabase.com/docs/guides/platform/performance#connection-management)
+Reference: [Database Connections](https://supabase.com/docs/guides/platform/performance#connection-management)

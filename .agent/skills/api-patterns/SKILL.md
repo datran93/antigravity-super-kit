@@ -1,20 +1,18 @@
 ---
 name: api-patterns
 description:
-  API design principles and decision-making. REST vs GraphQL vs tRPC selection,
-  response formats, versioning, pagination.
+  API design principles and decision-making. REST vs GraphQL vs tRPC selection, response formats, versioning,
+  pagination.
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
 # API Patterns
 
-> API design principles and decision-making for 2025. **Learn to THINK, not copy
-> fixed patterns.**
+> API design principles and decision-making for 2025. **Learn to THINK, not copy fixed patterns.**
 
 ## 🎯 Selective Reading Rule
 
-**Read ONLY files relevant to the request!** Check the content map, find what
-you need.
+**Read ONLY files relevant to the request!** Check the content map, find what you need.
 
 ---
 

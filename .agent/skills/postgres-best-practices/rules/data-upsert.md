@@ -7,8 +7,7 @@ tags: upsert, on-conflict, insert, update
 
 ## Use UPSERT for Insert-or-Update Operations
 
-Using separate SELECT-then-INSERT/UPDATE creates race conditions. Use INSERT ...
-ON CONFLICT for atomic upserts.
+Using separate SELECT-then-INSERT/UPDATE creates race conditions. Use INSERT ... ON CONFLICT for atomic upserts.
 
 **Incorrect (check-then-insert race condition):**
 
@@ -48,5 +47,4 @@ values (1, 123)
 on conflict (page_id, user_id) do nothing;
 ```
 
-Reference:
-[INSERT ON CONFLICT](https://www.postgresql.org/docs/current/sql-insert.html#SQL-ON-CONFLICT)
+Reference: [INSERT ON CONFLICT](https://www.postgresql.org/docs/current/sql-insert.html#SQL-ON-CONFLICT)

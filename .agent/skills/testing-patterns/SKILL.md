@@ -1,9 +1,8 @@
 ---
 name: testing-patterns
 description:
-  Jest testing patterns, factory functions, mocking strategies, and TDD
-  workflow. Use when writing unit tests, creating test factories, or following
-  TDD red-green-refactor cycle.
+  Jest testing patterns, factory functions, mocking strategies, and TDD workflow. Use when writing unit tests, creating
+  test factories, or following TDD red-green-refactor cycle.
 ---
 
 # Testing Patterns and Utilities
@@ -142,8 +141,7 @@ jest.mock("./GetItems.generated", () => ({
   useGetItemsQuery: jest.fn(),
 }));
 
-const mockUseGetItemsQuery = jest.requireMock("./GetItems.generated")
-  .useGetItemsQuery as jest.Mock;
+const mockUseGetItemsQuery = jest.requireMock("./GetItems.generated").useGetItemsQuery as jest.Mock;
 
 // In test
 mockUseGetItemsQuery.mockReturnValue({

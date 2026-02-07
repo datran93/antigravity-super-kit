@@ -1,7 +1,6 @@
 # Error Analysis and Resolution Implementation Playbook
 
-This file contains detailed patterns, checklists, and code samples referenced by
-the skill.
+This file contains detailed patterns, checklists, and code samples referenced by the skill.
 
 ## Error Detection and Classification
 
@@ -11,27 +10,19 @@ Classify errors into these categories to inform your debugging strategy:
 
 **By Severity:**
 
-- **Critical**: System down, data loss, security breach, complete service
-  unavailability
+- **Critical**: System down, data loss, security breach, complete service unavailability
 - **High**: Major feature broken, significant user impact, data corruption risk
-- **Medium**: Partial feature degradation, workarounds available, performance
-  issues
+- **Medium**: Partial feature degradation, workarounds available, performance issues
 - **Low**: Minor bugs, cosmetic issues, edge cases with minimal impact
 
 **By Type:**
 
-- **Runtime Errors**: Exceptions, crashes, segmentation faults, null pointer
-  dereferences
-- **Logic Errors**: Incorrect behavior, wrong calculations, invalid state
-  transitions
-- **Integration Errors**: API failures, network timeouts, external service
-  issues
-- **Performance Errors**: Memory leaks, CPU spikes, slow queries, resource
-  exhaustion
-- **Configuration Errors**: Missing environment variables, invalid settings,
-  version mismatches
-- **Security Errors**: Authentication failures, authorization violations,
-  injection attempts
+- **Runtime Errors**: Exceptions, crashes, segmentation faults, null pointer dereferences
+- **Logic Errors**: Incorrect behavior, wrong calculations, invalid state transitions
+- **Integration Errors**: API failures, network timeouts, external service issues
+- **Performance Errors**: Memory leaks, CPU spikes, slow queries, resource exhaustion
+- **Configuration Errors**: Missing environment variables, invalid settings, version mismatches
+- **Security Errors**: Authentication failures, authorization violations, injection attempts
 
 **By Observability:**
 
@@ -44,34 +35,23 @@ Classify errors into these categories to inform your debugging strategy:
 
 Implement multi-layered error detection:
 
-1. **Application-Level Instrumentation**: Use error tracking SDKs (Sentry,
-   DataDog Error Tracking, Rollbar) to automatically capture unhandled
-   exceptions with full context
-2. **Health Check Endpoints**: Monitor `/health` and `/ready` endpoints to
-   detect service degradation before user impact
-3. **Synthetic Monitoring**: Run automated tests against production to catch
-   issues proactively
-4. **Real User Monitoring (RUM)**: Track actual user experience and frontend
-   errors
-5. **Log Pattern Analysis**: Use SIEM tools to identify error spikes and
-   anomalous patterns
-6. **APM Thresholds**: Alert on error rate increases, latency spikes, or
-   throughput drops
+1. **Application-Level Instrumentation**: Use error tracking SDKs (Sentry, DataDog Error Tracking, Rollbar) to
+   automatically capture unhandled exceptions with full context
+2. **Health Check Endpoints**: Monitor `/health` and `/ready` endpoints to detect service degradation before user impact
+3. **Synthetic Monitoring**: Run automated tests against production to catch issues proactively
+4. **Real User Monitoring (RUM)**: Track actual user experience and frontend errors
+5. **Log Pattern Analysis**: Use SIEM tools to identify error spikes and anomalous patterns
+6. **APM Thresholds**: Alert on error rate increases, latency spikes, or throughput drops
 
 ### Error Aggregation and Pattern Recognition
 
 Group related errors to identify systemic issues:
 
-- **Fingerprinting**: Group errors by stack trace similarity, error type, and
-  affected code path
-- **Trend Analysis**: Track error frequency over time to detect regressions or
-  emerging issues
-- **Correlation Analysis**: Link errors to deployments, configuration changes,
-  or external events
-- **User Impact Scoring**: Prioritize based on number of affected users and
-  sessions
-- **Geographic/Temporal Patterns**: Identify region-specific or time-based error
-  clusters
+- **Fingerprinting**: Group errors by stack trace similarity, error type, and affected code path
+- **Trend Analysis**: Track error frequency over time to detect regressions or emerging issues
+- **Correlation Analysis**: Link errors to deployments, configuration changes, or external events
+- **User Impact Scoring**: Prioritize based on number of affected users and sessions
+- **Geographic/Temporal Patterns**: Identify region-specific or time-based error clusters
 
 ## Root Cause Analysis Techniques
 
@@ -79,18 +59,12 @@ Group related errors to identify systemic issues:
 
 Follow this structured approach for each error:
 
-1. **Reproduce the Error**: Create minimal reproduction steps. If intermittent,
-   identify triggering conditions
-2. **Isolate the Failure Point**: Narrow down the exact line of code or
-   component where failure originates
-3. **Analyze the Call Chain**: Trace backwards from the error to understand how
-   the system reached the failed state
-4. **Inspect Variable State**: Examine values at the point of failure and
-   preceding steps
-5. **Review Recent Changes**: Check git history for recent modifications to
-   affected code paths
-6. **Test Hypotheses**: Form theories about the cause and validate with targeted
-   experiments
+1. **Reproduce the Error**: Create minimal reproduction steps. If intermittent, identify triggering conditions
+2. **Isolate the Failure Point**: Narrow down the exact line of code or component where failure originates
+3. **Analyze the Call Chain**: Trace backwards from the error to understand how the system reached the failed state
+4. **Inspect Variable State**: Examine values at the point of failure and preceding steps
+5. **Review Recent Changes**: Check git history for recent modifications to affected code paths
+6. **Test Hypotheses**: Form theories about the cause and validate with targeted experiments
 
 ### The Five Whys Technique
 
@@ -112,17 +86,12 @@ Root cause: Insufficient code review process for database query patterns.
 
 For errors in microservices and distributed systems:
 
-- **Trace the Request Path**: Use correlation IDs to follow requests across
-  service boundaries
-- **Check Service Dependencies**: Identify which upstream/downstream services
-  are involved
-- **Analyze Cascading Failures**: Determine if this is a symptom of a different
-  service's failure
+- **Trace the Request Path**: Use correlation IDs to follow requests across service boundaries
+- **Check Service Dependencies**: Identify which upstream/downstream services are involved
+- **Analyze Cascading Failures**: Determine if this is a symptom of a different service's failure
 - **Review Circuit Breaker State**: Check if protective mechanisms are triggered
-- **Examine Message Queues**: Look for backpressure, dead letters, or processing
-  delays
-- **Timeline Reconstruction**: Build a timeline of events across all services
-  using distributed tracing
+- **Examine Message Queues**: Look for backpressure, dead letters, or processing delays
+- **Timeline Reconstruction**: Build a timeline of events across all services using distributed tracing
 
 ## Stack Trace Analysis
 
@@ -144,18 +113,15 @@ Extract maximum information from stack traces:
 1. Start at the top of the stack (origin of error)
 2. Identify the first frame in your application code (not framework/library)
 3. Examine that frame's context: input parameters, local variables, state
-4. Trace backwards through calling functions to understand how invalid state was
-   created
-5. Look for patterns: is this in a loop? Inside a callback? After an async
-   operation?
+4. Trace backwards through calling functions to understand how invalid state was created
+5. Look for patterns: is this in a loop? Inside a callback? After an async operation?
 
 ### Stack Trace Enrichment
 
 Modern error tracking tools provide enhanced stack traces:
 
 - **Source Code Context**: View surrounding lines of code for each frame
-- **Local Variable Values**: Inspect variable state at each frame (with Sentry's
-  debug mode)
+- **Local Variable Values**: Inspect variable state at each frame (with Sentry's debug mode)
 - **Breadcrumbs**: See the sequence of events leading to the error
 - **Release Tracking**: Link errors to specific deployments and commits
 - **Source Maps**: For minified JavaScript, map back to original source
@@ -172,8 +138,7 @@ NullPointerException
   at com.myapp.service.UserService.findUser(UserService.java:45)
 ```
 
-Root Cause: Application passed null to framework code. Focus on
-UserService.java:45.
+Root Cause: Application passed null to framework code. Focus on UserService.java:45.
 
 **Pattern: Timeout After Long Wait**
 
@@ -183,8 +148,7 @@ TimeoutException: Operation timed out after 30000ms
   at com.myapp.api.PaymentClient.processPayment(PaymentClient.java:89)
 ```
 
-Root Cause: External service slow/unresponsive. Need retry logic and circuit
-breaker.
+Root Cause: External service slow/unresponsive. Need retry logic and circuit breaker.
 
 **Pattern: Race Condition in Concurrent Code**
 
@@ -194,8 +158,7 @@ ConcurrentModificationException
   at com.myapp.processor.BatchProcessor.process(BatchProcessor.java:112)
 ```
 
-Root Cause: Collection modified while being iterated. Need thread-safe data
-structures or synchronization.
+Root Cause: Collection modified while being iterated. Need thread-safe data structures or synchronization.
 
 ## Log Aggregation and Pattern Matching
 
@@ -415,17 +378,12 @@ def log_structured(level, message, **context):
 
 Use log analysis to identify patterns:
 
-- **Error Rate Spikes**: Compare current error rate to historical baseline
-  (e.g., >3 standard deviations)
+- **Error Rate Spikes**: Compare current error rate to historical baseline (e.g., >3 standard deviations)
 - **New Error Types**: Alert when previously unseen error fingerprints appear
-- **Cascading Failures**: Detect when errors in one service trigger errors in
-  dependent services
-- **User Impact Patterns**: Identify which users/segments are disproportionately
-  affected
-- **Geographic Patterns**: Spot region-specific issues (e.g., CDN problems, data
-  center outages)
-- **Temporal Patterns**: Find time-based issues (e.g., batch jobs, scheduled
-  tasks, time zone bugs)
+- **Cascading Failures**: Detect when errors in one service trigger errors in dependent services
+- **User Impact Patterns**: Identify which users/segments are disproportionately affected
+- **Geographic Patterns**: Spot region-specific issues (e.g., CDN problems, data center outages)
+- **Temporal Patterns**: Find time-based issues (e.g., batch jobs, scheduled tasks, time zone bugs)
 
 ## Debugging Workflow
 
@@ -444,10 +402,8 @@ For deterministic errors in development:
 
 **Modern Debugging Tools:**
 
-- **VS Code Debugger**: Integrated debugging for JavaScript, Python, Go, Java,
-  C++
-- **Chrome DevTools**: Frontend debugging with network, performance, and memory
-  profiling
+- **VS Code Debugger**: Integrated debugging for JavaScript, Python, Go, Java, C++
+- **Chrome DevTools**: Frontend debugging with network, performance, and memory profiling
 - **pdb/ipdb (Python)**: Interactive debugger with post-mortem analysis
 - **dlv (Go)**: Delve debugger for Go programs
 - **lldb (C/C++)**: Low-level debugger with reverse debugging capabilities
@@ -458,19 +414,14 @@ For errors in production environments where debuggers aren't available:
 
 **Safe Production Debugging Techniques:**
 
-1. **Enhanced Logging**: Add strategic log statements around suspected failure
-   points
+1. **Enhanced Logging**: Add strategic log statements around suspected failure points
 2. **Feature Flags**: Enable verbose logging for specific users/requests
 3. **Sampling**: Log detailed context for a percentage of requests
-4. **APM Transaction Traces**: Use DataDog APM or New Relic to see detailed
-   transaction flows
-5. **Distributed Tracing**: Leverage OpenTelemetry traces to understand
-   cross-service interactions
-6. **Profiling**: Use continuous profilers (DataDog Profiler, Pyroscope) to
-   identify hot spots
+4. **APM Transaction Traces**: Use DataDog APM or New Relic to see detailed transaction flows
+5. **Distributed Tracing**: Leverage OpenTelemetry traces to understand cross-service interactions
+6. **Profiling**: Use continuous profilers (DataDog Profiler, Pyroscope) to identify hot spots
 7. **Heap Dumps**: Capture memory snapshots for analysis of memory leaks
-8. **Traffic Mirroring**: Replay production traffic in staging for safe
-   investigation
+8. **Traffic Mirroring**: Replay production traffic in staging for safe investigation
 
 **Remote Debugging (Use Cautiously):**
 
@@ -752,26 +703,18 @@ async function retryWithBackoff<T>(
       lastError = error as Error;
 
       // Check if error is retryable
-      if (
-        options.retryableErrors &&
-        !options.retryableErrors.includes(error.name)
-      ) {
+      if (options.retryableErrors && !options.retryableErrors.includes(error.name)) {
         throw error; // Don't retry non-retryable errors
       }
 
       if (attempt < options.maxAttempts - 1) {
-        const delay = Math.min(
-          options.baseDelayMs * Math.pow(options.exponentialBase, attempt),
-          options.maxDelayMs,
-        );
+        const delay = Math.min(options.baseDelayMs * Math.pow(options.exponentialBase, attempt), options.maxDelayMs);
 
         // Add jitter to prevent thundering herd
         const jitter = Math.random() * 0.1 * delay;
         const actualDelay = delay + jitter;
 
-        console.log(
-          `Attempt ${attempt + 1} failed, retrying in ${actualDelay}ms`,
-        );
+        console.log(`Attempt ${attempt + 1} failed, retrying in ${actualDelay}ms`);
         await new Promise((resolve) => setTimeout(resolve, actualDelay));
       }
     }
@@ -781,16 +724,13 @@ async function retryWithBackoff<T>(
 }
 
 // Usage
-const result = await retryWithBackoff(
-  () => fetch("https://api.example.com/data"),
-  {
-    maxAttempts: 3,
-    baseDelayMs: 1000,
-    maxDelayMs: 10000,
-    exponentialBase: 2,
-    retryableErrors: ["NetworkError", "TimeoutError"],
-  },
-);
+const result = await retryWithBackoff(() => fetch("https://api.example.com/data"), {
+  maxAttempts: 3,
+  baseDelayMs: 1000,
+  maxDelayMs: 10000,
+  exponentialBase: 2,
+  retryableErrors: ["NetworkError", "TimeoutError"],
+});
 ```
 
 ## Monitoring and Alerting Integration
@@ -1046,10 +986,7 @@ monitors:
 
   - name: "New Error Type Detected"
     type: log
-    query:
-      'logs("level:ERROR
-      service:payment-service").rollup("count").by("error.fingerprint").last("5m")
-      > 0'
+    query: 'logs("level:ERROR service:payment-service").rollup("count").by("error.fingerprint").last("5m") > 0'
     message: |
       New error type detected in payment service: {{error.fingerprint}}
 
@@ -1063,9 +1000,7 @@ monitors:
 
   - name: "Payment Service - P95 Latency High"
     type: metric
-    query:
-      "avg(last_10m):p95:trace.express.request.duration{service:payment-service}
-      > 2000"
+    query: "avg(last_10m):p95:trace.express.request.duration{service:payment-service} > 2000"
     message: |
       Payment service P95 latency is {{value}}ms (threshold: 2000ms)
 
@@ -1240,5 +1175,5 @@ For each error analysis, provide:
 7. **Monitoring Recommendations**: What to monitor/alert on going forward
 8. **Runbook**: Step-by-step guide for handling similar incidents
 
-Prioritize actionable recommendations that improve system reliability and reduce
-MTTR (Mean Time To Resolution) for future incidents.
+Prioritize actionable recommendations that improve system reliability and reduce MTTR (Mean Time To Resolution) for
+future incidents.

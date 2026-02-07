@@ -7,8 +7,7 @@ tags: batch, insert, bulk, performance, copy
 
 ## Batch INSERT Statements for Bulk Data
 
-Individual INSERT statements have high overhead. Batch multiple rows in single
-statements or use COPY.
+Individual INSERT statements have high overhead. Batch multiple rows in single statements or use COPY.
 
 **Incorrect (individual inserts):**
 

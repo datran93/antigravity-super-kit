@@ -1,18 +1,16 @@
 ---
 name: mobile-design
 description:
-  Mobile-first design thinking and decision-making for iOS and Android apps.
-  Touch interaction, performance patterns, platform conventions. Teaches
-  principles, not fixed values. Use when building React Native, Flutter, or
-  native mobile apps.
+  Mobile-first design thinking and decision-making for iOS and Android apps. Touch interaction, performance patterns,
+  platform conventions. Teaches principles, not fixed values. Use when building React Native, Flutter, or native mobile
+  apps.
 allowed-tools: Read, Glob, Grep, Bash
 ---
 
 # Mobile Design System
 
-> **Philosophy:** Touch-first. Battery-conscious. Platform-respectful.
-> Offline-capable. **Core Principle:** Mobile is NOT a small desktop. THINK
-> mobile constraints, ASK platform choice.
+> **Philosophy:** Touch-first. Battery-conscious. Platform-respectful. Offline-capable. **Core Principle:** Mobile is
+> NOT a small desktop. THINK mobile constraints, ASK platform choice.
 
 ---
 
@@ -45,8 +43,7 @@ allowed-tools: Read, Glob, Grep, Bash
 | [mobile-color-system.md](mobile-color-system.md)           | OLED, dark mode, battery-aware                                  | ⬜ Read               |
 | [decision-trees.md](decision-trees.md)                     | Framework/state/storage selection                               | ⬜ Read               |
 
-> 🧠 **mobile-design-thinking.md is PRIORITY!** This file ensures AI thinks
-> instead of using memorized patterns.
+> 🧠 **mobile-design-thinking.md is PRIORITY!** This file ensures AI thinks instead of using memorized patterns.
 
 ### Platform-Specific (Read Based on Target)
 
@@ -56,16 +53,14 @@ allowed-tools: Read, Glob, Grep, Bash
 | **Android**        | [platform-android.md](platform-android.md) | Material Design 3, Roboto, Compose patterns          | Building for Android     |
 | **Cross-Platform** | Both above                                 | Platform divergence points                           | React Native / Flutter   |
 
-> 🔴 **If building for iOS → Read platform-ios.md FIRST!** 🔴 **If building for
-> Android → Read platform-android.md FIRST!** 🔴 **If cross-platform → Read BOTH
-> and apply conditional platform logic!**
+> 🔴 **If building for iOS → Read platform-ios.md FIRST!** 🔴 **If building for Android → Read platform-android.md
+> FIRST!** 🔴 **If cross-platform → Read BOTH and apply conditional platform logic!**
 
 ---
 
 ## ⚠️ CRITICAL: ASK BEFORE ASSUMING (MANDATORY)
 
-> **STOP! If the user's request is open-ended, DO NOT default to your
-> favorites.**
+> **STOP! If the user's request is open-ended, DO NOT default to your favorites.**
 
 ### You MUST Ask If Not Specified:
 
@@ -399,6 +394,5 @@ For deeper guidance on specific areas:
 
 ---
 
-> **Remember:** Mobile users are impatient, interrupted, and using imprecise
-> fingers on small screens. Design for the WORST conditions: bad network, one
-> hand, bright sun, low battery. If it works there, it works everywhere.
+> **Remember:** Mobile users are impatient, interrupted, and using imprecise fingers on small screens. Design for the
+> WORST conditions: bad network, one hand, bright sun, low battery. If it works there, it works everywhere.

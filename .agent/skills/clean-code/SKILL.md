@@ -1,8 +1,6 @@
 ---
 name: clean-code
-description:
-  Pragmatic coding standards - concise, direct, no over-engineering, no
-  unnecessary comments
+description: Pragmatic coding standards - concise, direct, no over-engineering, no unnecessary comments
 allowed-tools: Read, Write, Edit
 version: 2.0
 priority: CRITICAL
@@ -106,8 +104,8 @@ File to edit: UserService.ts
 └── Do they need changes too? → Check function signatures
 ```
 
-> 🔴 **Rule:** Edit the file + all dependent files in the SAME task. 🔴 **Never
-> leave broken imports or missing updates.**
+> 🔴 **Rule:** Edit the file + all dependent files in the SAME task. 🔴 **Never leave broken imports or missing
+> updates.**
 
 ---
 
@@ -144,8 +142,7 @@ File to edit: UserService.ts
 
 ## Verification Scripts (MANDATORY)
 
-> 🔴 **CRITICAL:** Each agent runs ONLY their own skill's scripts after
-> completing work.
+> 🔴 **CRITICAL:** Each agent runs ONLY their own skill's scripts after completing work.
 
 ### Agent → Script Mapping
 
@@ -166,8 +163,7 @@ File to edit: UserService.ts
 | **Any agent**             | Type Coverage   | `python .agent/skills/lint-and-validate/scripts/type_coverage.py .`            |
 | **Any agent**             | i18n Check      | `python .agent/skills/i18n-localization/scripts/i18n_checker.py .`             |
 
-> ❌ **WRONG:** `test-engineer` running `ux_audit.py` ✅ **CORRECT:**
-> `frontend-specialist` running `ux_audit.py`
+> ❌ **WRONG:** `test-engineer` running `ux_audit.py` ✅ **CORRECT:** `frontend-specialist` running `ux_audit.py`
 
 ---
 
@@ -202,6 +198,5 @@ File to edit: UserService.ts
 4. **Wait for user confirmation** before fixing
 5. **After fixing** → Re-run script to confirm
 
-> 🔴 **VIOLATION:** Running script and ignoring output = FAILED task. 🔴
-> **VIOLATION:** Auto-fixing without asking = Not allowed. 🔴 **Rule:** Always
-> READ output → SUMMARIZE → ASK → then fix.
+> 🔴 **VIOLATION:** Running script and ignoring output = FAILED task. 🔴 **VIOLATION:** Auto-fixing without asking = Not
+> allowed. 🔴 **Rule:** Always READ output → SUMMARIZE → ASK → then fix.

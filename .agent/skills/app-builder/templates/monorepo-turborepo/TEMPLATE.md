@@ -1,7 +1,6 @@
 ---
 name: monorepo-turborepo
-description:
-  Turborepo monorepo template principles. pnpm workspaces, shared packages.
+description: Turborepo monorepo template principles. pnpm workspaces, shared packages.
 ---
 
 # Turborepo Monorepo Template

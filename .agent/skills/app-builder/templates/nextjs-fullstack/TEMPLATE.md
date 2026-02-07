@@ -1,7 +1,6 @@
 ---
 name: nextjs-fullstack
-description:
-  Next.js full-stack template principles. App Router, Prisma, Tailwind v4.
+description: Next.js full-stack template principles. App Router, Prisma, Tailwind v4.
 ---
 
 # Next.js Full-Stack Template (2026 Edition)
@@ -90,8 +89,7 @@ project-name/
    npm install -D ts-node # For running seed scripts
    ```
 
-3. Configure Tailwind v4 (If missing): Ensure `src/app/globals.css` uses the new
-   import syntax instead of a config file:
+3. Configure Tailwind v4 (If missing): Ensure `src/app/globals.css` uses the new import syntax instead of a config file:
 
    ```css
    @import "tailwindcss";
@@ -120,12 +118,10 @@ project-name/
 
 ## Best Practices (2026 Standards)
 
-- **Fetch Data**: Call Prisma directly in Server Components (async/await). Do
-  not use useEffect for initial data fetching.
-- **Mutations**: Use Server Actions combined with React 19's `useActionState` to
-  handle loading and error states instead of manual useState.
-- **Type Safety**: Share Zod schemas between Server Actions (input validation)
-  and Client Forms.
+- **Fetch Data**: Call Prisma directly in Server Components (async/await). Do not use useEffect for initial data
+  fetching.
+- **Mutations**: Use Server Actions combined with React 19's `useActionState` to handle loading and error states instead
+  of manual useState.
+- **Type Safety**: Share Zod schemas between Server Actions (input validation) and Client Forms.
 - **Security**: Always validate input data with Zod before passing it to Prisma.
-- **Styling**: Use native CSS variables in Tailwind v4 for easier dynamic
-  theming.
+- **Styling**: Use native CSS variables in Tailwind v4 for easier dynamic theming.

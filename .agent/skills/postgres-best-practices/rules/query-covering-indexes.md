@@ -7,8 +7,7 @@ tags: indexes, covering-index, include, index-only-scan
 
 ## Use Covering Indexes to Avoid Table Lookups
 
-Covering indexes include all columns needed by a query, enabling index-only
-scans that skip the table entirely.
+Covering indexes include all columns needed by a query, enabling index-only scans that skip the table entirely.
 
 **Incorrect (index scan + heap fetch):**
 
@@ -38,5 +37,4 @@ create index orders_status_idx on orders (status) include (customer_id, total);
 select status, customer_id, total from orders where status = 'shipped';
 ```
 
-Reference:
-[Index-Only Scans](https://www.postgresql.org/docs/current/indexes-index-only-scans.html)
+Reference: [Index-Only Scans](https://www.postgresql.org/docs/current/indexes-index-only-scans.html)

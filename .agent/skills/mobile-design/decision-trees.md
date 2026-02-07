@@ -1,7 +1,7 @@
 # Mobile Decision Trees
 
-> Framework selection, state management, storage strategy, and context-based
-> decisions. **These are THINKING guides, not copy-paste answers.**
+> Framework selection, state management, storage strategy, and context-based decisions. **These are THINKING guides, not
+> copy-paste answers.**
 
 ---
 
@@ -513,6 +513,5 @@ API cache?           → Query library
 
 ---
 
-> **Remember:** These trees are guides for THINKING, not rules to follow
-> blindly. Every project has unique constraints. ASK clarifying questions when
-> requirements are vague, and choose based on actual needs, not defaults.
+> **Remember:** These trees are guides for THINKING, not rules to follow blindly. Every project has unique constraints.
+> ASK clarifying questions when requirements are vague, and choose based on actual needs, not defaults.

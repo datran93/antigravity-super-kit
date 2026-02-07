@@ -7,8 +7,8 @@ tags: indexes, partial-index, query-optimization, storage
 
 ## Use Partial Indexes for Filtered Queries
 
-Partial indexes only include rows matching a WHERE condition, making them
-smaller and faster when queries consistently filter on the same condition.
+Partial indexes only include rows matching a WHERE condition, making them smaller and faster when queries consistently
+filter on the same condition.
 
 **Incorrect (full index includes irrelevant rows):**
 
@@ -43,5 +43,4 @@ create index products_sku_idx on products (sku)
 where sku is not null;
 ```
 
-Reference:
-[Partial Indexes](https://www.postgresql.org/docs/current/indexes-partial.html)
+Reference: [Partial Indexes](https://www.postgresql.org/docs/current/indexes-partial.html)

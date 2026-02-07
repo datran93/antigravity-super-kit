@@ -1,21 +1,17 @@
 ---
 name: design-orchestration
 description: >
-  Orchestrates design workflows by routing work through brainstorming,
-  multi-agent review, and execution readiness in the correct order. Prevents
-  premature implementation, skipped validation, and unreviewed high-risk
-  designs.
+  Orchestrates design workflows by routing work through brainstorming, multi-agent review, and execution readiness in
+  the correct order. Prevents premature implementation, skipped validation, and unreviewed high-risk designs.
 ---
 
 # Design Orchestration (Meta-Skill)
 
 ## Purpose
 
-Ensure that **ideas become designs**, **designs are reviewed**, and **only
-validated designs reach implementation**.
+Ensure that **ideas become designs**, **designs are reviewed**, and **only validated designs reach implementation**.
 
-This skill does not generate designs. It **controls the flow between other
-skills**.
+This skill does not generate designs. It **controls the flow between other skills**.
 
 ---
 
@@ -160,9 +156,8 @@ Possible exits:
 - “Proceed to implementation planning”
 - “Run multi-agent-brainstorming”
 - “Return to brainstorming for clarification”
-- "If a reviewed design reports a final disposition of APPROVED, REVISE, or
-  REJECT, you MUST route the workflow accordingly and state the chosen next step
-  explicitly."
+- "If a reviewed design reports a final disposition of APPROVED, REVISE, or REJECT, you MUST route the workflow
+  accordingly and state the chosen next step explicitly."
 
 ---
 

@@ -1,7 +1,7 @@
 # 4. Client-Side Data Fetching
 
-> **Impact:** MEDIUM-HIGH **Focus:** Automatic deduplication and efficient data
-> fetching patterns reduce redundant network requests.
+> **Impact:** MEDIUM-HIGH **Focus:** Automatic deduplication and efficient data fetching patterns reduce redundant
+> network requests.
 
 ---
 
@@ -18,8 +18,7 @@ This section contains **4 rules** focused on client-side data fetching.
 
 ## Deduplicate Global Event Listeners
 
-Use `useSWRSubscription()` to share global event listeners across component
-instances.
+Use `useSWRSubscription()` to share global event listeners across component instances.
 
 **Incorrect (N instances = N listeners):**
 
@@ -37,8 +36,7 @@ function useKeyboardShortcut(key: string, callback: () => void) {
 }
 ```
 
-When using the `useKeyboardShortcut` hook multiple times, each instance will
-register a new listener.
+When using the `useKeyboardShortcut` hook multiple times, each instance will register a new listener.
 
 **Correct (N instances = 1 listener):**
 
@@ -99,9 +97,8 @@ function Profile() {
 
 ## Use Passive Event Listeners for Scrolling Performance
 
-Add `{ passive: true }` to touch and wheel event listeners to enable immediate
-scrolling. Browsers normally wait for listeners to finish to check if
-`preventDefault()` is called, causing scroll delay.
+Add `{ passive: true }` to touch and wheel event listeners to enable immediate scrolling. Browsers normally wait for
+listeners to finish to check if `preventDefault()` is called, causing scroll delay.
 
 **Incorrect:**
 
@@ -137,11 +134,10 @@ useEffect(() => {
 }, []);
 ```
 
-**Use passive when:** tracking/analytics, logging, any listener that doesn't
-call `preventDefault()`.
+**Use passive when:** tracking/analytics, logging, any listener that doesn't call `preventDefault()`.
 
-**Don't use passive when:** implementing custom swipe gestures, custom zoom
-controls, or any listener that needs `preventDefault()`.
+**Don't use passive when:** implementing custom swipe gestures, custom zoom controls, or any listener that needs
+`preventDefault()`.
 
 ---
 
@@ -152,8 +148,7 @@ controls, or any listener that needs `preventDefault()`.
 
 ## Use SWR for Automatic Deduplication
 
-SWR enables request deduplication, caching, and revalidation across component
-instances.
+SWR enables request deduplication, caching, and revalidation across component instances.
 
 **Incorrect (no deduplication, each instance fetches):**
 
@@ -210,8 +205,8 @@ Reference: [https://swr.vercel.app](https://swr.vercel.app)
 
 ## Version and Minimize localStorage Data
 
-Add version prefix to keys and store only needed fields. Prevents schema
-conflicts and accidental storage of sensitive data.
+Add version prefix to keys and store only needed fields. Prevents schema conflicts and accidental storage of sensitive
+data.
 
 **Incorrect:**
 
@@ -276,9 +271,7 @@ function cachePrefs(user: FullUser) {
 }
 ```
 
-**Always wrap in try-catch:** `getItem()` and `setItem()` throw in
-incognito/private browsing (Safari, Firefox), when quota exceeded, or when
-disabled.
+**Always wrap in try-catch:** `getItem()` and `setItem()` throw in incognito/private browsing (Safari, Firefox), when
+quota exceeded, or when disabled.
 
-**Benefits:** Schema evolution via versioning, reduced storage size, prevents
-storing tokens/PII/internal flags.
+**Benefits:** Schema evolution via versioning, reduced storage size, prevents storing tokens/PII/internal flags.

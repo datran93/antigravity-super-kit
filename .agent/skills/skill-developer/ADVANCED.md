@@ -6,8 +6,7 @@ Ideas and concepts for future improvements to the skill system.
 
 ## Dynamic Rule Updates
 
-**Current State:** Requires Claude Code restart to pick up changes to
-skill-rules.json
+**Current State:** Requires Claude Code restart to pick up changes to skill-rules.json
 
 **Future Enhancement:** Hot-reload configuration without restart
 

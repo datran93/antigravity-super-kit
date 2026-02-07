@@ -7,8 +7,7 @@ tags: transactions, locking, contention, performance
 
 ## Keep Transactions Short to Reduce Lock Contention
 
-Long-running transactions hold locks that block other queries. Keep transactions
-as short as possible.
+Long-running transactions hold locks that block other queries. Keep transactions as short as possible.
 
 **Incorrect (long transaction with external calls):**
 
@@ -48,5 +47,4 @@ set statement_timeout = '30s';
 set local statement_timeout = '5s';
 ```
 
-Reference:
-[Transaction Management](https://www.postgresql.org/docs/current/tutorial-transactions.html)
+Reference: [Transaction Management](https://www.postgresql.org/docs/current/tutorial-transactions.html)

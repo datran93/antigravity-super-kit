@@ -7,8 +7,7 @@ tags: rls, performance, security, optimization
 
 ## Optimize RLS Policies for Performance
 
-Poorly written RLS policies can cause severe performance issues. Use subqueries
-and indexes strategically.
+Poorly written RLS policies can cause severe performance issues. Use subqueries and indexes strategically.
 
 **Incorrect (function called for every row):**
 

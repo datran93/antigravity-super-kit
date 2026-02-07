@@ -1,6 +1,5 @@
 ---
-description:
-  Debugging command. Activates DEBUG mode for systematic problem investigation.
+description: Debugging command. Activates DEBUG mode for systematic problem investigation.
 ---
 
 # /debug - Systematic Problem Investigation
@@ -11,8 +10,7 @@ $ARGUMENTS
 
 ## Purpose
 
-This command activates DEBUG mode for systematic investigation of issues,
-errors, or unexpected behavior.
+This command activates DEBUG mode for systematic investigation of issues, errors, or unexpected behavior.
 
 ---
 
@@ -102,8 +100,7 @@ When `/debug` is triggered:
 
 ```
 
-/debug login not working /debug API returns 500 /debug form doesn't submit
-/debug data not saving
+/debug login not working /debug API returns 500 /debug form doesn't submit /debug data not saving
 
 ```
 

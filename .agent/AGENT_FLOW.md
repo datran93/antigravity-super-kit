@@ -138,12 +138,12 @@ Before implementation, verify:
 
 Before ANY code/design work:
 
-| Step | Check                        | If Unchecked                            |
-| ---- | ---------------------------- | --------------------------------------- |
-| 1    | Identify correct agent       | → Analyze request domain                |
-| 2    | Read agent's .md file        | → Open `.agent/agents/{agent}.md`       |
+| Step | Check                        | If Unchecked                             |
+| ---- | ---------------------------- | ---------------------------------------- |
+| 1    | Identify correct agent       | → Analyze request domain                 |
+| 2    | Read agent's .md file        | → Open `.agent/agents/{agent}.md`        |
 | 3    | Announce agent               | → `🤖 Applying knowledge of @[agent]...` |
-| 4    | Load skills from frontmatter | → Check `skills:` field                 |
+| 4    | Load skills from frontmatter | → Check `skills:` field                  |
 
 ```
 Request Domain → Agent Mapping:
@@ -625,5 +625,4 @@ User Request: "Build a Next.js dashboard with authentication"
 
 ---
 
-**Last Updated**: 2026-02-07
-**Version**: 2.1.0
+**Last Updated**: 2026-02-07 **Version**: 2.1.0

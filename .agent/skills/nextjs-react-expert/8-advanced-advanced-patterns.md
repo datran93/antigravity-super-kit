@@ -1,7 +1,6 @@
 # 8. Advanced Patterns
 
-> **Impact:** VARIABLE **Focus:** Advanced patterns for specific cases that
-> require careful implementation.
+> **Impact:** VARIABLE **Focus:** Advanced patterns for specific cases that require careful implementation.
 
 ---
 
@@ -18,9 +17,8 @@ This section contains **3 rules** focused on advanced patterns.
 
 ## Initialize App Once, Not Per Mount
 
-Do not put app-wide initialization that must run once per app load inside
-`useEffect([])` of a component. Components can remount and effects will re-run.
-Use a module-level guard or top-level init in the entry module instead.
+Do not put app-wide initialization that must run once per app load inside `useEffect([])` of a component. Components can
+remount and effects will re-run. Use a module-level guard or top-level init in the entry module instead.
 
 **Incorrect (runs twice in dev, re-runs on remount):**
 
@@ -64,8 +62,7 @@ Reference:
 
 ## Store Event Handlers in Refs
 
-Store callbacks in refs when used in effects that shouldn't re-subscribe on
-callback changes.
+Store callbacks in refs when used in effects that shouldn't re-subscribe on callback changes.
 
 **Incorrect (re-subscribes on every render):**
 
@@ -110,8 +107,8 @@ function useWindowEvent(event: string, handler: (e) => void) {
 }
 ```
 
-`useEffectEvent` provides a cleaner API for the same pattern: it creates a
-stable function reference that always calls the latest version of the handler.
+`useEffectEvent` provides a cleaner API for the same pattern: it creates a stable function reference that always calls
+the latest version of the handler.
 
 ---
 
@@ -122,8 +119,8 @@ stable function reference that always calls the latest version of the handler.
 
 ## useEffectEvent for Stable Callback Refs
 
-Access latest values in callbacks without adding them to dependency arrays.
-Prevents effect re-runs while avoiding stale closures.
+Access latest values in callbacks without adding them to dependency arrays. Prevents effect re-runs while avoiding stale
+closures.
 
 **Incorrect (effect re-runs on every callback change):**
 

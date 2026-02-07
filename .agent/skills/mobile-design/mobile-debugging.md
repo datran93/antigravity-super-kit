@@ -1,8 +1,7 @@
 # Mobile Debugging Guide
 
-> **Stop console.log() debugging!** Mobile apps have complex native layers. Text
-> logs are not enough. **This file teaches effective mobile debugging
-> strategies.**
+> **Stop console.log() debugging!** Mobile apps have complex native layers. Text logs are not enough. **This file
+> teaches effective mobile debugging strategies.**
 
 ---
 
@@ -20,8 +19,7 @@ Web Debugging:      Mobile Debugging:
 
 **Key Differences:**
 
-1.  **Native Layer:** JS code works, but app crashes? It's likely native
-    (Java/Obj-C).
+1.  **Native Layer:** JS code works, but app crashes? It's likely native (Java/Obj-C).
 2.  **Deployment:** You can't just "refresh". State gets lost or stuck.
 3.  **Network:** SSL Pinning, proxy settings are harder.
 4.  **Device Logs:** `adb logcat` and `Console.app` are your truth.
@@ -72,19 +70,17 @@ Web Debugging:      Mobile Debugging:
 
 **Scenario B: Crash to Home Screen (Native Crash)**
 
-- **Cause:** Native module failure, memory OOM, permission usage without
-  declaration.
+- **Cause:** Native module failure, memory OOM, permission usage without declaration.
 - **Tools:**
   - **Android:** `adb logcat *:E` (Filter for Errors)
   - **iOS:** Open Xcode → Window → Devices → View Device Logs
 
-> **💡 Pro Tip:** If app crashes immediately on launch, it's almost 100% a
-> native configuration issue (Info.plist, AndroidManifest.xml).
+> **💡 Pro Tip:** If app crashes immediately on launch, it's almost 100% a native configuration issue (Info.plist,
+> AndroidManifest.xml).
 
 ### 🌐 "API Request Failed" (Network)
 
-**Web:** Open Chrome DevTools → Network. **Mobile:** _You usually can't see this
-easily._
+**Web:** Open Chrome DevTools → Network. **Mobile:** _You usually can't see this easily._
 
 **Solution 1: Reactotron/Flipper**
 
@@ -130,5 +126,4 @@ easily._
 - [ ] **Are you on a real device?** (Simulators hide concurrency bugs)
 - [ ] **Did you check the native logs?** (Not just terminal output)
 
-> **Remember:** If JavaScript looks perfect but the app fails, look closer at
-> the Native side.
+> **Remember:** If JavaScript looks perfect but the app fails, look closer at the Native side.
