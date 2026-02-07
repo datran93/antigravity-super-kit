@@ -88,7 +88,7 @@ When auto-applying an agent, inform the user:
 | ---- | -------------------------------------------------------- | -------------------------------------------- |
 | 1    | Did I identify the correct agent for this domain?        | → STOP. Analyze request domain first.        |
 | 2    | Did I READ the agent's `.md` file (or recall its rules)? | → STOP. Open `.agent/agents/{agent}.md`      |
-| 3    | Did I announce `🤖 Applying knowledge of @[agent]...`?   | → STOP. Add announcement before response.    |
+| 3    | Did I announce `🤖 Applying knowledge of @[agent]...`?    | → STOP. Add announcement before response.    |
 | 4    | Did I load required skills from agent's frontmatter?     | → STOP. Check `skills:` field and read them. |
 
 **Failure Conditions:**
@@ -279,13 +279,38 @@ tüm testleri", or similar phrases.
 
 ## 📁 QUICK REFERENCE
 
-### Agents & Skills
+### Agents (26 total)
 
-- **Masters**: `orchestrator`, `project-planner`, `security-auditor`
-  (Cyber/Audit), `backend-specialist` (API/DB), `frontend-specialist` (UI/UX),
-  `mobile-developer`, `debugger`, `game-developer`
-- **Key Skills**: `clean-code`, `brainstorming`, `app-builder`,
-  `frontend-design`, `mobile-design`, `plan-writing`, `behavioral-modes`
+| Category          | Agents                                                                      |
+| ----------------- | --------------------------------------------------------------------------- |
+| **Orchestration** | `orchestrator`, `project-planner`, `explorer-agent`                         |
+| **Frontend**      | `frontend-specialist`, `mobile-developer`, `game-developer`                 |
+| **Backend**       | `backend-specialist`, `api-designer`, `database-architect`                  |
+| **Data**          | `data-engineer`, `data-scientist`                                           |
+| **DevOps/Infra**  | `devops-engineer`, `network-engineer`, `performance-optimizer`              |
+| **Security**      | `security-auditor`, `penetration-tester`                                    |
+| **Quality**       | `debugger`, `test-engineer`, `qa-automation-engineer`, `code-archaeologist` |
+| **AI/Agents**     | `ai-agents-architect`, `skill-developer`                                    |
+| **Product**       | `product-manager`, `product-owner`                                          |
+| **Documentation** | `documentation-writer`, `seo-specialist`                                    |
+
+### Key Skills (85 total)
+
+| Category         | Skills                                                                                                               |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Core**         | `clean-code`, `brainstorming`, `behavioral-modes`, `plan-writing`, `intelligent-routing`                             |
+| **App Building** | `app-builder`, `frontend-design`, `mobile-design`, `core-components`, `tailwind-patterns`                            |
+| **Backend**      | `api-patterns`, `api-design-principles`, `nodejs-best-practices`, `microservices-patterns`                           |
+| **Database**     | `database-design`, `database-migration`, `database-optimizer`, `postgresql`, `postgres-best-practices`               |
+| **Architecture** | `architecture`, `architecture-patterns`, `software-architecture`, `backend-architect`                                |
+| **Testing**      | `testing-patterns`, `tdd-workflow`, `webapp-testing`, `systematic-debugging`                                         |
+| **Security**     | `vulnerability-scanner`, `red-team-tactics`                                                                          |
+| **DevOps**       | `deployment-procedures`, `docker-expert`, `kubernetes-architect`, `server-management`                                |
+| **Performance**  | `performance-profiling`, `performance-engineer`                                                                      |
+| **AI/Agents**    | `ai-agents-architect`, `rag-engineer`, `rag-implementation`, `mcp-builder`, `multi-agent-patterns`, `memory-systems` |
+| **Languages**    | `golang-pro`, `python-patterns`, `javascript-pro`, `java-pro`, `rust-pro`, `bash-linux`                              |
+| **Git/Workflow** | `git-advanced-workflows`, `git-pr-workflows-git-workflow`                                                            |
+| **SEO/Content**  | `seo-fundamentals`, `geo-fundamentals`, `documentation-templates`                                                    |
 
 ### Key Scripts
 

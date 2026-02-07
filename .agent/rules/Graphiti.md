@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# GEMINI.md - Antigravity Kit
+# GRAPHITI.md - Antigravity Kit
 
 ## Instructions for Using Graphiti's MCP Tools for Agent Memory
 
