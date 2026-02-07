@@ -11,7 +11,8 @@ All notable changes to the Antigravity Kit will be documented in this file.
 - **Workflow Documentation Improvements**:
   - All 9 workflows now save results to `.agent/docs/{COMMAND}-{slug}.md` and notify user
   - Added dynamic slug generation rules (2-3 key words, lowercase, hyphen-separated, max 30 chars)
-  - Affected workflows: `/brainstorm`, `/create`, `/debug`, `/deploy`, `/enhance`, `/orchestrate`, `/plan`, `/test`, `/ui-ux-pro-max`
+  - Affected workflows: `/brainstorm`, `/create`, `/debug`, `/deploy`, `/enhance`, `/orchestrate`, `/plan`, `/test`,
+    `/ui-ux-pro-max`
 
 ### Changed
 
