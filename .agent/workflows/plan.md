@@ -25,7 +25,7 @@ Use the `project-planner` agent with this context:
 CONTEXT:
 - User Request: $ARGUMENTS
 - Mode: PLANNING ONLY (no code)
-- Output: docs/PLAN-{task-slug}.md (dynamic naming)
+- Output: .agent/docs/PLAN-{task-slug}.md (dynamic naming)
 
 NAMING RULES:
 1. Extract 2-3 key words from request
@@ -56,22 +56,16 @@ RULES:
 
 ## After Planning
 
+Save plan summary to `.agent/docs/PLAN-{slug}.md` and notify: `✅ PLAN summary saved: .agent/docs/PLAN-{slug}.md`
+
 Tell user:
 
 ```
-[OK] Plan created: .agent/docs/PLAN-{slug}.md
-
 Next steps:
 - Review the plan
 - Run `/create` to start implementation
 - Or modify plan manually
 ```
-
-Save plan summary to `.agent/docs/PLAN-{slug}.md` and notify:
-
-- **Slug generation**: Extract 2-3 key words from request → lowercase → hyphen-separated → max 30 chars
-  - Example: "e-commerce site with cart" → `PLAN-ecommerce-cart.md`
-- Notify: `✅ PLAN summary saved: .agent/docs/PLAN-{slug}.md`
 
 ---
 
