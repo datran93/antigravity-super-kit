@@ -4,6 +4,22 @@ All notable changes to the Antigravity Kit will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-02-07
+
+### Added
+
+- **Workflow Documentation Improvements**:
+  - All 9 workflows now save results to `.agent/docs/{COMMAND}-{slug}.md` and notify user
+  - Added dynamic slug generation rules (2-3 key words, lowercase, hyphen-separated, max 30 chars)
+  - Affected workflows: `/brainstorm`, `/create`, `/debug`, `/deploy`, `/enhance`, `/orchestrate`, `/plan`, `/test`, `/ui-ux-pro-max`
+
+### Changed
+
+- **GEMINI.md Compression**: Reduced from 307 lines to ~190 lines (~38% reduction) while preserving all content
+- **AGENT_FLOW.md**: Updated agent count to 26, skills count to 85
+- **ARCHITECTURE.md**: Synced with new agent and skill counts
+- **Prettier Config**: Changed `printWidth` from 80 to 120 for better readability
+
 ## [2.1.0] - 2026-02-06
 
 ### Added
