@@ -35,6 +35,12 @@ When `/brainstorm` is triggered:
    - Summarize tradeoffs
    - Give a recommendation with reasoning
 
+4. **Save selected option**
+   - After user selects an option, save it to `.agent/docs/OPTION-{slug}.md`
+   - **Slug generation**: Extract 2-3 key words from topic → lowercase → hyphen-separated → max 30 chars
+     - Example: "authentication system" → `OPTION-auth-system.md`
+   - Notify user: `✅ OPTION created: .agent/docs/OPTION-{slug}.md`
+
 ---
 
 ## Output Format

@@ -40,6 +40,12 @@ When `/debug` is triggered:
    - Explain root cause
    - Add prevention measures
 
+5. **Save & Notify**
+   - Save debug findings to `.agent/docs/DEBUG-{slug}.md`
+   - **Slug generation**: Extract 2-3 key words from issue → lowercase → hyphen-separated → max 30 chars
+     - Example: "login not working" → `DEBUG-login-issue.md`
+   - Notify user: `✅ DEBUG report saved: .agent/docs/DEBUG-{slug}.md`
+
 ---
 
 ## Output Format

@@ -37,6 +37,13 @@ This command starts a new application creation process.
    - Start with `auto_preview.py` when complete
    - Present URL to user
 
+5. **Summarize & Save**
+   - Summarize what was created (files, features, tech stack)
+   - Save summary to `.agent/docs/CREATE-{slug}.md`
+   - **Slug generation**: Extract 2-3 key words from request → lowercase → hyphen-separated → max 30 chars
+     - Example: "blog site with comments" → `CREATE-blog-comments.md`
+   - Notify user: `✅ CREATE summary saved: .agent/docs/CREATE-{slug}.md`
+
 ---
 
 ## Usage Examples

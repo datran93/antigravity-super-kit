@@ -106,6 +106,16 @@ Total: 15 tests (14 passed, 1 failed)
 
 ---
 
+## Save & Notify
+
+After test completion:
+- Save test results to `.agent/docs/TEST-{slug}.md`
+- **Slug generation**: Extract 2-3 key words from test target → lowercase → hyphen-separated → max 30 chars
+  - Example: "auth.service.ts" → `TEST-auth-service.md`
+- Notify user: `✅ TEST report saved: .agent/docs/TEST-{slug}.md`
+
+---
+
 ## Test Patterns
 
 ### Unit Test Structure

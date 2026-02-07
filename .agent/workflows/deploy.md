@@ -103,7 +103,19 @@ Before any deployment:
          ▼
 ┌─────────────────┐
 │  ✅ Complete    │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Save & Notify  │
+│  DEPLOY-{slug}  │
 └─────────────────┘
+
+After deployment completes:
+- Save deployment summary to `.agent/docs/DEPLOY-{slug}.md`
+- **Slug generation**: Extract 2-3 key words from deployment context → lowercase → hyphen-separated → max 30 chars
+  - Example: "production v1.2.3" → `DEPLOY-prod-v123.md`
+- Notify user: `✅ DEPLOY report saved: .agent/docs/DEPLOY-{slug}.md`
 ```
 
 ---

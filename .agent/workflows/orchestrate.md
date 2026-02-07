@@ -45,8 +45,8 @@ $ARGUMENTS
 
 ## Pre-Flight: Mode Check
 
-| Current Mode | Task Type          | Action                                                       |
-| ------------ | ------------------ | ------------------------------------------------------------ |
+| Current Mode | Task Type          | Action                                                      |
+| ------------ | ------------------ | ----------------------------------------------------------- |
 | **plan**     | Any                | ✅ Proceed with planning-first approach                      |
 | **edit**     | Simple execution   | ✅ Proceed directly                                          |
 | **edit**     | Complex/multi-file | ⚠️ Ask: "This task requires planning. Switch to plan mode?"  |
@@ -216,9 +216,9 @@ Combine all agent outputs into unified report.
 
 | #   | Agent               | Focus Area           | Status |
 | --- | ------------------- | -------------------- | ------ |
-| 1   | project-planner     | Task breakdown       | ✅     |
-| 2   | frontend-specialist | UI implementation    | ✅     |
-| 3   | test-engineer       | Verification scripts | ✅     |
+| 1   | project-planner     | Task breakdown       | ✅      |
+| 2   | frontend-specialist | UI implementation    | ✅      |
+| 3   | test-engineer       | Verification scripts | ✅      |
 
 ### Verification Scripts Executed
 
@@ -255,6 +255,14 @@ Before completing orchestration, verify:
 
 > **If any check fails → DO NOT mark orchestration complete. Invoke more agents
 > or run scripts.**
+
+### Step 6: Save & Notify
+
+After orchestration completes:
+- Save orchestration report to `.agent/docs/ORCHESTRATE-{slug}.md`
+- **Slug generation**: Extract 2-3 key words from task → lowercase → hyphen-separated → max 30 chars
+  - Example: "full-stack e-commerce" → `ORCHESTRATE-ecommerce-app.md`
+- Notify user: `✅ ORCHESTRATE report saved: .agent/docs/ORCHESTRATE-{slug}.md`
 
 ---
 

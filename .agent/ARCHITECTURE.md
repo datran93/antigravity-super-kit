@@ -9,7 +9,7 @@
 Antigravity Kit is a modular system consisting of:
 
 - **26 Specialist Agents** - Role-based AI personas
-- **36 Skills** - Domain-specific knowledge modules
+- **85 Skills** - Domain-specific knowledge modules
 - **11 Workflows** - Slash command procedures
 
 ---
@@ -20,7 +20,7 @@ Antigravity Kit is a modular system consisting of:
 .agent/
 ├── ARCHITECTURE.md          # This file
 ├── agents/                  # 26 Specialist Agents
-├── skills/                  # 36 Skills
+├── skills/                  # 85 Skills
 ├── workflows/               # 11 Slash Commands
 ├── rules/                   # Global Rules
 └── scripts/                 # Master Validation Scripts
@@ -95,9 +95,9 @@ Specialist AI personas for different domains.
 
 ---
 
-## 🧩 Skills (43)
+## 🧩 Skills (85)
 
-Modular knowledge domains that agents can load on-demand. based on task context.
+Modular knowledge domains that agents can load on-demand based on task context.
 
 ### Frontend & UI
 
@@ -111,33 +111,44 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 
 ### Backend & API
 
-| Skill                   | Description                     |
-| ----------------------- | ------------------------------- |
-| `api-patterns`          | REST, GraphQL, tRPC             |
-| `api-design-principles` | API design, OpenAPI, versioning |
-| `nestjs-expert`         | NestJS modules, DI, decorators  |
-| `nodejs-best-practices` | Node.js async, modules          |
-| `python-patterns`       | Python standards, FastAPI       |
+| Skill                             | Description                          |
+| --------------------------------- | ------------------------------------ |
+| `api-patterns`                    | REST, GraphQL, tRPC                  |
+| `api-design-principles`           | API design, OpenAPI, versioning      |
+| `nodejs-best-practices`           | Node.js async, modules               |
+| `microservices-patterns`          | Service boundaries, event-driven     |
+| `backend-architect`               | Scalable API design, distributed sys |
+| `saga-orchestration`              | Distributed transactions, workflows  |
+| `workflow-orchestration-patterns` | Durable workflows with Temporal      |
 
 ### Database
 
-| Skill             | Description                 |
-| ----------------- | --------------------------- |
-| `database-design` | Schema design, optimization |
-| `prisma-expert`   | Prisma ORM, migrations      |
+| Skill                     | Description                               |
+| ------------------------- | ----------------------------------------- |
+| `database-design`         | Schema design, optimization               |
+| `database-migration`      | Zero-downtime migrations, rollbacks       |
+| `database-optimizer`      | Query optimization, indexing              |
+| `postgresql`              | PostgreSQL-specific best practices        |
+| `postgres-best-practices` | Supabase/Postgres optimization (37 files) |
 
-### TypeScript/JavaScript
+### Languages
 
-| Skill               | Description                         |
-| ------------------- | ----------------------------------- |
-| `typescript-expert` | Type-level programming, performance |
+| Skill                     | Description                            |
+| ------------------------- | -------------------------------------- |
+| `javascript-pro`          | ES6+, async patterns, Node.js          |
+| `golang-pro`              | Go 1.21+, concurrency, microservices   |
+| `python-patterns`         | Python standards, FastAPI, type hints  |
+| `java-pro`                | Java 21+, Spring Boot, virtual threads |
+| `rust-pro`                | Rust 1.75+, async, systems programming |
+| `go-concurrency-patterns` | Goroutines, channels, sync primitives  |
 
 ### Cloud & Infrastructure
 
 | Skill                   | Description                              |
 | ----------------------- | ---------------------------------------- |
-| `docker-expert`         | Containerization, Compose                |
-| `deployment-procedures` | CI/CD, deploy workflows                  |
+| `docker-expert`         | Containerization, Compose, security      |
+| `kubernetes-architect`  | K8s, GitOps, service mesh, EKS/AKS/GKE   |
+| `deployment-procedures` | CI/CD, safe deploy workflows             |
 | `server-management`     | Infrastructure management                |
 | `network-engineer`      | Cloud networking, security, optimization |
 | `data-engineer`         | Data pipelines, warehouses, streaming    |
@@ -195,12 +206,21 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 | `bash-linux`         | Linux commands, scripting |
 | `powershell-windows` | Windows PowerShell        |
 
-### AI & Data Science 🆕
+### AI & Agents
 
-| Skill                 | Description                                  |
-| --------------------- | -------------------------------------------- |
-| `data-scientist`      | ML workflows, statistical analysis, modeling |
-| `ai-agents-architect` | Agent design, tool use, memory systems       |
+| Skill                               | Description                                    |
+| ----------------------------------- | ---------------------------------------------- |
+| `ai-agents-architect`               | Agent design, tool use, memory systems         |
+| `agent-memory-systems`              | Short-term, long-term, cognitive architectures |
+| `agent-orchestration-improve-agent` | Agent performance analysis, iteration          |
+| `multi-agent-patterns`              | Orchestrator, peer-to-peer, hierarchical       |
+| `memory-systems`                    | Graph-based memory architectures               |
+| `rag-engineer`                      | Embeddings, vector search, retrieval           |
+| `rag-implementation`                | RAG systems for LLM applications               |
+| `mcp-builder`                       | Model Context Protocol servers                 |
+| `vector-database-engineer`          | Pinecone, Weaviate, Qdrant, pgvector           |
+| `data-scientist`                    | ML workflows, statistical analysis             |
+| `deep-research`                     | Gemini Deep Research Agent integration         |
 
 ### Knowledge Management
 
@@ -209,17 +229,37 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 | `skill-developer`         | Skill creation, documentation |
 | `documentation-templates` | Doc formats                   |
 
-### Other
+### Architecture & Patterns
 
-| Skill                   | Description               |
-| ----------------------- | ------------------------- |
-| `clean-code`            | Coding standards (Global) |
-| `behavioral-modes`      | Agent personas            |
-| `parallel-agents`       | Multi-agent patterns      |
-| `mcp-builder`           | Model Context Protocol    |
-| `i18n-localization`     | Internationalization      |
-| `performance-profiling` | Web Vitals, optimization  |
-| `systematic-debugging`  | Troubleshooting           |
+| Skill                     | Description                                    |
+| ------------------------- | ---------------------------------------------- |
+| `architecture`            | System design patterns, ADR                    |
+| `architecture-patterns`   | Clean, Hexagonal, DDD                          |
+| `software-architecture`   | Quality-focused architecture guide             |
+| `error-handling-patterns` | Exceptions, Result types, graceful degradation |
+
+### Git & Workflows
+
+| Skill                           | Description                      |
+| ------------------------------- | -------------------------------- |
+| `git-advanced-workflows`        | Rebasing, cherry-picking, bisect |
+| `git-pr-workflows-git-workflow` | PR creation, code review flow    |
+
+### Core & Other
+
+| Skill                       | Description                   |
+| --------------------------- | ----------------------------- |
+| `clean-code`                | Coding standards (Global)     |
+| `behavioral-modes`          | Agent personas                |
+| `intelligent-routing`       | Auto agent selection          |
+| `parallel-agents`           | Multi-agent orchestration     |
+| `context-compression`       | Long-session compression      |
+| `context-optimization`      | Compaction, masking, caching  |
+| `i18n-localization`         | Internationalization          |
+| `design-orchestration`      | Design workflow routing       |
+| `multi-agent-brainstorming` | Sequential multi-agent review |
+| `performance-profiling`     | Web Vitals, optimization      |
+| `systematic-debugging`      | Troubleshooting (11 files)    |
 
 ---
 
@@ -322,7 +362,7 @@ For details, see [scripts/README.md](scripts/README.md)
 | Metric              | Value                         |
 | ------------------- | ----------------------------- |
 | **Total Agents**    | 26                            |
-| **Total Skills**    | 43                            |
+| **Total Skills**    | 85                            |
 | **Total Workflows** | 11                            |
 | **Total Scripts**   | 2 (master) + 18 (skill-level) |
 | **Coverage**        | ~90% web/mobile development   |

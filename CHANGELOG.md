@@ -34,7 +34,6 @@ All notable changes to the Antigravity Kit will be documented in this file.
         - Integration/E2E testing with Supertest and Playwright examples
         - CI/CD integration patterns and test parallelization
         - 10+ practical code examples in TypeScript and Python
-    
     - `security-auditor`: Enhanced from 171 to ~600 lines (+351% content)
         - Added 5-phase security methodology (UNDERSTAND → ANALYZE → PRIORITIZE → REPORT → VERIFY)
         - STRIDE threat modeling framework with examples
@@ -45,7 +44,6 @@ All notable changes to the Antigravity Kit will be documented in this file.
         - Security headers and CORS configuration examples
         - Cryptography decision tree and algorithm selection matrix
         - Incident response 5-phase workflow
-    
     - `backend-specialist`: Added partial Golang support
 
 ### Impact

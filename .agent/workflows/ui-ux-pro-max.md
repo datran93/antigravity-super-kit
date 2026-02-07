@@ -250,7 +250,7 @@ These are frequently overlooked issues that make UI look unprofessional:
 
 | Rule                       | Do                                              | Don't                                  |
 | -------------------------- | ----------------------------------------------- | -------------------------------------- |
-| **No emoji icons**         | Use SVG icons (Heroicons, Lucide, Simple Icons) | Use emojis like 🎨 🚀 ⚙️ as UI icons   |
+| **No emoji icons**         | Use SVG icons (Heroicons, Lucide, Simple Icons) | Use emojis like 🎨 🚀 ⚙️ as UI icons      |
 | **Stable hover states**    | Use color/opacity transitions on hover          | Use scale transforms that shift layout |
 | **Correct brand logos**    | Research official SVG from Simple Icons         | Guess or use incorrect logo paths      |
 | **Consistent icon sizing** | Use fixed viewBox (24x24) with w-6 h-6          | Mix different icon sizes randomly      |
@@ -321,3 +321,13 @@ Before delivering UI code, verify these items:
 - [ ] Form inputs have labels
 - [ ] Color is not the only indicator
 - [ ] `prefers-reduced-motion` respected
+
+---
+
+## Save & Notify
+
+After UI/UX implementation:
+- Save design system summary to `.agent/docs/UIUX-{slug}.md`
+- **Slug generation**: Extract 2-3 key words from project → lowercase → hyphen-separated → max 30 chars
+  - Example: "beauty spa landing page" → `UIUX-beauty-spa.md`
+- Notify user: `✅ UI/UX report saved: .agent/docs/UIUX-{slug}.md`

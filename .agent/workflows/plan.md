@@ -1,7 +1,5 @@
 ---
-description:
-  Create project plan using project-planner agent. No code writing - only plan
-  file generation.
+description: Create project plan using project-planner agent. No code writing - only plan
 ---
 
 # /plan - Project Planning Mode
@@ -61,13 +59,18 @@ RULES:
 Tell user:
 
 ```
-[OK] Plan created: docs/PLAN-{slug}.md
+[OK] Plan created: .agent/docs/PLAN-{slug}.md
 
 Next steps:
 - Review the plan
 - Run `/create` to start implementation
 - Or modify plan manually
 ```
+
+Save plan summary to `.agent/docs/PLAN-{slug}.md` and notify:
+- **Slug generation**: Extract 2-3 key words from request → lowercase → hyphen-separated → max 30 chars
+  - Example: "e-commerce site with cart" → `PLAN-ecommerce-cart.md`
+- Notify: `✅ PLAN summary saved: .agent/docs/PLAN-{slug}.md`
 
 ---
 

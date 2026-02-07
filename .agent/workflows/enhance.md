@@ -44,6 +44,12 @@ This command adds features or makes updates to existing application.
 5. **Update Preview**
    - Hot reload or restart
 
+6. **Save & Notify**
+   - Save enhancement summary to `.agent/docs/ENHANCE-{slug}.md`
+   - **Slug generation**: Extract 2-3 key words from feature → lowercase → hyphen-separated → max 30 chars
+     - Example: "add dark mode" → `ENHANCE-dark-mode.md`
+   - Notify user: `✅ ENHANCE report saved: .agent/docs/ENHANCE-{slug}.md`
+
 ---
 
 ## Usage Examples
