@@ -1,10 +1,12 @@
 ---
-description: Structured brainstorming for projects and features. Explores multiple options before implementation.
+description: Structured brainstorming for projects and features. Explores multiple options - NO implementation.
 ---
 
 # /brainstorm - Structured Idea Exploration
 
-Guide agents to brainstorm user ideas systematically: understand → explore → evaluate → decide.
+Guide agents to brainstorm user ideas systematically: understand → explore → evaluate → **user decides → save**.
+
+🚨 **CRITICAL RULE: This workflow generates OPTIONS ONLY. No implementation suggestions!**
 
 ---
 
@@ -51,8 +53,10 @@ After gathering sufficient info, summarize to confirm:
 ```markdown
 ### ✅ Understanding Lock
 
-**Problem:** [1-2 sentences] **Goal:** [desired outcome] **Constraints:** [key limitations] **Success Criteria:** [how
-we know it works]
+**Problem:** [1-2 sentences]
+**Goal:** [desired outcome]
+**Constraints:** [key limitations]
+**Success Criteria:** [how we know it works]
 
 > Is this correct? If yes, I will proceed with brainstorming.
 ```
@@ -81,18 +85,18 @@ Each option must have:
 
 - **Clear name** - memorable, describes the approach
 - **Short description** - 2-3 sentences explaining core idea
-- **How it works** - high-level implementation steps
+- **How it works** - high-level conceptual steps (NOT implementation)
 
 ```markdown
 ### Option A: [Descriptive Name]
 
 [2-3 sentence description of the approach]
 
-**How it works:**
+**How it works (conceptually):**
 
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
+1. [High-level step 1]
+2. [High-level step 2]
+3. [High-level step 3]
 ```
 
 ### Step 2.3: Include Unconventional Option
@@ -138,7 +142,9 @@ For each option:
 - [Drawback with explanation of IMPACT]
 - [Drawback with explanation of IMPACT]
 
-📊 **Effort:** Low | Medium | High ⚡ **Impact:** Low | Medium | High ⚠️ **Risk:** Low | Medium | High
+📊 **Effort:** Low | Medium | High
+⚡ **Impact:** Low | Medium | High
+⚠️ **Risk:** Low | Medium | High
 ```
 
 ### Step 3.3: Comparison Matrix
@@ -148,11 +154,11 @@ Create comparison matrix:
 ```markdown
 | Criteria      | Option A | Option B | Option C |
 | ------------- | -------- | -------- | -------- |
-| Effort        | 🟢 Low   | 🟡 Med   | 🔴 High  |
-| Impact        | 🟡 Med   | 🟢 High  | 🟢 High  |
-| Risk          | 🟢 Low   | 🟡 Med   | 🔴 High  |
-| Scalability   | 🟡 Med   | 🟢 High  | 🟢 High  |
-| Reversibility | 🟢 Easy  | 🟡 Med   | 🔴 Hard  |
+| Effort        | 🟢 Low    | 🟡 Med    | 🔴 High   |
+| Impact        | 🟡 Med    | 🟢 High   | 🟢 High   |
+| Risk          | 🟢 Low    | 🟡 Med    | 🔴 High   |
+| Scalability   | 🟡 Med    | 🟢 High   | 🟢 High   |
+| Reversibility | 🟢 Easy   | 🟡 Med    | 🔴 Hard   |
 ```
 
 ---
@@ -178,22 +184,29 @@ Create comparison matrix:
 - [Condition that would make Option Z better]
 ```
 
-### Step 4.2: Request User Decision
+### Step 4.2: Request User Decision 🚧
+
+**🛑 STOP HERE. Wait for user to choose an option.**
 
 ```markdown
 ---
 
-**Would you like to:**
+**Which option would you like to proceed with?**
 
-1. ✅ Proceed with Option [X]?
-2. 🔄 Explore Option [Y] deeper?
-3. 💬 Discuss trade-offs further?
-4. 🆕 Generate more options?
+1. ✅ Option A: [Name]
+2. 🔀 Option B: [Name]
+3. 🌀 Option C: [Name]
+4. 💬 Discuss trade-offs further?
+5. 🆕 Generate more options?
 ```
+
+**⚠️ DO NOT suggest implementation. Wait for user selection.**
 
 ---
 
-## Phase 5: Decision & Documentation 📝
+## Phase 5: Save Decision 📝
+
+**🔔 Only execute this phase AFTER user selects an option.**
 
 ### Step 5.1: Record Decision
 
@@ -202,7 +215,9 @@ After user selects option:
 ```markdown
 ## 📝 Decision Record
 
-**Date:** [YYYY-MM-DD] **Decision:** Option [X] - [Name] **Rationale:** [Why this was chosen]
+**Date:** [YYYY-MM-DD]
+**Decision:** Option [X] - [Name]
+**Rationale:** [Why this was chosen by user]
 
 ### Context
 
@@ -222,11 +237,6 @@ After user selects option:
 
 - [Trade-off 1]
 - [Trade-off 2]
-
-### Next Steps
-
-1. [Action item 1]
-2. [Action item 2]
 ```
 
 ### Step 5.2: Save & Notify
@@ -246,7 +256,9 @@ After user selects option:
 
 ### Understanding Lock ✅
 
-**Problem:** [problem statement] **Goal:** [desired outcome] **Constraints:** [limitations]
+**Problem:** [problem statement]
+**Goal:** [desired outcome]
+**Constraints:** [limitations]
 
 ---
 
@@ -254,12 +266,14 @@ After user selects option:
 
 [Description]
 
-**How it works:**
+**How it works (conceptually):**
 
 1. [Step]
 2. [Step]
 
-✅ **Pros:** [benefits] ❌ **Cons:** [drawbacks] 📊 **Effort:** Low | Medium | High
+✅ **Pros:** [benefits]
+❌ **Cons:** [drawbacks]
+📊 **Effort:** Low | Medium | High
 
 ---
 
@@ -267,12 +281,14 @@ After user selects option:
 
 [Description]
 
-**How it works:**
+**How it works (conceptually):**
 
 1. [Step]
 2. [Step]
 
-✅ **Pros:** [benefits] ❌ **Cons:** [drawbacks] 📊 **Effort:** Low | Medium | High
+✅ **Pros:** [benefits]
+❌ **Cons:** [drawbacks]
+📊 **Effort:** Low | Medium | High
 
 ---
 
@@ -280,12 +296,14 @@ After user selects option:
 
 [Description]
 
-**How it works:**
+**How it works (conceptually):**
 
 1. [Step]
 2. [Step]
 
-✅ **Pros:** [benefits] ❌ **Cons:** [drawbacks] 📊 **Effort:** Low | Medium | High
+✅ **Pros:** [benefits]
+❌ **Cons:** [drawbacks]
+📊 **Effort:** Low | Medium | High
 
 ---
 
@@ -293,9 +311,9 @@ After user selects option:
 
 | Criteria | Option A | Option B | Option C |
 | -------- | -------- | -------- | -------- |
-| Effort   | 🟢       | 🟡       | 🔴       |
-| Impact   | 🟡       | 🟢       | 🟢       |
-| Risk     | 🟢       | 🟡       | 🔴       |
+| Effort   | 🟢        | 🟡        | 🔴        |
+| Impact   | 🟡        | 🟢        | 🟢        |
+| Risk     | 🟢        | 🟡        | 🔴        |
 
 ---
 
@@ -305,7 +323,7 @@ After user selects option:
 
 ---
 
-**Next:** Proceed? Explore deeper? More options?
+**Which option would you like?** (1/2/3/more options/discuss)
 ```
 
 ---
@@ -315,10 +333,14 @@ After user selects option:
 ### Workflow Flow
 
 ```
-Understanding Lock → Divergent Thinking → Convergent Analysis → Recommendation → Decision
+Understanding Lock → Divergent Thinking → Convergent Analysis → Recommendation → 🛑 STOP
         ↓                   ↓                    ↓                   ↓              ↓
-    Clarify             Generate           Pros/Cons           Synthesize      Document
-    + Confirm           3+ options         + Matrix            + Rationale     + Save
+    Clarify             Generate           Pros/Cons           Recommend      Wait for
+    + Confirm           3+ options         + Matrix            + Rationale    User Choice
+                                                                                  ↓
+                                                                            User Chooses
+                                                                                  ↓
+                                                                            Save Document
 ```
 
 ### Idea Generation Techniques
@@ -335,11 +357,13 @@ Understanding Lock → Divergent Thinking → Convergent Analysis → Recommenda
 
 ## Anti-Patterns (AVOID)
 
-| ❌ Anti-Pattern               | ✅ Instead                                 |
-| ----------------------------- | ------------------------------------------ |
-| Jump to solutions immediately | Complete Understanding Lock first          |
-| Only 1-2 obvious options      | Generate minimum 3, include unconventional |
-| Pros without context          | Explain WHY each benefit matters           |
-| Cons without mitigation       | Note how to mitigate or accept trade-off   |
-| No recommendation             | Always synthesize with clear reasoning     |
-| Forgot to document            | Save decision record for future reference  |
+| ❌ Anti-Pattern                    | ✅ Instead                                    |
+| --------------------------------- | -------------------------------------------- |
+| Jump to solutions immediately     | Complete Understanding Lock first            |
+| Only 1-2 obvious options          | Generate minimum 3, include unconventional   |
+| Pros without context              | Explain WHY each benefit matters             |
+| Cons without mitigation           | Note how to mitigate or accept trade-off     |
+| No recommendation                 | Always synthesize with clear reasoning       |
+| **Suggest implementation**        | **STOP after recommendation, wait for user** |
+| Save before user decides          | Only save AFTER user selects an option       |
+| Forgot to document after decision | Save decision record for future reference    |
