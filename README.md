@@ -38,9 +38,16 @@ in the chat suggestion dropdown.
 
 ## Usage
 
-### 1. Initialize/Update Agents
+### 1. Managing .agent Folder
 
-Run this in any project root to install or update the `.agent` folder:
+Run these commands in any project root:
+
+| Command       | Description                                     |
+| ------------- | ----------------------------------------------- |
+| `agk install` | Install .agent folder (auto-excludes from git)  |
+| `agk update`  | Update .agent folder to latest version          |
+| `agk status`  | Check if updates are available                  |
+| `agk remove`  | Remove .agent folder (with confirmation prompt) |
 
 ```bash
 # Install .agent folder into current directory
@@ -51,6 +58,9 @@ agk update
 
 # Check if .agent folder is up to date
 agk status
+
+# Remove .agent folder completely
+agk remove
 ```
 
 ### 2. Using Agents
