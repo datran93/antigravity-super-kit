@@ -36,7 +36,7 @@ log_warn()    { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
 # Sync repository: compare HEAD, if different -> delete and re-clone
 sync_repo() {
-    mkdir -p "$CACHE_DIR"
+    mkdir -p "$CACHE_DIR" 2>/dev/null
 
     if [ -d "$CACHE_DIR/$REPO_NAME/.git" ]; then
         log_info "Checking for updates..."
@@ -56,7 +56,7 @@ sync_repo() {
         fi
 
         log_info "Updates available. Re-cloning..."
-        rm -rf "$CACHE_DIR/$REPO_NAME"
+        rm -rf "$CACHE_DIR/$REPO_NAME" 2>/dev/null
     fi
 
     log_info "Cloning repository..."
@@ -125,6 +125,7 @@ cmd_update() {
     fi
 
     log_info "Updating .agent..."
+    [ ! -d "$TARGET_DOCS_DIR" ] && mkdir -p "$TARGET_DOCS_DIR" 2>/dev/null
     rm -rf "$TARGET_AGENT_DIR" 2>/dev/null
     cp -R "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR" 2>/dev/null
     log_success ".agent updated!"
