@@ -33,7 +33,7 @@ From user request, identify:
 | **Context**      | Greenfield / Existing system / Migration? |
 | **Stakeholders** | Who will be affected by this decision?    |
 
-### Step 1.2: Clarifying Questions (If Needed)
+### Step 1.3: Clarifying Questions (If Needed)
 
 If insufficient information, ASK before brainstorming:
 
@@ -46,18 +46,30 @@ If insufficient information, ASK before brainstorming:
 4. **Priority**: [Question about what matters most]
 ```
 
-### Step 1.3: Confirm Understanding
+### Step 1.4: Summary & Confirmation 🔐
 
-After gathering sufficient info, summarize to confirm:
+**🛑 STOP: Before Phase 2, summarize ALL information and ask user to verify.**
 
 ```markdown
-### ✅ Understanding Lock
+### 📋 Information Summary
 
-**Problem:** [1-2 sentences] **Goal:** [desired outcome] **Constraints:** [key limitations] **Success Criteria:** [how
-we know it works]
+**Problem:** [1-2 sentences describing the problem]
+**Goal:** [desired outcome]
+**Constraints:** [key limitations - tech, time, resources]
+**Context:** [greenfield / existing system / migration]
+**Stakeholders:** [who is affected]
+**Success Criteria:** [how we know it works]
 
-> Is this correct? If yes, I will proceed with brainstorming.
+---
+
+**Is anything missing or incorrect?**
+
+- ✅ Correct → I will proceed to brainstorming
+- ❌ Missing info → Please provide: [what's needed]
+- 🔄 Incorrect → Please clarify: [what to fix]
 ```
+
+**Wait for user confirmation before proceeding to Phase 2.**
 
 ---
 
@@ -150,11 +162,11 @@ Create comparison matrix:
 ```markdown
 | Criteria      | Option A | Option B | Option C |
 | ------------- | -------- | -------- | -------- |
-| Effort        | 🟢 Low   | 🟡 Med   | 🔴 High  |
-| Impact        | 🟡 Med   | 🟢 High  | 🟢 High  |
-| Risk          | 🟢 Low   | 🟡 Med   | 🔴 High  |
-| Scalability   | 🟡 Med   | 🟢 High  | 🟢 High  |
-| Reversibility | 🟢 Easy  | 🟡 Med   | 🔴 Hard  |
+| Effort        | 🟢 Low    | 🟡 Med    | 🔴 High   |
+| Impact        | 🟡 Med    | 🟢 High   | 🟢 High   |
+| Risk          | 🟢 Low    | 🟡 Med    | 🔴 High   |
+| Scalability   | 🟡 Med    | 🟢 High   | 🟢 High   |
+| Reversibility | 🟢 Easy   | 🟡 Med    | 🔴 Hard   |
 ```
 
 ---
@@ -297,9 +309,9 @@ After user selects option:
 
 | Criteria | Option A | Option B | Option C |
 | -------- | -------- | -------- | -------- |
-| Effort   | 🟢       | 🟡       | 🔴       |
-| Impact   | 🟡       | 🟢       | 🟢       |
-| Risk     | 🟢       | 🟡       | 🔴       |
+| Effort   | 🟢        | 🟡        | 🔴        |
+| Impact   | 🟡        | 🟢        | 🟢        |
+| Risk     | 🟢        | 🟡        | 🔴        |
 
 ---
 
@@ -343,7 +355,7 @@ Understanding Lock → Divergent Thinking → Convergent Analysis → Recommenda
 
 ## Anti-Patterns (AVOID)
 
-| ❌ Anti-Pattern                   | ✅ Instead                                   |
+| ❌ Anti-Pattern                    | ✅ Instead                                    |
 | --------------------------------- | -------------------------------------------- |
 | Jump to solutions immediately     | Complete Understanding Lock first            |
 | Only 1-2 obvious options          | Generate minimum 3, include unconventional   |
