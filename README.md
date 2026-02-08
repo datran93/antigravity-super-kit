@@ -42,26 +42,43 @@ in the chat suggestion dropdown.
 
 Run these commands in any project root:
 
-| Command       | Description                                     |
-| ------------- | ----------------------------------------------- |
-| `agk install` | Install .agent folder (auto-excludes from git)  |
-| `agk update`  | Update .agent folder to latest version          |
-| `agk status`  | Check if updates are available                  |
-| `agk remove`  | Remove .agent folder (with confirmation prompt) |
+| Command                | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `agk install`          | Install .agent folder (auto-excludes from git) |
+| `agk install --force`  | Force install, overwrite existing              |
+| `agk update`           | Update .agent folder to latest version         |
+| `agk update --dry-run` | Preview changes without applying               |
+| `agk update --offline` | Update using cached repo (no network)          |
+| `agk status`           | Check if updates are available                 |
+| `agk remove`           | Remove .agent folder (with confirmation)       |
+| `agk remove --force`   | Remove without confirmation                    |
+| `agk version`          | Show version and cache commit                  |
+| `agk --help`           | Show full help with examples                   |
 
 ```bash
-# Install .agent folder into current directory
+# Install .agent folder
 agk install
 
-# Update existing .agent folder to latest version
+# Force install (overwrite existing)
+agk install --force
+
+# Update to latest version
 agk update
 
-# Check if .agent folder is up to date
+# Preview what would change
+agk update --dry-run
+
+# Update without internet (use cache)
+agk update --offline
+
+# Check for updates
 agk status
 
-# Remove .agent folder completely
+# Remove .agent folder
 agk remove
 ```
+
+> **Note:** The `docs/` folder inside `.agent/` is preserved during updates.
 
 ### 2. Using Agents
 
