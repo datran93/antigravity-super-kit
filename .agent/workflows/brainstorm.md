@@ -53,10 +53,8 @@ After gathering sufficient info, summarize to confirm:
 ```markdown
 ### ✅ Understanding Lock
 
-**Problem:** [1-2 sentences]
-**Goal:** [desired outcome]
-**Constraints:** [key limitations]
-**Success Criteria:** [how we know it works]
+**Problem:** [1-2 sentences] **Goal:** [desired outcome] **Constraints:** [key limitations] **Success Criteria:** [how
+we know it works]
 
 > Is this correct? If yes, I will proceed with brainstorming.
 ```
@@ -142,9 +140,7 @@ For each option:
 - [Drawback with explanation of IMPACT]
 - [Drawback with explanation of IMPACT]
 
-📊 **Effort:** Low | Medium | High
-⚡ **Impact:** Low | Medium | High
-⚠️ **Risk:** Low | Medium | High
+📊 **Effort:** Low | Medium | High ⚡ **Impact:** Low | Medium | High ⚠️ **Risk:** Low | Medium | High
 ```
 
 ### Step 3.3: Comparison Matrix
@@ -154,11 +150,11 @@ Create comparison matrix:
 ```markdown
 | Criteria      | Option A | Option B | Option C |
 | ------------- | -------- | -------- | -------- |
-| Effort        | 🟢 Low    | 🟡 Med    | 🔴 High   |
-| Impact        | 🟡 Med    | 🟢 High   | 🟢 High   |
-| Risk          | 🟢 Low    | 🟡 Med    | 🔴 High   |
-| Scalability   | 🟡 Med    | 🟢 High   | 🟢 High   |
-| Reversibility | 🟢 Easy   | 🟡 Med    | 🔴 Hard   |
+| Effort        | 🟢 Low   | 🟡 Med   | 🔴 High  |
+| Impact        | 🟡 Med   | 🟢 High  | 🟢 High  |
+| Risk          | 🟢 Low   | 🟡 Med   | 🔴 High  |
+| Scalability   | 🟡 Med   | 🟢 High  | 🟢 High  |
+| Reversibility | 🟢 Easy  | 🟡 Med   | 🔴 Hard  |
 ```
 
 ---
@@ -215,9 +211,7 @@ After user selects option:
 ```markdown
 ## 📝 Decision Record
 
-**Date:** [YYYY-MM-DD]
-**Decision:** Option [X] - [Name]
-**Rationale:** [Why this was chosen by user]
+**Date:** [YYYY-MM-DD] **Decision:** Option [X] - [Name] **Rationale:** [Why this was chosen by user]
 
 ### Context
 
@@ -241,11 +235,11 @@ After user selects option:
 
 ### Step 5.2: Save & Notify
 
-1. Save to `.agent/docs/BRAINSTORM-{slug}.md`
+1. Save to `agent-docs/BRAINSTORM-{slug}.md`
 2. **Slug generation**: Extract 2-3 key words → lowercase → hyphen-separated → max 30 chars
    - "authentication options" → `BRAINSTORM-auth-options.md`
    - "caching strategy" → `BRAINSTORM-caching.md`
-3. Notify: `✅ Brainstorm saved: .agent/docs/BRAINSTORM-{slug}.md`
+3. Notify: `✅ Brainstorm saved: agent-docs/BRAINSTORM-{slug}.md`
 
 ---
 
@@ -256,9 +250,7 @@ After user selects option:
 
 ### Understanding Lock ✅
 
-**Problem:** [problem statement]
-**Goal:** [desired outcome]
-**Constraints:** [limitations]
+**Problem:** [problem statement] **Goal:** [desired outcome] **Constraints:** [limitations]
 
 ---
 
@@ -271,9 +263,7 @@ After user selects option:
 1. [Step]
 2. [Step]
 
-✅ **Pros:** [benefits]
-❌ **Cons:** [drawbacks]
-📊 **Effort:** Low | Medium | High
+✅ **Pros:** [benefits] ❌ **Cons:** [drawbacks] 📊 **Effort:** Low | Medium | High
 
 ---
 
@@ -286,9 +276,7 @@ After user selects option:
 1. [Step]
 2. [Step]
 
-✅ **Pros:** [benefits]
-❌ **Cons:** [drawbacks]
-📊 **Effort:** Low | Medium | High
+✅ **Pros:** [benefits] ❌ **Cons:** [drawbacks] 📊 **Effort:** Low | Medium | High
 
 ---
 
@@ -301,9 +289,7 @@ After user selects option:
 1. [Step]
 2. [Step]
 
-✅ **Pros:** [benefits]
-❌ **Cons:** [drawbacks]
-📊 **Effort:** Low | Medium | High
+✅ **Pros:** [benefits] ❌ **Cons:** [drawbacks] 📊 **Effort:** Low | Medium | High
 
 ---
 
@@ -311,9 +297,9 @@ After user selects option:
 
 | Criteria | Option A | Option B | Option C |
 | -------- | -------- | -------- | -------- |
-| Effort   | 🟢        | 🟡        | 🔴        |
-| Impact   | 🟡        | 🟢        | 🟢        |
-| Risk     | 🟢        | 🟡        | 🔴        |
+| Effort   | 🟢       | 🟡       | 🔴       |
+| Impact   | 🟡       | 🟢       | 🟢       |
+| Risk     | 🟢       | 🟡       | 🔴       |
 
 ---
 
@@ -357,7 +343,7 @@ Understanding Lock → Divergent Thinking → Convergent Analysis → Recommenda
 
 ## Anti-Patterns (AVOID)
 
-| ❌ Anti-Pattern                    | ✅ Instead                                    |
+| ❌ Anti-Pattern                   | ✅ Instead                                   |
 | --------------------------------- | -------------------------------------------- |
 | Jump to solutions immediately     | Complete Understanding Lock first            |
 | Only 1-2 obvious options          | Generate minimum 3, include unconventional   |

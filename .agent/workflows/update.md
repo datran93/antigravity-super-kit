@@ -297,12 +297,12 @@ git revert [commit-hash]
 
 ### Step 6.2: Save & Notify
 
-1. Save to `.agent/docs/UPDATE-{slug}.md`
+1. Save to `agent-docs/UPDATE-{slug}.md`
 2. **Slug generation**: Extract 2-3 key words → lowercase → hyphen-separated → max 30 chars
    - "add dark mode" → `UPDATE-dark-mode.md`
    - "improve search performance" → `UPDATE-search-perf.md`
    - "fix user authentication" → `UPDATE-user-auth.md`
-3. Notify: `✅ Update complete! Report saved: .agent/docs/UPDATE-{slug}.md`
+3. Notify: `✅ Update complete! Report saved: agent-docs/UPDATE-{slug}.md`
 
 ---
 

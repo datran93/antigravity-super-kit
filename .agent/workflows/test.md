@@ -211,11 +211,11 @@ For each failed test:
 
 ### Step 5.2: Save & Notify
 
-1. Save to `.agent/docs/TEST-{slug}.md`
+1. Save to `agent-docs/TEST-{slug}.md`
 2. **Slug generation**: Extract 2-3 key words → lowercase → hyphen-separated → max 30 chars
    - "auth.service" → `TEST-auth-service.md`
    - "user registration" → `TEST-user-registration.md`
-3. Notify: `✅ Test report saved: .agent/docs/TEST-{slug}.md`
+3. Notify: `✅ Test report saved: agent-docs/TEST-{slug}.md`
 
 ---
 

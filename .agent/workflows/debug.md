@@ -306,12 +306,12 @@ if (!data) throw new ValidationError("Data required");
 
 ### Step 6.3: Save & Notify
 
-1. Save to `.agent/docs/DEBUG-{slug}.md`
+1. Save to `agent-docs/DEBUG-{slug}.md`
 2. **Slug generation**: Extract 2-3 key words → lowercase → hyphen-separated → max 30 chars
    - "login not working" → `DEBUG-login-issue.md`
    - "API returns 500" → `DEBUG-api-500.md`
    - "cart total wrong" → `DEBUG-cart-total.md`
-3. Notify: `✅ Bug fixed! Report saved: .agent/docs/DEBUG-{slug}.md`
+3. Notify: `✅ Bug fixed! Report saved: agent-docs/DEBUG-{slug}.md`
 
 ---
 

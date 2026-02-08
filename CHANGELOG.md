@@ -22,7 +22,7 @@ All notable changes to the Antigravity Kit will be documented in this file.
 - **Standardization**:
   - **Language Agnostic**: All 12 workflows now use generic interaction patterns, removing hardcoded language
     assumptions
-  - **Artifact Persistence**: 100% of workflows now enforce saving reports to `.agent/docs/{COMMAND}-{slug}.md`
+  - **Artifact Persistence**: 100% of workflows now enforce saving reports to `agent-docs/{COMMAND}-{slug}.md`
   - **Phase-Based Execution**: Unified all workflows to follow a strict Phased approach (e.g., Phase 1: Context, Phase
     2: Execution...)
 
@@ -52,7 +52,7 @@ All notable changes to the Antigravity Kit will be documented in this file.
 ### Added
 
 - **Workflow Documentation Improvements**:
-  - All 9 workflows now save results to `.agent/docs/{COMMAND}-{slug}.md` and notify user
+  - All 9 workflows now save results to `agent-docs/{COMMAND}-{slug}.md` and notify user
   - Added dynamic slug generation rules (2-3 key words, lowercase, hyphen-separated, max 30 chars)
   - Affected workflows: `/brainstorm`, `/create`, `/debug`, `/deploy`, `/enhance`, `/orchestrate`, `/plan`, `/test`,
     `/ui-ux-pro-max`

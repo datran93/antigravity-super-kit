@@ -235,7 +235,7 @@ When given a complex task:
 
 ```bash
 # 1. Check for PLAN.md
-Read .agent/docs/PLAN.md
+Read agent-docs/PLAN.md
 
 # 2. If missing → Use project-planner agent first
 #    "No PLAN.md found. Use project-planner to create plan."
@@ -328,7 +328,7 @@ Combine findings into structured report:
 
 | Checkpoint                | Verification                   | Failure Action              |
 | ------------------------- | ------------------------------ | --------------------------- |
-| **PLAN.md exists**        | `Read .agent/docs/PLAN.md`     | Use project-planner first   |
+| **PLAN.md exists**        | `Read agent-docs/PLAN.md`      | Use project-planner first   |
 | **Project type valid**    | WEB/MOBILE/BACKEND identified  | Ask user or analyze request |
 | **Agent routing correct** | Mobile → mobile-developer only | Reassign agents             |
 | **Socratic Gate passed**  | 3 questions asked & answered   | Ask questions first         |

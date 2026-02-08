@@ -63,7 +63,7 @@ Break down the user's request into domain components:
 
 ### Step 2.1: Create the Master Plan
 
-Invoke `project-planner` to create `.agent/docs/PLAN.md`.
+Invoke `project-planner` to create `agent-docs/PLAN.md`.
 
 **Prompt to Planner:**
 
@@ -74,7 +74,7 @@ Invoke `project-planner` to create `.agent/docs/PLAN.md`.
 
 **STOP and ASK:**
 
-> "✅ Plan created at `.agent/docs/PLAN.md`.
+> "✅ Plan created at `agent-docs/PLAN.md`.
 >
 > **Proposed Team:**
 >
@@ -139,7 +139,7 @@ Invoke `documentation-writer` to update README/Docs if needed.
 
 ### Step 5.1: Create Orchestration Report
 
-Compile findings into `.agent/docs/ORCHESTRATE-{slug}.md`.
+Compile findings into `agent-docs/ORCHESTRATE-{slug}.md`.
 
 ```markdown
 # 🎼 Orchestration Report: [Task Name]
@@ -157,7 +157,7 @@ Compile findings into `.agent/docs/ORCHESTRATE-{slug}.md`.
 
 ## 📦 Deliverables
 
-- [ ] `.agent/docs/PLAN.md`
+- [ ] `agent-docs/PLAN.md`
 - [ ] [Feature Code]
 - [ ] [Tests]
 
@@ -169,7 +169,7 @@ Compile findings into `.agent/docs/ORCHESTRATE-{slug}.md`.
 
 ### Step 5.2: Final Notification
 
-Notify user: `✅ Orchestration Complete! Report: .agent/docs/ORCHESTRATE-{slug}.md`
+Notify user: `✅ Orchestration Complete! Report: agent-docs/ORCHESTRATE-{slug}.md`
 
 ---
 

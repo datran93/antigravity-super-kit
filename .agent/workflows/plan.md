@@ -290,7 +290,7 @@ The plan is complete when:
 
 ## Save Plan First
 
-1. Save to `.agent/docs/PLAN-{slug}.md`
+1. Save to `agent-docs/PLAN-{slug}.md`
 2. **Slug generation**: Extract 2-3 key words → lowercase → hyphen-separated → max 30 chars
    - "e-commerce site with cart" → `PLAN-ecommerce-cart.md`
    - "mobile app for fitness" → `PLAN-fitness-app.md`
@@ -301,7 +301,7 @@ The plan is complete when:
 After saving, notify and ask for review:
 
 ```markdown
-✅ **Plan saved:** `.agent/docs/PLAN-{slug}.md`
+✅ **Plan saved:** `agent-docs/PLAN-{slug}.md`
 
 **Please review the plan and:**
 
@@ -348,7 +348,7 @@ Context Analysis → Research → Task Breakdown → Dependencies → Risk Asses
 
 ## Anti-Patterns (AVOID)
 
-| ❌ Anti-Pattern               | ✅ Instead                           |
+| ❌ Anti-Pattern              | ✅ Instead                          |
 | ---------------------------- | ----------------------------------- |
 | Write code during planning   | Only plan - no code                 |
 | Vague tasks ("do the thing") | Specific, actionable tasks          |

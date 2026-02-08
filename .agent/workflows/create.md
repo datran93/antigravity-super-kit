@@ -286,12 +286,12 @@ Present URL to user:
 
 ### Step 6.2: Save & Notify
 
-1. Save summary to `.agent/docs/CREATE-{slug}.md`
+1. Save summary to `agent-docs/CREATE-{slug}.md`
 2. **Slug generation**: Extract 2-3 key words → lowercase → hyphen-separated → max 30 chars
    - "blog site with comments" → `CREATE-blog-comments.md`
    - "user authentication service" → `CREATE-auth-service.md`
    - "inventory management system" → `CREATE-inventory-system.md`
-3. Notify: `✅ Creation complete! Summary saved: .agent/docs/CREATE-{slug}.md`
+3. Notify: `✅ Creation complete! Summary saved: agent-docs/CREATE-{slug}.md`
 
 ---
 

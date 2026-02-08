@@ -152,9 +152,9 @@ Generata a status report for the preview environment.
 
 If requested to generate a report:
 
-1. Save report to `.agent/docs/PREVIEW-{slug}.md`
+1. Save report to `agent-docs/PREVIEW-{slug}.md`
 2. **Slug generation**: "status-[timestamp]" → `PREVIEW-status-20240101.md`
-3. Notify: `✅ Preview status saved: .agent/docs/PREVIEW-{slug}.md`
+3. Notify: `✅ Preview status saved: agent-docs/PREVIEW-{slug}.md`
 
 ---
 

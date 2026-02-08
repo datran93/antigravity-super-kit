@@ -32,7 +32,7 @@ of uncommitted files]
 
 ### Step 1.2: Active tasks
 
-Check `.agent/docs/task.md` or `.agent/docs/PLAN.md` for active items:
+Check `agent-docs/task.md` or `agent-docs/PLAN.md` for active items:
 
 ```markdown
 ### Active Tasks
@@ -69,7 +69,7 @@ Analyze recent changes:
 
 ### Step 3.1: Plan verification
 
-Compare current state against `.agent/docs/PLAN.md` (if exists):
+Compare current state against `agent-docs/PLAN.md` (if exists):
 
 ```markdown
 ### Plan vs Reality
@@ -128,7 +128,7 @@ milestone
 
 ### Step 4.2: Save & Record
 
-1. Save report to `.agent/docs/STATUS-[date].md` (Optional, usually for milestones).
+1. Save report to `agent-docs/STATUS-[date].md` (Optional, usually for milestones).
 2. Or just output to chat for immediate user review.
 
 ---

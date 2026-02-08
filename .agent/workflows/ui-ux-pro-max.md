@@ -319,7 +319,7 @@ Before delivering UI code, verify these items:
 
 After UI/UX implementation:
 
-- Save design system summary to `.agent/docs/UIUX-{slug}.md`
+- Save design system summary to `agent-docs/UIUX-{slug}.md`
 - **Slug generation**: Extract 2-3 key words from project → lowercase → hyphen-separated → max 30 chars
   - Example: "beauty spa landing page" → `UIUX-beauty-spa.md`
-- Notify user: `✅ UI/UX report saved: .agent/docs/UIUX-{slug}.md`
+- Notify user: `✅ UI/UX report saved: agent-docs/UIUX-{slug}.md`

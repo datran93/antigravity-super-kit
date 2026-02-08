@@ -270,13 +270,13 @@ Before proceeding to implementation:
 
 After design completion:
 
-1. **Save design document** to `.agent/docs/DESIGN-{slug}.md`
+1. **Save design document** to `agent-docs/DESIGN-{slug}.md`
 2. **Slug generation**: Extract key words → lowercase → hyphen-separated → max 30 chars
    - Examples:
      - "payment service database" → `DESIGN-payment-service-db.md`
      - "user authentication API" → `DESIGN-user-auth-api.md`
      - "agent memory system" → `DESIGN-agent-memory.md`
-3. **Notify user**: `✅ Design saved: .agent/docs/DESIGN-{slug}.md`
+3. **Notify user**: `✅ Design saved: agent-docs/DESIGN-{slug}.md`
 
 ---
 
