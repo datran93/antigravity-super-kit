@@ -4,13 +4,13 @@ description: Analyze specific codebase folder and document it.
 
 # /codebase - Codebase Documentation Workflow
 
-Analyze a specific folder and document its structure, purpose, and key components into `agent-docs/CODEBASE-{folder-name}.md`.
+Analyze a specific folder and document its structure, purpose, and key components. Results are saved to the `agent-docs/` folder at the root of the current project directory as `CODEBASE-{folder-name}.md`.
 
 ---
 
 ## When to Use
 
-- `/codebase <path>` - Analyze a specific folder (e.g., `/codebase ./services/auth`, `/codebase frontend`)
+- `/codebase <path>` - Analyze a specific folder (e.g., `/codebase ./services/auth`, `/codebase frontend`) and save documentation to `./agent-docs/CODEBASE-{folder-name}.md`.
 - Keywords: "analyze folder", "document module", "explain this part of the codebase"
 
 ---
@@ -27,7 +27,7 @@ Extract the target folder path from the user request.
 
 ### Step 1.2: Check Existing Documentation
 
-Check if `agent-docs/CODEBASE-{folder-name}.md` already exists.
+Check if `./agent-docs/CODEBASE-{folder-name}.md` already exists.
 
 - **Status**: `EXISTS` or `MISSING`
 
@@ -126,12 +126,12 @@ Identify important files:
 
 ### Step 4.1: CREATE Mode (If file missing)
 
-1. Create `agent-docs/CODEBASE-{folder-name}.md`.
+1. Create `./agent-docs/CODEBASE-{folder-name}.md`.
 2. Fill with the generated content.
 
 ### Step 4.2: UPDATE Mode (If file exists)
 
-1. **Read** existing `agent-docs/CODEBASE-{folder-name}.md`.
+1. **Read** existing `./agent-docs/CODEBASE-{folder-name}.md`.
 2. **Compare** with current analysis.
 3. **Update**:
    - Update structure tree if changed.
@@ -146,12 +146,12 @@ Identify important files:
 
 ### Step 5.1: Save File
 
-Save the content to `agent-docs/CODEBASE-{folder-name}.md`.
+Save the content to `./agent-docs/CODEBASE-{folder-name}.md`.
 
 ### Step 5.2: Notify User
 
 ```markdown
-✅ **Codebase Documented**: `agent-docs/CODEBASE-{folder-name}.md`
+✅ **Codebase Documented**: `./agent-docs/CODEBASE-{folder-name}.md`
 
 **Status**: [Created / Updated]
 **Target**: `[Target Path]`
