@@ -4,6 +4,28 @@ All notable changes to the Antigravity Kit will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.3] - 2026-02-08
+
+### Changed
+
+- **Workflow Enhancements**: Comprehensive improvements to core agent workflows (+2000 lines of actionable guidance)
+  - `/deploy`: Added production-grade safety (Pre-flight checks, Risk Assessment, Rollback strategy, Maintenance mode)
+  - `/preview`: Added robust local dev management (Process detection, PID tracking, Log streaming, Health verification)
+  - `/status`: Added holistic project health tracking (Context gathering, Build/Test/Lint checks, Progress vs Plan
+    analysis)
+  - `/orchestrate`: Enforced strict multi-agent phases (Setup → Plan → Execute → Synthesis) with mandatory context
+    passing
+  - `/update`: Standardized 6-phase feature update process (Context → Impact → Plan → Implement → Verify → Delivery)
+  - `/debug`: Added systematic investigation workflow (Evidence → Hypothesis → Root Cause → Fix → Prevention)
+  - `/test`: Made language-agnostic with generic AAA patterns and removed tool-specific dependencies
+
+- **Standardization**:
+  - **Language Agnostic**: All 12 workflows now use generic interaction patterns, removing hardcoded language
+    assumptions
+  - **Artifact Persistence**: 100% of workflows now enforce saving reports to `.agent/docs/{COMMAND}-{slug}.md`
+  - **Phase-Based Execution**: Unified all workflows to follow a strict Phased approach (e.g., Phase 1: Context, Phase
+    2: Execution...)
+
 ## [2.1.2] - 2026-02-08
 
 ### Added
