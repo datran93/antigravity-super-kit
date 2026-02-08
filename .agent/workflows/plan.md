@@ -288,21 +288,26 @@ The plan is complete when:
 - [ ] Or modify plan as needed
 ```
 
-### Step 7.2: Save & Notify
+## Save Plan First
 
 1. Save to `.agent/docs/PLAN-{slug}.md`
 2. **Slug generation**: Extract 2-3 key words → lowercase → hyphen-separated → max 30 chars
    - "e-commerce site with cart" → `PLAN-ecommerce-cart.md`
    - "mobile app for fitness" → `PLAN-fitness-app.md`
    - "add dark mode feature" → `PLAN-dark-mode.md`
-3. Notify: `✅ Plan created: .agent/docs/PLAN-{slug}.md`
+
+### Step 7.2: Request User Review
+
+After saving, notify and ask for review:
 
 ```markdown
-**Next Steps:**
+✅ **Plan saved:** `.agent/docs/PLAN-{slug}.md`
 
-- Review the plan
-- Run `/create` to start implementation
-- Or modify plan manually
+**Please review the plan and:**
+
+1. ✅ Approve → Run `/create` to start implementation
+2. 📝 Edit → Modify the plan file directly
+3. 💬 Discuss → Ask questions or request changes
 ```
 
 ---
@@ -312,10 +317,10 @@ The plan is complete when:
 ### Workflow Flow
 
 ```
-Context Analysis → Research → Task Breakdown → Dependencies → Risk Assessment → Verification → Delivery
-       ↓              ↓            ↓               ↓               ↓               ↓            ↓
-   Clarify        Codebase     Phases +       Dependency      Identify        Success     Save PLAN-
-   + Confirm      + Agents     Tasks          graph           risks           criteria    {slug}.md
+Context Analysis → Research → Task Breakdown → Dependencies → Risk Assessment → Verification → SAVE → Review
+       ↓              ↓            ↓               ↓               ↓               ↓            ↓        ↓
+   Clarify        Codebase     Phases +       Dependency      Identify        Success      Save     Ask user
+   + Confirm      + Agents     Tasks          graph           risks           criteria     first    to review
 ```
 
 ### Task Template
@@ -343,7 +348,7 @@ Context Analysis → Research → Task Breakdown → Dependencies → Risk Asses
 
 ## Anti-Patterns (AVOID)
 
-| ❌ Anti-Pattern              | ✅ Instead                          |
+| ❌ Anti-Pattern               | ✅ Instead                           |
 | ---------------------------- | ----------------------------------- |
 | Write code during planning   | Only plan - no code                 |
 | Vague tasks ("do the thing") | Specific, actionable tasks          |
