@@ -28,19 +28,24 @@ log_error() {
 # Ensure cache directory exists and repo is up to date
 sync_repo() {
     mkdir -p "$CACHE_DIR"
-    
-    if [ -d "$CACHE_DIR/$REPO_NAME" ]; then
+
+    if [ -d "$CACHE_DIR/$REPO_NAME/.git" ]; then
         log_info "Updating cached repository..."
-        (cd "$CACHE_DIR/$REPO_NAME" && git pull origin main)
+        if ! (cd "$CACHE_DIR/$REPO_NAME" && git fetch origin && git reset --hard origin/main); then
+            log_error "Failed to update repository."
+            exit 1
+        fi
     else
         log_info "Cloning repository to cache..."
-        (cd "$CACHE_DIR" && git clone "$REPO_URL")
+        # Remove if exists but corrupted (no .git)
+        rm -rf "$CACHE_DIR/$REPO_NAME"
+        if ! git clone "$REPO_URL" "$CACHE_DIR/$REPO_NAME"; then
+            log_error "Failed to clone repository."
+            exit 1
+        fi
     fi
-    
-    if [ $? -ne 0 ]; then
-        log_error "Failed to sync repository."
-        exit 1
-    fi
+
+    log_success "Repository synced successfully."
 }
 
 # Install command
@@ -54,6 +59,16 @@ install_agent() {
 
     log_info "Installing .agent folder..."
     cp -R "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR"
+
+    # Add .agent to git exclude (local only)
+    if [ -d ".git" ]; then
+        EXCLUDE_FILE=".git/info/exclude"
+        if ! grep -q "^\.agent$" "$EXCLUDE_FILE" 2>/dev/null; then
+            echo ".agent" >> "$EXCLUDE_FILE"
+            log_info "Added .agent to git exclude"
+        fi
+    fi
+
     log_success ".agent installed successfully!"
 }
 
@@ -91,9 +106,46 @@ status_agent() {
     fi
 }
 
+# Remove command
+remove_agent() {
+    if [ ! -d "$TARGET_AGENT_DIR" ]; then
+        log_error ".agent folder not found."
+        exit 1
+    fi
+
+    echo -e "${RED}WARNING: This will permanently delete the .agent folder.${NC}"
+    read -p "Are you sure? (y/N): " confirm
+
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        rm -rf "$TARGET_AGENT_DIR"
+
+        # Remove .agent from git exclude if present
+        if [ -d ".git" ]; then
+            EXCLUDE_FILE=".git/info/exclude"
+            if [ -f "$EXCLUDE_FILE" ] && grep -q "^\.agent$" "$EXCLUDE_FILE"; then
+                sed -i '' '/^\.agent$/d' "$EXCLUDE_FILE"
+                log_info "Removed .agent from git exclude"
+            fi
+        fi
+
+        log_success ".agent removed successfully!"
+    else
+        log_info "Operation cancelled."
+    fi
+}
+
 # Usage
 usage() {
-    echo "Usage: $0 {install|update|status}"
+    echo "Antigravity Kit - AI Agent Management Tool"
+    echo ""
+    echo "Usage: agk <command>"
+    echo ""
+    echo "Commands:"
+    echo "  install   Install .agent folder (fails if already exists)"
+    echo "  update    Update .agent folder to latest version"
+    echo "  status    Check if updates are available"
+    echo "  remove    Remove .agent folder (with confirmation)"
+    echo ""
     exit 1
 }
 
@@ -107,6 +159,9 @@ case "$1" in
         ;;
     status)
         status_agent
+        ;;
+    remove)
+        remove_agent
         ;;
     *)
         usage
