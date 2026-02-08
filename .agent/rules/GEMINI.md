@@ -6,55 +6,158 @@ trigger: always_on
 
 > This file defines how the AI behaves in this workspace.
 
-## CRITICAL: AGENT & SKILL PROTOCOL
+---
 
-> **MANDATORY:** Read agent file + skills BEFORE any implementation. Highest priority rule.
+## 🚨 MANDATORY: 4-STEP PROCESSING FLOW (NEVER SKIP)
 
-### Skill Loading Protocol
+> **⛔ DO NOT respond to ANY user request until ALL 4 steps are completed in order!**
 
-Agent activated → Check `skills:` frontmatter → Read SKILL.md → Read specific sections only.
+```
+USER REQUEST RECEIVED
+         ↓
+┌────────────────────────────────────────────────────────────┐
+│ STEP 1: CLASSIFY REQUEST                                   │
+│ ════════════════════════════════════════════════════════   │
+│ Analyze keywords → Determine type → Set execution tier     │
+│ Output: "📥 Request Type: [TYPE] → [TIER]"                 │
+└────────────────────────────────────────────────────────────┘
+         ↓
+┌────────────────────────────────────────────────────────────┐
+│ STEP 2: SELECT & LOAD AGENT                                │
+│ ════════════════════════════════════════════════════════   │
+│ Match domain → Read .agent/agents/{agent}.md → Announce    │
+│ Output: "🤖 Applying knowledge of @[agent-name]..."        │
+└────────────────────────────────────────────────────────────┘
+         ↓
+┌────────────────────────────────────────────────────────────┐
+│ STEP 3: LOAD SKILLS FROM FRONTMATTER                       │
+│ ════════════════════════════════════════════════════════   │
+│ Check agent's `skills:` field → Read each SKILL.md         │
+│ Apply only sections relevant to current request            │
+└────────────────────────────────────────────────────────────┘
+         ↓
+┌────────────────────────────────────────────────────────────┐
+│ STEP 4: EXECUTE TASK                                       │
+│ ════════════════════════════════════════════════════════   │
+│ Apply agent rules → Apply skill patterns → Deliver result  │
+│ Follow Socratic Gate if needed (TIER 1+)                   │
+└────────────────────────────────────────────────────────────┘
+```
 
-- **Selective Reading:** Read `SKILL.md` first, then only sections matching user's request.
-- **Priority:** P0 (GEMINI.md) > P1 (Agent .md) > P2 (SKILL.md). All binding.
-- **Enforcement:** Activate → Read Rules → Check Frontmatter → Load SKILL.md → Apply. Never skip.
+### ⛔ ANTI-SKIP ENFORCEMENT
+
+| Violation                          | Consequence                                     |
+| ---------------------------------- | ----------------------------------------------- |
+| Skipped Step 1 (no classification) | Response is INVALID → Go back, classify first   |
+| Skipped Step 2 (no agent loaded)   | Response is GENERIC → Load agent, restart       |
+| Skipped Step 3 (no skills loaded)  | Response lacks depth → Read skills, enhance     |
+| Started code before Step 4         | Code is UNGUIDED → Delete, follow flow properly |
+
+### 🔐 Priority Hierarchy (BINDING)
+
+```
+P0: GEMINI.md (this file) → ALWAYS applies, cannot be overridden
+P1: Agent .md file        → Domain-specific rules
+P2: SKILL.md files        → Detailed patterns and techniques
+```
 
 ---
 
-## 📥 REQUEST CLASSIFIER
+## 📥 STEP 1: REQUEST CLASSIFIER
 
-| Request Type     | Trigger Keywords               | Tiers             | Result         |
-| ---------------- | ------------------------------ | ----------------- | -------------- |
-| **QUESTION**     | "what is", "explain"           | TIER 0            | Text Response  |
-| **SURVEY/INTEL** | "analyze", "overview"          | TIER 0 + Explorer | Session Intel  |
-| **SIMPLE CODE**  | "fix", "add" (single file)     | TIER 0 + TIER 1   | Inline Edit    |
-| **COMPLEX CODE** | "build", "create", "implement" | Full + Agent      | {task-slug}.md |
-| **DESIGN/UI**    | "design", "UI", "dashboard"    | Full + Agent      | {task-slug}.md |
-| **SLASH CMD**    | /create, /orchestrate, /debug  | Command flow      | Variable       |
+**Analyze keywords → Match type → Set tier:**
+
+| Request Type     | Trigger Keywords                | Tier              | Result         |
+| ---------------- | ------------------------------- | ----------------- | -------------- |
+| **QUESTION**     | "what is", "explain", "how"     | TIER 0 only       | Text Response  |
+| **SURVEY/INTEL** | "analyze", "overview", "audit"  | TIER 0 + Explorer | Session Intel  |
+| **SIMPLE CODE**  | "fix", "add", "update" (1 file) | TIER 0 + TIER 1   | Inline Edit    |
+| **COMPLEX CODE** | "build", "create", "implement"  | Full + Agent      | {task-slug}.md |
+| **DESIGN/UI**    | "design", "UI", "dashboard"     | Full + Agent      | {task-slug}.md |
+| **SLASH CMD**    | /create, /orchestrate, /debug   | Workflow file     | Variable       |
+
+**Output format after classification:**
+
+```markdown
+📥 **Request Type:** [TYPE] → [TIER]
+```
 
 ---
 
-## 🤖 INTELLIGENT AGENT ROUTING
+## 🤖 STEP 2: AGENT ROUTING
 
 > 🔴 **MANDATORY:** Follow `@[skills/intelligent-routing]` protocol.
 
-**Auto-Selection:** Analyze (Silent) → Select Agent(s) → Inform User → Apply rules.
+### Agent Selection Matrix
 
-**Response Format:**
+| Domain       | Primary Agent           | Fallback                 |
+| ------------ | ----------------------- | ------------------------ |
+| Frontend/Web | `frontend-specialist`   | `mobile-developer`       |
+| Mobile App   | `mobile-developer`      | `game-developer`         |
+| Backend/API  | `backend-specialist`    | `api-designer`           |
+| Database     | `database-architect`    | `backend-specialist`     |
+| DevOps/Infra | `devops-engineer`       | `network-engineer`       |
+| Security     | `security-auditor`      | `penetration-tester`     |
+| Testing      | `test-engineer`         | `qa-automation-engineer` |
+| Performance  | `performance-optimizer` | `debugger`               |
+| AI/Agents    | `ai-agents-architect`   | `skill-developer`        |
+| Multi-domain | `orchestrator`          | `project-planner`        |
+
+### Agent Loading Checklist
+
+| #   | Action                          | If Not Done                 |
+| --- | ------------------------------- | --------------------------- |
+| 1   | Analyze domain from request     | → Cannot proceed            |
+| 2   | Read `.agent/agents/{agent}.md` | → Response will be generic  |
+| 3   | Announce: `🤖 @[agent-name]...` | → User doesn't know context |
+| 4   | Check `skills:` frontmatter     | → Skills won't be loaded    |
+
+**Output format after agent selection:**
 
 ```markdown
-🤖 **Applying knowledge of `@[agent-name]`...** [Continue with specialized response]
+🤖 **Applying knowledge of `@[agent-name]`...**
 ```
 
-**Rules:** Silent analysis (no meta-commentary) | Respect @agent overrides | Multi-domain → use orchestrator
+---
 
-### Agent Routing Checklist (Before Code/Design)
+## 📚 STEP 3: SKILL LOADING PROTOCOL
 
-| Step | Check                           | If Unchecked                      |
-| ---- | ------------------------------- | --------------------------------- |
-| 1    | Identified correct agent?       | → Analyze domain first            |
-| 2    | Read agent's `.md` file?        | → Open `.agent/agents/{agent}.md` |
-| 3    | Announced `🤖 @[agent]...`?     | → Add announcement                |
-| 4    | Loaded skills from frontmatter? | → Check `skills:` field           |
+**After agent is loaded, MUST read its skills:**
+
+1. **Read agent's frontmatter** → Extract `skills:` field
+2. **For each skill** → Read `.agent/skills/{skill}/SKILL.md`
+3. **Selective reading** → Only sections matching user's request
+4. **Apply patterns** → Integrate into response/code
+
+**Example:**
+
+```yaml
+# From backend-specialist.md frontmatter:
+skills: clean-code, api-patterns, database-design, testing-patterns
+
+# Must read:
+# - .agent/skills/clean-code/SKILL.md
+# - .agent/skills/api-patterns/SKILL.md
+# - .agent/skills/database-design/SKILL.md
+# - .agent/skills/testing-patterns/SKILL.md
+```
+
+---
+
+## ⚡ STEP 4: TASK EXECUTION
+
+**Now you may proceed with the actual work.**
+
+### For TIER 0 (Questions)
+
+- Respond directly using loaded agent's knowledge
+- No Socratic Gate required
+
+### For TIER 1+ (Code/Design)
+
+- Apply Socratic Gate if request is vague
+- Follow agent-specific workflow
+- Use skill patterns in implementation
 
 ---
 
@@ -78,25 +181,11 @@ Before modifying: Check `CODEBASE.md` → Identify dependents → Update ALL tog
 > 🔴 Read `ARCHITECTURE.md` at session start. Read `AGENT_FLOW.md` to understand the complete workflow for responding to
 > user requests.
 
-Paths: Agents `.agent/` | Skills `.agent/skills/` | Scripts `.agent/skills/<skill>/scripts/`
-
 ### 🧠 Read → Understand → Apply
 
 Before coding: What's the GOAL? → What PRINCIPLES? → How DIFFERS from generic?
 
 ---
-
-## TIER 1: CODE RULES
-
-### 📱 Project Routing
-
-| Type        | Agent                 | Skills                        |
-| ----------- | --------------------- | ----------------------------- |
-| **MOBILE**  | `mobile-developer`    | mobile-design                 |
-| **WEB**     | `frontend-specialist` | frontend-design               |
-| **BACKEND** | `backend-specialist`  | api-patterns, database-design |
-
-> 🔴 Mobile ≠ frontend-specialist
 
 ### 🛑 Socratic Gate
 
@@ -110,46 +199,6 @@ Before coding: What's the GOAL? → What PRINCIPLES? → How DIFFERS from generi
 
 **Protocol:** Never assume → Spec-heavy? Ask trade-offs → Wait for Gate clearance. **Reference:**
 `@[skills/brainstorming]`
-
-### 🏁 Final Checklist
-
-**Trigger:** "final checks", "son kontrolleri yap"
-
-- `python .agent/scripts/checklist.py .` (Audit)
-- `python .agent/scripts/checklist.py . --url <URL>` (Pre-Deploy)
-
-**Order:** Security → Lint → Schema → Tests → UX → SEO → Lighthouse/E2E
-
-**Scripts:** `security_scan.py` `dependency_analyzer.py` `lint_runner.py` `test_runner.py` `schema_validator.py`
-`ux_audit.py` `accessibility_checker.py` `seo_checker.py` `bundle_analyzer.py` `mobile_audit.py` `lighthouse_audit.py`
-`playwright_runner.py`
-
-> 🔴 Invoke scripts: `python .agent/skills/<skill>/scripts/<script>.py`
-
-### 🎭 Mode Mapping
-
-| Mode     | Agent             | Behavior                        |
-| -------- | ----------------- | ------------------------------- |
-| **plan** | `project-planner` | 4-phase, NO CODE before Phase 4 |
-| **ask**  | -                 | Understanding, questions        |
-| **edit** | `orchestrator`    | Execute, check {task-slug}.md   |
-
-**Plan 4-Phase:** ANALYSIS → PLANNING → SOLUTIONING → IMPLEMENTATION
-
----
-
-## TIER 2: DESIGN RULES
-
-> Design rules in specialist agents, NOT here.
-
-| Task         | Read                            |
-| ------------ | ------------------------------- |
-| Web UI/UX    | `.agent/frontend-specialist.md` |
-| Mobile UI/UX | `.agent/mobile-developer.md`    |
-
-Contains: Purple Ban, Template Ban, Anti-cliché, Deep Design Thinking
-
----
 
 ## 📁 QUICK REFERENCE
 

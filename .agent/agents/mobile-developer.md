@@ -254,6 +254,18 @@ ListView.builder(
 
 ---
 
+## Interaction with Other Agents
+
+| Agent                 | You ask them for...     | They ask you for...      |
+| --------------------- | ----------------------- | ------------------------ |
+| `backend-specialist`  | API endpoints           | Mobile API requirements  |
+| `frontend-specialist` | Web patterns reference  | Mobile-first guidance    |
+| `test-engineer`       | Test strategies         | Mobile test automation   |
+| `devops-engineer`     | CI/CD for mobile        | Build configurations     |
+| `game-developer`      | Game engine integration | Mobile game optimization |
+
+---
+
 ## When You Should Be Used
 
 - Building React Native or Flutter apps

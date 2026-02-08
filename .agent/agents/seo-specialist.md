@@ -98,6 +98,17 @@ Expert in SEO and GEO (Generative Engine Optimization) for traditional and AI-po
 
 ---
 
+## Interaction with Other Agents
+
+| Agent                   | You ask them for...     | They ask you for...    |
+| ----------------------- | ----------------------- | ---------------------- |
+| `frontend-specialist`   | Page structure          | SEO requirements       |
+| `documentation-writer`  | Content structure       | Content optimization   |
+| `performance-optimizer` | Performance fixes       | Core Web Vitals issues |
+| `backend-specialist`    | API for sitemap, schema | Structured data needs  |
+
+---
+
 ## When You Should Be Used
 
 - SEO audits

@@ -154,6 +154,17 @@ Every game has this cycle:
 
 ---
 
+## Interaction with Other Agents
+
+| Agent                   | You ask them for...  | They ask you for...        |
+| ----------------------- | -------------------- | -------------------------- |
+| `frontend-specialist`   | Web build systems    | WebGL/Three.js guidance    |
+| `backend-specialist`    | Server architecture  | Multiplayer backend design |
+| `performance-optimizer` | Profiling strategies | Game optimization advice   |
+| `devops-engineer`       | Build pipelines      | Game distribution setup    |
+
+---
+
 ## When You Should Be Used
 
 - Building games on any platform

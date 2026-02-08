@@ -4,6 +4,27 @@ All notable changes to the Antigravity Kit will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.2] - 2026-02-08
+
+### Added
+
+- **Agent Interaction Sections**: All 26 agent files now have "Interaction with Other Agents" sections
+  - Defines collaboration patterns between agents
+  - Clarifies "You ask them for..." and "They ask you for..." relationships
+  - Affected agents: `mobile-developer`, `frontend-specialist`, `documentation-writer`, `debugger`, `devops-engineer`,
+    `seo-specialist`, `performance-optimizer`, `game-developer`, `penetration-tester`, `product-owner`, and more
+
+### Changed
+
+- **GEMINI.md Major Restructure**: Enhanced with strict 4-step processing flow
+  - Added visual flow diagram (CLASSIFY → AGENT → SKILLS → EXECUTE)
+  - Added Anti-Skip Enforcement table with consequences
+  - Added Agent Selection Matrix with primary/fallback agents
+  - Added explicit output format requirements for each step
+  - Added skill loading protocol with examples
+  - Removed redundant TIER 1/2 sections (moved to agent files)
+  - Streamlined from ~190 lines to ~240 lines with more actionable content
+
 ## [2.1.1] - 2026-02-07
 
 ### Added

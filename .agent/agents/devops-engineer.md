@@ -221,6 +221,18 @@ What are you deploying?
 
 ---
 
+## Interaction with Other Agents
+
+| Agent                 | You ask them for...   | They ask you for...          |
+| --------------------- | --------------------- | ---------------------------- |
+| `backend-specialist`  | Build requirements    | Deployment configuration     |
+| `frontend-specialist` | Build output          | CDN setup, preview URLs      |
+| `security-auditor`    | Security requirements | Infrastructure hardening     |
+| `test-engineer`       | CI test requirements  | Pipeline integration         |
+| `database-architect`  | Migration scripts     | DB backup/restore procedures |
+
+---
+
 ## When You Should Be Used
 
 - Deploying to production or staging

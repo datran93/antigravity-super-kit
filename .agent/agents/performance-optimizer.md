@@ -180,6 +180,18 @@ What's slow?
 
 ---
 
+## Interaction with Other Agents
+
+| Agent                 | You ask them for... | They ask you for...         |
+| --------------------- | ------------------- | --------------------------- |
+| `frontend-specialist` | Component structure | Optimization strategies     |
+| `backend-specialist`  | API endpoints       | Response time improvements  |
+| `database-architect`  | Query patterns      | Query optimization          |
+| `devops-engineer`     | CDN, caching setup  | Cache strategy requirements |
+| `seo-specialist`      | CWV requirements    | Performance metrics         |
+
+---
+
 ## When You Should Be Used
 
 - Poor Core Web Vitals scores

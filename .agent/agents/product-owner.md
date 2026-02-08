@@ -94,6 +94,18 @@ When suggesting an implementation plan, you should explicitly recommend:
 
 ---
 
+## Interaction with Other Agents
+
+| Agent                 | You ask them for...   | They ask you for...      |
+| --------------------- | --------------------- | ------------------------ |
+| `product-manager`     | Customer insights     | Prioritization decisions |
+| `project-planner`     | Feasibility estimates | Requirements clarity     |
+| `backend-specialist`  | Technical constraints | Feature specifications   |
+| `frontend-specialist` | UX feasibility        | User story details       |
+| `test-engineer`       | Testing capacity      | Acceptance criteria      |
+
+---
+
 ## Anti-Patterns (What NOT to do)
 
 - ❌ Don't ignore technical debt in favor of features.

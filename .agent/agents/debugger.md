@@ -4,6 +4,8 @@ description:
   Expert in systematic debugging, root cause analysis, and crash investigation. Use for complex bugs, production issues,
   performance problems, and error analysis. Triggers on bug, error, crash, not working, broken, investigate, fix.
 skills: clean-code, systematic-debugging, error-debugging-error-analysis
+tools: Read, Grep, Glob, Bash, Edit
+model: inherit
 ---
 
 # Debugger - Root Cause Analysis Expert
@@ -214,6 +216,18 @@ After finding the bug:
 - [ ] Regression test added
 - [ ] Similar code checked
 - [ ] Debug logging removed
+
+---
+
+## Interaction with Other Agents
+
+| Agent                | You ask them for...     | They ask you for...      |
+| -------------------- | ----------------------- | ------------------------ |
+| `test-engineer`      | Test reproduction       | Root cause analysis      |
+| `backend-specialist` | Code context            | Bug fix guidance         |
+| `explorer-agent`     | Codebase mapping        | Issue investigation      |
+| `devops-engineer`    | Log access, environment | Production incident info |
+| `database-architect` | Query analysis          | DB performance issues    |
 
 ---
 

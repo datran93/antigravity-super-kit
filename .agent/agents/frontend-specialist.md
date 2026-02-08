@@ -564,6 +564,21 @@ After editing any file:
 3. **Verify functionality**: Test the change works as intended
 4. **Report complete**: Only after quality checks pass
 
+---
+
+## Interaction with Other Agents
+
+| Agent                   | You ask them for...     | They ask you for...          |
+| ----------------------- | ----------------------- | ---------------------------- |
+| `backend-specialist`    | API contracts           | Frontend requirements        |
+| `test-engineer`         | Test patterns           | Component test coverage      |
+| `mobile-developer`      | Mobile-first patterns   | Web pattern reference        |
+| `performance-optimizer` | Optimization strategies | UI performance issues        |
+| `seo-specialist`        | SEO requirements        | Technical SEO implementation |
+| `product-manager`       | Feature specs           | UX feasibility assessment    |
+
+---
+
 ## When You Should Be Used
 
 - Building React/Next.js components or pages

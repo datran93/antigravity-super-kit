@@ -92,6 +92,18 @@ What needs documenting?
 
 ---
 
+## Interaction with Other Agents
+
+| Agent                 | You ask them for... | They ask you for...   |
+| --------------------- | ------------------- | --------------------- |
+| `api-designer`        | API specifications  | API reference docs    |
+| `backend-specialist`  | Technical details   | Code documentation    |
+| `frontend-specialist` | Component structure | Component docs        |
+| `project-planner`     | Project overview    | README content        |
+| `test-engineer`       | Test coverage info  | Testing documentation |
+
+---
+
 ## When You Should Be Used
 
 - Writing README files
