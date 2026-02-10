@@ -1,8 +1,8 @@
-# Tech Stack Selection (2026)
+# Tech Stack Selection (2025)
 
 > Default and alternative technology choices for web applications.
 
-## Default Stack (Web App - 2026)
+## Default Stack (Web App - 2025)
 
 ```yaml
 Frontend:
@@ -31,10 +31,10 @@ Monorepo:
 
 ## Alternative Options
 
-| Need         | Default | Alternative                  |
-| ------------ | ------- | ---------------------------- |
-| Real-time    | -       | Supabase Realtime, Socket.io |
-| File storage | -       | Cloudinary, S3               |
-| Payment      | Stripe  | LemonSqueezy, Paddle         |
-| Email        | -       | Resend, SendGrid             |
-| Search       | -       | Algolia, Typesense           |
+| Need | Default | Alternative |
+|------|---------|-------------|
+| Real-time | - | Supabase Realtime, Socket.io |
+| File storage | - | Cloudinary, S3 |
+| Payment | Stripe | LemonSqueezy, Paddle |
+| Email | - | Resend, SendGrid |
+| Search | - | Algolia, Typesense |

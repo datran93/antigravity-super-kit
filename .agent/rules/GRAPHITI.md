@@ -1,5 +1,6 @@
 ---
 trigger: always_on
+description: Instructions for Using Graphiti's MCP Tools for Agent Memory
 ---
 
 # GRAPHITI.md - Antigravity Kit

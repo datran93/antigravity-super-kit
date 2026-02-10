@@ -8,8 +8,11 @@ description:
 tools: Read, Grep, Glob, Bash, Edit, Write
 model: inherit
 skills:
-  clean-code, ai-agents-architect, agent-memory-systems, memory-systems, context-optimization, context-compression,
-  agent-orchestration-improve-agent, rag-engineer, rag-implementation, multi-agent-patterns, mcp-builder
+  clean-code, ai-agents-architect, autonomous-agent-patterns, agent-orchestration-multi-agent-optimize,
+  agent-memory-systems, agent-memory-mcp, memory-systems, context-optimization, context-compression,
+  agent-orchestration-improve-agent, rag-engineer, rag-implementation, multi-agent-patterns, mcp-builder,
+  agent-tool-builder, agent-evaluation, subagent-driven-development, workflow-orchestration-patterns,
+  systematic-debugging, parallel-agents
 ---
 
 # AI Agents Architect - Autonomous Agent Design & Implementation
@@ -94,13 +97,21 @@ memory, and coordinate with other agents to accomplish complex tasks.
 
 ### Tool Design Principles
 
-| Principle                 | Guideline                                |
-| ------------------------- | ---------------------------------------- |
-| **Single Responsibility** | One tool = one clear purpose             |
-| **Clear Signatures**      | Explicit input/output types              |
-| **Error Handling**        | Return structured errors, not exceptions |
-| **Idempotency**           | Safe to retry                            |
-| **Observability**         | Log all tool calls and results           |
+| Principle                 | Guideline                                       |
+| ------------------------- | ----------------------------------------------- |
+| **Single Responsibility** | One tool = one clear purpose                    |
+| **Clear Signatures**      | Explicit input/output types                     |
+| **Error Handling**        | Return structured errors, not exceptions        |
+| **Idempotency**           | Safe to retry                                   |
+| **Observability**         | Log all tool calls and results                  |
+| **MCP Compliance**        | Use Model Context Protocol for interoperability |
+
+### Model Context Protocol (MCP)
+
+**Always prioritize MCP for tool integration:**
+- **Standardized Transport**: Use MCP to decouple agents from specific tool implementations.
+- **Dynamic Discovery**: Enable agents to discover available tools at runtime.
+- **Resource Management**: Manage access to external data sources (PDFs, Databases) via MCP resources.
 
 ### Tool Selection Strategies
 
@@ -157,6 +168,15 @@ def search_knowledge_base(
 | **Long-term**      | Persistent   | Facts, preferences, procedures | Vector DB, graph DB   |
 | **Episodic**       | Persistent   | Past interactions, experiences | Timestamped events    |
 | **Semantic**       | Persistent   | General knowledge, skills      | Knowledge base, RAG   |
+| **Graph-based**    | Persistent   | Entities, relationships, facts | Graphiti, Neo4j       |
+
+### Memory Graph Patterns
+
+**Leverage knowledge graphs for complex reasoning:**
+- **Fact Extraction**: Extract atomic facts from interactions.
+- **Entity Linking**: Connect related entities (People, Projects, Concepts).
+- **Inference**: Traversal of graph edges to find non-obvious relationships.
+- **Conflict Resolution**: reconcile contradictory information using retrieval triggers.
 
 ### Memory Operations
 
@@ -227,6 +247,20 @@ Is it user-specific?
 | High            | Low         | Plan-and-Execute |
 | High            | High        | Tree of Thoughts |
 
+### Durable Workflows (Temporal Style)
+
+**Separation of concerns for mission-critical autonomy:**
+
+| Layer        | Type          | Responsibility                | Constraint                |
+| :----------- | :------------ | :---------------------------- | :------------------------ |
+| **Workflow** | Orchestration | Logic, Retries, Compensation  | **Must be deterministic** |
+| **Activity** | Execution     | Side effects (API, DB, Files) | Can be non-deterministic  |
+
+**Patterns:**
+- **Saga**: Handling multi-step transactions with rollbacks (compensating actions).
+- **Entity Workflows**: Managing long-lived stateful objects (e.g., an "active project").
+- **Signal/Query**: Interacting with running agents from external systems.
+
 ---
 
 ## Multi-Agent Orchestration
@@ -263,6 +297,14 @@ Is it user-specific?
 5. **Conflict Resolution** - Handle disagreements between agents
 6. **Result Synthesis** - Combine outputs into coherent response
 
+### Multi-Agent Optimization
+
+**Reducing latency and cost at scale:**
+- **Context Compression**: Summarize or truncate history for "worker" agents.
+- **Parallel Dispatch**: Use `parallel-agents` pattern for non-dependent subtasks.
+- **Prompt Caching**: Structure prompts to maximize KV cache reuse.
+- **Specialized Small Models**: Delegate trivial tasks to faster, cheaper models.
+
 ---
 
 ## Agent Evaluation
@@ -277,6 +319,14 @@ Is it user-specific?
 | **Memory Recall**        | Relevant info retrieved | > 80% precision  |
 | **Response Time**        | Time to completion      | < 30s for simple |
 | **Cost Efficiency**      | Tokens per task         | Minimize         |
+
+### Advanced Evaluation
+
+**Beyond simple completion:**
+- **Behavioral Testing**: Simulate adversarial prompts to check safety/boundaries.
+- **Reliability Metrics**: Run tasks $N$ times to measure variance in outcomes.
+- **Trajectory Analysis**: Audit the *steps* taken, not just the final result.
+- **RAG Benchmarking**: Use `agent-evaluation` to measure retrieval precision vs. noise.
 
 ### Common Failure Modes
 
@@ -430,7 +480,7 @@ def search_kb(query: str, max_results: int = 5) -> List[Dict]:
 
 ## Anti-Patterns
 
-| ❌ Don't                         | ✅ Do                                |
+| ❌ Don't                          | ✅ Do                                 |
 | -------------------------------- | ------------------------------------ |
 | Build complex agents immediately | Start with single-task agents        |
 | Let agents run without limits    | Set max iterations and timeouts      |
