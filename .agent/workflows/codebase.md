@@ -4,13 +4,15 @@ description: Analyze specific codebase folder and document it.
 
 # /codebase - Codebase Documentation Workflow
 
-Analyze a specific folder and document its structure, purpose, and key components. Results are saved to the `agent-docs/` folder at the root of the current project directory as `CODEBASE-{folder-name}.md`.
+Analyze a specific folder and document its structure, purpose, and key components. Results are saved to the
+`agent-docs/` folder at the root of the current project directory as `CODEBASE-{folder-name}.md`.
 
 ---
 
 ## When to Use
 
-- `/codebase <path>` - Analyze a specific folder (e.g., `/codebase ./services/auth`, `/codebase frontend`) and save documentation to `./agent-docs/CODEBASE-{folder-name}.md`.
+- `/codebase <path>` - Analyze a specific folder (e.g., `/codebase ./services/auth`, `/codebase frontend`) and save
+  documentation to `./agent-docs/CODEBASE-{folder-name}.md`.
 - Keywords: "analyze folder", "document module", "explain this part of the codebase"
 
 ---
@@ -39,7 +41,7 @@ Check if `./agent-docs/CODEBASE-{folder-name}.md` already exists.
 
 ### Step 2.1: Project Identity
 
-Identify using files *within the target folder*:
+Identify using files _within the target folder_:
 
 | Item          | Look for...                               |
 | ------------- | ----------------------------------------- |
@@ -49,7 +51,7 @@ Identify using files *within the target folder*:
 
 ### Step 2.2: Structural Map
 
-Map key subdirectories and files *relative to the target folder*.
+Map key subdirectories and files _relative to the target folder_.
 
 ```
 [folder-name]/
@@ -83,8 +85,7 @@ Identify important files:
 ```markdown
 # Codebase Analysis: [Folder Name]
 
-> **Path**: `[Target Path]`
-> **Last Updated**: [YYYY-MM-DD]
+> **Path**: `[Target Path]` **Last Updated**: [YYYY-MM-DD]
 
 ## Overview
 
@@ -98,16 +99,16 @@ Identify important files:
 
 ## Directory Structure
 
-\`\`\`
-[Tree structure of the folder]
-\`\`\`
+\`\`\` [Tree structure of the folder] \`\`\`
 
 ## Key Components
 
 ### Entry Points
+
 - \`[File]\`: [Description]
 
 ### Core Logic
+
 - \`[File]\`: [Description]
 
 ## Dependencies
@@ -153,8 +154,7 @@ Save the content to `./agent-docs/CODEBASE-{folder-name}.md`.
 ```markdown
 ✅ **Codebase Documented**: `./agent-docs/CODEBASE-{folder-name}.md`
 
-**Status**: [Created / Updated]
-**Target**: `[Target Path]`
+**Status**: [Created / Updated] **Target**: `[Target Path]`
 ```
 
 ---
@@ -171,7 +171,7 @@ Folder Name    Create/Update    Structure       Template      CODEBASE-{name}.md
 
 ### Anti-Patterns (AVOID)
 
-| ❌ Don't                                 | ✅ Do                                     |
+| ❌ Don't                                | ✅ Do                                    |
 | --------------------------------------- | ---------------------------------------- |
 | Analyze entire repo if path is specific | Focus ONLY on the target folder          |
 | Overwrite manual notes                  | Preserve existing insights during update |

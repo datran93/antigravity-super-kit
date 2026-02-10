@@ -5,42 +5,69 @@ description: Instructions for Using Graphiti's MCP Tools for Agent Memory
 
 # GRAPHITI.md - Antigravity Kit
 
-## Instructions for Using Graphiti's MCP Tools for Agent Memory
+## 🧠 The Memory Cycle Protocol
 
-### Before Starting Any Task
+Always follow this 4nd-phase cycle to ensure consistent knowledge management.
 
-- **Always search first:** Use the `search_nodes` tool to look for relevant preferences and procedures before beginning
-  work.
-- **Search for facts too:** Use the `search_facts` tool to discover relationships and factual information that may be
-  relevant to your task.
-- **Filter by entity type:** Specify `Preference`, `Procedure`, or `Requirement` in your node search to get targeted
-  results.
-- **Review all matches:** Carefully examine any preferences, procedures, or facts that match your current task.
+### P1: Discovery (Search)
 
-### Always Save New or Updated Information
+**Systematic search before starting any work.**
 
-- **Capture requirements and preferences immediately:** When a user expresses a requirement or preference, use
-  `add_memory` to store it right away.
-  - _Best practice:_ Split very long requirements into shorter, logical chunks.
-- **Be explicit if something is an update to existing knowledge.** Only add what's changed or new to the graph.
-- **Document procedures clearly:** When you discover how a user wants things done, record it as a procedure.
-- **Record factual relationships:** When you learn about connections between entities, store these as facts.
-- **Be specific with categories:** Label preferences and procedures with clear categories for better retrieval later.
+- `search_nodes`: Look for relevant `Preference`, `Procedure`, or `Decision`.
+- `search_facts`: Find atomic relationships between entities.
 
-### During Your Work
+### P2: Acquisition (Read)
 
-- **Respect discovered preferences:** Align your work with any preferences you've found.
-- **Follow procedures exactly:** If you find a procedure for your current task, follow it step by step.
-- **Apply relevant facts:** Use factual information to inform your decisions and recommendations.
-- **Stay consistent:** Maintain consistency with previously identified preferences, procedures, and facts.
+**Read specific details of discovered knowledge.**
 
-### Best Practices
+- Use `get_episode` or `get_entity_edge` for full context from UUIDs.
 
-- **Search before suggesting:** Always check if there's established knowledge before making recommendations.
-- **Combine node and fact searches:** For complex tasks, search both nodes and facts to build a complete picture.
-- **Use `center_node_uuid`:** When exploring related information, center your search around a specific node.
-- **Prioritize specific matches:** More specific information takes precedence over general information.
-- **Be proactive:** If you notice patterns in user behavior, consider storing them as preferences or procedures.
+### P3: Integration (Context)
 
-**Remember:** The knowledge graph is your memory. Use it consistently to provide personalized assistance that respects
-the user's established preferences, procedures, and factual context.
+**Apply knowledge to current reasoning.**
+
+- Align implementation with found `Procedures`.
+- Respect identified `Preferences`.
+- Adhere to functional `Requirements`.
+
+### P4: Retention (Save)
+
+**Capture new intelligence immediately.**
+
+- `add_memory`: Save narrative context (episodes). Split long inputs.
+- **Categorize everything**:
+  - `Preference`: User style, likes, dislikes.
+  - `Procedure`: How-to guides, workflows.
+  - `Requirement`: Constraints, specs.
+  - `Decision`: Tech choices, ADRs.
+
+---
+
+## ⚡ Memory Triggers
+
+### When to Search (P1)
+
+Activate discovery at these critical moments:
+
+- **Session Start**: Before performing any complex task or analysis.
+- **Ambiguity**: When encountering a new concept, acronym, or project-specific term.
+- **Decision Prep**: Prior to proposing architectural or technical decisions.
+
+### When to Retain (P4)
+
+Save intelligence as soon as it surfaces:
+
+- **Preference Statements**: "I like...", "I prefer...", "Avoid...".
+- **Finalized Decisions**: When a tech choice or ADR is confirmed by the user.
+- **Standardized Procedures**: After successfully executing a complex multi-step workflow.
+
+---
+
+## 🛠️ Best Practices
+
+- **Surgical Fact Management**: Use `search_facts` for quick atomic lookup; use narrative episodes for deep context.
+- **Hygiene**: Use `delete_episode` if a procedure or preference becomes obsolete.
+- **Proactive Recording**: If a user states a rule once, it belongs in memory immediately.
+- **UUID Centering**: Use `center_node_uuid` to explore related facts around a specific topic.
+
+**Remember**: Your intelligence is directly proportional to how well you use your memory.

@@ -109,6 +109,7 @@ memory, and coordinate with other agents to accomplish complex tasks.
 ### Model Context Protocol (MCP)
 
 **Always prioritize MCP for tool integration:**
+
 - **Standardized Transport**: Use MCP to decouple agents from specific tool implementations.
 - **Dynamic Discovery**: Enable agents to discover available tools at runtime.
 - **Resource Management**: Manage access to external data sources (PDFs, Databases) via MCP resources.
@@ -173,6 +174,7 @@ def search_knowledge_base(
 ### Memory Graph Patterns
 
 **Leverage knowledge graphs for complex reasoning:**
+
 - **Fact Extraction**: Extract atomic facts from interactions.
 - **Entity Linking**: Connect related entities (People, Projects, Concepts).
 - **Inference**: Traversal of graph edges to find non-obvious relationships.
@@ -257,6 +259,7 @@ Is it user-specific?
 | **Activity** | Execution     | Side effects (API, DB, Files) | Can be non-deterministic  |
 
 **Patterns:**
+
 - **Saga**: Handling multi-step transactions with rollbacks (compensating actions).
 - **Entity Workflows**: Managing long-lived stateful objects (e.g., an "active project").
 - **Signal/Query**: Interacting with running agents from external systems.
@@ -300,6 +303,7 @@ Is it user-specific?
 ### Multi-Agent Optimization
 
 **Reducing latency and cost at scale:**
+
 - **Context Compression**: Summarize or truncate history for "worker" agents.
 - **Parallel Dispatch**: Use `parallel-agents` pattern for non-dependent subtasks.
 - **Prompt Caching**: Structure prompts to maximize KV cache reuse.
@@ -323,9 +327,10 @@ Is it user-specific?
 ### Advanced Evaluation
 
 **Beyond simple completion:**
+
 - **Behavioral Testing**: Simulate adversarial prompts to check safety/boundaries.
 - **Reliability Metrics**: Run tasks $N$ times to measure variance in outcomes.
-- **Trajectory Analysis**: Audit the *steps* taken, not just the final result.
+- **Trajectory Analysis**: Audit the _steps_ taken, not just the final result.
 - **RAG Benchmarking**: Use `agent-evaluation` to measure retrieval precision vs. noise.
 
 ### Common Failure Modes
@@ -480,7 +485,7 @@ def search_kb(query: str, max_results: int = 5) -> List[Dict]:
 
 ## Anti-Patterns
 
-| ❌ Don't                          | ✅ Do                                 |
+| ❌ Don't                         | ✅ Do                                |
 | -------------------------------- | ------------------------------------ |
 | Build complex agents immediately | Start with single-task agents        |
 | Let agents run without limits    | Set max iterations and timeouts      |

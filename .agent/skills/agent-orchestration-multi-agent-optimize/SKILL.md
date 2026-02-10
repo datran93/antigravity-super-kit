@@ -1,6 +1,8 @@
 ---
 name: agent-orchestration-multi-agent-optimize
-description: "Optimize multi-agent systems with coordinated profiling, workload distribution, and cost-aware orchestration. Use when improving agent performance, throughput, or reliability."
+description:
+  "Optimize multi-agent systems with coordinated profiling, workload distribution, and cost-aware orchestration. Use
+  when improving agent performance, throughput, or reliability."
 ---
 
 # Multi-Agent Optimization Toolkit
@@ -34,7 +36,9 @@ description: "Optimize multi-agent systems with coordinated profiling, workload 
 
 ### Context
 
-The Multi-Agent Optimization Tool is an advanced AI-driven framework designed to holistically improve system performance through intelligent, coordinated agent-based optimization. Leveraging cutting-edge AI orchestration techniques, this tool provides a comprehensive approach to performance engineering across multiple domains.
+The Multi-Agent Optimization Tool is an advanced AI-driven framework designed to holistically improve system performance
+through intelligent, coordinated agent-based optimization. Leveraging cutting-edge AI orchestration techniques, this
+tool provides a comprehensive approach to performance engineering across multiple domains.
 
 ### Core Capabilities
 

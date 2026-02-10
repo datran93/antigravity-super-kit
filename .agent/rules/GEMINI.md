@@ -65,16 +65,26 @@ P2: SKILL.md files        → Detailed patterns and techniques
 
 ## 📥 STEP 1: REQUEST CLASSIFIER
 
-**Analyze keywords → Match type → Set tier:**
+**Analyze keywords + context → Determine Type → Set Execution Tier:**
 
-| Request Type     | Trigger Keywords                | Tier              | Result         |
-| ---------------- | ------------------------------- | ----------------- | -------------- |
-| **QUESTION**     | "what is", "explain", "how"     | TIER 0 only       | Text Response  |
-| **SURVEY/INTEL** | "analyze", "overview", "audit"  | TIER 0 + Explorer | Session Intel  |
-| **SIMPLE CODE**  | "fix", "add", "update" (1 file) | TIER 0 + TIER 1   | Inline Edit    |
-| **COMPLEX CODE** | "build", "create", "implement"  | Full + Agent      | {task-slug}.md |
-| **DESIGN/UI**    | "design", "UI", "dashboard"     | Full + Agent      | {task-slug}.md |
-| **SLASH CMD**    | /create, /orchestrate, /debug   | Workflow file     | Variable       |
+| Request Type      | Decision Heuristics (Rule of Thumb)             | Trigger Keywords                              | Tier / Mode     |
+| :---------------- | :---------------------------------------------- | :-------------------------------------------- | :-------------- |
+| **CLARIFICATION** | Informational/Conceptual. No code changes.      | "what is", "how", "why"                       | T0 (Direct)     |
+| **SURVEY/INTEL**  | Analysis of state/code/repo. No implementation. | "analyze", "audit", "find"                    | T0 + Explorer   |
+| **OPTIMIZATION**  | Improving existing code status/perf.            | "refactor", "cleanup", "optimize"             | T1+ (Execution) |
+| **SIMPLE CODE**   | Specific fix/add restricted to 1 file.          | "fix", "add", "update"                        | T1+ (Execution) |
+| **COMPLEX CODE**  | Feature creation affecting multiple files.      | "build", "create", "implement"                | Full (Agent)    |
+| **DESIGN/UI**     | Visual/UX focus, dashboard/component styles.    | "design", "ui", "premium"                     | Full (Agent)    |
+| **SYSTEM/SYNC**   | Infrastructure, ENV, or script automation.      | "sync", "setup", "env", "script"              | T1+ (Execution) |
+| **SLASH CMD**     | Workflow trigger using /command syntax.         | /create, /orchestrate, /debug, /plan, /update | Workflow Mode   |
+
+### 📊 Tier Assessment Matrix
+
+| Tier     | Definition & Complexity                                              | Requirements                              |
+| :------- | :------------------------------------------------------------------- | :---------------------------------------- |
+| **T0**   | **Knowledge Only**. Pure information retrieval or basic explanation. | Direct response.                          |
+| **T1+**  | **Implementation Light**. Changes to existing logic or 1-3 files.    | Socratic Gate (2+ questions).             |
+| **Full** | **Systemic Build**. New features, complex logic, multi-file arch.    | Implementation Plan + Socratic Gate (3+). |
 
 **Output format after classification:**
 
@@ -90,18 +100,34 @@ P2: SKILL.md files        → Detailed patterns and techniques
 
 ### Agent Selection Matrix
 
-| Domain       | Primary Agent           | Fallback                 |
-| ------------ | ----------------------- | ------------------------ |
-| Frontend/Web | `frontend-specialist`   | `mobile-developer`       |
-| Mobile App   | `mobile-developer`      | `game-developer`         |
-| Backend/API  | `backend-specialist`    | `api-designer`           |
-| Database     | `database-architect`    | `backend-specialist`     |
-| DevOps/Infra | `devops-engineer`       | `network-engineer`       |
-| Security     | `security-auditor`      | `penetration-tester`     |
-| Testing      | `test-engineer`         | `qa-automation-engineer` |
-| Performance  | `performance-optimizer` | `debugger`               |
-| AI/Agents    | `ai-agents-architect`   | `skill-developer`        |
-| Multi-domain | `orchestrator`          | `project-planner`        |
+| Domain             | Primary Specialist       | Trigger Keywords               | Domain Patterns / Heuristics             |
+| :----------------- | :----------------------- | :----------------------------- | :--------------------------------------- |
+| **Orchestration**  | `orchestrator`           | complex, build, multi-agent    | Large-scale coordination across domains. |
+| **Project Plan**   | `project-planner`        | plan, roadmap, timeline        | Task breakdown and execution strategy.   |
+| **Code Intel**     | `explorer-agent`         | explore, map, dependencies     | Architecture mapping and deep research.  |
+| **Frontend**       | `frontend-specialist`    | react, ui, css, tailwind       | Components, styling, client-side logic.  |
+| **Mobile**         | `mobile-developer`       | ios, android, flutter, app     | Mobile platforms and native features.    |
+| **Game Dev**       | `game-developer`         | game, physics, engine, unity   | Interactive logic and engine graphics.   |
+| **Backend**        | `backend-specialist`     | go, server, auth, middleware   | Business logic and internal service pkg. |
+| **API Design**     | `api-designer`           | restful, openapi, graphql      | API contracts and documentation.         |
+| **Database**       | `database-architect`     | sql, schema, migration, orm    | Data modeling and storage performance.   |
+| **Data Eng**       | `data-engineer`          | airflow, spark, etl, pipeline  | Data warehouses and streaming infra.     |
+| **Data Science**   | `data-scientist`         | ml, analytics, model, data     | Statistical modeling and ML insights.    |
+| **DevOps**         | `devops-engineer`        | docker, ci/cd, kubernetes      | Infrastructure and automation pipelines. |
+| **Networking**     | `network-engineer`       | cdn, ssl, dns, proxy           | Connectivity and load balancing.         |
+| **Performance**    | `performance-optimizer`  | profile, lag, slow, memory     | Bottleneck analysis and scalability.     |
+| **Security Audit** | `security-auditor`       | scan, harden, vulnerability    | Security standards and risk audit.       |
+| **Pentesting**     | `penetration-tester`     | exploit, attack, red-team      | Finding and testing vulnerabilities.     |
+| **Test Eng**       | `test-engineer`          | jest, unit, e2e, pyramid       | Test suites and coverage automation.     |
+| **QA Auto**        | `qa-automation-engineer` | automation, selenium, qa       | End-to-end user flow verification.       |
+| **Debugging**      | `debugger`               | bug, crash, error, trace       | Systematic investigation of issues.      |
+| **Legacy Code**    | `code-archaeologist`     | refactor, messy, legacy        | Understanding "brownfield" systems.      |
+| **AI/Agents**      | `ai-agents-architect`    | agent, mcp, rag, tool          | Autonomous behavior and tool design.     |
+| **Skill Dev**      | `skill-developer`        | skill, trigger, hook, SKILL.md | Expertise module creation and mgmt.      |
+| **Prod Mgmt**      | `product-manager`        | user-story, scope, feature     | Business alignment and requirements.     |
+| **Quality**        | `product-owner`          | backlog, priority, debt        | Acceptance criteria and value delivery.  |
+| **Docs**           | `documentation-writer`   | readme, docs, guide            | Technical writing and user docs.         |
+| **SEO**            | `seo-specialist`         | meta, sitemap, visibility      | Search engine ranking and indexing.      |
 
 ### Agent Loading Checklist
 
@@ -122,24 +148,24 @@ P2: SKILL.md files        → Detailed patterns and techniques
 
 ## 📚 STEP 3: SKILL LOADING PROTOCOL
 
-**After agent is loaded, MUST read its skills:**
+**After agent is loaded, MUST read its skills selectively:**
 
-1. **Read agent's frontmatter** → Extract `skills:` field
-2. **For each skill** → Read `.agent/skills/{skill}/SKILL.md`
-3. **Selective reading** → Only sections matching user's request
-4. **Apply patterns** → Integrate into response/code
+1.  **Extract Skills**: Read agent's frontmatter and identify `skills:`.
+2.  **Audit (Discovery)**: Use `view_file_outline` on each `SKILL.md` to see its structure.
+3.  **Precision Search**: If headers are ambiguous, use `grep_search` within the skill directory for user request
+    keywords.
+4.  **Map Intent**: Match user intent (e.g., "auth", "perf") to specific section headers or grep results.
+5.  **Targeted Load**: Use `view_file` with `StartLine` and `EndLine` to read ONLY the relevant sections.
 
-**Example:**
+> [!IMPORTANT] **Avoid loading entire SKILL.md files.** Loading 500+ lines of generic patterns for a 5-line fix is a
+> waste of tokens and context. Be surgical.
 
-```yaml
-# From backend-specialist.md frontmatter:
-skills: clean-code, api-patterns, database-design, testing-patterns
+**Example Pattern:**
 
-# Must read:
-# - .agent/skills/clean-code/SKILL.md
-# - .agent/skills/api-patterns/SKILL.md
-# - .agent/skills/database-design/SKILL.md
-# - .agent/skills/testing-patterns/SKILL.md
+```text
+Phase: Loading clean-code
+1. tool: view_file_outline(".agent/skills/clean-code/SKILL.md")
+2. tool: view_file(".agent/skills/clean-code/SKILL.md", StartLine=45, EndLine=82) // Only React patterns
 ```
 
 ---
@@ -172,15 +198,6 @@ Non-English prompt → Translate internally → Respond in user's language → C
 **ALL code follows `@[skills/clean-code]`.** Concise, self-documenting. Testing mandatory (Pyramid + AAA). Measure
 performance first.
 
-### 📁 Dependencies
-
-Before modifying: Check `CODEBASE.md` → Identify dependents → Update ALL together
-
-### 🗺️ System Map
-
-> 🔴 Read `ARCHITECTURE.md` at session start. Read `AGENT_FLOW.md` to understand the complete workflow for responding to
-> user requests.
-
 ### 🧠 Read → Understand → Apply
 
 Before coding: What's the GOAL? → What PRINCIPLES? → How DIFFERS from generic?
@@ -199,45 +216,3 @@ Before coding: What's the GOAL? → What PRINCIPLES? → How DIFFERS from generi
 
 **Protocol:** Never assume → Spec-heavy? Ask trade-offs → Wait for Gate clearance. **Reference:**
 `@[skills/brainstorming]`
-
-## 📁 QUICK REFERENCE
-
-### Agents (26)
-
-| Category      | Agents                                                                      |
-| ------------- | --------------------------------------------------------------------------- |
-| Orchestration | `orchestrator`, `project-planner`, `explorer-agent`                         |
-| Frontend      | `frontend-specialist`, `mobile-developer`, `game-developer`                 |
-| Backend       | `backend-specialist`, `api-designer`, `database-architect`                  |
-| Data          | `data-engineer`, `data-scientist`                                           |
-| DevOps/Infra  | `devops-engineer`, `network-engineer`, `performance-optimizer`              |
-| Security      | `security-auditor`, `penetration-tester`                                    |
-| Quality       | `debugger`, `test-engineer`, `qa-automation-engineer`, `code-archaeologist` |
-| AI/Agents     | `ai-agents-architect`, `skill-developer`                                    |
-| Product       | `product-manager`, `product-owner`                                          |
-| Documentation | `documentation-writer`, `seo-specialist`                                    |
-
-### Skills (85)
-
-| Category     | Skills                                                                                                               |
-| ------------ | -------------------------------------------------------------------------------------------------------------------- |
-| Core         | `clean-code`, `brainstorming`, `behavioral-modes`, `plan-writing`, `intelligent-routing`                             |
-| App Building | `app-builder`, `frontend-design`, `mobile-design`, `core-components`, `tailwind-patterns`                            |
-| Backend      | `api-patterns`, `api-design-principles`, `nodejs-best-practices`, `microservices-patterns`                           |
-| Database     | `database-design`, `database-migration`, `database-optimizer`, `postgresql`, `postgres-best-practices`               |
-| Architecture | `architecture`, `architecture-patterns`, `software-architecture`, `backend-architect`                                |
-| Testing      | `testing-patterns`, `tdd-workflow`, `webapp-testing`, `systematic-debugging`                                         |
-| Security     | `vulnerability-scanner`, `red-team-tactics`                                                                          |
-| DevOps       | `deployment-procedures`, `docker-expert`, `kubernetes-architect`, `server-management`                                |
-| Performance  | `performance-profiling`, `performance-engineer`                                                                      |
-| AI/Agents    | `ai-agents-architect`, `rag-engineer`, `rag-implementation`, `mcp-builder`, `multi-agent-patterns`, `memory-systems` |
-| Languages    | `golang-pro`, `python-patterns`, `javascript-pro`, `java-pro`, `rust-pro`, `bash-linux`                              |
-| Git/Workflow | `git-advanced-workflows`, `git-pr-workflows-git-workflow`                                                            |
-| SEO/Content  | `seo-fundamentals`, `geo-fundamentals`, `documentation-templates`                                                    |
-
-### Scripts
-
-- **Verify:** `verify_all.py`, `checklist.py`
-- **Scan:** `security_scan.py`, `dependency_analyzer.py`
-- **Audit:** `ux_audit.py`, `mobile_audit.py`, `lighthouse_audit.py`, `seo_checker.py`
-- **Test:** `playwright_runner.py`, `test_runner.py`

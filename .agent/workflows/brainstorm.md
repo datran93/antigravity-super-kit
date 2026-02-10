@@ -53,11 +53,8 @@ If insufficient information, ASK before brainstorming:
 ```markdown
 ### 📋 Information Summary
 
-**Problem:** [1-2 sentences describing the problem]
-**Goal:** [desired outcome]
-**Constraints:** [key limitations - tech, time, resources]
-**Context:** [greenfield / existing system / migration]
-**Stakeholders:** [who is affected]
+**Problem:** [1-2 sentences describing the problem] **Goal:** [desired outcome] **Constraints:** [key limitations -
+tech, time, resources] **Context:** [greenfield / existing system / migration] **Stakeholders:** [who is affected]
 **Success Criteria:** [how we know it works]
 
 ---
@@ -162,11 +159,11 @@ Create comparison matrix:
 ```markdown
 | Criteria      | Option A | Option B | Option C |
 | ------------- | -------- | -------- | -------- |
-| Effort        | 🟢 Low    | 🟡 Med    | 🔴 High   |
-| Impact        | 🟡 Med    | 🟢 High   | 🟢 High   |
-| Risk          | 🟢 Low    | 🟡 Med    | 🔴 High   |
-| Scalability   | 🟡 Med    | 🟢 High   | 🟢 High   |
-| Reversibility | 🟢 Easy   | 🟡 Med    | 🔴 Hard   |
+| Effort        | 🟢 Low   | 🟡 Med   | 🔴 High  |
+| Impact        | 🟡 Med   | 🟢 High  | 🟢 High  |
+| Risk          | 🟢 Low   | 🟡 Med   | 🔴 High  |
+| Scalability   | 🟡 Med   | 🟢 High  | 🟢 High  |
+| Reversibility | 🟢 Easy  | 🟡 Med   | 🔴 Hard  |
 ```
 
 ---
@@ -309,9 +306,9 @@ After user selects option:
 
 | Criteria | Option A | Option B | Option C |
 | -------- | -------- | -------- | -------- |
-| Effort   | 🟢        | 🟡        | 🔴        |
-| Impact   | 🟡        | 🟢        | 🟢        |
-| Risk     | 🟢        | 🟡        | 🔴        |
+| Effort   | 🟢       | 🟡       | 🔴       |
+| Impact   | 🟡       | 🟢       | 🟢       |
+| Risk     | 🟢       | 🟡       | 🔴       |
 
 ---
 
@@ -355,7 +352,7 @@ Understanding Lock → Divergent Thinking → Convergent Analysis → Recommenda
 
 ## Anti-Patterns (AVOID)
 
-| ❌ Anti-Pattern                    | ✅ Instead                                    |
+| ❌ Anti-Pattern                   | ✅ Instead                                   |
 | --------------------------------- | -------------------------------------------- |
 | Jump to solutions immediately     | Complete Understanding Lock first            |
 | Only 1-2 obvious options          | Generate minimum 3, include unconventional   |
