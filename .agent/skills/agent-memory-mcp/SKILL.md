@@ -1,15 +1,12 @@
 ---
 name: agent-memory-mcp
 author: Amit Rathiesh
-description:
-  A hybrid memory system that provides persistent, searchable knowledge management for AI agents (Architecture,
-  Patterns, Decisions).
+description: A hybrid memory system that provides persistent, searchable knowledge management for AI agents (Architecture, Patterns, Decisions).
 ---
 
 # Agent Memory Skill
 
-This skill provides a persistent, searchable memory bank that automatically syncs with project documentation. It runs as
-an MCP server to allow reading/writing/searching of long-term memories.
+This skill provides a persistent, searchable memory bank that automatically syncs with project documentation. It runs as an MCP server to allow reading/writing/searching of long-term memories.
 
 ## Prerequisites
 
@@ -17,7 +14,8 @@ an MCP server to allow reading/writing/searching of long-term memories.
 
 ## Setup
 
-1. **Clone the Repository**: Clone the `agentMemory` project into your agent's workspace or a parallel directory:
+1. **Clone the Repository**:
+   Clone the `agentMemory` project into your agent's workspace or a parallel directory:
 
    ```bash
    git clone https://github.com/webzler/agentMemory.git .agent/skills/agent-memory
@@ -31,7 +29,8 @@ an MCP server to allow reading/writing/searching of long-term memories.
    npm run compile
    ```
 
-3. **Start the MCP Server**: Use the helper script to activate the memory bank for your current project:
+3. **Start the MCP Server**:
+   Use the helper script to activate the memory bank for your current project:
 
    ```bash
    npm run start-server <project_id> <absolute_path_to_target_workspace>
