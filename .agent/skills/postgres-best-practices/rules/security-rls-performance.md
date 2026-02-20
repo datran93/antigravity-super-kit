@@ -54,4 +54,5 @@ Always add indexes on columns used in RLS policies:
 create index orders_user_id_idx on orders (user_id);
 ```
 
-Reference: [RLS Performance](https://supabase.com/docs/guides/database/postgres/row-level-security#rls-performance-recommendations)
+Reference:
+[RLS Performance](https://supabase.com/docs/guides/database/postgres/row-level-security#rls-performance-recommendations)

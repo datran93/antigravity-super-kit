@@ -2,7 +2,7 @@
 
 # --- CONFIGURATION ---
 # Set this to the folder containing your project .env file the script's directory.
-PROJECT_DIR="/Users/datran/LearnDev/antigravity-kit"
+PROJECT_DIR="/Users/datran/Project/agent-invest"
 # ---------------------
 
 # Get the directory of this script

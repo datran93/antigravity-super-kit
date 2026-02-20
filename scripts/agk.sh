@@ -6,13 +6,21 @@
 
 VERSION="1.4.0"
 
-# Configuration
+# --- Resolve Script Directory ---
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+# --- Configuration ---
 CACHE_DIR="$HOME/.antigravity/cache"
 REPO_URL="git@github.com:Dang-Hai-Tran/antigravity-kit.git"
 REPO_NAME="antigravity-kit"
 SOURCE_AGENT_DIR="$CACHE_DIR/$REPO_NAME/.agent"
 TARGET_AGENT_DIR="./.agent"
-TARGET_DOCS_DIR="./agent-docs"
 
 # Colors
 GREEN='\033[0;32m'
@@ -68,13 +76,12 @@ sync_repo() {
     log_success "Repository synced."
 }
 
-# Add .agent and agent-docs to git exclude
+# Add .agent to git exclude
 add_git_exclude() {
     [ ! -d ".git" ] && return
 
     local exclude=".git/info/exclude"
     grep -q "^\.agent$" "$exclude" 2>/dev/null || echo ".agent" >> "$exclude"
-    grep -q "^agent-docs$" "$exclude" 2>/dev/null || echo "agent-docs" >> "$exclude"
 }
 
 # Remove .agent from git exclude
@@ -106,8 +113,6 @@ cmd_install() {
     log_info "Installing .agent..."
     cp -R "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR" 2>/dev/null
 
-    [ ! -d "$TARGET_DOCS_DIR" ] && mkdir -p "$TARGET_DOCS_DIR" 2>/dev/null
-
     add_git_exclude
     log_success ".agent installed!"
 }
@@ -118,14 +123,12 @@ cmd_update() {
     if [ ! -d "$TARGET_AGENT_DIR" ]; then
         log_info ".agent not found. Installing..."
         cp -R "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR" 2>/dev/null
-        [ ! -d "$TARGET_DOCS_DIR" ] && mkdir -p "$TARGET_DOCS_DIR" 2>/dev/null
         add_git_exclude
         log_success ".agent installed!"
         return
     fi
 
     log_info "Updating .agent..."
-    [ ! -d "$TARGET_DOCS_DIR" ] && mkdir -p "$TARGET_DOCS_DIR" 2>/dev/null
     rm -rf "$TARGET_AGENT_DIR" 2>/dev/null
     cp -R "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR" 2>/dev/null
     log_success ".agent updated!"
@@ -147,12 +150,6 @@ cmd_status() {
     else
         log_info "Updates available. Run 'agk update'."
     fi
-
-    if [ -d "$TARGET_DOCS_DIR" ]; then
-        local count
-        count=$(find "$TARGET_DOCS_DIR" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
-        log_info "agent-docs: $count document(s)"
-    fi
 }
 
 cmd_remove() {
@@ -162,7 +159,6 @@ cmd_remove() {
     fi
 
     echo -e "${RED}WARNING: This will delete .agent folder.${NC}"
-    echo -e "${YELLOW}Note: agent-docs will be preserved.${NC}"
     read -p "Continue? (y/N): " confirm
     [[ ! "$confirm" =~ ^[Yy]$ ]] && { log_info "Cancelled."; return; }
 
@@ -173,16 +169,7 @@ cmd_remove() {
 
 cmd_toolbox() {
     local current_dir=$(pwd)
-    local source="${BASH_SOURCE[0]}"
-
-    # Resolve symlinks
-    while [ -h "$source" ]; do
-        local dir="$( cd -P "$( dirname "$source" )" && pwd )"
-        source="$(readlink "$source")"
-        [[ $source != /* ]] && source="$dir/$source"
-    done
-    local script_dir="$( cd -P "$( dirname "$source" )" && pwd )"
-    local tool_script="$script_dir/toolbox-mcp.sh"
+    local tool_script="$SCRIPT_DIR/toolbox-mcp.sh"
 
     if [ ! -f "$tool_script" ]; then
         log_error "toolbox-mcp.sh not found at $tool_script"
@@ -200,6 +187,18 @@ cmd_toolbox() {
     log_success "Updated $tool_script"
 }
 
+cmd_sync_skills() {
+    local sync_script="$SCRIPT_DIR/sync-skills.sh"
+
+    if [ ! -f "$sync_script" ]; then
+        log_error "sync-skills.sh not found at $sync_script"
+        exit 1
+    fi
+
+    log_info "Running sync-skills.sh..."
+    bash "$sync_script" "$@"
+}
+
 show_help() {
     cat << EOF
 Antigravity Kit v$VERSION
@@ -207,12 +206,13 @@ Antigravity Kit v$VERSION
 Usage: agk <command>
 
 Commands:
-  install   Install .agent folder
-  update    Update .agent to latest
-  status    Check for updates
-  remove    Remove .agent folder
-  toolbox   Set current directory as PROJECT_DIR for toolbox-mcp
-  help      Show this help
+  install       Install .agent folder
+  update        Update .agent to latest
+  status        Check for updates
+  remove        Remove .agent folder
+  toolbox       Set current directory as PROJECT_DIR for toolbox-mcp
+  sync-skills   Sync local .agent with awesome-skills repo
+  help          Show this help
 
 EOF
 }
@@ -227,6 +227,7 @@ case "$1" in
     status)  cmd_status ;;
     remove)  cmd_remove ;;
     toolbox) cmd_toolbox ;;
+    sync-skills) shift; cmd_sync_skills "$@" ;;
     help|-h|--help|"") show_help ;;
     *) log_error "Unknown command: $1"; show_help; exit 1 ;;
 esac

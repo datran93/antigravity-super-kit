@@ -7,7 +7,8 @@ tags: prepared-statements, connection-pooling, transaction-mode
 
 ## Use Prepared Statements Correctly with Pooling
 
-Prepared statements are tied to individual database connections. In transaction-mode pooling, connections are shared, causing conflicts.
+Prepared statements are tied to individual database connections. In transaction-mode pooling, connections are shared,
+causing conflicts.
 
 **Incorrect (named prepared statements with transaction pooling):**
 
@@ -43,4 +44,5 @@ Check your driver settings:
 -- JDBC: prepareThreshold=0 to disable
 ```
 
-Reference: [Prepared Statements with Pooling](https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pool-modes)
+Reference:
+[Prepared Statements with Pooling](https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pool-modes)
