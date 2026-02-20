@@ -4,13 +4,7 @@ trigger: always_on
 
 # GEMINI.md - Antigravity Kit
 
-> This file defines how the AI behaves in this workspace.
-
----
-
-## 🚨 MANDATORY: 4-STEP PROCESSING FLOW (NEVER SKIP)
-
-> **⛔ DO NOT respond to ANY user request until ALL 4 steps are completed in order!**
+## 🚨 MANDATORY: 3-STEP PROCESSING FLOW (COMPLETED IN ORDER & NEVER SKIP)
 
 ```
 USER REQUEST RECEIVED
@@ -23,24 +17,20 @@ USER REQUEST RECEIVED
 └────────────────────────────────────────────────────────────┘
          ↓
 ┌────────────────────────────────────────────────────────────┐
-│ STEP 2: SELECT & LOAD AGENT                                │
+│ STEP 2: LOAD SKILLS FROM CATALOG                           │
 │ ════════════════════════════════════════════════════════   │
-│ Match domain → Read .agent/agents/{agent}.md → Announce    │
-│ Output: "🤖 Applying knowledge of @[agent-name]..."        │
+│ Match keywords to trigger in .agent/CATALOG.md → Read      │
+│ SKILL.md files → Apply only sections relevant to request   │
+│ Output: "🤖 Applying skills: [skill-names]..."             │
 └────────────────────────────────────────────────────────────┘
          ↓
 ┌────────────────────────────────────────────────────────────┐
-│ STEP 3: LOAD SKILLS FROM FRONTMATTER                       │
+│ STEP 3: EXECUTE TASK (4-Phase Execution)                   │
 │ ════════════════════════════════════════════════════════   │
-│ Check agent's `skills:` field → Read each SKILL.md         │
-│ Apply only sections relevant to current request            │
-└────────────────────────────────────────────────────────────┘
-         ↓
-┌────────────────────────────────────────────────────────────┐
-│ STEP 4: EXECUTE TASK                                       │
-│ ════════════════════════════════════════════════════════   │
-│ Apply agent rules → Apply skill patterns → Deliver result  │
-│ Follow Socratic Gate if needed (TIER 1+)                   │
+│ 1. Context First (Read codebase)                           │
+│ 2. Execute with Skills / Socratic Gate                     │
+│ 3. Verify (Trust, but Verify)                              │
+│ 4. Deliver & Checkpoint                                    │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -49,15 +39,14 @@ USER REQUEST RECEIVED
 | Violation                          | Consequence                                     |
 | ---------------------------------- | ----------------------------------------------- |
 | Skipped Step 1 (no classification) | Response is INVALID → Go back, classify first   |
-| Skipped Step 2 (no agent loaded)   | Response is GENERIC → Load agent, restart       |
-| Skipped Step 3 (no skills loaded)  | Response lacks depth → Read skills, enhance     |
-| Started code before Step 4         | Code is UNGUIDED → Delete, follow flow properly |
+| Skipped Step 2 (no skills loaded)  | Response lacks depth → Read CATALOG.md, enhance |
+| Started code before Context check  | Code is UNGUIDED → Stop, survey codebase first  |
 
 ### 🔐 Priority Hierarchy (BINDING)
 
 ```
 P0: GEMINI.md (this file) → ALWAYS applies, cannot be overridden
-P1: Agent .md file        → Domain-specific rules
+P1: CATALOG.md            → Skill trigger mapping
 P2: SKILL.md files        → Detailed patterns and techniques
 ```
 
@@ -80,11 +69,11 @@ P2: SKILL.md files        → Detailed patterns and techniques
 
 ### 📊 Tier Assessment Matrix
 
-| Tier     | Definition & Complexity                                              | Requirements                              |
-| :------- | :------------------------------------------------------------------- | :---------------------------------------- |
-| **T0**   | **Knowledge Only**. Pure information retrieval or basic explanation. | Direct response.                          |
-| **T1+**  | **Implementation Light**. Changes to existing logic or 1-3 files.    | Socratic Gate (2+ questions).             |
-| **Full** | **Systemic Build**. New features, complex logic, multi-file arch.    | Implementation Plan + Socratic Gate (3+). |
+| Tier     | Definition & Complexity                                              | Requirements                                       |
+| :------- | :------------------------------------------------------------------- | :------------------------------------------------- |
+| **T0**   | **Knowledge Only**. Pure information retrieval or basic explanation. | Direct response.                                   |
+| **T1+**  | **Implementation Light**. Changes to existing logic or 1-3 files.    | Socratic Gate (Multiple Choice).                   |
+| **Full** | **Systemic Build**. New features, complex logic, multi-file arch.    | Implementation Plan + Socratic Gate + Checkpoints. |
 
 **Output format after classification:**
 
@@ -94,96 +83,61 @@ P2: SKILL.md files        → Detailed patterns and techniques
 
 ---
 
-## 🤖 STEP 2: AGENT ROUTING
+## 📚 STEP 2: SKILL DISCOVERY & LOADING PROTOCOL
 
-> 🔴 **MANDATORY:** Follow `@[skills/intelligent-routing]` protocol.
+> 🔴 **MANDATORY:** You must use `.agent/CATALOG.md` to find relevant skills.
 
-### Agent Selection Matrix
+**Find and load skills selectively:**
 
-| Domain             | Primary Specialist       | Trigger Keywords               | Domain Patterns / Heuristics             |
-| :----------------- | :----------------------- | :----------------------------- | :--------------------------------------- |
-| **Orchestration**  | `orchestrator`           | complex, build, multi-agent    | Large-scale coordination across domains. |
-| **Project Plan**   | `project-planner`        | plan, roadmap, timeline        | Task breakdown and execution strategy.   |
-| **Code Intel**     | `explorer-agent`         | explore, map, dependencies     | Architecture mapping and deep research.  |
-| **Frontend**       | `frontend-specialist`    | react, ui, css, tailwind       | Components, styling, client-side logic.  |
-| **Mobile**         | `mobile-developer`       | ios, android, flutter, app     | Mobile platforms and native features.    |
-| **Game Dev**       | `game-developer`         | game, physics, engine, unity   | Interactive logic and engine graphics.   |
-| **Backend**        | `backend-specialist`     | go, server, auth, middleware   | Business logic and internal service pkg. |
-| **API Design**     | `api-designer`           | restful, openapi, graphql      | API contracts and documentation.         |
-| **Database**       | `database-architect`     | sql, schema, migration, orm    | Data modeling and storage performance.   |
-| **Data Eng**       | `data-engineer`          | airflow, spark, etl, pipeline  | Data warehouses and streaming infra.     |
-| **Data Science**   | `data-scientist`         | ml, analytics, model, data     | Statistical modeling and ML insights.    |
-| **DevOps**         | `devops-engineer`        | docker, ci/cd, kubernetes      | Infrastructure and automation pipelines. |
-| **Networking**     | `network-engineer`       | cdn, ssl, dns, proxy           | Connectivity and load balancing.         |
-| **Performance**    | `performance-optimizer`  | profile, lag, slow, memory     | Bottleneck analysis and scalability.     |
-| **Security Audit** | `security-auditor`       | scan, harden, vulnerability    | Security standards and risk audit.       |
-| **Pentesting**     | `penetration-tester`     | exploit, attack, red-team      | Finding and testing vulnerabilities.     |
-| **Test Eng**       | `test-engineer`          | jest, unit, e2e, pyramid       | Test suites and coverage automation.     |
-| **QA Auto**        | `qa-automation-engineer` | automation, selenium, qa       | End-to-end user flow verification.       |
-| **Debugging**      | `debugger`               | bug, crash, error, trace       | Systematic investigation of issues.      |
-| **Legacy Code**    | `code-archaeologist`     | refactor, messy, legacy        | Understanding "brownfield" systems.      |
-| **AI/Agents**      | `ai-agents-architect`    | agent, mcp, rag, tool          | Autonomous behavior and tool design.     |
-| **Skill Dev**      | `skill-developer`        | skill, trigger, hook, SKILL.md | Expertise module creation and mgmt.      |
-| **Prod Mgmt**      | `product-manager`        | user-story, scope, feature     | Business alignment and requirements.     |
-| **Quality**        | `product-owner`          | backlog, priority, debt        | Acceptance criteria and value delivery.  |
-| **Docs**           | `documentation-writer`   | readme, docs, guide            | Technical writing and user docs.         |
-| **SEO**            | `seo-specialist`         | meta, sitemap, visibility      | Search engine ranking and indexing.      |
-
-### Agent Loading Checklist
-
-| #   | Action                          | If Not Done                 |
-| --- | ------------------------------- | --------------------------- |
-| 1   | Analyze domain from request     | → Cannot proceed            |
-| 2   | Read `.agent/agents/{agent}.md` | → Response will be generic  |
-| 3   | Announce: `🤖 @[agent-name]...` | → User doesn't know context |
-| 4   | Check `skills:` frontmatter     | → Skills won't be loaded    |
-
-**Output format after agent selection:**
-
-```markdown
-🤖 **Applying knowledge of `@[agent-name]`...**
-```
-
----
-
-## 📚 STEP 3: SKILL LOADING PROTOCOL
-
-**After agent is loaded, MUST read its skills selectively:**
-
-1.  **Extract Skills**: Read agent's frontmatter and identify `skills:`.
-2.  **Audit (Discovery)**: Use `view_file_outline` on each `SKILL.md` to see its structure.
+1.  **Search Catalog**: Match user request keywords against triggers defined in `.agent/CATALOG.md` -> Find relevant
+    skills
+2.  **Audit (Discovery)**: Use `view_file_outline` on each identified `SKILL.md` to see its structure.
 3.  **Precision Search**: If headers are ambiguous, use `grep_search` within the skill directory for user request
     keywords.
 4.  **Map Intent**: Match user intent (e.g., "auth", "perf") to specific section headers or grep results.
 5.  **Targeted Load**: Use `view_file` with `StartLine` and `EndLine` to read ONLY the relevant sections.
+6.  **Fallback Mechanism**: If no specific skill matches perfectly, fallback to `clean-code` and general standard
+    engineering. DO NOT hallucinate a skill.
 
 > [!IMPORTANT] **Avoid loading entire SKILL.md files.** Loading 500+ lines of generic patterns for a 5-line fix is a
 > waste of tokens and context. Be surgical.
 
-**Example Pattern:**
+**Output format after skill selection:**
 
-```text
-Phase: Loading clean-code
-1. tool: view_file_outline(".agent/skills/clean-code/SKILL.md")
-2. tool: view_file(".agent/skills/clean-code/SKILL.md", StartLine=45, EndLine=82) // Only React patterns
+```markdown
+🤖 **Applying skills: `[skill-names]`...**
 ```
 
 ---
 
-## ⚡ STEP 4: TASK EXECUTION
+## ⚡ STEP 3: TASK EXECUTION (4-Phase Execution)
 
-**Now you may proceed with the actual work.**
+**Now you may proceed with the actual work following these 4 phases:**
 
-### For TIER 0 (Questions)
+### Phase 1: Context First (Discovery)
 
-- Respond directly using loaded agent's knowledge
-- No Socratic Gate required
+- **Do not write code immediately.**
+- Read existing `README.md`, `.cursorrules`, `.clinerules`, or scan relevant architecture files using `grep_search` /
+  `view_file`.
+- Understand the current state of the codebase to retain consistency.
 
-### For TIER 1+ (Code/Design)
+### Phase 2: Execute with Skills
 
-- Apply Socratic Gate if request is vague
-- Follow agent-specific workflow
-- Use skill patterns in implementation
+- For **T0 (Questions)**: Respond directly using loaded knowledge. No Socratic Gate required.
+- For **T1+ and Full**: Apply Socratic Gate if vague. If clear, implement the solution using the patterns learned from
+  the loaded skills.
+
+### Phase 3: Trust, but Verify
+
+- **You must verify your changes.**
+- Run linter (e.g., `npm run lint`), compiler (e.g., `tsc`), or tests if available before claiming success.
+- Ensure no regressions are introduced.
+
+### Phase 4: Deliver & Checkpoint
+
+- For small tasks, deliver the final atomic change.
+- For **Full (Agent)** multi-file tasks: Report progress after each file or component as a "Checkpoint" before
+  proceeding. Don't process 5+ complex files in a single burst without saving state and asking/confirming progress.
 
 ---
 
@@ -191,28 +145,27 @@ Phase: Loading clean-code
 
 ### 🌐 Language
 
-Non-English prompt → Translate internally → Respond in user's language → Code in English
+Non-English prompt → Translate internally → Respond in user's language → Code and all comments in English
 
 ### 🧹 Clean Code
 
 **ALL code follows `@[skills/clean-code]`.** Concise, self-documenting. Testing mandatory (Pyramid + AAA). Measure
 performance first.
 
-### 🧠 Read → Understand → Apply
+### 🛑 Socratic Gate (Optimized)
 
-Before coding: What's the GOAL? → What PRINCIPLES? → How DIFFERS from generic?
+When asking questions to clarify vague requirements or complex features:
 
----
+- **Format as Multiple Choice or Option A/B:** Minimize the user's typing effort.
+  - _Bad: "What state management library should we use?"_
+  - _Good: "For state management, do you prefer: A) Redux Toolkit (default) or B) Zustand (lightweight)?"_
 
-### 🛑 Socratic Gate
+| Request Type       | Action                                      |
+| ------------------ | ------------------------------------------- |
+| **New Feature**    | ASK 3+ strategic questions (Options A/B)    |
+| **Bug Fix**        | Confirm understanding + impact questions    |
+| **Vague**          | Ask Purpose, Users, Scope (Multiple Choice) |
+| **Orchestration**  | STOP until user confirms plan               |
+| **Direct Proceed** | Ask 2 Edge Case questions first             |
 
-| Request Type       | Action                                   |
-| ------------------ | ---------------------------------------- |
-| **New Feature**    | ASK 3+ strategic questions               |
-| **Bug Fix**        | Confirm understanding + impact questions |
-| **Vague**          | Ask Purpose, Users, Scope                |
-| **Orchestration**  | STOP until user confirms plan            |
-| **Direct Proceed** | Ask 2 Edge Case questions first          |
-
-**Protocol:** Never assume → Spec-heavy? Ask trade-offs → Wait for Gate clearance. **Reference:**
-`@[skills/brainstorming]`
+**Protocol:** Never assume → Spec-heavy? Ask trade-offs via options → Wait for Gate clearance.

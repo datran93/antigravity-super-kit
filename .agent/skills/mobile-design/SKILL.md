@@ -1,17 +1,21 @@
 ---
 name: mobile-design
-description: Mobile-first design and engineering doctrine for iOS and Android apps. Covers touch interaction, performance, platform conventions, offline behavior, and mobile-specific decision-making. Teaches principles and constraints, not fixed layouts. Use for React Native, Flutter, or native mobile apps.
+description:
+  Mobile-first design and engineering doctrine for iOS and Android apps. Covers touch interaction, performance, platform
+  conventions, offline behavior, and mobile-specific decision-making. Teaches principles and constraints, not fixed
+  layouts. Use for React Native, Flutter, or native mobile apps.
 allowed-tools: Read, Glob, Grep, Bash
 ---
+
 # Mobile Design System
 
 **(Mobile-First · Touch-First · Platform-Respectful)**
 
-> **Philosophy:** Touch-first. Battery-conscious. Platform-respectful. Offline-capable.
-> **Core Law:** Mobile is NOT a small desktop.
-> **Operating Rule:** Think constraints first, aesthetics second.
+> **Philosophy:** Touch-first. Battery-conscious. Platform-respectful. Offline-capable. **Core Law:** Mobile is NOT a
+> small desktop. **Operating Rule:** Think constraints first, aesthetics second.
 
-This skill exists to **prevent desktop-thinking, AI-defaults, and unsafe assumptions** when designing or building mobile applications.
+This skill exists to **prevent desktop-thinking, AI-defaults, and unsafe assumptions** when designing or building mobile
+applications.
 
 ---
 
@@ -97,7 +101,7 @@ If **any of the following are not explicitly stated**, you MUST ask before proce
 
 ### 🚫 Performance Sins (Non-Negotiable)
 
-| ❌ Never                   | Why                  | ✅ Always                                |
+| ❌ Never                  | Why                  | ✅ Always                               |
 | ------------------------- | -------------------- | --------------------------------------- |
 | ScrollView for long lists | Memory explosion     | FlatList / FlashList / ListView.builder |
 | Inline renderItem         | Re-renders all rows  | useCallback + memo                      |
@@ -110,7 +114,7 @@ If **any of the following are not explicitly stated**, you MUST ask before proce
 
 ### 🚫 Touch & UX Sins
 
-| ❌ Never               | Why                  | ✅ Always          |
+| ❌ Never              | Why                  | ✅ Always         |
 | --------------------- | -------------------- | ----------------- |
 | Touch <44–48px        | Miss taps            | Min touch target  |
 | Gesture-only action   | Excludes users       | Button fallback   |
@@ -122,7 +126,7 @@ If **any of the following are not explicitly stated**, you MUST ask before proce
 
 ### 🚫 Security Sins
 
-| ❌ Never                | Why                | ✅ Always               |
+| ❌ Never               | Why                | ✅ Always              |
 | ---------------------- | ------------------ | ---------------------- |
 | Tokens in AsyncStorage | Easily stolen      | SecureStore / Keychain |
 | Hardcoded secrets      | Reverse engineered | Env + secure storage   |
@@ -159,15 +163,15 @@ Error semantics                Pickers / dialogs
 
 ### Fitts’ Law (Touch Reality)
 
-* Finger ≠ cursor
-* Accuracy is low
-* Reach matters more than precision
+- Finger ≠ cursor
+- Accuracy is low
+- Reach matters more than precision
 
 **Rules:**
 
-* Primary CTAs live in **thumb zone**
-* Destructive actions pushed away
-* No hover assumptions
+- Primary CTAs live in **thumb zone**
+- Destructive actions pushed away
+- No hover assumptions
 
 ---
 
@@ -210,8 +214,8 @@ class Item extends StatelessWidget {
 }
 ```
 
-* `const` everywhere possible
-* Targeted rebuilds only
+- `const` everywhere possible
+- Targeted rebuilds only
 
 ---
 
@@ -257,28 +261,27 @@ No debate without justification.
 
 ### Before Shipping
 
-* [ ] Touch targets ≥ 44–48px
-* [ ] Offline handled
-* [ ] Secure storage used
-* [ ] Lists optimized
-* [ ] Logs stripped
-* [ ] Tested on low-end devices
-* [ ] Accessibility labels present
-* [ ] MFRI ≥ 3
+- [ ] Touch targets ≥ 44–48px
+- [ ] Offline handled
+- [ ] Secure storage used
+- [ ] Lists optimized
+- [ ] Logs stripped
+- [ ] Tested on low-end devices
+- [ ] Accessibility labels present
+- [ ] MFRI ≥ 3
 
 ---
 
 ## 11. Related Skills
 
-* **frontend-design** – Visual systems & components
-* **frontend-dev-guidelines** – RN/TS architecture
-* **backend-dev-guidelines** – Mobile-safe APIs
-* **error-tracking** – Crash & performance telemetry
+- **frontend-design** – Visual systems & components
+- **frontend-dev-guidelines** – RN/TS architecture
+- **backend-dev-guidelines** – Mobile-safe APIs
+- **error-tracking** – Crash & performance telemetry
 
 ---
 
-> **Final Law:**
-> Mobile users are distracted, interrupted, and impatient—often using one hand on a bad network with low battery.
-> **Design for that reality, or your app will fail quietly.**
+> **Final Law:** Mobile users are distracted, interrupted, and impatient—often using one hand on a bad network with low
+> battery. **Design for that reality, or your app will fail quietly.**
 
 ---

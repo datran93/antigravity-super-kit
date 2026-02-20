@@ -1,13 +1,16 @@
 ---
 name: code-review-checklist
-description: "Comprehensive checklist for conducting thorough code reviews covering functionality, security, performance, and maintainability"
+description:
+  "Comprehensive checklist for conducting thorough code reviews covering functionality, security, performance, and
+  maintainability"
 ---
 
 # Code Review Checklist
 
 ## Overview
 
-Provide a systematic checklist for conducting thorough code reviews. This skill helps reviewers ensure code quality, catch bugs, identify security issues, and maintain consistency across the codebase.
+Provide a systematic checklist for conducting thorough code reviews. This skill helps reviewers ensure code quality,
+catch bugs, identify security issues, and maintain consistency across the codebase.
 
 ## When to Use This Skill
 
@@ -23,6 +26,7 @@ Provide a systematic checklist for conducting thorough code reviews. This skill 
 ### Step 1: Understand the Context
 
 Before reviewing code, I'll help you understand:
+
 - What problem does this code solve?
 - What are the requirements?
 - What files were changed and why?
@@ -32,6 +36,7 @@ Before reviewing code, I'll help you understand:
 ### Step 2: Review Functionality
 
 Check if the code works correctly:
+
 - Does it solve the stated problem?
 - Are edge cases handled?
 - Is error handling appropriate?
@@ -41,6 +46,7 @@ Check if the code works correctly:
 ### Step 3: Review Code Quality
 
 Assess code maintainability:
+
 - Is the code readable and clear?
 - Are names descriptive?
 - Is it properly structured?
@@ -50,6 +56,7 @@ Assess code maintainability:
 ### Step 4: Review Security
 
 Check for security issues:
+
 - Are inputs validated?
 - Is sensitive data protected?
 - Are there SQL injection risks?
@@ -59,6 +66,7 @@ Check for security issues:
 ### Step 5: Review Performance
 
 Look for performance issues:
+
 - Are there unnecessary loops?
 - Is database access optimized?
 - Are there memory leaks?
@@ -68,6 +76,7 @@ Look for performance issues:
 ### Step 6: Review Tests
 
 Verify test coverage:
+
 - Are there tests for new code?
 - Do tests cover edge cases?
 - Are tests meaningful?
@@ -82,6 +91,7 @@ Verify test coverage:
 ## Functionality Review
 
 ### Requirements
+
 - [ ] Code solves the stated problem
 - [ ] All acceptance criteria are met
 - [ ] Edge cases are handled
@@ -89,6 +99,7 @@ Verify test coverage:
 - [ ] User input is validated
 
 ### Logic
+
 - [ ] No logical errors or bugs
 - [ ] Conditions are correct (no off-by-one errors)
 - [ ] Loops terminate correctly
@@ -96,6 +107,7 @@ Verify test coverage:
 - [ ] State management is correct
 
 ### Error Handling
+
 - [ ] Errors are caught appropriately
 - [ ] Error messages are clear and helpful
 - [ ] Errors don't expose sensitive information
@@ -104,26 +116,12 @@ Verify test coverage:
 
 ### Example Issues to Catch:
 
-**❌ Bad - Missing validation:**
-\`\`\`javascript
-function createUser(email, password) {
-  // No validation!
-  return db.users.create({ email, password });
-}
-\`\`\`
+**❌ Bad - Missing validation:** \`\`\`javascript function createUser(email, password) { // No validation! return
+db.users.create({ email, password }); } \`\`\`
 
-**✅ Good - Proper validation:**
-\`\`\`javascript
-function createUser(email, password) {
-  if (!email || !isValidEmail(email)) {
-    throw new Error('Invalid email address');
-  }
-  if (!password || password.length < 8) {
-    throw new Error('Password must be at least 8 characters');
-  }
-  return db.users.create({ email, password });
-}
-\`\`\`
+**✅ Good - Proper validation:** \`\`\`javascript function createUser(email, password) { if (!email ||
+!isValidEmail(email)) { throw new Error('Invalid email address'); } if (!password || password.length < 8) { throw new
+Error('Password must be at least 8 characters'); } return db.users.create({ email, password }); } \`\`\`
 ```
 
 ### Example 2: Security Review Checklist
@@ -132,6 +130,7 @@ function createUser(email, password) {
 ## Security Review
 
 ### Input Validation
+
 - [ ] All user inputs are validated
 - [ ] SQL injection is prevented (use parameterized queries)
 - [ ] XSS is prevented (escape output)
@@ -139,6 +138,7 @@ function createUser(email, password) {
 - [ ] File uploads are validated (type, size, content)
 
 ### Authentication & Authorization
+
 - [ ] Authentication is required where needed
 - [ ] Authorization checks are present
 - [ ] Passwords are hashed (never stored plain text)
@@ -146,6 +146,7 @@ function createUser(email, password) {
 - [ ] Tokens expire appropriately
 
 ### Data Protection
+
 - [ ] Sensitive data is encrypted
 - [ ] API keys are not hardcoded
 - [ ] Environment variables are used for secrets
@@ -153,6 +154,7 @@ function createUser(email, password) {
 - [ ] Database credentials are secure
 
 ### Dependencies
+
 - [ ] No known vulnerable dependencies
 - [ ] Dependencies are up to date
 - [ ] Unnecessary dependencies are removed
@@ -160,30 +162,16 @@ function createUser(email, password) {
 
 ### Example Issues to Catch:
 
-**❌ Bad - SQL injection risk:**
-\`\`\`javascript
-const query = \`SELECT * FROM users WHERE email = '\${email}'\`;
-db.query(query);
-\`\`\`
+**❌ Bad - SQL injection risk:** \`\`\`javascript const query = \`SELECT \* FROM users WHERE email = '\${email}'\`;
+db.query(query); \`\`\`
 
-**✅ Good - Parameterized query:**
-\`\`\`javascript
-const query = 'SELECT * FROM users WHERE email = $1';
-db.query(query, [email]);
-\`\`\`
+**✅ Good - Parameterized query:** \`\`\`javascript const query = 'SELECT \* FROM users WHERE email = $1';
+db.query(query, [email]); \`\`\`
 
-**❌ Bad - Hardcoded secret:**
-\`\`\`javascript
-const API_KEY = 'sk_live_abc123xyz';
-\`\`\`
+**❌ Bad - Hardcoded secret:** \`\`\`javascript const API_KEY = 'sk_live_abc123xyz'; \`\`\`
 
-**✅ Good - Environment variable:**
-\`\`\`javascript
-const API_KEY = process.env.API_KEY;
-if (!API_KEY) {
-  throw new Error('API_KEY environment variable is required');
-}
-\`\`\`
+**✅ Good - Environment variable:** \`\`\`javascript const API_KEY = process.env.API_KEY; if (!API_KEY) { throw new
+Error('API_KEY environment variable is required'); } \`\`\`
 ```
 
 ### Example 3: Code Quality Review Checklist
@@ -192,6 +180,7 @@ if (!API_KEY) {
 ## Code Quality Review
 
 ### Readability
+
 - [ ] Code is easy to understand
 - [ ] Variable names are descriptive
 - [ ] Function names explain what they do
@@ -199,6 +188,7 @@ if (!API_KEY) {
 - [ ] Magic numbers are replaced with constants
 
 ### Structure
+
 - [ ] Functions are small and focused
 - [ ] Code follows DRY principle (Don't Repeat Yourself)
 - [ ] Proper separation of concerns
@@ -206,6 +196,7 @@ if (!API_KEY) {
 - [ ] No dead code or commented-out code
 
 ### Maintainability
+
 - [ ] Code is modular and reusable
 - [ ] Dependencies are minimal
 - [ ] Changes are backwards compatible
@@ -214,62 +205,31 @@ if (!API_KEY) {
 
 ### Example Issues to Catch:
 
-**❌ Bad - Unclear naming:**
-\`\`\`javascript
-function calc(a, b, c) {
-  return a * b + c;
-}
-\`\`\`
+**❌ Bad - Unclear naming:** \`\`\`javascript function calc(a, b, c) { return a \* b + c; } \`\`\`
 
-**✅ Good - Descriptive naming:**
-\`\`\`javascript
-function calculateTotalPrice(quantity, unitPrice, tax) {
-  return quantity * unitPrice + tax;
-}
-\`\`\`
+**✅ Good - Descriptive naming:** \`\`\`javascript function calculateTotalPrice(quantity, unitPrice, tax) { return
+quantity \* unitPrice + tax; } \`\`\`
 
-**❌ Bad - Function doing too much:**
-\`\`\`javascript
-function processOrder(order) {
-  // Validate order
-  if (!order.items) throw new Error('No items');
-  
-  // Calculate total
-  let total = 0;
-  for (let item of order.items) {
-    total += item.price * item.quantity;
-  }
-  
-  // Apply discount
-  if (order.coupon) {
-    total *= 0.9;
-  }
-  
-  // Process payment
-  const payment = stripe.charge(total);
-  
-  // Send email
-  sendEmail(order.email, 'Order confirmed');
-  
-  // Update inventory
-  updateInventory(order.items);
-  
-  return { orderId: order.id, total };
-}
-\`\`\`
+**❌ Bad - Function doing too much:** \`\`\`javascript function processOrder(order) { // Validate order if
+(!order.items) throw new Error('No items');
 
-**✅ Good - Separated concerns:**
-\`\`\`javascript
-function processOrder(order) {
-  validateOrder(order);
-  const total = calculateOrderTotal(order);
-  const payment = processPayment(total);
-  sendOrderConfirmation(order.email);
-  updateInventory(order.items);
-  
-  return { orderId: order.id, total };
-}
-\`\`\`
+// Calculate total let total = 0; for (let item of order.items) { total += item.price \* item.quantity; }
+
+// Apply discount if (order.coupon) { total \*= 0.9; }
+
+// Process payment const payment = stripe.charge(total);
+
+// Send email sendEmail(order.email, 'Order confirmed');
+
+// Update inventory updateInventory(order.items);
+
+return { orderId: order.id, total }; } \`\`\`
+
+**✅ Good - Separated concerns:** \`\`\`javascript function processOrder(order) { validateOrder(order); const total =
+calculateOrderTotal(order); const payment = processPayment(total); sendOrderConfirmation(order.email);
+updateInventory(order.items);
+
+return { orderId: order.id, total }; } \`\`\`
 ```
 
 ## Best Practices
@@ -301,12 +261,14 @@ function processOrder(order) {
 ## Complete Review Checklist
 
 ### Pre-Review
+
 - [ ] Read the PR description and linked issues
 - [ ] Understand what problem is being solved
 - [ ] Check if tests pass in CI/CD
 - [ ] Pull the branch and run it locally
 
 ### Functionality
+
 - [ ] Code solves the stated problem
 - [ ] Edge cases are handled
 - [ ] Error handling is appropriate
@@ -314,6 +276,7 @@ function processOrder(order) {
 - [ ] No logical errors
 
 ### Security
+
 - [ ] No SQL injection vulnerabilities
 - [ ] No XSS vulnerabilities
 - [ ] Authentication/authorization is correct
@@ -321,6 +284,7 @@ function processOrder(order) {
 - [ ] No hardcoded secrets
 
 ### Performance
+
 - [ ] No unnecessary database queries
 - [ ] No N+1 query problems
 - [ ] Efficient algorithms used
@@ -328,6 +292,7 @@ function processOrder(order) {
 - [ ] Caching used appropriately
 
 ### Code Quality
+
 - [ ] Code is readable and clear
 - [ ] Names are descriptive
 - [ ] Functions are focused and small
@@ -335,6 +300,7 @@ function processOrder(order) {
 - [ ] Follows project conventions
 
 ### Tests
+
 - [ ] New code has tests
 - [ ] Tests cover edge cases
 - [ ] Tests are meaningful
@@ -342,6 +308,7 @@ function processOrder(order) {
 - [ ] Test coverage is adequate
 
 ### Documentation
+
 - [ ] Code comments explain why, not what
 - [ ] API documentation is updated
 - [ ] README is updated if needed
@@ -349,6 +316,7 @@ function processOrder(order) {
 - [ ] Migration guide provided if needed
 
 ### Git
+
 - [ ] Commit messages are clear
 - [ ] No merge conflicts
 - [ ] Branch is up to date with main
@@ -358,16 +326,18 @@ function processOrder(order) {
 ## Common Pitfalls
 
 ### Problem: Missing Edge Cases
-**Symptoms:** Code works for happy path but fails on edge cases
-**Solution:** Ask "What if...?" questions
+
+**Symptoms:** Code works for happy path but fails on edge cases **Solution:** Ask "What if...?" questions
+
 - What if the input is null?
 - What if the array is empty?
 - What if the user is not authenticated?
 - What if the network request fails?
 
 ### Problem: Security Vulnerabilities
-**Symptoms:** Code exposes security risks
-**Solution:** Use security checklist
+
+**Symptoms:** Code exposes security risks **Solution:** Use security checklist
+
 - Run security scanners (npm audit, Snyk)
 - Check OWASP Top 10
 - Validate all inputs
@@ -375,16 +345,18 @@ function processOrder(order) {
 - Never trust user input
 
 ### Problem: Poor Test Coverage
-**Symptoms:** New code has no tests or inadequate tests
-**Solution:** Require tests for all new code
+
+**Symptoms:** New code has no tests or inadequate tests **Solution:** Require tests for all new code
+
 - Unit tests for functions
 - Integration tests for features
 - Edge case tests
 - Error case tests
 
 ### Problem: Unclear Code
-**Symptoms:** Reviewer can't understand what code does
-**Solution:** Request improvements
+
+**Symptoms:** Reviewer can't understand what code does **Solution:** Request improvements
+
 - Better variable names
 - Explanatory comments
 - Smaller functions
@@ -393,23 +365,19 @@ function processOrder(order) {
 ## Review Comment Templates
 
 ### Requesting Changes
+
 ```markdown
 **Issue:** [Describe the problem]
 
-**Current code:**
-\`\`\`javascript
-// Show problematic code
-\`\`\`
+**Current code:** \`\`\`javascript // Show problematic code \`\`\`
 
-**Suggested fix:**
-\`\`\`javascript
-// Show improved code
-\`\`\`
+**Suggested fix:** \`\`\`javascript // Show improved code \`\`\`
 
 **Why:** [Explain why this is better]
 ```
 
 ### Asking Questions
+
 ```markdown
 **Question:** [Your question]
 
@@ -419,6 +387,7 @@ function processOrder(order) {
 ```
 
 ### Praising Good Code
+
 ```markdown
 **Nice!** [What you liked]
 
@@ -441,4 +410,5 @@ This is great because [explain why]
 
 ---
 
-**Pro Tip:** Use a checklist template for every review to ensure consistency and thoroughness. Customize it for your team's specific needs!
+**Pro Tip:** Use a checklist template for every review to ensure consistency and thoroughness. Customize it for your
+team's specific needs!

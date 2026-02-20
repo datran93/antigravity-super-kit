@@ -7,16 +7,11 @@ description: Deployment command for production releases. Pre-flight checks and d
 Guide agents to execute zero-downtime, professional production deployments with safety checks, monitoring, and quick
 recovery.
 
----
-
 ## When to Use
 
-- `/deploy production` - **Standard production release**
+- `/deploy production` - Standard production release
 - `/deploy rollback` - Emergency rollback
 - `/deploy check` - Dry-run or pre-deployment checks
-- `/deploy maintenance` - Toggle maintenance mode
-
----
 
 ## 🔴 Critical Safety Rules
 
@@ -28,172 +23,52 @@ recovery.
 
 ---
 
-## Phase 1: Pre-Flight (Go/No-Go Decision) 🚦
+## Phase 1: Classification & Skill Mapping 🔀
 
-### Step 1.1: Environment Verification
-
-```markdown
-### Environment Check
-
-| Check         | Status                | Notes                      |
-| ------------- | --------------------- | -------------------------- |
-| **Branch**    | [main/master/release] | Must be stable branch      |
-| **CI Status** | ✅ Passed             | All tests green            |
-| **Staging**   | ✅ Verified           | Feature tested on staging  |
-| **Database**  | ✅ Backed up          | [timestamp of last backup] |
-| **Team**      | ✅ Online             | Deployment team ready      |
-```
-
-### Step 1.2: Impact Assessement
-
-```markdown
-### Impact Analysis
-
-**Migration Required:** Yes / No **Downtime Expected:** Yes / No **Breaking Changes:** Yes / No **Risk Level:** 🟢 Low |
-🟡 Medium | 🔴 High
-```
-
-### Step 1.3: Communication Plan
-
-Before proceeding, announce:
-
-```markdown
-📢 **Deploying to Production** **Version:** [version] **Downtime:** [None / expected duration] **Why:** [Release notes
-summary]
-```
+Look up deployment scripts and infrastructure patterns in `.agent/CATALOG.md` depending on the target stack (e.g., AWS,
+Vercel, Docker).
 
 ---
 
-## Phase 2: Deployment Execution 🚀
+## Phase 2: Pre-Flight (Go/No-Go Decision) 🚦 (Socratic Gate)
 
-### Step 2.1: Database Preparation (If needed)
+Perform environment checks:
 
-If migrations are required:
+- Must deploy from stable branch.
+- CI/Tests must be green.
+- Staging verified.
+- DB backed up (if migrating).
 
-1. **Backup Database:** ensure point-in-time recovery is available.
-2. **Review Migrations:** check for locking operations on large tables.
-3. **Run Migrations:** (often done during deploy step, but critical to monitor).
-
-### Step 2.2: Maintenance Mode (Optional)
-
-If downtime is required or safe deployment strategy dictates:
-
-```bash
-# Enable maintenance page
-[command to enable maintenance mode]
-```
-
-### Step 2.3: Execute Deployment Strategy
-
-Select strategy based on platform capabilities:
-
-| Strategy           | Description                         | Best For                        |
-| :----------------- | :---------------------------------- | :------------------------------ |
-| **Rolling Update** | Replace instances one by one        | Zero downtime, most apps        |
-| **Blue/Green**     | Deploy parallel env, switch traffic | Critical apps, instant rollback |
-| **Canary**         | Release to % of users first         | High risk features              |
-| **Recreate**       | Stop all -> Start all               | Dev/Staging, downtime okay      |
-
-**Command:** `[deployment command]`
+Analyze Impact (Downtime expected? Breaking changes? Risk Level?). Ask user for final confirmation before executing.
 
 ---
 
-## Phase 3: Verification & Health Check ✅
+## Phase 3: Deployment Execution 🚀
 
-### Step 3.1: System Health
-
-Verify all components are operational:
-
-- [ ] **Web App:** Responds with 200 OK
-- [ ] **API:** Endpoints reachable
-- [ ] **Database:** Connections successful
-- [ ] **Cache:** ([Redis/Memcached]) Connected
-- [ ] **Background Jobs:** Processing queues
-
-### Step 3.2: Critical Path Tests
-
-Manually or automatically verify critical user flows:
-
-1. **Login/Auth:** Can users sign in?
-2. **Core Feature:** Can users perform main action?
-3. **Payment/Checkout:** Can users pay? (if applicable)
-
-### Step 3.3: Monitoring
-
-Watch metrics for 10-15 minutes:
-
-- **Error Rate:** Should be < 1% (or baseline)
-- **Latency:** Should be within normal range
-- **CPU/Memory:** Stable usage
+1. **Database:** Run non-locking migrations safely if needed.
+2. **Maintenance Mode:** Enable if required.
+3. **Execute Strategy:** Follow best practices (Rolling, Blue/Green, Canary, Recreate).
 
 ---
 
-## Phase 4: Post-Deployment 🏁
+## Phase 4: Verification & Health Check ✅
 
-### Step 4.1: Cleanup
+Verify system health post-deploy:
 
-- [ ] Disable maintenance mode (if enabled)
-- [ ] Remove old artifacts/images (if applicable)
-- [ ] Close deployment ticket
-
-### Step 4.2: Announce Success
-
-```markdown
-✅ **Deployment Complete** **Version:** [version] **Status:** Stable **Key Features:** [list]
-```
+- Check endpoints (HTTP 200).
+- Check database connectivity.
+- Verify critical paths (Login, Data Writing). Monitor logs and error rates for anomalies.
 
 ---
 
-## Phase 5: Emergency Rollback 🚨
+## Phase 5: Post-Deployment or Emergency Rollback 🚨
 
-**TRIGGER:** If Error Rate > Threshold OR Critical Function Broken.
+**Post-Deployment:** Cleanup cache, announce success. **Emergency Rollback:** If error rates spike, instantly revert to
+previous commit/image.
 
-### Step 5.1: Execute Rollback
+### Quick Checklist
 
-**Strategy:** Revert to previous stable version/commit.
-
-```bash
-# Rollback command
-[platform rollback command]
-```
-
-### Step 5.2: Database Reversion (If needed)
-
-**CAUTION:** Only revert migrations if safe and data loss is acceptable or managed.
-
-### Step 5.3: Post-Mortem
-
-After stabilization, investigate root cause.
-
----
-
-## Quick Reference
-
-### Deployment Checklist
-
-- [ ] Code frozen & CI passed
-- [ ] Staging verified
-- [ ] Database backed up
-- [ ] Team notified
-- [ ] **DEPLOY**
+- [ ] CI passed
+- [ ] DB Backed up
+- [ ] Rolled out
 - [ ] Health checks passed
-- [ ] Monitoring stable
-- [ ] Success announced
-
-### Recovery Commands
-
-- **Rollback:** `[rollback command]`
-- **Restart:** `[restart command]`
-- **Logs:** `[logs command]`
-
----
-
-## Anti-Patterns (AVOID)
-
-| ❌ Anti-Pattern              | ✅ Instead                               |
-| :--------------------------- | :--------------------------------------- |
-| Deploying uncommitted code   | Always deploy from git tag/commit        |
-| Manual server updates        | Use CI/CD or automated scripts           |
-| Ignoring database migrations | Plan & test migrations on staging        |
-| "It works on my machine"     | Rely on Staging environment verification |
-| Deploying & leaving          | Monitor metrics for at least 15 mins     |

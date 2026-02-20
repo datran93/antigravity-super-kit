@@ -7,7 +7,8 @@ tags: indexes, performance, sequential-scan, query-optimization
 
 ## Add Indexes on WHERE and JOIN Columns
 
-Queries filtering or joining on unindexed columns cause full table scans, which become exponentially slower as tables grow.
+Queries filtering or joining on unindexed columns cause full table scans, which become exponentially slower as tables
+grow.
 
 **Incorrect (sequential scan on large table):**
 
