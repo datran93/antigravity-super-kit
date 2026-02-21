@@ -13,7 +13,7 @@ This workflow automates the second half of addressing a GitLab Merge Request (MR
 ## Workflow Steps
 
 1. **Commit and Push Changes**
-   Stage the modified files, commit them with a descriptive message referencing the MR or discussion, and push to the remote branch. (You can also refer to the `/git-commit-push` workflow).
+   Stage the modified files, commit them with a descriptive message referencing the MR or discussion, and push to the remote branch. (You can also refer to the `/git-commit` and `/git-push` workflows).
    ```bash
    git add .
    git commit -m "fix: address review comments on MR"
