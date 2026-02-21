@@ -20,6 +20,27 @@ Non-English prompt → Translate internally → Respond in user's language → C
 3. **`@mcp:doc-researcher`**: Use `search_latest_syntax` before writing code for new features to avoid generating legacy code or using deprecated APIs. Do not rely solely on your internal training data.
 4. **`@mcp:context-manager`**: Use `list_active_tasks`, `load_checkpoint`, and `save_checkpoint` to persist memory during complex, multi-file agentic tasks.
 5. **`@mcp:gitlab-mr-discussions`**: Use for interacting, reading, and resolving GitLab threads directly without needing the UI.
+6. **`@mcp:ast-explorer`**: Use `get_project_architecture` to understand complex project structures and relationships before starting multi-file implementation.
+
+**Knowledge Discovery Protocols:**
+- **MANDATORY**: Before any research or documentation, review **KI summaries** provided at conversation start.
+- Identify and READ relevant KI artifacts using listed paths before performing independent research.
+- Build upon existing KIs - do not repeat analysis already documented in KIs.
+
+**Persistence & Memory:**
+- **MANDATORY**: For any **Full (Agent)** multi-file tasks, use `@mcp:context-manager` to `save_checkpoint` after each major component is delivered.
+- Use `load_checkpoint` if resuming a task to restore working memory.
+
+**Communication & Response Style:**
+- **Tone**: Professional software engineer, súc tích (concise), and technically accurate.
+- **Formatting**: Use Markdown headers, bolding for keywords, and backticks for filenames/nodes.
+- **Proactiveness**: Take obvious follow-up actions (linting, verifying) but do not surprise the user with unannounced design changes.
+- **Headers**: Start responses with a clear summary or status header.
+
+**Web App Aesthetics:**
+- **Rich Aesthetics**: Prioritize visual excellence (modern typography, harmonious palettes, glassmorphism).
+- **Dynamic Design**: Ensure interfaces feel responsive and alive with hover effects and micro-animations.
+- **No Placeholders**: Use `generate_image` for real assets - simple MVPs are considered failures.
 
 **System Tool Rules:**
 - **NEVER** use `cat`, `grep`, `ls`, or `sed` inside a bash command if native tools (`view_file`, `grep_search`, `list_dir`, `replace_file_content`) are available.
@@ -114,7 +135,9 @@ P1: SKILL.md files        → Detailed patterns and techniques (Single Source of
 
 - **Do not write code immediately.**
 - **Working Memory:** Use `list_active_tasks` (from `@mcp:context-manager`) to check for pending background work, or `load_checkpoint` if you are explicitly resuming a previous task.
+- **🚨 Knowledge Check**: Check KI summaries for existing analysis on the topic to avoid redundant work.
 - **🚨 SOTA Research (MANDATORY)**: ALWAYS use `search_latest_syntax` or `read_website_markdown` (from `@mcp:doc-researcher`) before implementing new features or using external libraries. You MUST ensure you write modern code and avoid deprecated APIs. Skipping this for any Tier 1+ or Full request is a violation.
+- **Architecture Discovery**: Use `get_project_architecture` (from `@mcp:ast-explorer`) to map project relationships.
 - Read existing `README.md`, `.cursorrules`, `.clinerules`, or scan relevant architecture files using `grep_search` / `view_file`.
 - Understand the current state of the codebase to retain consistency.
 
