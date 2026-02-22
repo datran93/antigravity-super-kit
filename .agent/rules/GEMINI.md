@@ -37,35 +37,28 @@ Non-English prompt → Translate internally → Respond in user's language → C
 - **Proactiveness**: Take obvious follow-up actions (linting, verifying) but do not surprise the user with unannounced design changes.
 - **Headers**: Start responses with a clear summary or status header.
 
-**Web App Aesthetics:**
-- **Rich Aesthetics**: Prioritize visual excellence (modern typography, harmonious palettes, glassmorphism).
-- **Dynamic Design**: Ensure interfaces feel responsive and alive with hover effects and micro-animations.
-- **No Placeholders**: Use `generate_image` for real assets - simple MVPs are considered failures.
-
 **System Tool Rules:**
 - **NEVER** use `cat`, `grep`, `ls`, or `sed` inside a bash command if native tools (`view_file`, `grep_search`, `list_dir`, `replace_file_content`) are available.
 - Always read existing files before modifying them (`view_file`).
 - Limit `run_command` to actual application logic, testing, or building, not generic file parsing.
 ### 🧹 Clean Code
 
-**ALL code follows `@[skills/clean-code]`.** Concise, self-documenting. Testing mandatory (Pyramid + AAA). Measure performance first.
+**ALL code follows `@[skills/clean-code]`.** Concise, self-documenting. Measure performance first. Testing mandatory (Pyramid + AAA)
 
-## 🚨 MANDATORY: 3-STEP PROCESSING FLOW
+## 🚨 MANDATORY: 2-STEP PROCESSING FLOW
 
 You must complete the following steps in order and NEVER skip them:
-1. **CLASSIFY REQUEST**: Identify the type and domain.
-2. **SKILL DISCOVERY**: Mandatory semantic search via `@mcp:skill-router`.
-3. **EXECUTE TASK**: Full 4-Phase execution (Context -> Planning -> Execution -> Verification).
+1. **SKILL DISCOVERY**: Mandatory semantic search via `@mcp:skill-router`.
+2. **EXECUTE TASK**: Full 4-Phase execution (Context -> Planning -> Execution -> Verification).
 
 ### ⛔ ANTI-SKIP ENFORCEMENT
 
-| Violation                          | Consequence                                                   |
-| ---------------------------------- | ------------------------------------------------------------- |
-| Skipped Step 1 (no classification) | Response is INVALID → Go back, classify first                 |
-| Skipped Step 2 (no skills loaded)  | Response lacks depth → Re-run search_skills, enhance          |
-| Skipped SOTA Research              | Code is potentially LEGACY → STOP, run `search_latest_syntax` |
-| Started code before Context check  | Code is UNGUIDED → Stop, survey codebase first                |
-| No Progress Report/Checkpointing   | Workflow is UNTRACKED → STOP, create plan and save checkpoint |
+| Violation                         | Consequence                                                   |
+| --------------------------------- | ------------------------------------------------------------- |
+| Skipped Skill Discovery           | Response lacks depth → Re-run search_skills, enhance          |
+| Skipped SOTA Research             | Code is potentially LEGACY → STOP, run `search_latest_syntax` |
+| Started code before Context check | Code is UNGUIDED → Stop, survey codebase first                |
+| No Progress Report/Checkpointing  | Workflow is UNTRACKED → STOP, create plan and save checkpoint |
 
 ### 🔐 Priority Hierarchy (BINDING)
 
@@ -75,29 +68,10 @@ P1: SKILL.md files        → Detailed patterns and techniques (Single Source of
 ```
 ---
 
-## 📥 STEP 1: REQUEST CLASSIFIER
-
-**Analyze keywords + context → Determine Type:**
-
-| Request Type      | Decision Heuristics (Rule of Thumb)             | Trigger Keywords                              |
-| :---------------- | :---------------------------------------------- | :-------------------------------------------- |
-| **CLARIFICATION** | Informational/Conceptual. No code changes.      | "what is", "how", "why"                       |
-| **SURVEY/INTEL**  | Analysis of state/code/repo. No implementation. | "analyze", "audit", "find"                    |
-| **OPTIMIZATION**  | Improving existing code status/perf.            | "refactor", "cleanup", "optimize"             |
-| **SIMPLE CODE**   | Specific fix/add restricted to 1 file.          | "fix", "add", "update"                        |
-| **COMPLEX CODE**  | Feature creation affecting multiple files.      | "build", "create", "implement"                |
-| **DESIGN/UI**     | Visual/UX focus, dashboard/component styles.    | "design", "ui", "premium"                     |
-| **SYSTEM/SYNC**   | Infrastructure, ENV, or script automation.      | "sync", "setup", "env", "script"              |
-| **SLASH CMD**     | Workflow trigger using /command syntax.         | /create, /orchestrate, /debug, /plan, /update |
-
-**Output format after classification:**
-
-```markdown
-📥 **Request Type:** [TYPE]
 ```
 ---
 
-## 📚 STEP 2: SKILL DISCOVERY & LOADING PROTOCOL
+## 📚 STEP 1: SKILL DISCOVERY & LOADING PROTOCOL
 
 > 🔴 **MANDATORY:** You MUST prioritize using the `search_skills` tool from the `@mcp:skill-router` server to find relevant skills based on semantic meaning.
 
@@ -120,7 +94,7 @@ P1: SKILL.md files        → Detailed patterns and techniques (Single Source of
 ```
 ---
 
-## ⚡ STEP 3: TASK EXECUTION (4 Phase Protocol)
+## ⚡ STEP 2: TASK EXECUTION (4 Phase Protocol)
 
 **Now you may proceed with the actual work following these 4 phases:**
 
