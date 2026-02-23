@@ -13,4 +13,5 @@ research_cache.db
 __pycache__
 test_*.py
 progress.md
+!.agent
 
