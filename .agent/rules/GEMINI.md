@@ -6,47 +6,39 @@ trigger: always_on
 
 ## 🎯 UNIVERSAL CORE RULES
 
-### 🌐 Communication
+### 🚀 Mandatory Initialization
 
-- **Bilingual Support**: Non-English prompt → Translate internally → Respond in user's language → Code and comments in
-  **English**.
+- **Session Start**: At the beginning of **EVERY** session, the Agent MUST read `@/.agent/rules/GEMINI.md` to ensure all core protocols and MCP tool mappings are fresh in context.
+- **Proactive MCP Tooling**: Always use MCP tools for discovery, research, and analysis tasks **automatically**. Do NOT ask for permission to use read-only discovery tools.
+- **Code Always in English**: All source code, variables, functions, comments, and commit messages MUST be in English. No exceptions for code files.
 
 ### 🛠️ MCP Tool Mastery (Priority Over Bash)
 
-| MCP Server                       | Tool Name                  | Description & Usage                                                                       |
-| :------------------------------- | :------------------------- | :---------------------------------------------------------------------------------------- |
-| **`@mcp:ast-explorer`**          | `get_project_architecture` | Get AST-based structural overview. Extracts Classes/Functions/Methods for Py, Go, JS, TS. |
-| **`@mcp:context-manager`**       | `save_checkpoint`          | Persist progress, completed/next steps, active files, and notes to `context.db`.          |
-|                                  | `load_checkpoint`          | Recover context from a saved checkpoint ID.                                               |
-|                                  | `list_active_tasks`        | List all tasks and their current status in the workspace.                                 |
-| **`@mcp:database-inspector`**    | `list_tables`              | List all tables/views in SQL or sample keys in Redis.                                     |
-|                                  | `inspect_schema`           | Get detailed schema (columns, types, PK/FK) for a table or Redis key.                     |
-|                                  | `run_read_query`           | Execute read-only SQL/Redis queries.                                                      |
-|                                  | `run_write_query`          | Execute write SQL/Redis queries. **MANDATORY**: Ask user first, then set `confirm=True`.  |
-| **`@mcp:doc-researcher`**        | `search_latest_syntax`     | Real-time web search for SOTA syntax, best practices, and documentation.                  |
-|                                  | `read_website_markdown`    | Scrape a specific URL and return its content as clean Markdown.                           |
-| **`@mcp:figma-reader`**          | `read_figma_design`        | Read raw design structure, layers, and metadata from a Figma URL.                         |
-|                                  | `export_figma_images`      | Render specific Figma nodes (layers) as temporary image URLs.                             |
-|                                  | `get_design_details`       | Get deep JSON details for specific Figma node IDs.                                        |
-| **`@mcp:gitlab-mr-discussions`** | `read_mr_discussions`      | Fetch all comment threads and resolution status from a GitLab MR.                         |
-|                                  | `reply_to_mr_discussion`   | Post a reply to a specific GitLab discussion thread.                                      |
-|                                  | `resolve_mr_discussion`    | Resolve or unresolve a discussion thread on GitLab.                                       |
-| **`@mcp:skill-router`**          | `search_skills`            | Semantic search for the most relevant skills based on the task query.            |
+| MCP Server                       | Tool Name                                                       | Description & Usage                                                                         |
+| :------------------------------- | :-------------------------------------------------------------- | :------------------------------------------------------------------------------------------ |
+| **`@mcp:ast-explorer`**          | `get_project_architecture`                                      | Get AST-based structural overview. Extracts Classes/Functions/Methods for Py, Go, JS, TS.   |
+| **`@mcp:context-manager`**       | `save_checkpoint`, `initialize_task_plan`, `complete_task_step` | Persist progress, manage task checklists with **Mermaid graphs** and **time-stamped logs**. |
+|                                  | `load_checkpoint`                                               | Recover context from a saved checkpoint ID.                                                 |
+|                                  | `list_active_tasks`                                             | List all tasks and their current status in the workspace.                                   |
+| **`@mcp:context7`**              | `query-docs`, `resolve-library-id`                              | Retrieves and queries up-to-date documentation and code examples for any library.           |
+| **`@mcp:database-inspector`**    | `list_tables`, `get_table_sample`                               | List tables or get **DDL + 5 sample rows** for rapid context matching.                      |
+|                                  | `inspect_schema`, `explain_query`                               | Get schema detail or run **EXPLAIN ANALYZE** (Postgres/MySQL) for performance analysis.     |
+|                                  | `run_read_query`                                                | Execute read-only SQL/Redis queries with **mandatory pagination** (limit/offset).           |
+|                                  | `run_write_query`                                               | Execute write SQL/Redis queries. **MANDATORY**: Ask user first, then set `confirm=True`.    |
+| **`@mcp:doc-researcher`**        | `search_latest_syntax`                                          | Real-time web search for SOTA syntax, best practices, and documentation.                    |
+|                                  | `read_website_markdown`                                         | Scrape a specific URL and return its content as clean Markdown.                             |
+| **`@mcp:figma-reader`**          | `read_figma_design`                                             | Read raw design structure, layers, and metadata from a Figma URL.                           |
+|                                  | `export_figma_images`                                           | Render specific Figma nodes (layers) as temporary image URLs.                               |
+|                                  | `get_design_details`                                            | Get deep JSON details for specific Figma node IDs.                                          |
+| **`@mcp:gitlab-mr-discussions`** | `read_mr_discussions`                                           | Fetch all comment threads and resolution status from a GitLab MR.                           |
+|                                  | `reply_to_mr_discussion`                                        | Post a reply to a specific GitLab discussion thread.                                        |
+|                                  | `resolve_mr_discussion`                                         | Resolve or unresolve a discussion thread on GitLab.                                         |
+| **`@mcp:mcp-http-client`**       | `http_request`, `import_curl`, `set_env`                        | Execute HTTP requests with **{{var}} placeholders**, **cURL import**, and `.rest` logging.  |
+| **`@mcp:notebooklm`**            | `notebook_query`, `research_start`                              | Query NotebookLM notebooks for source-grounded insights and start deep research.            |
+| **`@mcp:skill-router`**          | `search_skills`                                                 | Semantic search for the most relevant skills based on the task query.                       |
+| **`@mcp:stitch`**                | `generate_screen_from_text`                                     | Generate and edit UI screens/components using Google's Stitch AI design tool.               |
 
-### 🔧 MCP Tool Availability Check
-
-- **Pre-flight**: Before using any MCP tool, verify availability with a simple call.
 - **Graceful Degradation**: If MCP tool unavailable, fallback to standard tools:
-
-  | MCP Tool                  | Fallback                                            |
-  | ------------------------- | --------------------------------------------------- |
-  | `@mcp:context-manager`    | Use `.agent/checkpoints/` directory with JSON files |
-  | `@mcp:ast-explorer`       | Use `grep_search` + glob patterns                   |
-  | `@mcp:doc-researcher`     | Use `codesearch` tool                               |
-  | `@mcp:skill-router`       | Use `glob_search` for `.agent/skills/*.md`          |
-  | `@mcp:database-inspector` | Use `usql` CLI tool via `run_command`               |
-
-- **Log Warning**: Always inform user when falling back from MCP to standard tools.
 
 ---
 
@@ -60,13 +52,13 @@ trigger: always_on
 
 ### ⛔ ANTI-SKIP ENFORCEMENT
 
-| Violation                 | Consequence                                                |
-| :------------------------ | :--------------------------------------------------------- |
-| **Skipped Step 1**        | No skills loaded → STOP, run `search_skills` first.        |
-| **Skipped Context Phase** | Code is unguided → STOP, run architecture/usage discovery. |
-| **No SOTA Research**      | Potential legacy code → STOP, run `search_latest_syntax`.  |
-| **No Progress Plan**      | Workflow is untracked → STOP, provide atomic checklist.    |
-| **No Checkpointing**      | No persistence → STOP, save checkpoint after major steps.  |
+| Violation                 | Consequence                                                               |
+| :------------------------ | :------------------------------------------------------------------------ |
+| **Skipped Step 1**        | No skills loaded → STOP, run `search_skills` first.                       |
+| **Skipped Context Phase** | Code is unguided → STOP, run architecture/usage discovery.                |
+| **No SOTA Research**      | Potential legacy code → STOP, run `query-docs` or `search_latest_syntax`. |
+| **No Progress Plan**      | Workflow is untracked → STOP, manage task checklists with progress bars.  |
+| **No Checkpointing**      | No persistence → STOP, save checkpoint after major steps.                 |
 
 ### Step 2: 4-Phase Execution Protocol
 
@@ -74,23 +66,26 @@ trigger: always_on
 
 - **Action**: Map the impact area.
 - **Tools**: `@mcp:ast-explorer` (Architecture), `@mcp:database-inspector` (Data), `grep_search` (Usage).
-- **SOTA**: Use `@mcp:doc-researcher` for modern syntax.
+- **SOTA Research Hierarchy**:
+    1. **`@mcp:context7`**: Primary source for modern framework/library syntax.
+    2. **`@mcp:doc-researcher`**: Target specific documentation URLs.
+    3. **`search_web`**: Troubleshooting latest bugs/issues/community fixes.
 
 #### Phase 2: Progress Report (The Plan)
 
-- **Action**: Provide a bulleted, atomic checklist.
 - **Socratic Gate**: Ask clarifying questions via **Multiple Choice** options for vague specs.
+- **Action**: Brainstorm a plan, then call `@mcp:context-manager` (`initialize_task_plan`) to persist the plan and show the progress bar.
 - **Confirmation**: Wait for user approval for major changes.
 
 #### Phase 3: Atomic Execution
 
 - **Action**: Implement tasks one by one.
-- **Persistence**: Call `@mcp:context-manager` (`save_checkpoint`) after completing each task.
+- **Persistence**: Call `@mcp:context-manager` (`complete_task_step`) after completing each task to update the checklist and progress.
+- **Checkpointing**: Use `save_checkpoint` for major architectural changes or state captures.
 
 #### Phase 4: Verification & Delivery
 
 - **Action**: Verify changes via `run_command` (lint, build, test).
-- **UI**: Instruct user to check UI in browser for design tasks.
 - **Handover**: Summarize work done and link to relevant files.
 
 ---
@@ -107,22 +102,13 @@ Minimize user friction by providing choices:
 
 ---
 
-### 🔐 Priority Hierarchy
+### 🌐 Linguistic & Operational Standards
 
-1. **GEMINI.md** (Global Rules)
-2. **SKILL.md** (Domain Specifics)
-3. **Internal Documentation** (README, ADRs)
+- **Progress-First Strategy**: For any task with **3+ steps**, MUST call `initialize_task_plan` immediately before starting Phase 3.
+- **API History Persistence**: All HTTP requests MUST be logged to `rest/{slug}.rest` for auditability and manual replay.
+- **Critical Action Verification**: Before executing `run_write_query` or data-modifying `http_request` (DELETE/PUT/PATCH), MUST provide a summary table of changes and wait for explicit confirmation.
 
 ---
-
-## ⚠️ Error Handling Protocol
-
-### MCP Tool Failure
-
-1. **Log** the error message clearly
-2. **Fallback** to standard tools (see MCP Tool Availability Check)
-3. **Continue** execution without blocking user workflow
-4. **Report** to user: "MCP tool X unavailable, using Y instead"
 
 ### Partial Execution Recovery
 
@@ -138,21 +124,9 @@ Minimize user friction by providing choices:
 
 ---
 
-## 📋 Summary Checklist
-
-Before submitting any work, verify:
-
-- [ ] Skills searched and loaded (Step 1)
-- [ ] Context discovery completed (Phase 1)
-- [ ] Progress plan shared and approved (Phase 2)
-- [ ] Checkpoints saved after major tasks (Phase 3)
-- [ ] Verification tests passed (Phase 4)
-
----
-
 ## 📌 Metadata
 
 - **Version**: 1.0.0
-- **Last Updated**: 2026-02-23
+- **Last Updated**: 2026-02-28
 - **Maintainer**: Antigravity Team
-- **Related**: `.agent/skills/*.md`, `AGENTS.md`
+- **Related**: `.agent/skills/*.md`, `GEMINI.md`

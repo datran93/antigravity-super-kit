@@ -1,16 +1,41 @@
 import json
+import decimal
+import datetime
+import uuid
+import re
 from mcp.server.fastmcp import FastMCP
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine.reflection import Inspector
 
-# Khởi tạo MCP Server
+# Initialize MCP Server
 mcp = FastMCP("McpDatabaseInspector")
 
+# Cache engines to avoid creating new connections on every tool call
+engines_cache = {}
+
+def get_engine(connection_string: str):
+    if connection_string not in engines_cache:
+        # Create engine with some safe defaults
+        engines_cache[connection_string] = create_engine(
+            connection_string,
+            pool_pre_ping=True,  # Check connection health before using
+            pool_recycle=3600    # Prevent stale connections
+        )
+    return engines_cache[connection_string]
+
 def get_inspector(connection_string: str) -> Inspector:
-    """Helper method to create SQLAlchemy engine and return inspector."""
-    # Xử lý an toàn: Có thể thêm một vài filter ở đây (phòng trường hợp SQL params độc hại)
-    engine = create_engine(connection_string)
-    return inspect(engine)
+    """Helper method to return inspector from cached engine."""
+    return inspect(get_engine(connection_string))
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+    if isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    if isinstance(obj, decimal.Decimal):
+        return float(obj) # Handle money/numeric as float or str depending on needs
+    if isinstance(obj, uuid.UUID):
+        return str(obj)
+    return str(obj)
 
 @mcp.tool()
 def list_tables(connection_string: str) -> str:
@@ -145,101 +170,173 @@ def inspect_schema(connection_string: str, table_name: str) -> str:
         return f"❌ Error inspecting table '{table_name}': {str(e)}"
 
 @mcp.tool()
-def run_read_query(connection_string: str, query: str) -> str:
+def explain_query(connection_string: str, query: str) -> str:
     """
-    Execute a read-only SQL query to preview raw data. DO NOT use this for INSERT/UPDATE/DELETE.
-    Results are returned in JSON format.
-    For Redis, query is the Redis command (e.g. 'GET mykey' or 'HGETALL myhash'). It only supports read-only commands.
+    Analyze query execution plan (EXPLAIN ANALYZE) for Postgres/MySQL/SQLite.
+    Helps identify performance bottlenecks and index usage.
+    """
+    if connection_string.startswith(("redis://", "rediss://")):
+        return "⚠️ EXPLAIN is not supported for Redis in this server."
+
+    # Forbidden keywords for EXPLAIN (don't allow explain delete etc without confirm)
+    forbidden = r'\b(INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE|GRANT|REVOKE|CREATE)\b'
+    if re.search(forbidden, query, re.IGNORECASE):
+        return "❌ SECURITY BLOCK: explain_query is only for SELECT statements."
+
+    try:
+        engine = get_engine(connection_string)
+        db_type = engine.dialect.name
+
+        # Dialect specific explain syntax
+        explain_prefix = "EXPLAIN "
+        if db_type == "postgresql":
+            explain_prefix = "EXPLAIN (ANALYZE, VERBOSE, BUFFERS) "
+        elif db_type == "mysql":
+            explain_prefix = "EXPLAIN ANALYZE "
+
+        full_query = explain_prefix + query
+
+        with engine.connect() as conn:
+            result = conn.execute(text(full_query))
+            rows = result.fetchall()
+
+            plan = "\n".join([str(row[0]) for row in rows])
+            return f"🔍 **QUERY PLAN ({db_type.upper()})**\n\n```text\n{plan}\n```"
+
+    except Exception as e:
+        return f"❌ Error explaining query: {str(e)}"
+
+@mcp.tool()
+def get_table_sample(connection_string: str, table_name: str) -> str:
+    """
+    Retrieve schema (DDL) and 5 sample rows for matching a table structure.
+    Returns result as a clean Markdown report.
+    """
+    if connection_string.startswith(("redis://", "rediss://")):
+        return "⚠️ get_table_sample is not supported for Redis. Use list_tables instead."
+
+    try:
+        engine = get_engine(connection_string)
+        db_type = engine.dialect.name
+
+        # 1. Get Schema Info
+        inspector = inspect(engine)
+        columns = inspector.get_columns(table_name)
+        pk = inspector.get_pk_constraint(table_name)
+
+        schema_md = f"### 📊 Table Schema: `{table_name}`\n\n"
+        schema_md += "| Column | Type | Nullable | Default | PK |\n"
+        schema_md += "| :--- | :--- | :--- | :--- | :--- |\n"
+
+        pk_cols = pk.get('constrained_columns', [])
+        for col in columns:
+            is_pk = "✅" if col['name'] in pk_cols else ""
+            schema_md += f"| `{col['name']}` | `{col['type']}` | {col['nullable']} | `{col['default']}` | {is_pk} |\n"
+
+        # 2. Get Sample Data
+        sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+        with engine.connect() as conn:
+            result = conn.execute(text(sample_query))
+            rows = result.mappings().all()
+
+            if not rows:
+                schema_md += "\n*No sample data found (table is empty).*"
+            else:
+                schema_md += "\n### 📝 Sample Data (First 5 Rows)\n\n"
+                headers = list(rows[0].keys())
+                schema_md += "| " + " | ".join(headers) + " |\n"
+                schema_md += "| " + " | ".join(["---"] * len(headers)) + " |\n"
+
+                for row in rows:
+                    vals = [json.dumps(row[h], default=json_serial) for h in headers]
+                    schema_md += "| " + " | ".join(vals) + " |\n"
+
+        return schema_md
+
+    except Exception as e:
+        return f"❌ Error getting sample for '{table_name}': {str(e)}"
+
+@mcp.tool()
+def run_read_query(connection_string: str, query: str, limit: int = 500, offset: int = 0) -> str:
+    """
+    Execute a read-only SQL query to preview raw data. Results are returned in JSON format.
 
     Args:
         connection_string: SQLAlchemy connection string.
-        query: The raw SQL query to run (e.g., 'SELECT * FROM users'). For Redis: 'GET mykey'.
+        query: SQL string (usually SELECT).
+        limit: Max rows to return (default 500, max 2000).
+        offset: Number of rows to skip.
     """
     try:
-        if connection_string.startswith("redis://") or connection_string.startswith("rediss://"):
+        # Enforce max limit for safety
+        limit = min(limit, 2000)
+
+        # Handle Redis
+        if connection_string.startswith(("redis://", "rediss://")):
+            # ... (Existing Redis logic stays largely same but we can use list slicing)
             import redis
             r = redis.from_url(connection_string)
             query_parts = query.strip().split()
-            if not query_parts:
-                return "❌ Empty query"
+            if not query_parts: return "❌ Empty query"
             command = query_parts[0].upper()
 
-            safe_commands = [
+            safe_commands = {
                 'GET', 'MGET', 'HGET', 'HGETALL', 'HMGET', 'HKEYS', 'HVALS', 'HLEN',
-                'LRANGE', 'LLEN', 'LINDEX',
-                'SMEMBERS', 'SCARD', 'SISMEMBER',
-                'ZRANGE', 'ZCARD', 'ZSCORE', 'ZREVRANGE',
-                'TYPE', 'TTL', 'PTTL', 'EXISTS',
-                'SCAN', 'HSCAN', 'SSCAN', 'ZSCAN',
-                'INFO', 'DBSIZE', 'PING', 'KEYS'
-            ]
+                'LRANGE', 'LLEN', 'LINDEX', 'SMEMBERS', 'SCARD', 'SISMEMBER',
+                'ZRANGE', 'ZCARD', 'ZSCORE', 'ZREVRANGE', 'TYPE', 'TTL', 'EXISTS',
+                'SCAN', 'INFO', 'DBSIZE', 'PING'
+            }
 
             if command not in safe_commands:
-                return f"❌ SECURITY BLOCK: Command '{command}' is not allowed or is a write operation. Only Read-only Redis queries are allowed."
+                return f"❌ SECURITY BLOCK: Command '{command}' is not allowed in Read-only mode."
 
-            # Execute command
             res = r.execute_command(*query_parts)
 
-            # Decode recursive function for bytes
             def decode_redis(obj):
-                if isinstance(obj, bytes):
-                    return obj.decode('utf-8', errors='replace')
-                elif isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
-                    return [decode_redis(i) for i in obj]
-                elif isinstance(obj, dict):
-                    return {decode_redis(k): decode_redis(v) for k, v in obj.items()}
+                if isinstance(obj, bytes): return obj.decode('utf-8', errors='replace')
+                if isinstance(obj, (list, tuple, set)): return [decode_redis(i) for i in obj]
+                if isinstance(obj, dict): return {decode_redis(k): decode_redis(v) for k, v in obj.items()}
                 return obj
 
             decoded_res = decode_redis(res)
+            # Apply pseudo-pagination for lists
+            if isinstance(decoded_res, list):
+                total = len(decoded_res)
+                sliced = decoded_res[offset : offset + limit]
+                return f"✅ REDIS RESULT ({offset}-{offset+len(sliced)} of {total})\n```json\n{json.dumps({'result': sliced}, indent=2)}\n```"
 
-            # Formatting output
-            json_result = json.dumps({"result": decoded_res}, indent=2)
+            return f"✅ REDIS RESULT\n```json\n{json.dumps({'result': decoded_res}, indent=2)}\n```"
 
-            output = [
-                f"✅ REDIS QUERY SUCCESS",
-                f"CMD = `{query}`",
-                "```json",
-                json_result,
-                "```"
-            ]
-            return "\n".join(output)
+        # Handle SQL
+        forbidden = r'\b(INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE|GRANT|REVOKE|CREATE)\b'
+        if re.search(forbidden, query, re.IGNORECASE):
+            if not query.strip().upper().startswith("SELECT"):
+                return "❌ SECURITY BLOCK: Only SELECT/Read-only queries are allowed in this tool."
 
-        query_upper = query.strip().upper()
-        if any(keyword in query_upper for keyword in ['INSERT', 'UPDATE', 'DELETE', 'DROP', 'ALTER', 'TRUNCATE', 'GRANT', 'REVOKE']):
-            return "❌ SECURITY BLOCK: Only SELECT/Read-only queries are allowed."
+        # Auto-inject LIMIT and OFFSET if not present and if it's a simple SELECT
+        # This is a bit naive but helpful
+        clean_query = query.strip()
+        if "LIMIT" not in clean_query.upper() and clean_query.upper().startswith("SELECT"):
+            clean_query = f"{clean_query} LIMIT {limit} OFFSET {offset}"
 
-        engine = create_engine(connection_string)
-
+        engine = get_engine(connection_string)
         with engine.connect() as conn:
-            result_proxy = conn.execute(text(query))
-            rows = result_proxy.fetchall()
-            keys = result_proxy.keys()
+            result = conn.execute(text(clean_query))
 
-            if not rows:
-                return "✅ Query executed successfully. 0 rows returned."
+            if result.returns_rows:
+                rows = result.mappings().all()
+                if not rows: return "✅ Query executed. 0 rows returned."
 
-            data = [dict(zip(keys, row)) for row in rows]
+                data = [dict(row) for row in rows]
+                json_result = json.dumps(data, default=json_serial, indent=2)
 
-            # Convert to string with proper format handling for datetime/UUID
-            def json_serial(obj):
-                try:
-                    return str(obj)
-                except:
-                    return "Unserializable Data"
-
-            json_result = json.dumps(data, default=json_serial, indent=2)
-
-            output = [
-                f"✅ QUERY RESULTS",
-                f"SQL = `{query}`",
-                "```json",
-                json_result,
-                "```"
-            ]
-            return "\n".join(output)
+                suffix = f"\n*(Showing {len(rows)} rows starting at offset {offset})*"
+                return f"✅ QUERY RESULTS\n```json\n{json_result}\n```" + suffix
+            else:
+                return f"✅ Query executed successfully. Rows affected: {result.rowcount}"
 
     except Exception as e:
-        return f"❌ Error executing query: {str(e)}"
+        return f"❌ Error: {str(e)}"
 
 @mcp.tool()
 def run_write_query(connection_string: str, query: str, confirm: bool = False) -> str:
@@ -282,13 +379,42 @@ def run_write_query(connection_string: str, query: str, confirm: bool = False) -
             return f"✅ REDIS WRITE SUCCESS\nCMD = `{query}`\nResult: {json.dumps(decoded_res, indent=2) if isinstance(decoded_res, (dict, list)) else decoded_res}"
 
         # Handle SQL
-        engine = create_engine(connection_string)
-        # We use .begin() to ensure a transaction is started and committed
-        with engine.begin() as conn:
-            result_proxy = conn.execute(text(query))
-            row_count = result_proxy.rowcount
+        engine = get_engine(connection_string)
 
-            return f"✅ WRITE QUERY SUCCESS\nSQL = `{query}`\nRows affected: {row_count}"
+        try:
+            # Process multi-statement queries
+            # We strip comments and split by semicolon, filter empty lines
+            statements = [s.strip() for s in query.split(';') if s.strip()]
+
+            if not statements:
+                return "❌ No valid SQL statements found."
+
+            total_rows_affected = 0
+
+            # Using engine.connect() with an explicit transaction
+            with engine.connect() as conn:
+                with conn.begin():
+                    for i, stmt in enumerate(statements):
+                        # Use execution_options(autocommit=True) for statements that
+                        # cannot run in a transaction (like VACUUM or CREATE DATABASE)
+                        # but warning: conn.begin() already started a transaction.
+                        # For now, we assume standard DML.
+                        result = conn.execute(text(stmt))
+
+                        # Accumulate rowcount if available
+                        if result.rowcount > 0:
+                            total_rows_affected += result.rowcount
+
+            return f"✅ WRITE SUCCESS\nExecuted {len(statements)} statement(s).\nTotal rows affected: {total_rows_affected}"
+
+        except Exception as db_err:
+            # Re-raise or return specific error
+            error_msg = str(db_err)
+            if "not exist" in error_msg.lower():
+                return f"❌ Table or column does not exist: {error_msg}"
+            if "duplicate key" in error_msg.lower() or "integrity" in error_msg.lower():
+                return f"❌ Integrity Error (Constraint violation): {error_msg}"
+            return f"❌ SQLAlchemy Error: {error_msg}"
 
     except Exception as e:
         return f"❌ Error executing write query: {str(e)}"
