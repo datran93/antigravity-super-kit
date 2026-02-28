@@ -1,11 +1,9 @@
 ---
 name: conductor-setup
-description: "Initialize project with Conductor artifacts (product definition,"
-  tech stack, workflow, style guides)
-metadata:
-  argument-hint: "[--resume]"
+description: |
 risk: unknown
 source: community
+date_added: "2026-02-27"
 ---
 
 # Conductor Setup
