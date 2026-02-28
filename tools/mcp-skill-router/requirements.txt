@@ -2,3 +2,4 @@ mcp
 chromadb
 openai
 pyyaml
+python-dotenv
