@@ -35,7 +35,7 @@ trigger: always_on
 |                                  | `resolve_mr_discussion`                                         | Resolve or unresolve a discussion thread on GitLab.                                                                  |
 | **`@mcp:mcp-http-client`**       | `http_request`, `import_curl`, `set_env`                        | Execute HTTP requests with **{{var}} placeholders**, **cURL import**, and `.rest` logging.                           |
 | **`@mcp:notebooklm`**            | `notebook_query`, `research_start`                              | Query NotebookLM notebooks for source-grounded insights and start deep research.                                     |
-| **`@mcp:skill-router`**          | `search_skills`                                                 | Semantic search for the most relevant skills based on the task query.                                                |
+| **`@mcp:skill-router`**          | `search_skills`                                                 | Semantic search for skills. Supports `tags_filter` for exact matching and returns Mini-RAG previews.                 |
 | **`@mcp:stitch`**                | `generate_screen_from_text`                                     | Generate and edit UI screens/components using Google's Stitch AI design tool.                                        |
 
 - **Graceful Degradation**: If MCP tool unavailable, fallback to standard tools:

@@ -40,3 +40,9 @@ else
 fi
 
 echo "🎉 Sync complete!"
+
+# --- 3. Re-index CSDL Vector ---
+echo "🔄 Re-indexing skill vectors in ChromaDB..."
+cd /Users/datran/LearnDev/antigravity-kit/tools/mcp-skill-router || exit 1
+.venv/bin/python3 skill_indexer.py
+echo "✅ Vector sync complete!"
