@@ -173,60 +173,141 @@ def parse_and_extract(filepath: str, workspace_path: str, lang: str, mtime: floa
     rel_path = os.path.relpath(filepath, workspace_path)
     return rel_path, nodes
 
+import subprocess
+from collections import Counter, defaultdict
+
+def get_project_files(workspace_path: str):
+    IGNORE_DIRS = {'.git', 'node_modules', 'vendor', '.venv', 'venv', 'dist', 'build', '.next', '.agent'}
+
+    try:
+        res = subprocess.run(
+            ['git', '-C', workspace_path, 'ls-files', '--cached', '--others', '--exclude-standard'],
+            capture_output=True, text=True, check=True
+        )
+        files = [os.path.join(workspace_path, f) for f in res.stdout.splitlines() if f]
+        if files:
+            return files
+    except Exception:
+        pass
+
+    files_list = []
+    for root, dirs, files in os.walk(workspace_path):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.startswith('.')]
+        for f in files:
+            files_list.append(os.path.join(root, f))
+    return files_list
+
+def get_main_language_family(files):
+    family_counts = Counter()
+    for f in files:
+        ext = os.path.splitext(f)[1].lower()
+        if ext == '.py': family_counts['python'] += 1
+        elif ext == '.go': family_counts['go'] += 1
+        elif ext in ['.ts', '.cts', '.mts', '.tsx']: family_counts['typescript'] += 1
+        elif ext in ['.js', '.jsx', '.cjs', '.mjs']: family_counts['javascript'] += 1
+
+    if not family_counts:
+        return None
+    return family_counts.most_common(1)[0][0]
+
+def get_family_from_ext(ext):
+    ext = ext.lower()
+    if ext == '.py': return 'python'
+    elif ext == '.go': return 'go'
+    elif ext in ['.ts', '.cts', '.mts', '.tsx']: return 'typescript'
+    elif ext in ['.js', '.jsx', '.cjs', '.mjs']: return 'javascript'
+    return None
+
 @mcp.tool()
-def get_project_architecture(workspace_path: str, sub_path: str = "", max_files: int = 150, include_docs: bool = False) -> str:
+def get_project_architecture(workspace_path: str, sub_path: str = "", max_files: int = 1000, include_docs: bool = False) -> str:
     """
     Get a structural overview (AST-based) of the project architecture.
     Extracts Classes, Functions, and Methods with signatures.
     """
     try:
-        base_dir = os.path.join(workspace_path, sub_path)
+        base_dir = os.path.join(workspace_path, sub_path) if sub_path else workspace_path
         if not os.path.exists(base_dir):
             return f"❌ Path not found: {base_dir}"
 
-        IGNORE_DIRS = {'.git', 'node_modules', 'vendor', '.venv', 'venv', 'dist', 'build', '.next', '.agent'}
+        all_files = get_project_files(workspace_path)
+        main_family = get_main_language_family(all_files)
 
-        file_count = 0
-        output = [f"🏗 PROJECT ARCHITECTURE AST: {sub_path or 'ROOT'}\n"]
+        folder_to_files = defaultdict(list)
+        for filepath in all_files:
+            if not filepath.startswith(base_dir):
+                continue
 
-        for root, dirs, files in os.walk(base_dir):
-            dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.startswith('.')]
-            files.sort()
+            ext = os.path.splitext(filepath)[1]
+            family = get_family_from_ext(ext)
+            if family != main_family or not family:
+                continue
 
-            for file in files:
-                ext = os.path.splitext(file)[1]
-                lang = get_language_from_ext(ext)
+            rel_path = os.path.relpath(filepath, workspace_path)
+            folder = os.path.dirname(rel_path)
+            filename = os.path.basename(rel_path)
+            folder_to_files[folder].append((filepath, filename))
+
+        output = [f"🏗 PROJECT ARCHITECTURE AST: {sub_path or 'ROOT'} (Main Lang: {main_family})\n"]
+
+        # Sort folders to ensure deterministic output order
+        sorted_folders = sorted(folder_to_files.keys())
+
+        # Flatten tasks for parallel execution
+        tasks = []
+        for folder in sorted_folders:
+            for filepath, filename in sorted(folder_to_files[folder]):
+                lang = get_language_from_ext(os.path.splitext(filepath)[1])
                 if not lang: continue
+                tasks.append((folder, filepath, filename, lang))
+                if len(tasks) >= max_files:
+                    break
+            if len(tasks) >= max_files:
+                break
 
-                filepath = os.path.join(root, file)
+        # Helper to process a single file
+        def process_file_task(task):
+            folder, filepath, filename, lang = task
+            try:
+                mtime = os.path.getmtime(filepath)
+            except Exception:
+                return folder, filepath, filename, None
+            _, nodes = parse_and_extract(filepath, workspace_path, lang, mtime)
+            return folder, filepath, filename, nodes
 
-                try:
-                    mtime = os.path.getmtime(filepath)
-                except Exception: continue
-
-                rel_path, nodes = parse_and_extract(filepath, workspace_path, lang, mtime)
-
+        # Process in parallel
+        results_by_folder = defaultdict(list)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as executor:
+            for folder, filepath, filename, nodes in executor.map(process_file_task, tasks):
                 if nodes:
-                    output.append(f"📄 {rel_path}")
-                    for n in nodes:
-                        indent = "  " * (n['level'] + 1)
-                        sig = f" {n['signature']}" if n['signature'] else ""
-                        output.append(f"{indent}▪ [{n['type']}] {n['name']}{sig}")
-                        if include_docs and n['doc']:
-                            # Only show first line of docstring to keep it concise
-                            first_line = n['doc'].split('\n')[0]
-                            output.append(f"{indent}  // {first_line}")
-                    output.append("")
+                    results_by_folder[folder].append((filename, nodes))
 
-                file_count += 1
-                if file_count >= max_files:
-                    output.append(f"\n⚠️ Reached limit of {max_files} files.")
-                    return "\n".join(output)
+        # Reconstruct output in order
+        for folder in sorted_folders:
+            if folder not in results_by_folder:
+                continue
+
+            display_folder = folder if folder else "."
+            output.append(f"📁 {display_folder}")
+
+            # Re-sort files within the folder just in case
+            for filename, nodes in sorted(results_by_folder[folder], key=lambda x: x[0]):
+                output.append(f"  📄 {filename}")
+                for n in nodes:
+                    indent = "    " + "  " * n['level']
+                    sig = f" {n['signature']}" if n['signature'] else ""
+                    output.append(f"{indent}▪ [{n['type']}] {n['name']}{sig}")
+                    if include_docs and n['doc']:
+                        first_line = n['doc'].split('\\n')[0]
+                        output.append(f"{indent}  // {first_line}")
+
+        if len(tasks) >= max_files:
+            output.append(f"\n⚠️ Reached limit of {max_files} files.")
 
         return "\n".join(output)
 
     except Exception as e:
-        return f"❌ Error: {str(e)}"
+        import traceback
+        return f"❌ Error: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def search_symbol(workspace_path: str, query: str) -> str:
@@ -236,28 +317,29 @@ def search_symbol(workspace_path: str, query: str) -> str:
     """
     try:
         results = []
-        IGNORE_DIRS = {'.git', 'node_modules', 'vendor', '.venv', 'venv', 'dist', 'build', '.next', '.agent'}
+        all_files = get_project_files(workspace_path)
+        main_family = get_main_language_family(all_files)
 
-        for root, dirs, files in os.walk(workspace_path):
-            dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.startswith('.')]
-            for file in files:
-                ext = os.path.splitext(file)[1]
-                lang = get_language_from_ext(ext)
-                if not lang: continue
+        for filepath in all_files:
+            ext = os.path.splitext(filepath)[1]
+            family = get_family_from_ext(ext)
+            if family != main_family or not family:
+                continue
 
-                filepath = os.path.join(root, file)
+            lang = get_language_from_ext(ext)
+            if not lang: continue
 
-                try:
-                    mtime = os.path.getmtime(filepath)
-                except Exception: continue
+            try:
+                mtime = os.path.getmtime(filepath)
+            except Exception: continue
 
-                rel_path, nodes = parse_and_extract(filepath, workspace_path, lang, mtime)
+            rel_path, nodes = parse_and_extract(filepath, workspace_path, lang, mtime)
 
-                if not nodes: continue
+            if not nodes: continue
 
-                for n in nodes:
-                    if query.lower() in n['name'].lower():
-                        results.append(f"📍 {rel_path} -> [{n['type']}] {n['name']}{n['signature']}")
+            for n in nodes:
+                if query.lower() in n['name'].lower():
+                    results.append(f"📍 {rel_path} -> [{n['type']}] {n['name']}{n['signature']}")
 
         if not results:
             return f"🔍 No symbols matching '{query}' found."
