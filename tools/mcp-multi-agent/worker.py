@@ -7,6 +7,23 @@ import os
 import time
 import sqlite3
 import subprocess
+import fcntl
+
+def acquire_global_lock(workspace):
+    lock_file = os.path.join(workspace, ".agent_logs", "llm_request.lock")
+    os.makedirs(os.path.dirname(lock_file), exist_ok=True)
+    f = open(lock_file, "w")
+    try:
+        # Wait for the lock (blocking)
+        fcntl.flock(f, fcntl.LOCK_EX)
+        return f
+    except Exception:
+        return None
+
+def release_global_lock(f):
+    if f:
+        fcntl.flock(f, fcntl.LOCK_UN)
+        f.close()
 
 def strip_ansi_codes(text):
     ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
@@ -47,25 +64,29 @@ def read_unread_messages(db_path, role):
         print(f"DB Error: {e}")
         return []
 
-def log_to_bus(db_path, sender, topic, content):
+def log_to_bus(db_path, sender, topic, content, receiver="all"):
     try:
         clean_content = strip_ansi_codes(content) if content else ""
         conn = get_db_connection(db_path)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO messages (topic, sender_role, receiver_role, content) VALUES (?, ?, ?, ?)",
-                      (topic, sender, "all", clean_content))
+                      (topic, sender, receiver, clean_content))
         conn.commit()
         conn.close()
     except Exception as e:
         print(f"DB Error log_to_bus: {e}")
 
-def run_opencode(prompt, workspace, db_path, role):
+def run_engine_command(engine, prompt, workspace, db_path, role):
     try:
-        # Use kilocode instead of opencode as requested by the user
-        cmd = f"kilocode run {shlex.quote(prompt)}"
+        if engine == "gemini" or engine == "copilot":
+            cmd = f"{engine} -p {shlex.quote(prompt)}"
+        else:
+            # Default to 'run' command for kilocode and opencode
+            cmd = f"{engine} run {shlex.quote(prompt)}"
+
         my_env = os.environ.copy()
 
-        log_to_bus(db_path, role, f"subagent_{role}", "Executing task block with kilocode...")
+        log_to_bus(db_path, role, f"subagent_{role}", f"Executing task block with {engine}...")
         process = subprocess.Popen(
             cmd,
             shell=True,
@@ -77,25 +98,48 @@ def run_opencode(prompt, workspace, db_path, role):
             env=my_env
         )
 
+        output_lines = []
         for line in iter(process.stdout.readline, ''):
             if line:
-                # Log stripped line to bus
                 clean_line = strip_ansi_codes(line.strip())
                 if clean_line:
-                    log_to_bus(db_path, role, f"subagent_{role}", clean_line)
+                    output_lines.append(clean_line)
+                    # Optional: still log status to bus for dashboard but less frequently?
+                    # For now, we collect everything to log as a single block at the end.
 
         process.stdout.close()
-
         process.wait()
+
+        # Solution 4: Smart Truncation
+        if len(output_lines) > 60:
+            summary = f"--- [TECHNICAL LOG TRUNCATED: {len(output_lines)} lines] ---\n"
+            summary += "\n".join(output_lines[:20]) # Top 20 lines
+            summary += "\n\n... [... TRUNCATED ...] ...\n\n"
+            summary += "\n".join(output_lines[-20:]) # Bottom 20 lines
+            final_content = summary
+        else:
+            final_content = "\n".join(output_lines)
+
+        # Solution 1: Use 'log' receiver to prevent other agents from reading noisy history
+        if final_content.strip():
+            log_to_bus(db_path, role, f"subagent_{role}", final_content, receiver="log")
+
         log_to_bus(db_path, role, f"subagent_{role}", f"Task block execution finished. State saved.")
     except Exception as e:
-        log_to_bus(db_path, "system", f"subagent_{role}", f"Failed to run kilocode: {e}")
+        log_to_bus(db_path, "system", f"subagent_{role}", f"Failed to run {engine}: {e}")
 
 def get_recent_history(db_path, role, limit=5):
     try:
         conn = get_db_connection(db_path)
         cursor = conn.cursor()
-        cursor.execute("SELECT sender_role, receiver_role, content FROM messages WHERE sender_role = ? OR receiver_role = ? OR receiver_role = 'all' ORDER BY created_at DESC LIMIT ?", (role, role, limit))
+        # Solution 1: Filter out 'log' messages from LLM history
+        cursor.execute("""
+            SELECT sender_role, receiver_role, content
+            FROM messages
+            WHERE (sender_role = ? OR receiver_role = ? OR receiver_role = 'all')
+              AND receiver_role != 'log'
+            ORDER BY created_at DESC LIMIT ?
+        """, (role, role, limit))
         rows = cursor.fetchall()
         conn.close()
         if not rows: return ""
@@ -114,6 +158,7 @@ def main():
     parser.add_argument('--role', required=True)
     parser.add_argument('--instruction', required=True)
     parser.add_argument('--task', required=False, default="")
+    parser.add_argument('--engine', required=False, default="kilocode", choices=["kilocode", "opencode", "gemini", "copilot"])
     parser.add_argument('--resume', action='store_true', help="Resume agent with previous memory context")
     args = parser.parse_args()
 
@@ -123,9 +168,23 @@ def main():
 
     # If planner and NOT resuming, execute initial task right away
     if args.role == 'planner' and args.task and not args.resume:
-        log_to_bus(db_path, args.role, f"subagent_{args.role}", "I am the Planner. Starting FRESH initial task...")
-        prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\nTASK: {args.task}\n\nDo not ask the user for confirmation, just do it and output summary."
-        run_opencode(prompt, args.workspace, db_path, args.role)
+        log_to_bus(db_path, args.role, f"subagent_{args.role}", f"I am the Planner. Queueing LLM request for {args.engine}...")
+
+        # Solution 1: Static instruction FIRST for Caching
+        prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\n"
+        prompt += f"TASK: {args.task}\n\n"
+
+        # Solution 3: Strict Brevity
+        prompt += "CRITICAL: Output ONLY a technical summary and the next delegation command. No conversational filler or greetings. Be ultra-concise."
+
+        # Acquire global lock to serialize LLM requests
+        lock = acquire_global_lock(args.workspace)
+        try:
+            run_engine_command(args.engine, prompt, args.workspace, db_path, args.role)
+        finally:
+            release_global_lock(lock)
+            # Mandatory cooldown to prevent RPM spikes
+            time.sleep(2)
 
     # Core event loop: wait for messages and process them
     while True:
@@ -137,24 +196,36 @@ def main():
             for msg in msgs:
                 combined_msgs += f"--- Message from '{msg['sender_role']}': ---\n{msg['content']}\n\n"
 
-            # Combine instruction, memory history, and batched message content
+            # Solution 1: SYSTEM INSTRUCTION remains at the VERY TOP for prompt caching
             prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\n"
 
             if args.task:
                 prompt += f"YOUR ORIGINAL MISSION/TASK WAS: {args.task}\n\n"
 
-            # Inject recent historical context, limit to 5 to save tokens
+            # Inject recent historical context
             recent_history = get_recent_history(db_path, args.role, limit=5)
             if recent_history:
                 prompt += recent_history
 
             prompt += f"NEW UNREAD MESSAGES TO PROCESS:\n{combined_msgs}"
-            prompt += "Please read the messages, reflect on your recent history, take appropriate actions via tools, and output a summary. DO NOT ask the user for confirmation."
+            prompt += "\n\nCRITICAL COMMUNICATION POLICY:\n"
+            prompt += "1. EXECUTE YOUR TASK IN FULL: Finish your work before chatting.\n"
+            prompt += "2. MINIMIZE CHATTER: No status updates. Only 'publish_message' for handoffs.\n"
+            prompt += "3. BATCH RESPONSES: One message at the end of the run.\n"
+            prompt += "4. NO QUESTIONS: Do not ask for confirmation.\n"
+            prompt += "5. BE TOKEN-EFFICIENT: Use minimal words to achieve the goal.\n\n"
 
-            # Add jitter before calling the LLM to avoid local rate limits (thundering herd)
-            time.sleep(random.uniform(2.0, 5.0))
+            # Solution 3: Strict Terse Output Instruction at the end
+            prompt += "FINAL INSTRUCTION: Read history, take actions via tools, and output a technical summary ONLY. No filler. No intro. No outro."
 
-            run_opencode(prompt, args.workspace, db_path, args.role)
+            # Acquire global lock to serialize LLM requests
+            lock = acquire_global_lock(args.workspace)
+            try:
+                run_engine_command(args.engine, prompt, args.workspace, db_path, args.role)
+            finally:
+                release_global_lock(lock)
+                # Mandatory cooldown to prevent RPM spikes
+                time.sleep(2)
 
         # Sleep tight to avoid eating CPU, with jitter to avoid rate limits
         time.sleep(random.randint(10, 30))
