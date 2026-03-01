@@ -38,55 +38,38 @@ trigger: always_on
 | **`@mcp:skill-router`**          | `search_skills`                                                 | Semantic search for skills. Supports `tags_filter` for exact matching and returns Mini-RAG previews.                 |
 | **`@mcp:stitch`**                | `generate_screen_from_text`                                     | Generate and edit UI screens/components using Google's Stitch AI design tool.                                        |
 
-- **Graceful Degradation**: If MCP tool unavailable, fallback to standard tools:
-
 ---
 
-## 🚨 MANDATORY 2-STEP PROCESSING FLOW
+## 🚨 MULTI-AGENT ARCHITECTURE FLOW
 
-### Step 1: Skill Discovery & Loading
+The workflow follows a multi-agent architectural pattern to handle requests robustly:
+**User Request -> Planner Agent <-> Code Agent <-> Test Agent <-> Review Agent**
 
-- **Semantic Search**: Use `@mcp:skill-router` (`search_skills`) as the **first action**.
-- **Surgical Load**: Use `view_file` with `StartLine/EndLine` to read only necessary skill sections.
-- **Fallback**: Use `clean-code` and general engineering if no specific skill matches.
+### 1. Planner Agent (Initial & Orchestration)
+- **Role**: Understand user requests, discover context, and plan the execution.
+- **Action**: Uses `@mcp:skill-router` (`search_skills`) to find relevant skills. Uses `@mcp:ast-explorer` and other discovery tools to map the impact area.
+- **Output**: Calls `@mcp:context-manager` (`initialize_task_plan`) to persist the plan. Hands over tasks to Code Agent.
 
-### ⛔ ANTI-SKIP ENFORCEMENT
+### 2. Code Agent (Execution)
+- **Role**: Implement tasks section by section.
+- **Action**: Writes, refactors, and engineers the solution based on the plan.
+- **Output**: Upon completing a task snippet, exchanges internal messages with the Test Agent and calls `@mcp:context-manager` (`complete_task_step`).
 
-| Violation                 | Consequence                                                               |
-| :------------------------ | :------------------------------------------------------------------------ |
-| **Skipped Step 1**        | No skills loaded → STOP, run `search_skills` first.                       |
-| **Skipped Context Phase** | Code is unguided → STOP, run architecture/usage discovery.                |
-| **No SOTA Research**      | Potential legacy code → STOP, run `query-docs` or `search_latest_syntax`. |
-| **No Progress Plan**      | Workflow is untracked → STOP, manage task checklists with progress bars.  |
-| **No Checkpointing**      | No persistence → STOP, save checkpoint after major steps.                 |
+### 3. Test Agent (Verification)
+- **Role**: Check functionality, stability, and quality.
+- **Action**: Runs tests, verification commands (`run_command`), and ensures code behaves correctly under edge cases.
+- **Output**: Exchanges feedback with Code Agent for fixes. Once passing, sends to Review Agent.
 
-### Step 2: 4-Phase Execution Protocol
+### 4. Review Agent (Audit & Handover)
+- **Role**: Final quality, security, and standards validation.
+- **Action**: Audits the PR/changes, ensures adherence to SOTA & coding standards.
+- **Output**: Synthesizes the final report. Hands back to the user or back to Planner for missed requirements.
 
-#### Phase 1: Context Discovery
+### ⛔ INTERNAL COMMUNICATION & GOVERNANCE
 
-- **Action**: Map the impact area.
-- **Tools**: `@mcp:ast-explorer` (Architecture), `@mcp:database-inspector` (Data), `grep_search` (Usage).
-- **SOTA Research Hierarchy**:
-    1. **`@mcp:context7`**: Primary source for modern framework/library syntax.
-    2. **`@mcp:doc-researcher`**: Target specific documentation URLs.
-    3. **`search_web`**: Troubleshooting latest bugs/issues/community fixes.
-
-#### Phase 2: Progress Report (The Plan)
-
-- **Socratic Gate**: Ask clarifying questions via **Multiple Choice** options for vague specs.
-- **Action**: Brainstorm a plan, then call `@mcp:context-manager` (`initialize_task_plan`) to persist the plan and show the progress bar.
-- **Confirmation**: Wait for user approval for major changes.
-
-#### Phase 3: Atomic Execution
-
-- **Action**: Implement tasks one by one.
-- **Persistence**: Call `@mcp:context-manager` (`complete_task_step`) after completing each task to update the checklist and progress.
-- **Checkpointing**: Use `save_checkpoint` for major architectural changes or state captures.
-
-#### Phase 4: Verification & Delivery
-
-- **Action**: Verify changes via `run_command` (lint, build, test).
-- **Handover**: Summarize work done and link to relevant files.
+- **Internal Loops**: Agents MUST exchange internal messages for continuous iteration until the requirement is met. None of the intermediate failures should be exposed directly unless user intervention is absolutely required.
+- **Graceful Handoffs**: Save checkpoints (`save_checkpoint`) during critical transitions between agents.
+- **Final Reporting**: Only report back the summarized status to the USER once the Review Agent approves the completion.
 
 ---
 
@@ -99,28 +82,6 @@ Minimize user friction by providing choices:
 - **Vague**: "Objective seems to be Z. Is this for [1] Perf, [2] Security, or [3] UX?".
 - **Critical Action Verification**: Before executing any destructive or critical action (e.g., database writes, bulk file deletions, 
   **production deployments), the Agent **MUST** explicitly describe the action and ask for user confirmation.
-
----
-
-### 🌐 Linguistic & Operational Standards
-
-- **Progress-First Strategy**: For any task with **3+ steps**, MUST call `initialize_task_plan` immediately before starting Phase 3.
-- **API History Persistence**: All HTTP requests MUST be logged to `rest/{slug}.rest` for auditability and manual replay.
-- **Critical Action Verification**: Before executing `run_write_query` or data-modifying `http_request` (DELETE/PUT/PATCH), MUST provide a summary table of changes and wait for explicit confirmation.
-
----
-
-### Partial Execution Recovery
-
-1. **Checkpoint** files enable rollback to last known good state
-2. **Resume** from last checkpoint ID: `load_checkpoint(id)`
-3. **Document** failure point for debugging
-
-### User Interruption
-
-1. **Save** current progress immediately
-2. **Create** checkpoint with descriptive name
-3. **Summary** of completed vs pending tasks
 
 ---
 
