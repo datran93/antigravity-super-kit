@@ -3,6 +3,11 @@ import shlex
 import re
 import random
 
+import os
+import time
+import sqlite3
+import subprocess
+
 def strip_ansi_codes(text):
     ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
     return ansi_escape.sub('', text)
@@ -86,7 +91,7 @@ def run_opencode(prompt, workspace, db_path, role):
     except Exception as e:
         log_to_bus(db_path, "system", f"subagent_{role}", f"Failed to run kilocode: {e}")
 
-def get_recent_history(db_path, role, limit=10):
+def get_recent_history(db_path, role, limit=5):
     try:
         conn = get_db_connection(db_path)
         cursor = conn.cursor()
@@ -96,7 +101,8 @@ def get_recent_history(db_path, role, limit=10):
         if not rows: return ""
         history = "=== RECENT HISTORY (MEMORY) ===\n"
         for r in reversed(rows):
-            history += f"From {r['sender_role']} to {r['receiver_role']}: {r['content'][:1500]}\n---\n"
+            # Limit content to 500 chars to save tokens and prevent rate limits
+            history += f"From {r['sender_role']} to {r['receiver_role']}: {r['content'][:500]}\n---\n"
         history += "================================\n\n"
         return history
     except Exception as e:
@@ -111,6 +117,8 @@ def main():
     parser.add_argument('--resume', action='store_true', help="Resume agent with previous memory context")
     args = parser.parse_args()
 
+    db_path = os.path.join(args.workspace, ".agent_logs", "multi_agent_bus.db")
+
     log_to_bus(db_path, "system", f"subagent_{args.role}", f"Daemon Worker for ROLE [{args.role}] started (Resume={args.resume}). Listening for messages...")
 
     # If planner and NOT resuming, execute initial task right away
@@ -123,27 +131,33 @@ def main():
     while True:
         msgs = read_unread_messages(db_path, args.role)
         if msgs:
+            log_to_bus(db_path, args.role, f"subagent_{args.role}", f"Received {len(msgs)} unread message(s). Batching to save tokens and avoid Rate Limits...")
+
+            combined_msgs = ""
             for msg in msgs:
-                log_to_bus(db_path, args.role, f"subagent_{args.role}", f"Received message from '{msg['sender_role']}'. Reading it and taking action...")
+                combined_msgs += f"--- Message from '{msg['sender_role']}': ---\n{msg['content']}\n\n"
 
-                # Combine instruction, memory history, and message content
-                prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\n"
+            # Combine instruction, memory history, and batched message content
+            prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\n"
 
-                if args.task:
-                    prompt += f"YOUR ORIGINAL MISSION/TASK WAS: {args.task}\n\n"
+            if args.task:
+                prompt += f"YOUR ORIGINAL MISSION/TASK WAS: {args.task}\n\n"
 
-                # Inject recent historical context
-                recent_history = get_recent_history(db_path, args.role, limit=10)
-                if recent_history:
-                    prompt += recent_history
+            # Inject recent historical context, limit to 5 to save tokens
+            recent_history = get_recent_history(db_path, args.role, limit=5)
+            if recent_history:
+                prompt += recent_history
 
-                prompt += f"NEW MESSAGE RECEIVED FROM '{msg['sender_role']}':\n{msg['content']}\n\n"
-                prompt += "Please read the message, reflect on your recent history, take appropriate actions via tools, and output a summary. DO NOT ask the user for confirmation."
+            prompt += f"NEW UNREAD MESSAGES TO PROCESS:\n{combined_msgs}"
+            prompt += "Please read the messages, reflect on your recent history, take appropriate actions via tools, and output a summary. DO NOT ask the user for confirmation."
 
-                run_opencode(prompt, args.workspace, db_path, args.role)
+            # Add jitter before calling the LLM to avoid local rate limits (thundering herd)
+            time.sleep(random.uniform(2.0, 5.0))
+
+            run_opencode(prompt, args.workspace, db_path, args.role)
 
         # Sleep tight to avoid eating CPU, with jitter to avoid rate limits
-        time.sleep(random.randint(5, 15))
+        time.sleep(random.randint(10, 30))
 
 if __name__ == "__main__":
     main()
