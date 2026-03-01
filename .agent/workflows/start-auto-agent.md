@@ -1,16 +1,16 @@
 ---
-description: Khởi chạy QUY TRÌNH MỚI CHO DỰ ÁN MỚI (Reset mọi trí nhớ cũ, xoá database) cho 4 Agent chạy.
+description: Start a NEW Multi-Agent workflow (Resets memory, clears database).
 ---
 # Start Auto Agent Workflow
 
-Dùng khi bạn muốn Agent quên đi toàn bộ lịch sử (clear db), bắt đầu một dự án hoàn toàn mới tinh trong Workspace hiện tại. Nhớ truyền vào biến `$ARGUMENTS` để ra lệnh.
+Use this when you want Agents to forget all previous history (clear DB) and start a brand-new project in the current Workspace. Make sure to pass `$ARGUMENTS` to provide the initial request/spec.
 
 // turbo-all
-1. Xóa trí nhớ cũ và bắt đầu quy trình:
+1. Reset memory and start the agents:
 `bash /Users/datran/LearnDev/antigravity-kit/tools/mcp-multi-agent/start_agents.sh "$ARGUMENTS"`
 
-2. Lời nhắc: Nếu dashboard chưa chạy, bạn cần mở tab Terminal mới và gọi lệnh sau. Sau đó mở `http://localhost:6060` trên cấu hình máy:
-`python /Users/datran/LearnDev/antigravity-kit/tools/mcp-multi-agent/dashboard.py $(pwd)/.agent_logs/multi_agent_bus.db`
+2. Note: If the dashboard is not running, you need to open a new Terminal tab and run this command:
+`/Users/datran/LearnDev/antigravity-kit/tools/mcp-multi-agent/.venv/bin/python /Users/datran/LearnDev/antigravity-kit/tools/mcp-multi-agent/dashboard.py $(pwd)/.agent_logs/multi_agent_bus.db`
 
-3. Mở tab trình duyệt
+3. Open the Monitoring Dashboard in your browser:
 `open http://localhost:6060`

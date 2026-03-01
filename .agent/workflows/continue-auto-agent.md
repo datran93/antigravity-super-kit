@@ -1,13 +1,13 @@
 ---
-description: KHÔI PHỤC VÀ TIẾP TỤC DỰ ÁN ĐANG CODE (Load lại trí nhớ từ DB, không cần Argument).
+description: Resume and continue the existing multi-agent workflow (Loads history from DB, no arguments required).
 ---
 # Continue Auto Agent Workflow
 
-Khi bạn nhỡ tay tắt hệ thống (`stop-auto-agent`) hoặc máy khởi động lại, dùng lệnh này để bật lại 4 Agent. Chúng sẽ TỰ ĐỘNG đọc đoạn chat cuối cùng trong DB và code tiếp chỗ đang dang dở. Không truyền Argument cũng được.
+If you accidentally shut down the system (`/stop-auto-agent`) or your computer restarted, use this command to revive all 4 Agents. They will AUTOMATICALLY read the last message in the database and continue from where they left off. No arguments are required.
 
 // turbo-all
-1. Hồi sinh các dòng thời gian (ngâm vào `--resume` flag):
+1. Revive all agent timelines (injecting the `--resume` flag):
 `bash /Users/datran/LearnDev/antigravity-kit/tools/mcp-multi-agent/continue_agents.sh`
 
-2. Mở Dashboard trên trình duyệt để theo dõi trực tiếp các Agent làm việc:
+2. Open the Monitoring Dashboard in your browser to watch them work:
 `open http://localhost:6060`

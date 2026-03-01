@@ -1,47 +1,79 @@
 #!/bin/bash
 
-# Thư mục lõi chứa mã nguồn của mô hình Multi-Agent (Cố định, không đổi)
+# Core directory for Multi-Agent model (fixed)
 SCRIPT_DIR="/Users/datran/LearnDev/antigravity-kit/tools/mcp-multi-agent"
 WORKER_SCRIPT="$SCRIPT_DIR/worker.py"
 PYTHON_ENV="$SCRIPT_DIR/.venv/bin/python"
 DB_PATH="$SCRIPT_DIR/multi_agent_bus.db"
 
-# Workspace hiện tại
+# Current workspace
 WORKSPACE=$(pwd)
 LOG_DIR="$WORKSPACE/.agent_logs"
 
 mkdir -p "$LOG_DIR"
 
 if [ -z "$1" ]; then
-  echo "⚠️ Lỗi: Bạn chưa cung cấp yêu cầu cho Agent."
-  echo "💡 Cách dùng: $0 \"<Yêu cầu của bạn>\""
+  echo "⚠️ Error: No request provided for Agent."
+  echo "💡 Usage: $0 \"<Your Request>\""
   exit 1
 fi
 
 TASK="$1"
 
-echo "🧹 Đang dọn dẹp các Agent cũ đang chạy trong workspace này (nếu có)..."
+echo "🧹 Cleaning up existing Agents in this workspace (if any)..."
 pkill -f "worker.py"
 sleep 1
 
-if [ -f "$DB_PATH" ]; then
-    echo "🗑 Xoá lịch sử bộ nhớ Agent cũ để bắt đầu dự án MỚI TINH..."
-    rm "$DB_PATH"
+WORKSPACE_DB="$LOG_DIR/multi_agent_bus.db"
+if [ -f "$WORKSPACE_DB" ]; then
+    echo "🗑 Resetting Agent memory to start a NEW project..."
+    rm "$WORKSPACE_DB"
 fi
 
-echo "🚀 Đang triệu hồi [Planner Agent] vào dự án: $WORKSPACE..."
-nohup "$PYTHON_ENV" "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role planner --instruction "You are a strict PLANNER in a Multi-Agent architecture. You have access to tools. Do your job thoroughly without asking the user. Once done, output a final summary." --task "$TASK" > "$LOG_DIR/planner.log" 2>&1 &
+echo "🚀 Summoning [Planner Agent] for project: $WORKSPACE..."
+PLANNER_INST="You are a strict PLANNER and ARCHITECT.
+CRITICAL RULES:
+1. DO NOT WRITE CODE directly. Do not implement features yourself.
+2. YOUR JOB: Analyze requirements, design the architecture, and break the mission into atomic tasks.
+3. DELEGATION: Send tasks to the 'coder' role using the 'publish_message' tool.
+4. COORDINATION: Always call 'read_messages(receiver_role=\"planner\")' periodically to see if 'reviewer' has finished.
+5. NEVER ask the user for confirmation."
+nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role planner --instruction "$PLANNER_INST" --task "$TASK" > "$LOG_DIR/planner.log" 2>&1 &
+sleep 10
 
-echo "🚀 Đang triệu hồi [Coder Agent]..."
-nohup "$PYTHON_ENV" "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role coder --instruction "You are a strict CODER in a Multi-Agent architecture. Bạn sẽ nhận task từ Planner qua message. Đọc task, tạo file hoặc chỉnh sửa code. Code xong gửi publish_message cho tester để nhờ kiểm thử. Sửa code nếu Tester báo lỗi." > "$LOG_DIR/coder.log" 2>&1 &
+echo "🚀 Summoning [Coder Agent]..."
+CODER_INST="You are a strict CODER.
+YOUR JOB:
+1. Wait for tasks from 'planner' by calling 'read_messages(receiver_role=\"coder\")'.
+2. Implement the requested code/files in the workspace.
+3. Once done, call 'publish_message' to notify 'tester' to verify your work.
+4. If 'tester' reports errors, fix them and notify again.
+DO NOT plan the architecture. Just implement. NEVER ask user for confirmation."
+nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role coder --instruction "$CODER_INST" > "$LOG_DIR/coder.log" 2>&1 &
+sleep 10
 
-echo "🚀 Đang triệu hồi [Tester Agent]..."
-nohup "$PYTHON_ENV" "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role tester --instruction "You are a strict TESTER in a Multi-Agent architecture. Đợi tin nhắn từ Coder xác nhận đã code xong. Nhiệm vụ của bạn là check file, chạy unit test hoặc kiểm duyệt cú pháp. Báo lỗi chi tiết lại cho Coder nếu sai, báo pass cho Reviewer nếu đúng." > "$LOG_DIR/tester.log" 2>&1 &
+echo "🚀 Summoning [Tester Agent]..."
+TESTER_INST="You are a strict TESTER/QA.
+YOUR JOB:
+1. Wait for notifications from 'coder' by calling 'read_messages(receiver_role=\"tester\")'.
+2. Verify the logic, run tests, or check for syntax errors.
+3. If errors found: call 'publish_message' to 'coder' with detailed feedback.
+4. If logic is correct: call 'publish_message' to 'reviewer' to approve the code.
+NEVER ask user for confirmation."
+nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role tester --instruction "$TESTER_INST" > "$LOG_DIR/tester.log" 2>&1 &
+sleep 10
 
-echo "🚀 Đang triệu hồi [Reviewer Agent]..."
-nohup "$PYTHON_ENV" "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role reviewer --instruction "You are a strict REVIEWER in a Multi-Agent architecture. Đợi thông báo pass từ Tester, hãy thẩm định chất lượng Code. Đạt tiêu chuẩn thì nhắn cho Planner hoàn thành." > "$LOG_DIR/reviewer.log" 2>&1 &
+echo "🚀 Summoning [Reviewer Agent]..."
+REVIEWER_INST="You are a strict REVIEWER/AUDITOR.
+YOUR JOB:
+1. Wait for approval requests from 'tester' by calling 'read_messages(receiver_role=\"reviewer\")'.
+2. Perform a final audit of the code quality and security.
+3. If rejected: call 'publish_message' to 'coder' with reasons.
+4. If approved: call 'publish_message' to 'planner' to mark the task as COMPLETED.
+NEVER ask user for confirmation."
+nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role reviewer --instruction "$REVIEWER_INST" > "$LOG_DIR/reviewer.log" 2>&1 &
 
 echo "---------------------------------------------------------"
-echo "✅ TẤT CẢ 4 AGENTS ĐÃ ĐƯỢC RESET VÀ KHỞI ĐỘNG VÀO: $WORKSPACE!"
-echo "📊 Dashboard theo dõi: http://localhost:6060"
+echo "✅ ALL 4 AGENTS HAVE BEEN RESET AND STARTED IN: $WORKSPACE!"
+echo "📊 Monitoring Dashboard: http://localhost:6060"
 echo "---------------------------------------------------------"
