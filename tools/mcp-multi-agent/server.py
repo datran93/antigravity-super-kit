@@ -2,6 +2,7 @@ import os
 import sys
 import sqlite3
 import json
+import shlex
 from datetime import datetime
 from typing import List, Optional
 import subprocess
@@ -135,7 +136,7 @@ def enforce_socratic_gate(action_name: str, impact_description: str, options: Li
     return prompt
 
 @mcp.tool()
-def delegate_to_subagent(workspace_path: str, target_role: str, task_description: str, context_files: List[str], timeout_mins: int = 10, run_background: bool = True) -> str:
+def delegate_to_subagent(workspace_path: str, target_role: str, task_description: str, context_files: List[str], timeout_mins: int = 10, run_background: bool = True, engine: str = "kilocode") -> str:
     """
     Delegate a task to a subagent running.
     If run_background is True, spawns the agent and returns immediately (parallel mode), sending logs to the bus.
@@ -145,7 +146,14 @@ def delegate_to_subagent(workspace_path: str, target_role: str, task_description
         # Publish an initial message indicating the subagent is starting
         publish_message(workspace_path, f"subagent_{target_role}", "system", "all", f"Spawning Subagent '{target_role}' for task: {task_description}")
 
-        system_prompt = f"You are a strict {target_role.upper()} in a Multi-Agent architecture. Your current task is: {task_description}. You have access to tools. Do your job thoroughly without asking the user. Once done, output a final summary."
+        system_prompt = (
+            f"You are a strict {target_role.upper()} in a Multi-Agent architecture. Your current task is: {task_description}. "
+            "CRITICAL COMMUNICATION POLICY:\n"
+            "1. EXECUTE FULLY: Focus on finishing the code/test task before chatting. NO intermediate updates.\n"
+            "2. BATCH MESSAGES: Only send ONE final message when the milestone is reached.\n"
+            "3. NO NITPICKING: Be pragmatic and goal-oriented. Do not ask for confirmation.\n"
+            "Once done, output a final summary of your work."
+        )
 
         # Prepare context by referring to files if specified
         files_str = ""
@@ -154,7 +162,8 @@ def delegate_to_subagent(workspace_path: str, target_role: str, task_description
 
         worker_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "worker.py")
         python_exec = sys.executable if sys.executable else "python"
-        cmd = f"{python_exec} {shlex.quote(worker_script)} --workspace {shlex.quote(workspace_path)} --role {shlex.quote(target_role)} --instruction {shlex.quote(system_prompt)} --task {shlex.quote(prompt)}"
+        # FIX: use task_description instead of undefined prompt, and pass --engine
+        cmd = f"{python_exec} {shlex.quote(worker_script)} --workspace {shlex.quote(workspace_path)} --role {shlex.quote(target_role)} --instruction {shlex.quote(system_prompt)} --task {shlex.quote(task_description)} --engine {shlex.quote(engine)}"
 
         publish_message(workspace_path, f"subagent_{target_role}", "system", "all", f"Spawning Daemon: {cmd}")
 
