@@ -175,6 +175,7 @@ def parse_and_extract(filepath: str, workspace_path: str, lang: str, mtime: floa
 
 import subprocess
 from collections import Counter, defaultdict
+import concurrent.futures
 
 def get_project_files(workspace_path: str):
     IGNORE_DIRS = {'.git', 'node_modules', 'vendor', '.venv', 'venv', 'dist', 'build', '.next', '.agent'}
