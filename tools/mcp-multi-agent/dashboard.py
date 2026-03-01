@@ -7,7 +7,8 @@ from fastapi.responses import HTMLResponse
 import uvicorn
 
 app = FastAPI(title="Multi-Agent Interactor Dashboard")
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 # DB Path configuration - reads from env or defaults to getting from the executing directory
 import sys

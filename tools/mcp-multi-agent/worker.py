@@ -1,13 +1,25 @@
-import os
-import sys
-import time
-import sqlite3
-import subprocess
 import argparse
 import shlex
+import re
+import random
+
+def strip_ansi_codes(text):
+    ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
+    return ansi_escape.sub('', text)
 
 def get_db_connection(db_path):
     conn = sqlite3.connect(db_path)
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            topic TEXT NOT NULL,
+            sender_role TEXT NOT NULL,
+            receiver_role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            is_read BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -32,10 +44,11 @@ def read_unread_messages(db_path, role):
 
 def log_to_bus(db_path, sender, topic, content):
     try:
+        clean_content = strip_ansi_codes(content) if content else ""
         conn = get_db_connection(db_path)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO messages (topic, sender_role, receiver_role, content) VALUES (?, ?, ?, ?)",
-                      (topic, sender, "all", content))
+                      (topic, sender, "all", clean_content))
         conn.commit()
         conn.close()
     except Exception as e:
@@ -43,10 +56,11 @@ def log_to_bus(db_path, sender, topic, content):
 
 def run_opencode(prompt, workspace, db_path, role):
     try:
-        cmd = f"/Users/datran/.opencode/bin/opencode run {shlex.quote(prompt)}"
+        # Use kilocode instead of opencode as requested by the user
+        cmd = f"kilocode run {shlex.quote(prompt)}"
         my_env = os.environ.copy()
 
-        log_to_bus(db_path, role, f"subagent_{role}", f"Executing task block...")
+        log_to_bus(db_path, role, f"subagent_{role}", "Executing task block with kilocode...")
         process = subprocess.Popen(
             cmd,
             shell=True,
@@ -60,15 +74,17 @@ def run_opencode(prompt, workspace, db_path, role):
 
         for line in iter(process.stdout.readline, ''):
             if line:
-                # Optionally stream every line, or just let it finish.
-                # We can stream it so dashboard sees it:
-                log_to_bus(db_path, role, f"subagent_{role}", line.strip())
+                # Log stripped line to bus
+                clean_line = strip_ansi_codes(line.strip())
+                if clean_line:
+                    log_to_bus(db_path, role, f"subagent_{role}", clean_line)
 
         process.stdout.close()
+
         process.wait()
         log_to_bus(db_path, role, f"subagent_{role}", f"Task block execution finished. State saved.")
     except Exception as e:
-        log_to_bus(db_path, "system", f"subagent_{role}", f"Failed to run opencode: {e}")
+        log_to_bus(db_path, "system", f"subagent_{role}", f"Failed to run kilocode: {e}")
 
 def get_recent_history(db_path, role, limit=10):
     try:
@@ -95,16 +111,11 @@ def main():
     parser.add_argument('--resume', action='store_true', help="Resume agent with previous memory context")
     args = parser.parse_args()
 
-    # The DB is now per-workspace (inside the .agent_logs directory)
-    log_dir = os.path.join(args.workspace, ".agent_logs")
-    os.makedirs(log_dir, exist_ok=True)
-    db_path = os.path.join(log_dir, "multi_agent_bus.db")
-
     log_to_bus(db_path, "system", f"subagent_{args.role}", f"Daemon Worker for ROLE [{args.role}] started (Resume={args.resume}). Listening for messages...")
 
     # If planner and NOT resuming, execute initial task right away
     if args.role == 'planner' and args.task and not args.resume:
-        log_to_bus(db_path, args.role, f"subagent_{args.role}", f"I am the Planner. Starting FRESH initial task...")
+        log_to_bus(db_path, args.role, f"subagent_{args.role}", "I am the Planner. Starting FRESH initial task...")
         prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\nTASK: {args.task}\n\nDo not ask the user for confirmation, just do it and output summary."
         run_opencode(prompt, args.workspace, db_path, args.role)
 
@@ -131,8 +142,8 @@ def main():
 
                 run_opencode(prompt, args.workspace, db_path, args.role)
 
-        # Sleep tight to avoid eating CPU
-        time.sleep(5)
+        # Sleep tight to avoid eating CPU, with jitter to avoid rate limits
+        time.sleep(random.randint(5, 15))
 
 if __name__ == "__main__":
     main()
