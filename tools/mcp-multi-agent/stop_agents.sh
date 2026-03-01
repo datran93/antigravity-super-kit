@@ -1,5 +1,6 @@
 #!/bin/bash
 WORKSPACE=$(pwd)
-echo "🛑 Stopping all background Agents running on project: $WORKSPACE..."
+echo "🛑 Stopping all background Agents and Dashboard running on project: $WORKSPACE..."
 pkill -f "worker.py --workspace $WORKSPACE"
-echo "✅ Agents stopped."
+pkill -f "dashboard.py"
+echo "✅ Agents and Dashboard stopped."
