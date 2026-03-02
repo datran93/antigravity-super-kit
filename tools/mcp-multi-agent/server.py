@@ -43,6 +43,37 @@ def publish_message(workspace_path: str, topic: str, sender_role: str, receiver_
     Publish a message to the internal message bus.
     Allows agents to communicate asynchronously without polluting the main user conversation.
     """
+    # ZERO-TOKEN PRE-CHECK (Idea 2): Validate syntax before bothering the Reviewer
+    if sender_role.startswith("coder") and receiver_role == "reviewer":
+        try:
+            # Check for modified or new Python files
+            git_cmd_py = "git ls-files -m --others --exclude-standard | grep '\\.py$'"
+            py_files = subprocess.run(git_cmd_py, shell=True, cwd=workspace_path, capture_output=True, text=True).stdout.strip().split('\n')
+            py_files = [f for f in py_files if f]
+            if py_files:
+                python_exec = sys.executable if sys.executable else "python3"
+                py_res = subprocess.run([python_exec, "-m", "py_compile"] + py_files, cwd=workspace_path, capture_output=True, text=True)
+                if py_res.returncode != 0:
+                    return f"❌ AUTO-PRE-CHECK FAILED: Python syntax errors found. Fix them before asking reviewer:\n{py_res.stderr}\n{py_res.stdout}"
+
+            # Check for modified TypeScript/JS files if tsconfig exists
+            if os.path.exists(os.path.join(workspace_path, "tsconfig.json")):
+                ts_res = subprocess.run(["npx", "tsc", "--noEmit"], cwd=workspace_path, capture_output=True, text=True)
+                if ts_res.returncode != 0:
+                    return f"❌ AUTO-PRE-CHECK FAILED: TypeScript errors found. Fix them before asking reviewer:\n{ts_res.stdout}"
+
+            # Check for Go files
+            git_cmd_go = "git ls-files -m --others --exclude-standard | grep '\\.go$'"
+            go_files = subprocess.run(git_cmd_go, shell=True, cwd=workspace_path, capture_output=True, text=True).stdout.strip().split('\n')
+            go_files = [f for f in go_files if f]
+            if go_files:
+                go_res = subprocess.run(["go", "vet", "./..."], cwd=workspace_path, capture_output=True, text=True)
+                if go_res.returncode != 0:
+                     return f"❌ AUTO-PRE-CHECK FAILED: Go syntax/vet errors found. Fix them before asking reviewer:\n{go_res.stderr}"
+
+        except Exception as precheck_err:
+            pass # If pre-check fails to run (e.g. no git, no node, no go), just ignore it and proceed handoff
+
     try:
         conn = get_db_connection(workspace_path)
         cursor = conn.cursor()

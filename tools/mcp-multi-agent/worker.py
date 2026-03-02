@@ -9,19 +9,65 @@ import sqlite3
 import subprocess
 import fcntl
 
-def acquire_global_lock(workspace):
-    lock_file = os.path.join(workspace, ".agent_logs", "llm_request.lock")
-    os.makedirs(os.path.dirname(lock_file), exist_ok=True)
-    f = open(lock_file, "w")
-    try:
-        # Wait for the lock (blocking)
-        fcntl.flock(f, fcntl.LOCK_EX)
-        return f
-    except Exception:
-        return None
+def acquire_token_bucket(workspace, max_rpm=10, max_concurrent=2):
+    db_path = os.path.join(workspace, ".agent_logs", "rate_limit.db")
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
-def release_global_lock(f):
-    if f:
+    lock_file = os.path.join(workspace, ".agent_logs", "rate_limit.lock")
+    f = open(lock_file, "w")
+
+    while True:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            conn = sqlite3.connect(db_path)
+            conn.execute('''CREATE TABLE IF NOT EXISTS requests (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            timestamp REAL,
+                            status TEXT
+                        )''')
+
+            curr_time = time.time()
+
+            # Clean up old timestamps (older than 60s)
+            conn.execute("DELETE FROM requests WHERE timestamp < ?", (curr_time - 60,))
+
+            # Reset 'running' stuck requests (older than 10 mins to be safe)
+            conn.execute("DELETE FROM requests WHERE status = 'running' AND timestamp < ?", (curr_time - 600,))
+
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM requests")
+            rpm_count = cursor.fetchone()[0]
+
+            cursor.execute("SELECT COUNT(*) FROM requests WHERE status = 'running'")
+            concurrent_count = cursor.fetchone()[0]
+
+            if rpm_count < max_rpm and concurrent_count < max_concurrent:
+                # Limit not reached, proceed with request
+                cursor.execute("INSERT INTO requests (timestamp, status) VALUES (?, 'running')", (curr_time,))
+                req_id = cursor.lastrowid
+                conn.commit()
+                conn.close()
+                fcntl.flock(f, fcntl.LOCK_UN)
+                return req_id, f, db_path
+            else:
+                conn.commit()
+                conn.close()
+        except Exception:
+            pass
+
+        fcntl.flock(f, fcntl.LOCK_UN)
+        time.sleep(1)
+
+def release_token_bucket(req_id, f, db_path):
+    if f and req_id:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            conn = sqlite3.connect(db_path)
+            conn.execute("UPDATE requests SET status = 'done' WHERE id = ?", (req_id,))
+            conn.commit()
+            conn.close()
+        except:
+            pass
         fcntl.flock(f, fcntl.LOCK_UN)
         f.close()
 
@@ -124,6 +170,12 @@ def run_engine_command(engine, prompt, workspace, db_path, role):
         if final_content.strip():
             log_to_bus(db_path, role, f"subagent_{role}", final_content, receiver="log")
 
+        # Check for rate limit keywords to alert user on the dashboard
+        lower_content = final_content.lower()
+        if "429" in lower_content or "rate limit" in lower_content:
+            log_to_bus(db_path, "system", f"subagent_{role}", f"⚠️ RATE LIMIT DETECTED from {engine}! Taking a breather to avoid penalty...", receiver="all")
+            time.sleep(10) # Auto-cool down a bit extra on 429
+
         log_to_bus(db_path, role, f"subagent_{role}", f"Task block execution finished. State saved.")
     except Exception as e:
         log_to_bus(db_path, "system", f"subagent_{role}", f"Failed to run {engine}: {e}")
@@ -177,19 +229,25 @@ def main():
         # Solution 3: Strict Brevity
         prompt += "CRITICAL: Output ONLY a technical summary and the next delegation command. No conversational filler or greetings. Be ultra-concise."
 
-        # Acquire global lock to serialize LLM requests
-        lock = acquire_global_lock(args.workspace)
+        # Acquire token bucket to allow concurrency but prevent rate limiting
+        req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
         try:
             run_engine_command(args.engine, prompt, args.workspace, db_path, args.role)
         finally:
-            release_global_lock(lock)
+            release_token_bucket(req_id, lock_f, rate_db)
             # Mandatory cooldown to prevent RPM spikes
             time.sleep(2)
+
+    # Adaptive polling logic
+    current_sleep = 2
+    max_sleep = 15
 
     # Core event loop: wait for messages and process them
     while True:
         msgs = read_unread_messages(db_path, args.role)
         if msgs:
+            # Active path: Reset sleep to fast mode
+            current_sleep = 2
             log_to_bus(db_path, args.role, f"subagent_{args.role}", f"Received {len(msgs)} unread message(s). Batching to save tokens and avoid Rate Limits...")
 
             combined_msgs = ""
@@ -202,8 +260,8 @@ def main():
             if args.task:
                 prompt += f"YOUR ORIGINAL MISSION/TASK WAS: {args.task}\n\n"
 
-            # Inject recent historical context
-            recent_history = get_recent_history(db_path, args.role, limit=5)
+            # Inject recent historical context (only 2 since we use STATE.md now)
+            recent_history = get_recent_history(db_path, args.role, limit=2)
             if recent_history:
                 prompt += recent_history
 
@@ -218,17 +276,21 @@ def main():
             # Solution 3: Strict Terse Output Instruction at the end
             prompt += "FINAL INSTRUCTION: Read history, take actions via tools, and output a technical summary ONLY. No filler. No intro. No outro."
 
-            # Acquire global lock to serialize LLM requests
-            lock = acquire_global_lock(args.workspace)
+            # Acquire token bucket to allow concurrency but prevent rate limiting
+            req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
             try:
                 run_engine_command(args.engine, prompt, args.workspace, db_path, args.role)
             finally:
-                release_global_lock(lock)
+                release_token_bucket(req_id, lock_f, rate_db)
                 # Mandatory cooldown to prevent RPM spikes
                 time.sleep(2)
 
-        # Sleep tight to avoid eating CPU, with jitter to avoid rate limits
-        time.sleep(random.randint(10, 30))
+        else:
+            # Idle path: Backoff slowly to avoid eating CPU
+            current_sleep = min(current_sleep + 2, max_sleep)
+
+        # Sleep tight
+        time.sleep(current_sleep)
 
 if __name__ == "__main__":
     main()
