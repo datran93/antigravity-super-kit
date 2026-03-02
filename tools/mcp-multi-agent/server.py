@@ -37,6 +37,17 @@ def get_db_connection(workspace_path: str):
     conn.commit()
     return conn
 
+def internal_log(workspace_path: str, sender: str, topic: str, content: str, receiver: str = "all"):
+    try:
+        conn = get_db_connection(workspace_path)
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO messages (topic, sender_role, receiver_role, content) VALUES (?, ?, ?, ?)',
+                      (topic, sender, receiver, content))
+        conn.commit()
+        conn.close()
+    except:
+        pass
+
 @mcp.tool()
 def publish_message(workspace_path: str, topic: str, sender_role: str, receiver_role: str, content: str) -> str:
     """
@@ -54,13 +65,17 @@ def publish_message(workspace_path: str, topic: str, sender_role: str, receiver_
                 python_exec = sys.executable if sys.executable else "python3"
                 py_res = subprocess.run([python_exec, "-m", "py_compile"] + py_files, cwd=workspace_path, capture_output=True, text=True)
                 if py_res.returncode != 0:
-                    return f"❌ AUTO-PRE-CHECK FAILED: Python syntax errors found. Fix them before asking reviewer:\n{py_res.stderr}\n{py_res.stdout}"
+                    err_msg = f"❌ AUTO-PRE-CHECK FAILED: Python syntax errors found:\n{py_res.stderr}\n{py_res.stdout}"
+                    internal_log(workspace_path, "system", f"lint_{sender_role}", err_msg, receiver="all")
+                    return err_msg
 
             # Check for modified TypeScript/JS files if tsconfig exists
             if os.path.exists(os.path.join(workspace_path, "tsconfig.json")):
                 ts_res = subprocess.run(["npx", "tsc", "--noEmit"], cwd=workspace_path, capture_output=True, text=True)
                 if ts_res.returncode != 0:
-                    return f"❌ AUTO-PRE-CHECK FAILED: TypeScript errors found. Fix them before asking reviewer:\n{ts_res.stdout}"
+                    err_msg = f"❌ AUTO-PRE-CHECK FAILED: TypeScript errors found:\n{ts_res.stdout}"
+                    internal_log(workspace_path, "system", f"lint_{sender_role}", err_msg, receiver="all")
+                    return err_msg
 
             # Check for Go files
             git_cmd_go = "git ls-files -m --others --exclude-standard | grep '\\.go$'"
@@ -69,7 +84,9 @@ def publish_message(workspace_path: str, topic: str, sender_role: str, receiver_
             if go_files:
                 go_res = subprocess.run(["go", "vet", "./..."], cwd=workspace_path, capture_output=True, text=True)
                 if go_res.returncode != 0:
-                     return f"❌ AUTO-PRE-CHECK FAILED: Go syntax/vet errors found. Fix them before asking reviewer:\n{go_res.stderr}"
+                    err_msg = f"❌ AUTO-PRE-CHECK FAILED: Go syntax/vet errors found:\n{go_res.stderr}"
+                    internal_log(workspace_path, "system", f"lint_{sender_role}", err_msg, receiver="all")
+                    return err_msg
 
         except Exception as precheck_err:
             pass # If pre-check fails to run (e.g. no git, no node, no go), just ignore it and proceed handoff
