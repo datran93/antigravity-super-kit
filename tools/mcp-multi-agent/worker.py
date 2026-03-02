@@ -91,8 +91,12 @@ def get_db_connection(db_path):
     return conn
 
 def read_unread_messages(db_path, role):
+    conn = None
     try:
         conn = get_db_connection(db_path)
+        # Fix Race Condition (Idea 1): Use BEGIN IMMEDIATE to lock the DB for writing
+        # This ensures only one process reads and marks messages as read at a time.
+        conn.execute("BEGIN IMMEDIATE")
         cursor = conn.cursor()
         cursor.execute("SELECT id, sender_role, content FROM messages WHERE receiver_role = ? AND is_read = 0 ORDER BY created_at ASC", (role,))
         rows = cursor.fetchall()
@@ -102,24 +106,42 @@ def read_unread_messages(db_path, role):
             placeholders = ', '.join(['?'] * len(msg_ids))
             cursor.execute(f"UPDATE messages SET is_read = 1 WHERE id IN ({placeholders})", msg_ids)
             conn.commit()
+        else:
+            conn.rollback()
 
-        conn.close()
         return rows
-    except Exception as e:
-        print(f"DB Error: {e}")
+    except sqlite3.OperationalError as e:
+        # DB is likely locked by another worker, just back off
+        if conn: conn.rollback()
         return []
+    except Exception as e:
+        print(f"DB Error read_unread_messages: {e}")
+        if conn: conn.rollback()
+        return []
+    finally:
+        if conn: conn.close()
 
 def log_to_bus(db_path, sender, topic, content, receiver="all"):
-    try:
-        clean_content = strip_ansi_codes(content) if content else ""
-        conn = get_db_connection(db_path)
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO messages (topic, sender_role, receiver_role, content) VALUES (?, ?, ?, ?)",
-                      (topic, sender, receiver, clean_content))
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        print(f"DB Error log_to_bus: {e}")
+    max_retries = 5
+    clean_content = strip_ansi_codes(content) if content else ""
+    for attempt in range(max_retries):
+        try:
+            conn = get_db_connection(db_path)
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO messages (topic, sender_role, receiver_role, content) VALUES (?, ?, ?, ?)",
+                          (topic, sender, receiver, clean_content))
+            conn.commit()
+            conn.close()
+            return
+        except sqlite3.OperationalError as e:
+            if "locked" in str(e).lower():
+                time.sleep(0.5 * (attempt + 1))
+                continue
+            print(f"DB Operational Error (log_to_bus): {e}")
+            return
+        except Exception as e:
+            print(f"DB Error log_to_bus: {e}")
+            return
 
 def run_engine_command(engine, prompt, workspace, db_path, role, model=None):
     try:
@@ -131,8 +153,8 @@ def run_engine_command(engine, prompt, workspace, db_path, role, model=None):
             if model:
                 cmd += f" --model {shlex.quote(model)}"
 
-            # Auto-approve if engine is kilocode or opencode (to prevent hangs)
-            if engine in ["kilocode", "opencode"]:
+            # Auto-approve if engine is kilocode (to prevent hangs)
+            if engine == "kilocode":
                 cmd += " --auto"
 
         my_env = os.environ.copy()
@@ -234,16 +256,14 @@ def main():
 
     log_to_bus(db_path, "system", f"subagent_{args.role}", f"Daemon Worker for ROLE [{args.role}] started (Resume={args.resume}). Listening for messages...")
 
-    # If planner and NOT resuming, execute initial task right away
-    if args.role == 'planner' and args.task and not args.resume:
-        log_to_bus(db_path, args.role, f"subagent_{args.role}", f"I am the Planner. Queueing LLM request for {args.engine}...")
+    # Process initial mission/task if provided
+    if args.task and not args.resume:
+        log_to_bus(db_path, args.role, f"subagent_{args.role}", f"Task started for ROLE [{args.role}]: {args.task[:100]}...")
 
-        # Solution 1: Static instruction FIRST for Caching
+        # Build execution prompt
         prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\n"
         prompt += f"TASK: {args.task}\n\n"
-
-        # Solution 3: Strict Brevity
-        prompt += "CRITICAL: Output ONLY a technical summary and the next delegation command. No conversational filler or greetings. Be ultra-concise."
+        prompt += "CRITICAL: Output ONLY a technical summary and the next command. No conversational filler. Be ultra-concise."
 
         # Acquire token bucket to allow concurrency but prevent rate limiting
         req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
@@ -254,56 +274,64 @@ def main():
             # Mandatory cooldown to prevent RPM spikes
             time.sleep(2)
 
-    # Adaptive polling logic
+        # EPHEMERAL SUBAGENT POLICY: If this was a one-off task for a subagent (non-planner), exit now.
+        # This prevents process multiplication and 'zombie' listeners.
+        if args.role != 'planner':
+            log_to_bus(db_path, "system", f"subagent_{args.role}", f"Subagent for ROLE [{args.role}] finished ephemeral task and is exiting safely.")
+            sys.exit(0)
+
+    # Adaptive polling logic for persistent daemons
     current_sleep = 2
     max_sleep = 15
 
     # Core event loop: wait for messages and process them
     while True:
-        msgs = read_unread_messages(db_path, args.role)
-        if msgs:
-            # Active path: Reset sleep to fast mode
-            current_sleep = 2
-            log_to_bus(db_path, args.role, f"subagent_{args.role}", f"Received {len(msgs)} unread message(s). Batching to save tokens and avoid Rate Limits...")
+        try:
+            msgs = read_unread_messages(db_path, args.role)
+            if msgs:
+                # Active path: Reset sleep to fast mode
+                current_sleep = 2
+                log_to_bus(db_path, args.role, f"subagent_{args.role}", f"Received {len(msgs)} unread message(s). Batching...")
 
-            combined_msgs = ""
-            for msg in msgs:
-                combined_msgs += f"--- Message from '{msg['sender_role']}': ---\n{msg['content']}\n\n"
+                combined_msgs = ""
+                for msg in msgs:
+                    combined_msgs += f"--- Message from '{msg['sender_role']}': ---\n{msg['content']}\n\n"
 
-            # Solution 1: SYSTEM INSTRUCTION remains at the VERY TOP for prompt caching
-            prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\n"
+                # SYSTEM INSTRUCTION remains at the VERY TOP for prompt caching
+                prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\n"
 
-            if args.task:
-                prompt += f"YOUR ORIGINAL MISSION/TASK WAS: {args.task}\n\n"
+                if args.task:
+                    prompt += f"YOUR ORIGINAL MISSION/TASK WAS: {args.task}\n\n"
 
-            # Inject recent historical context (only 2 since we use STATE.md now)
-            recent_history = get_recent_history(db_path, args.role, limit=2)
-            if recent_history:
-                prompt += recent_history
+                # Inject recent historical context
+                recent_history = get_recent_history(db_path, args.role, limit=2)
+                if recent_history:
+                    prompt += recent_history
 
-            prompt += f"NEW UNREAD MESSAGES TO PROCESS:\n{combined_msgs}"
-            prompt += "\n\nCRITICAL COMMUNICATION POLICY:\n"
-            prompt += "1. EXECUTE YOUR TASK IN FULL: Finish your work before chatting.\n"
-            prompt += "2. MINIMIZE CHATTER: No status updates. Only 'publish_message' for handoffs.\n"
-            prompt += "3. BATCH RESPONSES: One message at the end of the run.\n"
-            prompt += "4. NO QUESTIONS: Do not ask for confirmation.\n"
-            prompt += "5. BE TOKEN-EFFICIENT: Use minimal words to achieve the goal.\n\n"
+                prompt += f"NEW UNREAD MESSAGES TO PROCESS:\n{combined_msgs}"
+                prompt += "\n\nCRITICAL COMMUNICATION POLICY:\n"
+                prompt += "1. EXECUTE YOUR TASK IN FULL.\n"
+                prompt += "2. MINIMIZE CHATTER.\n"
+                prompt += "3. BATCH RESPONSES.\n"
+                prompt += "4. NO QUESTIONS.\n"
+                prompt += "5. BE TOKEN-EFFICIENT.\n\n"
+                prompt += "FINAL INSTRUCTION: Read history, take actions via tools, and output a technical summary ONLY."
 
-            # Solution 3: Strict Terse Output Instruction at the end
-            prompt += "FINAL INSTRUCTION: Read history, take actions via tools, and output a technical summary ONLY. No filler. No intro. No outro."
+                # Acquire token bucket
+                req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
+                try:
+                    run_engine_command(args.engine, prompt, args.workspace, db_path, args.role, model=args.model)
+                finally:
+                    release_token_bucket(req_id, lock_f, rate_db)
+                    time.sleep(2)
 
-            # Acquire token bucket to allow concurrency but prevent rate limiting
-            req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
-            try:
-                run_engine_command(args.engine, prompt, args.workspace, db_path, args.role, model=args.model)
-            finally:
-                release_token_bucket(req_id, lock_f, rate_db)
-                # Mandatory cooldown to prevent RPM spikes
-                time.sleep(2)
+            else:
+                # Idle path: Backoff slowly
+                current_sleep = min(current_sleep + 2, max_sleep)
 
-        else:
-            # Idle path: Backoff slowly to avoid eating CPU
-            current_sleep = min(current_sleep + 2, max_sleep)
+        except Exception as loop_err:
+            log_to_bus(db_path, "system", f"alert_{args.role}", f"Error in agent loop: {str(loop_err)}")
+            time.sleep(5)
 
         # Sleep tight
         time.sleep(current_sleep)

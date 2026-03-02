@@ -91,19 +91,30 @@ def publish_message(workspace_path: str, topic: str, sender_role: str, receiver_
         except Exception as precheck_err:
             pass # If pre-check fails to run (e.g. no git, no node, no go), just ignore it and proceed handoff
 
-    try:
-        conn = get_db_connection(workspace_path)
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO messages (topic, sender_role, receiver_role, content)
-            VALUES (?, ?, ?, ?)
-        ''', (topic, sender_role, receiver_role, content))
-        conn.commit()
-        msg_id = cursor.lastrowid
-        conn.close()
-        return f"✅ Message {msg_id} published from {sender_role} to {receiver_role} on topic '{topic}'."
-    except Exception as e:
-        return f"❌ Error publishing message: {str(e)}"
+    # Solution: Retry logic for DB locking
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            conn = get_db_connection(workspace_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO messages (topic, sender_role, receiver_role, content)
+                VALUES (?, ?, ?, ?)
+            ''', (topic, sender_role, receiver_role, content))
+            conn.commit()
+            msg_id = cursor.lastrowid
+            conn.close()
+            return f"✅ Message {msg_id} published from {sender_role} to {receiver_role} on topic '{topic}'."
+        except sqlite3.OperationalError as e:
+            if "locked" in str(e).lower():
+                import time
+                time.sleep(0.5 * (attempt + 1))
+                continue
+            return f"❌ SQLite Operational Error: {str(e)}"
+        except Exception as e:
+            return f"❌ Error publishing message: {str(e)}"
+
+    return "❌ Error: Database remained locked after multiple retries."
 
 @mcp.tool()
 def read_messages(workspace_path: str, receiver_role: str, topic: str = "", unread_only: bool = True) -> str:
