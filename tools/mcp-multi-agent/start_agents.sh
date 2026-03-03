@@ -37,7 +37,7 @@ if [ -z "$TASK" ]; then
   exit 1
 fi
 
-echo "🧹 Cleaning up existing Agents and Dashboard in this workspace (if any)..."
+echo "🧹 Cleaning up existing Agents and Dashboard in this workspace..."
 pkill -f "worker.py --workspace $WORKSPACE"
 pkill -f "dashboard.py"
 sleep 1
@@ -48,42 +48,19 @@ if [ -f "$WORKSPACE_DB" ]; then
     rm "$WORKSPACE_DB"
 fi
 
-echo "🚀 Summoning [Planner Agent]..."
+echo "🚀 Summoning [Lead Planner Agent] (Daemon Mode Switch: ON)..."
 PLANNER_INST="You are the LEAD PLANNER and ORCHESTRATOR.
-MANDATORY PROTOCOLS:
+MANDATORY PROTOCOLS (SEQUENTIAL MODE):
 1. WORKFLOW: Follow '.agent/workflows/planner-architect.md' strictly.
-2. ORCHESTRATION: You are the Dispatcher. Proactively ask 'coder', 'reviewer', and 'tester' for status updates via 'publish_message'.
-3. ASSIGNMENT: If subagents are idling, you MUST assign the next mission immediately.
-4. NO DEADLOCK: Never idle without ensuring the team has tasks or you have requested updates.
-5. PLAN: Maintain the project plan using @mcp:context-manager."
+2. EPHEMERAL DELEGATION: You are the ONLY persistent agent. When you need a task done, you MUST call 'delegate_to_subagent' with run_background=False (Sequential Mode).
+3. DISPATCH & DESTROY: Call subagents (coder, reviewer, or tester) for atomic tasks. Once they return their technical summary, analyze it, and then delegate the next task to a NEW subagent.
+4. NO PERSISTENT TEAM: Do not expect coder/reviewer/tester to be running. You summon them only when needed via the tool.
+5. REPORT: Maintain the project plan using @mcp:context-manager."
+
+# Planner runs as a persistent daemon to manage the whole process
 nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role planner --instruction "$PLANNER_INST" --task "$TASK" --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/planner.log" 2>&1 &
-sleep 5
+sleep 2
 
-echo "🚀 Summoning [Coder Agent]..."
-CODER_INST="You are the CODER.
-MANDATORY PROTOCOLS:
-1. WORKFLOW: Follow '.agent/workflows/coder-implementation.md' strictly.
-2. REPORT: Always report status back to the Planner.
-3. QUALITY: Write Clean, Testable code."
-nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role coder --instruction "$CODER_INST" --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/coder.log" 2>&1 &
-sleep 5
-
-echo "🚀 Summoning [Reviewer Agent]..."
-REVIEWER_INST="You are the REVIEWER.
-MANDATORY PROTOCOLS:
-1. WORKFLOW: Follow '.agent/workflows/reviewer-audit.md' strictly.
-2. HANDOVER: If ISSUES found, notify 'coder'. If APPROVED, notify 'tester'. DO NOT skip.
-3. READ-ONLY: Never modify source code."
-nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role reviewer --instruction "$REVIEWER_INST" --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/reviewer.log" 2>&1 &
-sleep 5
-
-echo "🚀 Summoning [Tester Agent]..."
-TESTER_INST="You are the TESTER.
-MANDATORY PROTOCOLS:
-1. WORKFLOW: Follow '.agent/workflows/tester-verification.md' strictly.
-2. REPORT: If tests FAIL, notify 'coder'. If tests PASS, notify 'planner'. DO NOT skip.
-3. TEST: Write and run tests for all code logic."
-nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role tester --instruction "$TESTER_INST" --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/tester.log" 2>&1 &
 echo "🚀 Starting Web Dashboard..."
 export MULTI_AGENT_DB_PATH="$WORKSPACE_DB"
 cd "$SCRIPT_DIR" || exit
@@ -91,6 +68,7 @@ nohup "$PYTHON_ENV" dashboard.py > "$LOG_DIR/dashboard.log" 2>&1 &
 cd "$WORKSPACE" || exit
 
 echo "---------------------------------------------------------"
-echo "✅ ALL 4 AGENTS HAVE BEEN RESET AND STARTED IN: $WORKSPACE!"
+echo "✅ SEQUENTIAL PIPELINE INITIALIZED IN: $WORKSPACE!"
+echo "📍 Only the [Planner] is persistent; Workers will be ephemeral."
 echo "📊 Monitoring Dashboard: http://localhost:6060"
 echo "---------------------------------------------------------"

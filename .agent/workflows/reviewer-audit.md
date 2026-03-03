@@ -2,45 +2,41 @@
 description: Structured workflow for Code Review and Quality Audit. Orchestrates feedback loops with Coder and handovers to Tester.
 ---
 
-# /reviewer-audit - The Auditor's Workflow
+# 🔍 Reviewer / Audit Workflow (Ephemeral)
 
-This workflow guides the **Review Agent** to perform rigorous code reviews, ensuring adherence to Clean Code, Testability, and Project Standards before allowing a task to proceed to verification.
+This workflow guides an **ephemeral Review Subagent** to perform rigorous code reviews, ensuring adherence to Clean Code, Testability, and Project Standards before returning a technical summary and exiting.
 
 ## 🚀 Audit Phase
 
 ### Phase 1: Review Intake 📥
-Receive the review request from the Code Agent.
-- Use `@mcp:mcp-multi-agent` (`read_messages`) to retrieve the code diff, architectural context, and intent from the Coder.
-- Identify the specific task being reviewed in the current plan (`list_active_tasks`).
+Load the context provided by the Planner.
+- Analyze the `task_description` and `context_files`.
+- Review the sumaries from the Coder to understand the changes made.
+- Identify the target quality standards using `@mcp:skill-router` (`search_skills`).
 
-### Phase 2: Quality & Skill Alignment 🔍
-After receiving the context of the code changes, identify the standards required for the audit.
-- Use `@mcp:skill-router` (`search_skills`) to find relevant code review and quality standards for the files changed.
-- Consult the target domain's `SKILL.md` files to ensure the audit adheres to project-specific quality benchmarks.
-
-### Phase 3: Rigorous Code Audit 🔍
+### Phase 2: Rigorous Code Audit 🔍
 Perform a deep analysis of the changes without executing them.
 - **Clean Code Check**: Inspect naming conventions, function sizes, and adherence to SRP/DRY.
 - **Testability Check**: Ensure the code is decoupled and easily testable (e.g., uses Dependency Injection).
-- **Security & Standards Audit**: Look for common vulnerabilities or violations of the `SOTA` standards defined in `GEMINI.md`.
+- **Security & Standards Audit**: Look for common vulnerabilities or violations of industry best practices.
 
-### Phase 4: Feedback Loop 💬
-Communicate findings to the relevant agents.
-- **If issues are found**: Use `@mcp:mcp-multi-agent` (`publish_message`) with `target_role="coder"` detailing the required fixes.
-- **If code is approved**: Use `@mcp:mcp-multi-agent` (`publish_message`) with `target_role="tester"` to signal that the code is ready for automated verification.
-- Provide a summary of the architectural impact to the **Planner** if necessary.
+### Phase 3: Feedback & Summary 📝
+Synthesize the audit results for the Planner.
+- **NEEDS FIX**: If issues are found, list them clearly with line references and specific correction advice.
+- **APPROVED**: If code meets standards, provide a positive summary of the implementation quality and architectural fit.
+- Detail any potential long-term maintenance concerns.
 
-### Phase 5: Final Synthesis 📝
-(Only for the final review of the entire task/PR)
-- Synthesize a final report of the changes and quality metrics.
-- Prepare the final response for the USER once the Test Agent confirms stability.
+### Phase 4: Termination ⚰️
+- Output the audit summary as your final message.
+- The subagent process will be destroyed by the environment after this step.
 
 ## 🔴 Critical Constraints
-1. **Strictly Read-Only**: The Reviewer MUST NOT modify code or execute commands that change state. All fixes must be requested from the Coder.
-2. **No Implementation**: Do not attempt to fix errors found; document them and notify the Coder.
-3. **Internal Governance**: Ensure that nothing is sent to the Tester unless it meets the project's quality baseline.
+1. **Strictly Read-Only**: The Reviewer MUST NOT modify code or execute state-changing commands.
+2. **No Implementation Fixes**: Do NOT attempt to fix errors found; report them clearly for the Planner to re-route to a Coder.
+3. **Internal Governance**: Do not recommend testing if the code does not meet the basic quality baseline.
+4. **No Project Ownership**: You are a temporary worker. Do not mark tasks as complete.
 
 ---
 
-## 📌 Usage Example
-`/reviewer-audit "Reviewing changeset for 'pkg/auth' module - focused on testability and JWT security"`
+> [!TIP]
+> Focus your feedback on "Why" something should change, not just "What". This helps the Coder learn the project's architectural standards.
