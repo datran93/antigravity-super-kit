@@ -10,12 +10,14 @@ LOG_DIR="$WORKSPACE/.agent_logs"
 mkdir -p "$LOG_DIR"
 
 ENGINE="copilot"
+TASK=""
 
 # Parse options
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -e|--engine) ENGINE="$2"; shift ;;
         -m|--model) MODEL="$2"; shift ;;
+        *) TASK="$1" ;;
     esac
     shift
 done
@@ -36,43 +38,19 @@ if [ -f "$DB_PATH" ]; then
 fi
 sleep 1
 
-echo "♻️ Resuming [Planner Agent]..."
+echo "♻️ Resuming [Lead Planner Agent] (Context Pre-loaded)..."
 PLANNER_INST="You are the LEAD PLANNER and ORCHESTRATOR.
-MANDATORY PROTOCOLS:
+MANDATORY PROTOCOLS (SEQUENTIAL MODE):
 1. WORKFLOW: Follow '.agent/workflows/planner-architect.md' strictly.
-2. ORCHESTRATION: You are the Dispatcher. Proactively ask 'coder', 'reviewer', and 'tester' for status updates via 'publish_message'.
-3. ASSIGNMENT: If subagents are idling, you MUST assign the next mission immediately.
-4. NO DEADLOCK: Never idle without ensuring the team has tasks or you have requested updates.
-5. PLAN: Maintain the project plan using @mcp:context-manager."
-nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role planner --instruction "$PLANNER_INST" --resume --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/planner.log" 2>&1 &
-sleep 5
+2. EPHEMERAL DELEGATION: You are the ONLY persistent agent. When you need a task done, you MUST call 'delegate_to_subagent' with run_background=False (Sequential Mode).
+3. DISPATCH & DESTROY: Call subagents (coder, reviewer, or tester) for atomic tasks. Once they return their technical summary, analyze it, and then delegate the next task to a NEW subagent.
+4. NO PERSISTENT TEAM: Do not expect coder/reviewer/tester to be running. You summon them only when needed via the tool.
+5. REPORT: Maintain the project plan using @mcp:context-manager."
 
-echo "♻️ Resuming [Coder Agent]..."
-CODER_INST="You are the CODER.
-MANDATORY PROTOCOLS:
-1. WORKFLOW: Follow '.agent/workflows/coder-implementation.md' strictly.
-2. REPORT: Always report status back to the Planner.
-3. QUALITY: Write Clean, Testable code."
-nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role coder --instruction "$CODER_INST" --resume --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/coder.log" 2>&1 &
-sleep 5
-
-echo "♻️ Resuming [Reviewer Agent]..."
-REVIEWER_INST="You are the REVIEWER.
-MANDATORY PROTOCOLS:
-1. WORKFLOW: Follow '.agent/workflows/reviewer-audit.md' strictly.
-2. HANDOVER: If ISSUES found, notify 'coder'. If APPROVED, notify 'tester'. DO NOT skip.
-3. READ-ONLY: Never modify source code."
-nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role reviewer --instruction "$REVIEWER_INST" --resume --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/reviewer.log" 2>&1 &
-sleep 5
-
-echo "♻️ Resuming [Tester Agent]..."
-TESTER_INST="You are the TESTER.
-MANDATORY PROTOCOLS:
-1. WORKFLOW: Follow '.agent/workflows/tester-verification.md' strictly.
-2. REPORT: If tests FAIL, notify 'coder'. If tests PASS, notify 'planner'. DO NOT skip.
-3. TEST: Write and run tests for all code logic."
-nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role tester --instruction "$TESTER_INST" --resume --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/tester.log" 2>&1 &
-sleep 10
+# Resume Planner as a persistent daemon with memory context and optional new task instruction
+# We use --resume to signal worker.py to pull history from DB
+nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role planner --instruction "$PLANNER_INST" --task "$TASK" --resume --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/planner.log" 2>&1 &
+sleep 2
 
 echo "🚀 Starting Web Dashboard..."
 export MULTI_AGENT_DB_PATH="$LOG_DIR/multi_agent_bus.db"
@@ -81,6 +59,7 @@ nohup "$PYTHON_ENV" dashboard.py > "$LOG_DIR/dashboard.log" 2>&1 &
 cd "$WORKSPACE" || exit
 
 echo "---------------------------------------------------------"
-echo "✅ ALL 4 AGENTS HAVE RESUMED WITH CONTEXT AT: $WORKSPACE!"
+echo "✅ SEQUENTIAL PIPELINE RESUMED AT: $WORKSPACE!"
+echo "📍 Previous context is ACTIVE. New instruction (if any) sent to Planner."
 echo "📊 Monitoring Dashboard: http://localhost:6060"
 echo "---------------------------------------------------------"

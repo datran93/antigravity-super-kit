@@ -25,7 +25,7 @@ This workflow guides the agent to safely review, stage, commit your code, **and 
 
 3. **Commit Changes**
    Commit them with a meaningful, conventional commit message (e.g., `feat:`, `fix:`, `chore:`).
-   *Note: If the message isn't obvious from the changes, quickly ask the user or propose one based on diff.*
+   *Note: If the message isn't obvious from the changes, quickly ask the user or propose one based on diff. **DO NOT add 'Co-authored-by' or any agent information to the commit message.***
    ```bash
    git commit -m "feat: your descriptive message"
    ```

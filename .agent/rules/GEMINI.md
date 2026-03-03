@@ -42,44 +42,33 @@ trigger: always_on
 
 ---
 
-## 🚨 MULTI-AGENT ARCHITECTURE FLOW
+## 🚨 SEQUENTIAL MULTI-AGENT ARCHITECTURE (SUMMON & DESTROY)
 
-The workflow follows a multi-agent architectural pattern to handle requests robustly:
-**User Request -> Planner Agent <-> Code Agent <-> Test Agent <-> Review Agent**
+The platform uses a **Sequential Ephemeral Architecture** where only the **Planner** is persistent.
+**User Request -> [Planner Agent] --Summon--> [Coder/Tester/Reviewer Subagent] --Destroy--> [Planner]**
 
-### 1. Planner Agent (Initial & Orchestration)
-- **Role**: Understand user requests, discover context, and plan the execution.
-- **Action**: Follows the `[/planner-architect](file://.agent/workflows/planner-architect.md)` workflow. Uses `@mcp:skill-router` (`search_skills`) to find relevant skills. Uses `@mcp:ast-explorer` and other discovery tools to map the impact area.
-- **Output**: Calls `@mcp:context-manager` (`initialize_task_plan`) to persist the plan. Hands over tasks to Code Agent via `@mcp:mcp-multi-agent` (`delegate_to_subagent`).
+### 1. Planner Agent (The Persistent Orchestrator)
+- **Role**: The project lead. Analyzes requests, creates the task plan, and manages state.
+- **Action**: Follows `[/planner-architect.md](file://.agent/workflows/planner-architect.md)`.
+- **Goverance**: The **ONLY** agent allowed to mark tasks as complete in `@mcp:context-manager`.
+- **Tooling**: Uses `delegate_to_subagent` with `run_background=False` to summon workers and wait for their **Technical Summary**.
 
-### 2. Code Agent (Execution)
-- **Role**: Implement tasks following **Clean Code** and **Testability** standards.
-- **Action**: Follows the `[/coder-implementation](file://.agent/workflows/coder-implementation.md)` workflow. Writes, refactors, and engineers the solution based on the plan.
-- **Output**: Upon completing a task, sends a message to the Reviewer for feedback. Does **NOT** mark tasks as complete.
+### 2. Ephemeral Subagents (Coder, Tester, Reviewer)
+- **Behavior**: These agents are **temporary workers**. They are created by the Planner for a specific atomic task and **self-destruct (exit)** once their task is completed.
+- **Coder**: Implements code logic following `[/coder-implementation.md](file://.agent/workflows/coder-implementation.md)`.
+- **Tester**: Verifies stability following `[/tester-verification.md](file://.agent/workflows/tester-verification.md)`.
+- **Reviewer**: Audits quality following `[/reviewer-audit.md](file://.agent/workflows/reviewer-audit.md)`.
+- **Output**: Subagents MUST output a concise **Technical Summary** of their work as the final output of the tool call.
 
-### 3. Test Agent (Verification)
-- **Role**: Check functionality, stability, and quality.
-- **Action**: Follows the `[/tester-verification](file://.agent/workflows/tester-verification.md)` workflow. Runs tests, verification commands (`run_command`), and ensures code behaves correctly under edge cases.
-- **Output**: Exchanges feedback with Code Agent for fixes. Once passing, sends to Review Agent.
+### ⛔ COMMUNICATION & PIPELINE PROTOCOLS
 
-### 4. Review Agent (Audit & Handover)
-- **Role**: Final quality, security, and standards validation.
-- **Action**: Follows the `[/reviewer-audit](file://.agent/workflows/reviewer-audit.md)` workflow. Audits the PR/changes, ensures adherence to SOTA & coding standards.
-- **Output**: Synthesizes the final report. Hands back to the user or back to Planner for missed requirements.
-
-### ⛔ INTERNAL COMMUNICATION & GOVERNANCE (DEADLOCK PREVENTION)
-
-To prevent deadlocks (where all agents sleep) and resource conflicts, follow these rules:
-
-1.  **Star Topology (Planner as Dispatcher)**: Every subagent (Coder, Tester, Reviewer) MUST report back to the **Planner** or the next designated role after every work block. The Planner is the "Source of Truth" for the pipeline state.
-2.  **Mandatory Activation Message**: An active Agent MUST NOT exit or idle without calling `publish_message` to signal the next participant. If a task is blocked, notify the Planner.
-3.  **Exclusive Resource Ownership**: 
-    - **Planner**: Task Plan (`.agent/tasks.md`) & Checkpoints.
-    - **Code Agent**: Source code (`src/`, etc.).
-    - **Test Agent**: Test files and execution environments.
-    - **Reviewer**: Read-only access.
-4.  **Sequential Handoffs**: Use `run_background=False` for critical state transitions to ensure the parent process (Planner/Coordinator) maintains execution flow.
-5.  **Atomic State Updates**: All writes to shared state must use the `@mcp:context-manager` tools sequentially.
+1.  **Strict Sequential Flow**: Planner MUST wait for a subagent to finish and return its result before delegating the next milestone. There is no background polling in this mode.
+2.  **Explicit Resource Ownership**: 
+    - **Planner**: Owns the Task Plan & Checkpoints.
+    - **Coder**: Owns the Source Code Implementation.
+    - **Tester**: Owns the Test Suite & Verification Results.
+3.  **No Deadlocks**: Since everything is sequential, the Planner is always in control. If a subagent fails, the Planner receives the error immediately and must decide the correction path.
+4.  **No Co-Authored-By**: When making git commits, subagents MUST NOT add any metadata (like 'Co-authored-by') to keeping history clean.
 
 ---
 
@@ -87,17 +76,16 @@ To prevent deadlocks (where all agents sleep) and resource conflicts, follow the
 
 Minimize user friction by providing choices:
 
-- **New Feature**: "How should we handle X? [A] Option A, [B] Option B".
+- **New Feature**: "How should we handle X? [1] Option A, [2] Option B".
 - **Bug Fix**: "Confirming impact: This fix resets Y. Proceed? [Yes/No]".
 - **Vague**: "Objective seems to be Z. Is this for [1] Perf, [2] Security, or [3] UX?".
-- **Critical Action Verification**: Before executing any destructive or critical action (e.g., database writes, bulk file deletions, 
-  **production deployments), the Agent **MUST** explicitly describe the action and ask for user confirmation.
+- **Critical Action Verification**: Before executing any destructive or critical action (e.g., database writes, bulk file deletions, **production deployments**), the Agent **MUST** explicitly describe the action and ask for user confirmation.
 
 ---
 
 ## 📌 Metadata
 
-- **Version**: 1.0.1
+- **Version**: 1.1.0
 - **Last Updated**: 2026-03-03
 - **Maintainer**: Antigravity Team
-- **Related**: `.agent/skills/*.md`, `GEMINI.md`
+- **Related**: `.agent/workflows/*.md`, `GEMINI.md`

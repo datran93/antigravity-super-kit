@@ -96,7 +96,7 @@ def get_db_connection(db_path):
             status TEXT NOT NULL,
             last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             current_task TEXT,
-            assigned_by TEXT
+            assigned_by TEXT DEFAULT ''
         )
     ''')
     conn.commit()
@@ -222,8 +222,8 @@ def run_engine_command(engine, prompt, workspace, db_path, role, model=None):
                 clean_line = strip_ansi_codes(line.strip())
                 if clean_line:
                     output_lines.append(clean_line)
-                    # Optional: still log status to bus for dashboard but less frequently?
-                    # For now, we collect everything to log as a single block at the end.
+                    # Print for server.py to capture and bridge to bus in real-time
+                    print(clean_line, flush=True)
 
         process.stdout.close()
         process.wait()
@@ -259,6 +259,11 @@ def run_engine_command(engine, prompt, workspace, db_path, role, model=None):
             log_to_bus(db_path, "system", f"alert_{role}", f"⚠️ ENGINE ERROR: {engine} exited with code {process.returncode}.", receiver="all")
 
         log_to_bus(db_path, role, f"subagent_{role}", f"Task block execution finished. State saved.")
+
+        # For sequential mode to capture: print result summary to stdout
+        print("\n=== AGENT_FINAL_SUMMARY ===", flush=True)
+        print(final_content, flush=True)
+        print("=== END_AGENT_FINAL_SUMMARY ===", flush=True)
     except Exception as e:
         log_to_bus(db_path, "system", f"alert_{role}", f"❌ FATAL: Failed to spawn {engine}: {e}", receiver="all")
 
@@ -298,9 +303,14 @@ def main():
     args = parser.parse_args()
 
     db_path = os.path.join(args.workspace, ".agent_logs", "multi_agent_bus.db")
+    print(f"--- DAEMON BOOTSTRAP [{args.role}] ---", flush=True)
+    print(f"Workspace: {args.workspace}", flush=True)
+    print(f"DB Path: {db_path}", flush=True)
 
     log_to_bus(db_path, "system", f"subagent_{args.role}", f"Daemon Worker for ROLE [{args.role}] started (Resume={args.resume}). Listening for messages...")
+    print("Logged start to bus.", flush=True)
     update_agent_status(db_path, args.role, "IDLE", current_task="Waiting for mission" if not args.task else args.task, assigned_by="system" if args.task else "")
+    print("Updated agent status.", flush=True)
 
     # Process initial mission/task if provided
     if args.task and not args.resume:
@@ -377,17 +387,15 @@ def main():
                     prompt += "2. If tests PASS: You MUST call 'publish_message' to notify the 'planner' role with the results summary. This is the only way to advance the project.\n"
                 elif args.role == 'planner':
                     prompt += "\n\nCRITICAL ORCHESTRATION PROTOCOL (PLANNER):\n"
-                    prompt += "1. You are the DISPATCHER. You MUST proactively ask 'coder', 'reviewer', or 'tester' for updates if you haven't heard from them.\n"
-                    prompt += "2. If the project pipeline is stalled (everyone is idling), you MUST immediately assign a new task to one of the agents.\n"
-                    prompt += "3. DO NOT wait for them to reach out to you; you lead the coordination.\n"
+                    prompt += "1. You are the DISPATCHER. You MUST proactively ask 'coder' for updates if the project stalls.\n"
+                    prompt += "2. If the project pipeline is stalled (everyone is idling), you MUST immediately assign a new task to the 'coder'. Avoid re-triggering 'reviewer' or 'tester' unless new code changes are ready.\n"
+                    prompt += "3. DO NOT wait for them to reach out to you; you lead the coordination through the coder first.\n"
 
                 prompt += "\n\nCRITICAL COMMUNICATION POLICY:\n"
                 prompt += "1. EXECUTE YOUR TASK IN FULL.\n"
-                prompt += "2. MINIMIZE CHATTER.\n"
-                prompt += "3. BATCH RESPONSES.\n"
-                prompt += "4. NO QUESTIONS.\n"
-                prompt += "5. BE TOKEN-EFFICIENT.\n\n"
-                prompt += "FINAL INSTRUCTION: Read history, take actions via tools, and output a technical summary ONLY."
+                prompt += "2. NO CHATTER: Provide only technical output.\n"
+                prompt += "3. TERMINATE: Do not ask questions; finish and exit.\n\n"
+                prompt += "FINAL INSTRUCTION: Use tools, then output a Technical Summary ONLY."
 
                 # Acquire token bucket
                 req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
@@ -407,50 +415,9 @@ def main():
                 idle_cycles += 1
                 current_sleep = min(current_sleep + 2, max_sleep)
 
-                # PLANNER PROACTIVE ORCHESTRATION PULSE
-                # If planner is idling for ~60 seconds (12 cycles * avg sleep), wake up and check status
-                if args.role == 'planner' and idle_cycles >= 12:
-                    idle_cycles = 0 # Reset
-                    log_to_bus(db_path, args.role, f"subagent_{args.role}", "📢 ORCHESTRATION PULSE: Reviewing team status and mission progress...")
-
-                    prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\n"
-                    if args.task:
-                        prompt += f"YOUR ORIGINAL MISSION/TASK WAS: {args.task}\n\n"
-
-                    recent_history = get_recent_history(db_path, args.role, limit=5)
-                    if recent_history:
-                        prompt += recent_history
-
-                    prompt += "\nORCHESTRATION WAKE-UP:\n"
-                    prompt += "You have been idling for a while. Everyone else is quiet. \n"
-                    prompt += "1. Review the history above.\n"
-                    prompt += "2. Determine if 'coder', 'reviewer', or 'tester' are stuck or idling.\n"
-                    prompt += "3. If they are idling, ASK for a status update or ASSIGN a new task to advance the mission.\n"
-                    prompt += "4. If progress is being made, just output a short status summary and stay quiet.\n"
-
-                    # Inject Agent Status Report
-                    try:
-                        conn = get_db_connection(db_path)
-                        cursor = conn.cursor()
-                        cursor.execute("SELECT * FROM agent_status")
-                        status_rows = cursor.fetchall()
-                        conn.close()
-                        if status_rows:
-                            prompt += "\nTEAM CURRENT STATUS:\n"
-                            for sr in status_rows:
-                                prompt += f"- {sr['role'].upper()}: {sr['status']} (Last seen: {sr['last_seen']})\n"
-                    except:
-                        pass
-
-                    prompt += "\nFINAL INSTRUCTION: Use tools if needed, then output a technical summary ONLY."
-
-                    req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
-                    try:
-                        update_agent_status(db_path, args.role, "WORKING", current_task="Orchestration Pulse")
-                        run_engine_command(args.engine, prompt, args.workspace, db_path, args.role, model=args.model)
-                        update_agent_status(db_path, args.role, "IDLE", current_task=None)
-                    finally:
-                        release_token_bucket(req_id, lock_f, rate_db)
+                # In sequential mode, the planner just waits for user or task signals.
+                # No proactive team pulse needed as workers are ephemeral.
+                pass
 
         except Exception as loop_err:
             log_to_bus(db_path, "system", f"alert_{args.role}", f"Error in agent loop: {str(loop_err)}")

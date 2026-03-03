@@ -42,7 +42,7 @@ def get_db_connection(workspace_path: str):
             status TEXT NOT NULL,
             last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             current_task TEXT,
-            assigned_by TEXT
+            assigned_by TEXT DEFAULT ''
         )
     ''')
     conn.commit()
@@ -231,11 +231,11 @@ def enforce_socratic_gate(action_name: str, impact_description: str, options: Li
     return prompt
 
 @mcp.tool()
-def delegate_to_subagent(workspace_path: str, target_role: str, task_description: str, context_files: List[str], timeout_mins: int = 10, run_background: bool = True, engine: str = "copilot", model: str = "") -> str:
+def delegate_to_subagent(workspace_path: str, target_role: str, task_description: str, context_files: List[str], timeout_mins: int = 10, run_background: bool = False, engine: str = "copilot", model: str = "") -> str:
     """
     Delegate a task to a subagent running.
     If run_background is True, spawns the agent and returns immediately (parallel mode), sending logs to the bus.
-    If run_background is False, waits for the agent to finish before returning (sequential mode).
+    If run_background is False (default), waits for the agent to finish before returning the technical summary (sequential mode).
     """
     try:
         # Publish an initial message indicating the subagent is starting
@@ -254,8 +254,13 @@ def delegate_to_subagent(workspace_path: str, target_role: str, task_description
         elif "tester" in role_lower:
             workflow_file = ".agent/workflows/tester-verification.md"
 
+        # Prepare context by referring to files if specified
+        files_str = ""
+        if context_files:
+            files_str = f"\nCONTEXT_FILES: Please analyze and reference these files to complete your task: {', '.join(context_files)}\n"
+
         if "planner" in role_lower:
-            role_requirements = "CRITICAL ORCHESTRATION: You are the dispatcher. If 'coder', 'reviewer', or 'tester' are idling, you MUST assign tasks or request status. Do not allow the pipeline to stall.\n"
+            role_requirements = "CRITICAL ORCHESTRATION: You are the dispatcher. If the 'coder' is idling, you MUST assign tasks or request status. Avoid re-triggering 'reviewer' or 'tester' unless new code changes have been implemented.\n"
         elif "reviewer" in role_lower:
             role_requirements = "CRITICAL HANDOVER: If you FIND ISSUES, notify 'coder'. If you APPROVE, notify 'tester' to verify. Mandatory.\n"
         elif "tester" in role_lower:
@@ -268,15 +273,11 @@ def delegate_to_subagent(workspace_path: str, target_role: str, task_description
             "2. GLOBAL RULES: Follow all rules in '[GEMINI.md](file:///.agent/rules/GEMINI.md)'.\n"
             "3. STAR TOPOLOGY: Report status back to the PLANNER or the next role in the workflow via `publish_message` after every work block.\n"
             "4. NO DEADLOCKS: You MUST NOT exit or idle without sending an activation message to the next participant. If stuck, notify the Planner.\n"
-            "5. CONCISE COMMUNICATION: Focus on technical execution. Only send ONE final message summarizing your work.\n"
+            f"6. NO CO-AUTHORED-BY: When making git commits, DO NOT add 'Co-authored-by' or any agent information to the commit message.\n"
+            f"{files_str}"
             f"{role_requirements}"
-            "Once task is finished, output a technical summary and wait for instructions."
+            "\nFINAL GOAL: Execute the task, output a concise technical summary, and TERMINATE immediately. Do not wait for further input."
         )
-
-        # Prepare context by referring to files if specified
-        files_str = ""
-        if context_files:
-            files_str = f"Please refer to these files: {', '.join(context_files)}. "
 
         worker_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "worker.py")
         python_exec = sys.executable if sys.executable else "python"
@@ -302,7 +303,7 @@ def delegate_to_subagent(workspace_path: str, target_role: str, task_description
             )
             return f"🚀 Subagent Daemon {target_role} spawned in BACKGROUND. (PID: {process.pid}). Listening continuously for messages. View logs in Dashboard."
         else:
-            # Sequential mode (for compatibility if needed)
+            # Sequential mode: capture final summary output
             process = subprocess.Popen(
                 cmd,
                 shell=True,
@@ -313,11 +314,37 @@ def delegate_to_subagent(workspace_path: str, target_role: str, task_description
                 cwd=workspace_path,
                 env=my_env
             )
+
+            output_captured = []
+            capturing_summary = False
+            summary_buffer = []
+
             for line in iter(process.stdout.readline, ''):
                 if line:
+                    # Echo to bus to keep log current
                     publish_message(workspace_path, f"subagent_{target_role}", target_role, "all", line.strip())
+
+                    # Detect summary tags from worker.py
+                    if "=== AGENT_FINAL_SUMMARY ===" in line:
+                        capturing_summary = True
+                        continue
+                    elif "=== END_AGENT_FINAL_SUMMARY ===" in line:
+                        capturing_summary = False
+                        continue
+
+                    if capturing_summary:
+                        summary_buffer.append(line)
+                    else:
+                        output_captured.append(line)
+
             process.wait()
-            return f"✅ Subagent {target_role} execution completed."
+
+            final_summary = "".join(summary_buffer).strip()
+            if not final_summary:
+                # If tags not found, return some tail of the logs
+                final_summary = "".join(output_captured[-20:]).strip()
+
+            return f"✅ Subagent {target_role} finished.\n\nSUMMARY RESULT:\n{final_summary}"
 
     except Exception as e:
         return f"❌ Subagent execution failed: {str(e)}"
