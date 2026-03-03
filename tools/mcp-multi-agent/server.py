@@ -41,7 +41,8 @@ def get_db_connection(workspace_path: str):
             role TEXT PRIMARY KEY,
             status TEXT NOT NULL,
             last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            current_task TEXT
+            current_task TEXT,
+            assigned_by TEXT
         )
     ''')
     conn.commit()
@@ -189,6 +190,8 @@ def get_agent_statuses(workspace_path: str) -> str:
         res = ["🤖 Agent Status Report:"]
         for r in rows:
             res.append(f"- {r['role'].upper()}: [{r['status']}] (Last Seen: {r['last_seen']})")
+            if r['assigned_by']:
+                res.append(f"  Assigned by: {r['assigned_by']}")
             if r['current_task']:
                 res.append(f"  Task: {r['current_task'][:100]}...")
         return "\n".join(res)

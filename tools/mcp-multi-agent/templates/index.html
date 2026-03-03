@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,9 +11,17 @@
         .msg-enter {
             animation: fadeIn 0.3s ease-out forwards;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Dark mode aesthetics matching Antigravity theme */
@@ -26,18 +35,22 @@
         ::-webkit-scrollbar {
             width: 8px;
         }
+
         ::-webkit-scrollbar-track {
             background: #0d1117;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #30363d;
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: #8b949e;
         }
     </style>
 </head>
+
 <body class="h-screen flex flex-col">
 
     <!-- Header -->
@@ -49,7 +62,8 @@
             <span class="text-xs px-2 py-1 rounded bg-green-900 text-green-300 font-mono">LIVE</span>
         </div>
         <div>
-            <button onclick="clearMessages()" class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded text-sm shadow transition font-semibold">
+            <button onclick="clearMessages()"
+                class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded text-sm shadow transition font-semibold">
                 Clear History
             </button>
         </div>
@@ -64,7 +78,8 @@
     <!-- Main Container -->
     <main class="flex-1 overflow-hidden flex flex-col p-4">
         <!-- Message List Container -->
-        <div id="message-container" class="flex-1 overflow-y-auto w-full max-w-5xl mx-auto bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-4 space-y-4">
+        <div id="message-container"
+            class="flex-1 overflow-y-auto w-full max-w-5xl mx-auto bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-4 space-y-4">
             <!-- Messages will be injected here -->
             <div class="text-center text-gray-500 py-10" id="empty-state">
                 Waiting for agent streams...
@@ -110,7 +125,7 @@
 
         function formatTime(timestampStr) {
             const d = new Date(timestampStr + 'Z'); // Convert to UTC object
-            return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
 
         function renderMessage(msg) {
@@ -142,11 +157,11 @@
         // Basic HTML escape
         function escapeHtml(unsafe) {
             return unsafe
-                 .replace(/&/g, "&amp;")
-                 .replace(/</g, "&lt;")
-                 .replace(/>/g, "&gt;")
-                 .replace(/"/g, "&quot;")
-                 .replace(/'/g, "&#039;");
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
         async function fetchMessages() {
@@ -184,7 +199,7 @@
         }
 
         async function clearMessages() {
-            if(confirm("Are you sure you want to clear the message bus?")) {
+            if (confirm("Are you sure you want to clear the message bus?")) {
                 await fetch('/api/clear', { method: 'POST' });
                 container.innerHTML = '<div class="text-center text-gray-500 py-10" id="empty-state">Waiting for agent streams...</div>';
                 lastMessageId = 0;
@@ -211,8 +226,13 @@
                         div.className = "flex items-center space-x-2 bg-gray-900 border border-gray-700 px-3 py-1 rounded-full shadow-inner min-w-fit";
                         div.innerHTML = `
                             <div class="w-2 h-2 rounded-full ${statusColor} ${pulseClass}"></div>
-                            <span class="text-xs font-bold uppercase tracking-tighter">${agent.role}</span>
-                            <span class="text-[10px] opacity-60 italic truncate max-w-[150px]">${agent.status} ${agent.current_task ? '| ' + agent.current_task : ''}</span>
+                            <div class="flex flex-col">
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-xs font-bold uppercase tracking-tighter">${agent.role}</span>
+                                    ${agent.assigned_by ? `<span class="text-[9px] bg-gray-800 px-1 rounded border border-gray-700 opacity-70">via ${agent.assigned_by}</span>` : ''}
+                                </div>
+                                <span class="text-[10px] opacity-60 italic truncate max-w-[180px]">${agent.status} ${agent.current_task ? '| ' + agent.current_task : ''}</span>
+                            </div>
                         `;
                         belt.appendChild(div);
                     });
@@ -225,4 +245,5 @@
         fetchMessages();
     </script>
 </body>
+
 </html>

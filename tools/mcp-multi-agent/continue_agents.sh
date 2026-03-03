@@ -29,6 +29,11 @@ fi
 echo "🔋 Resuming background functions (cleaning existing processes)..."
 pkill -f "worker.py --workspace $WORKSPACE"
 pkill -f "dashboard.py"
+echo "📝 Resetting stale Agent statuses..."
+DB_PATH="$LOG_DIR/multi_agent_bus.db"
+if [ -f "$DB_PATH" ]; then
+    sqlite3 "$DB_PATH" "UPDATE agent_status SET status = 'OFFLINE', current_task = '' ;"
+fi
 sleep 1
 
 echo "♻️ Resuming [Planner Agent]..."
