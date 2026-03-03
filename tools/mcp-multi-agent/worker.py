@@ -95,27 +95,29 @@ def get_db_connection(db_path):
             role TEXT PRIMARY KEY,
             status TEXT NOT NULL,
             last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            current_task TEXT
+            current_task TEXT,
+            assigned_by TEXT
         )
     ''')
     conn.commit()
     conn.row_factory = sqlite3.Row
     return conn
 
-def update_agent_status(db_path, role, status, current_task=None):
+def update_agent_status(db_path, role, status, current_task=None, assigned_by=None):
     try:
         conn = get_db_connection(db_path)
         conn.execute("BEGIN IMMEDIATE")
         cursor = conn.cursor()
         if current_task is not None:
             cursor.execute('''
-                INSERT INTO agent_status (role, status, current_task, last_seen)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+                INSERT INTO agent_status (role, status, current_task, assigned_by, last_seen)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
                 ON CONFLICT(role) DO UPDATE SET
                     status=excluded.status,
                     current_task=excluded.current_task,
+                    assigned_by=COALESCE(excluded.assigned_by, agent_status.assigned_by),
                     last_seen=CURRENT_TIMESTAMP
-            ''', (role, status, current_task))
+            ''', (role, status, current_task, assigned_by))
         else:
             cursor.execute('''
                 INSERT INTO agent_status (role, status, current_task, last_seen)
@@ -123,6 +125,7 @@ def update_agent_status(db_path, role, status, current_task=None):
                 ON CONFLICT(role) DO UPDATE SET
                     status=excluded.status,
                     current_task=excluded.current_task,
+                    assigned_by=CASE WHEN excluded.status='IDLE' THEN '' ELSE agent_status.assigned_by END,
                     last_seen=CURRENT_TIMESTAMP
             ''', (role, status))
         conn.commit()
@@ -131,33 +134,30 @@ def update_agent_status(db_path, role, status, current_task=None):
         print(f"Error updating agent status: {e}")
 
 def read_unread_messages(db_path, role):
-    conn = None
     try:
         conn = get_db_connection(db_path)
-        # Fix Race Condition (Idea 1): Use BEGIN IMMEDIATE to lock the DB for writing
-        # This ensures only one process reads and marks messages as read at a time.
-        conn.execute("BEGIN IMMEDIATE")
         cursor = conn.cursor()
         cursor.execute("SELECT id, sender_role, content FROM messages WHERE receiver_role = ? AND is_read = 0 ORDER BY created_at ASC", (role,))
         rows = cursor.fetchall()
-
-        if rows:
-            msg_ids = [r['id'] for r in rows]
-            placeholders = ', '.join(['?'] * len(msg_ids))
-            cursor.execute(f"UPDATE messages SET is_read = 1 WHERE id IN ({placeholders})", msg_ids)
-            conn.commit()
-        else:
-            conn.rollback()
-
+        conn.close()
         return rows
-    except sqlite3.OperationalError as e:
-        # DB is likely locked by another worker, just back off
-        if conn: conn.rollback()
-        return []
     except Exception as e:
         print(f"DB Error read_unread_messages: {e}")
-        if conn: conn.rollback()
         return []
+
+def mark_messages_as_read(db_path, msg_ids):
+    if not msg_ids: return
+    conn = None
+    try:
+        conn = get_db_connection(db_path)
+        conn.execute("BEGIN IMMEDIATE")
+        cursor = conn.cursor()
+        placeholders = ', '.join(['?'] * len(msg_ids))
+        cursor.execute(f"UPDATE messages SET is_read = 1 WHERE id IN ({placeholders})", msg_ids)
+        conn.commit()
+    except Exception as e:
+        print(f"DB Error mark_messages_as_read: {e}")
+        if conn: conn.rollback()
     finally:
         if conn: conn.close()
 
@@ -300,7 +300,7 @@ def main():
     db_path = os.path.join(args.workspace, ".agent_logs", "multi_agent_bus.db")
 
     log_to_bus(db_path, "system", f"subagent_{args.role}", f"Daemon Worker for ROLE [{args.role}] started (Resume={args.resume}). Listening for messages...")
-    update_agent_status(db_path, args.role, "IDLE", current_task="Waiting for mission" if not args.task else args.task)
+    update_agent_status(db_path, args.role, "IDLE", current_task="Waiting for mission" if not args.task else args.task, assigned_by="system" if args.task else "")
 
     # Process initial mission/task if provided
     if args.task and not args.resume:
@@ -314,7 +314,7 @@ def main():
         # Acquire token bucket to allow concurrency but prevent rate limiting
         req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
         try:
-            update_agent_status(db_path, args.role, "WORKING", current_task=args.task)
+            update_agent_status(db_path, args.role, "WORKING", current_task=args.task, assigned_by="user")
             run_engine_command(args.engine, prompt, args.workspace, db_path, args.role, model=args.model)
             update_agent_status(db_path, args.role, "IDLE", current_task=None)
         finally:
@@ -344,8 +344,14 @@ def main():
                 log_to_bus(db_path, args.role, f"subagent_{args.role}", f"Received {len(msgs)} unread message(s). Batching...")
 
                 combined_msgs = ""
+                senders = set()
+                msg_ids = []
                 for msg in msgs:
                     combined_msgs += f"--- Message from '{msg['sender_role']}': ---\n{msg['content']}\n\n"
+                    senders.add(msg['sender_role'])
+                    msg_ids.append(msg['id'])
+
+                assigned_by = ", ".join(senders)
 
                 # SYSTEM INSTRUCTION remains at the VERY TOP for prompt caching
                 prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\n"
@@ -386,9 +392,12 @@ def main():
                 # Acquire token bucket
                 req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
                 try:
-                    update_agent_status(db_path, args.role, "WORKING", current_task=combined_msgs[:500])
+                    update_agent_status(db_path, args.role, "WORKING", current_task=combined_msgs[:500], assigned_by=assigned_by)
                     run_engine_command(args.engine, prompt, args.workspace, db_path, args.role, model=args.model)
                     update_agent_status(db_path, args.role, "IDLE", current_task=None)
+
+                    # ONLY MARK AS READ AFTER SUCCESSFUL FINISH
+                    mark_messages_as_read(db_path, msg_ids)
                 finally:
                     release_token_bucket(req_id, lock_f, rate_db)
                     time.sleep(2)

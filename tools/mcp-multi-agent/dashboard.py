@@ -39,7 +39,8 @@ def get_db_connection():
                 role TEXT PRIMARY KEY,
                 status TEXT NOT NULL,
                 last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                current_task TEXT
+                current_task TEXT,
+                assigned_by TEXT
             )
         ''')
         conn.commit()
