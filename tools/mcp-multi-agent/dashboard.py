@@ -34,6 +34,14 @@ def get_db_connection():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS agent_status (
+                role TEXT PRIMARY KEY,
+                status TEXT NOT NULL,
+                last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                current_task TEXT
+            )
+        ''')
         conn.commit()
         conn.close()
 
@@ -72,6 +80,18 @@ def get_messages(topic: str = None, unread_only: bool = False):
         return {"messages": messages[::-1]}
     except Exception as e:
         return {"error": str(e), "messages": []}
+
+@app.get("/api/statuses")
+def get_statuses():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM agent_status ORDER BY role ASC")
+        rows = cursor.fetchall()
+        conn.close()
+        return {"statuses": [dict(r) for r in rows]}
+    except Exception as e:
+        return {"error": str(e), "statuses": []}
 
 @app.post("/api/clear")
 def clear_all_messages():

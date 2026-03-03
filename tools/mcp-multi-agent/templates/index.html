@@ -55,6 +55,12 @@
         </div>
     </header>
 
+    <!-- Status Belt -->
+    <div id="status-belt" class="bg-gray-800 border-b border-gray-700 p-2 flex space-x-4 overflow-x-auto">
+        <!-- Agent statuses will be injected here -->
+        <span class="text-xs text-gray-500 italic px-2">Gathering team status...</span>
+    </div>
+
     <!-- Main Container -->
     <main class="flex-1 overflow-hidden flex flex-col p-4">
         <!-- Message List Container -->
@@ -187,6 +193,34 @@
 
         // Poll every 1 second
         setInterval(fetchMessages, 1000);
+        setInterval(fetchStatuses, 2000); // Status updates a bit slower
+
+        async function fetchStatuses() {
+            try {
+                const res = await fetch('/api/statuses');
+                const data = await res.json();
+                const belt = document.getElementById('status-belt');
+
+                if (data.statuses && data.statuses.length > 0) {
+                    belt.innerHTML = '';
+                    data.statuses.forEach(agent => {
+                        const statusColor = agent.status === 'WORKING' ? 'bg-green-500' : 'bg-gray-500';
+                        const pulseClass = agent.status === 'WORKING' ? 'animate-pulse' : '';
+
+                        const div = document.createElement('div');
+                        div.className = "flex items-center space-x-2 bg-gray-900 border border-gray-700 px-3 py-1 rounded-full shadow-inner min-w-fit";
+                        div.innerHTML = `
+                            <div class="w-2 h-2 rounded-full ${statusColor} ${pulseClass}"></div>
+                            <span class="text-xs font-bold uppercase tracking-tighter">${agent.role}</span>
+                            <span class="text-[10px] opacity-60 italic truncate max-w-[150px]">${agent.status} ${agent.current_task ? '| ' + agent.current_task : ''}</span>
+                        `;
+                        belt.appendChild(div);
+                    });
+                }
+            } catch (err) {
+                console.error("Status fetch error:", err);
+            }
+        }
         // Initial fetch
         fetchMessages();
     </script>
