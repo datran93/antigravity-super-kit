@@ -8,6 +8,7 @@ import time
 import sqlite3
 import subprocess
 import fcntl
+import sys
 
 def acquire_token_bucket(workspace, max_rpm=10, max_concurrent=2):
     db_path = os.path.join(workspace, ".agent_logs", "rate_limit.db")
@@ -89,8 +90,45 @@ def get_db_connection(db_path):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS agent_status (
+            role TEXT PRIMARY KEY,
+            status TEXT NOT NULL,
+            last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            current_task TEXT
+        )
+    ''')
+    conn.commit()
     conn.row_factory = sqlite3.Row
     return conn
+
+def update_agent_status(db_path, role, status, current_task=None):
+    try:
+        conn = get_db_connection(db_path)
+        conn.execute("BEGIN IMMEDIATE")
+        cursor = conn.cursor()
+        if current_task is not None:
+            cursor.execute('''
+                INSERT INTO agent_status (role, status, current_task, last_seen)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(role) DO UPDATE SET
+                    status=excluded.status,
+                    current_task=excluded.current_task,
+                    last_seen=CURRENT_TIMESTAMP
+            ''', (role, status, current_task))
+        else:
+            cursor.execute('''
+                INSERT INTO agent_status (role, status, current_task, last_seen)
+                VALUES (?, ?, '', CURRENT_TIMESTAMP)
+                ON CONFLICT(role) DO UPDATE SET
+                    status=excluded.status,
+                    current_task=excluded.current_task,
+                    last_seen=CURRENT_TIMESTAMP
+            ''', (role, status))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error updating agent status: {e}")
 
 def read_unread_messages(db_path, role):
     conn = None
@@ -151,8 +189,9 @@ def log_to_bus(db_path, sender, topic, content, receiver="all"):
 
 def run_engine_command(engine, prompt, workspace, db_path, role, model=None):
     try:
-        if engine == "gemini" or engine == "copilot":
-            cmd = f"{engine} -p {shlex.quote(prompt)}"
+        if engine in ["copilot", "gemini"]:
+            flag = " --allow-all-tools" if engine == "copilot" else ""
+            cmd = f"{engine} -p {shlex.quote(prompt)}{flag}"
         else:
             # Default to 'run' command for kilocode and opencode
             cmd = f"{engine} run {shlex.quote(prompt)}"
@@ -253,7 +292,7 @@ def main():
     parser.add_argument('--role', required=True)
     parser.add_argument('--instruction', required=True)
     parser.add_argument('--task', required=False, default="")
-    parser.add_argument('--engine', required=False, default="kilocode", choices=["kilocode", "opencode", "gemini", "copilot", "openrouter"])
+    parser.add_argument('--engine', required=False, default="copilot", choices=["kilocode", "opencode", "gemini", "copilot"])
     parser.add_argument('--model', required=False, default=None, help="Specific model to use (provider/model)")
     parser.add_argument('--resume', action='store_true', help="Resume agent with previous memory context")
     args = parser.parse_args()
@@ -261,6 +300,7 @@ def main():
     db_path = os.path.join(args.workspace, ".agent_logs", "multi_agent_bus.db")
 
     log_to_bus(db_path, "system", f"subagent_{args.role}", f"Daemon Worker for ROLE [{args.role}] started (Resume={args.resume}). Listening for messages...")
+    update_agent_status(db_path, args.role, "IDLE", current_task="Waiting for mission" if not args.task else args.task)
 
     # Process initial mission/task if provided
     if args.task and not args.resume:
@@ -274,7 +314,9 @@ def main():
         # Acquire token bucket to allow concurrency but prevent rate limiting
         req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
         try:
+            update_agent_status(db_path, args.role, "WORKING", current_task=args.task)
             run_engine_command(args.engine, prompt, args.workspace, db_path, args.role, model=args.model)
+            update_agent_status(db_path, args.role, "IDLE", current_task=None)
         finally:
             release_token_bucket(req_id, lock_f, rate_db)
             # Mandatory cooldown to prevent RPM spikes
@@ -289,6 +331,7 @@ def main():
     # Adaptive polling logic for persistent daemons
     current_sleep = 1
     max_sleep = 5
+    idle_cycles = 0
 
     # Core event loop: wait for messages and process them
     while True:
@@ -297,6 +340,7 @@ def main():
             if msgs:
                 # Active path: Reset sleep to fast mode
                 current_sleep = 2
+                idle_cycles = 0
                 log_to_bus(db_path, args.role, f"subagent_{args.role}", f"Received {len(msgs)} unread message(s). Batching...")
 
                 combined_msgs = ""
@@ -315,6 +359,22 @@ def main():
                     prompt += recent_history
 
                 prompt += f"NEW UNREAD MESSAGES TO PROCESS:\n{combined_msgs}"
+
+                # ROLE-SPECIFIC ENFORCEMENT
+                if args.role == 'reviewer':
+                    prompt += "\n\nCRITICAL HANDOVER PROTOCOL (REVIEWER):\n"
+                    prompt += "1. If you FIND ISSUES or BUGS: You MUST call 'publish_message' to notify the 'coder' role with detailed feedback so they can fix it.\n"
+                    prompt += "2. If you APPROVE the changes (Review Passed): You MUST call 'publish_message' to notify the 'tester' role to start verification. DO NOT report back to 'planner' yet.\n"
+                elif args.role == 'tester':
+                    prompt += "\n\nCRITICAL REPORTING PROTOCOL (TESTER):\n"
+                    prompt += "1. If tests FAIL: You MUST call 'publish_message' to notify the 'coder' role detailing which tests failed so they can fix the code.\n"
+                    prompt += "2. If tests PASS: You MUST call 'publish_message' to notify the 'planner' role with the results summary. This is the only way to advance the project.\n"
+                elif args.role == 'planner':
+                    prompt += "\n\nCRITICAL ORCHESTRATION PROTOCOL (PLANNER):\n"
+                    prompt += "1. You are the DISPATCHER. You MUST proactively ask 'coder', 'reviewer', or 'tester' for updates if you haven't heard from them.\n"
+                    prompt += "2. If the project pipeline is stalled (everyone is idling), you MUST immediately assign a new task to one of the agents.\n"
+                    prompt += "3. DO NOT wait for them to reach out to you; you lead the coordination.\n"
+
                 prompt += "\n\nCRITICAL COMMUNICATION POLICY:\n"
                 prompt += "1. EXECUTE YOUR TASK IN FULL.\n"
                 prompt += "2. MINIMIZE CHATTER.\n"
@@ -326,14 +386,62 @@ def main():
                 # Acquire token bucket
                 req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
                 try:
+                    update_agent_status(db_path, args.role, "WORKING", current_task=combined_msgs[:500])
                     run_engine_command(args.engine, prompt, args.workspace, db_path, args.role, model=args.model)
+                    update_agent_status(db_path, args.role, "IDLE", current_task=None)
                 finally:
                     release_token_bucket(req_id, lock_f, rate_db)
                     time.sleep(2)
 
             else:
                 # Idle path: Backoff slowly
+                idle_cycles += 1
                 current_sleep = min(current_sleep + 2, max_sleep)
+
+                # PLANNER PROACTIVE ORCHESTRATION PULSE
+                # If planner is idling for ~60 seconds (12 cycles * avg sleep), wake up and check status
+                if args.role == 'planner' and idle_cycles >= 12:
+                    idle_cycles = 0 # Reset
+                    log_to_bus(db_path, args.role, f"subagent_{args.role}", "📢 ORCHESTRATION PULSE: Reviewing team status and mission progress...")
+
+                    prompt = f"SYSTEM INSTRUCTION: {args.instruction}\n\n"
+                    if args.task:
+                        prompt += f"YOUR ORIGINAL MISSION/TASK WAS: {args.task}\n\n"
+
+                    recent_history = get_recent_history(db_path, args.role, limit=5)
+                    if recent_history:
+                        prompt += recent_history
+
+                    prompt += "\nORCHESTRATION WAKE-UP:\n"
+                    prompt += "You have been idling for a while. Everyone else is quiet. \n"
+                    prompt += "1. Review the history above.\n"
+                    prompt += "2. Determine if 'coder', 'reviewer', or 'tester' are stuck or idling.\n"
+                    prompt += "3. If they are idling, ASK for a status update or ASSIGN a new task to advance the mission.\n"
+                    prompt += "4. If progress is being made, just output a short status summary and stay quiet.\n"
+
+                    # Inject Agent Status Report
+                    try:
+                        conn = get_db_connection(db_path)
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT * FROM agent_status")
+                        status_rows = cursor.fetchall()
+                        conn.close()
+                        if status_rows:
+                            prompt += "\nTEAM CURRENT STATUS:\n"
+                            for sr in status_rows:
+                                prompt += f"- {sr['role'].upper()}: {sr['status']} (Last seen: {sr['last_seen']})\n"
+                    except:
+                        pass
+
+                    prompt += "\nFINAL INSTRUCTION: Use tools if needed, then output a technical summary ONLY."
+
+                    req_id, lock_f, rate_db = acquire_token_bucket(args.workspace, max_rpm=10, max_concurrent=2)
+                    try:
+                        update_agent_status(db_path, args.role, "WORKING", current_task="Orchestration Pulse")
+                        run_engine_command(args.engine, prompt, args.workspace, db_path, args.role, model=args.model)
+                        update_agent_status(db_path, args.role, "IDLE", current_task=None)
+                    finally:
+                        release_token_bucket(req_id, lock_f, rate_db)
 
         except Exception as loop_err:
             log_to_bus(db_path, "system", f"alert_{args.role}", f"Error in agent loop: {str(loop_err)}")

@@ -9,7 +9,7 @@ WORKSPACE=$(pwd)
 LOG_DIR="$WORKSPACE/.agent_logs"
 mkdir -p "$LOG_DIR"
 
-ENGINE="kilocode"
+ENGINE="copilot"
 
 # Parse options
 while [[ "$#" -gt 0 ]]; do
@@ -32,12 +32,13 @@ pkill -f "dashboard.py"
 sleep 1
 
 echo "♻️ Resuming [Planner Agent]..."
-PLANNER_INST="You are the LEAD PLANNER and ARCHITECT.
+PLANNER_INST="You are the LEAD PLANNER and ORCHESTRATOR.
 MANDATORY PROTOCOLS:
 1. WORKFLOW: Follow '.agent/workflows/planner-architect.md' strictly.
-2. COORDITANION: You are the Dispatcher. Assign tasks to 'coder' via 'publish_message'.
-3. NO DEADLOCK: Never idle without a message.
-4. PLAN: Maintain the project plan using @mcp:context-manager."
+2. ORCHESTRATION: You are the Dispatcher. Proactively ask 'coder', 'reviewer', and 'tester' for status updates via 'publish_message'.
+3. ASSIGNMENT: If subagents are idling, you MUST assign the next mission immediately.
+4. NO DEADLOCK: Never idle without ensuring the team has tasks or you have requested updates.
+5. PLAN: Maintain the project plan using @mcp:context-manager."
 nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role planner --instruction "$PLANNER_INST" --resume --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/planner.log" 2>&1 &
 sleep 5
 
@@ -54,7 +55,8 @@ echo "♻️ Resuming [Reviewer Agent]..."
 REVIEWER_INST="You are the REVIEWER.
 MANDATORY PROTOCOLS:
 1. WORKFLOW: Follow '.agent/workflows/reviewer-audit.md' strictly.
-2. READ-ONLY: Never modify source code. Request fixes from the coder."
+2. HANDOVER: If ISSUES found, notify 'coder'. If APPROVED, notify 'tester'. DO NOT skip.
+3. READ-ONLY: Never modify source code."
 nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role reviewer --instruction "$REVIEWER_INST" --resume --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/reviewer.log" 2>&1 &
 sleep 5
 
@@ -62,7 +64,8 @@ echo "♻️ Resuming [Tester Agent]..."
 TESTER_INST="You are the TESTER.
 MANDATORY PROTOCOLS:
 1. WORKFLOW: Follow '.agent/workflows/tester-verification.md' strictly.
-2. TEST: Write and run tests for all code logic."
+2. REPORT: If tests FAIL, notify 'coder'. If tests PASS, notify 'planner'. DO NOT skip.
+3. TEST: Write and run tests for all code logic."
 nohup "$PYTHON_ENV" -u "$WORKER_SCRIPT" --workspace "$WORKSPACE" --role tester --instruction "$TESTER_INST" --resume --engine "$ENGINE" $MODEL_ARG > "$LOG_DIR/tester.log" 2>&1 &
 sleep 10
 

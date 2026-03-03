@@ -36,6 +36,14 @@ def get_db_connection(workspace_path: str):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS agent_status (
+            role TEXT PRIMARY KEY,
+            status TEXT NOT NULL,
+            last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            current_task TEXT
+        )
+    ''')
     conn.commit()
     return conn
 def internal_log(workspace_path: str, sender: str, topic: str, content: str, receiver: str = "all"):
@@ -166,6 +174,26 @@ def read_messages(workspace_path: str, receiver_role: str, topic: str = "", unre
         return "\n".join(res)
     except Exception as e:
         return f"❌ Error reading messages: {str(e)}"
+@mcp.tool()
+def get_agent_statuses(workspace_path: str) -> str:
+    """Get the current status of all agents in the workspace."""
+    try:
+        conn = get_db_connection(workspace_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM agent_status")
+        rows = cursor.fetchall()
+        conn.close()
+        if not rows:
+            return "No agent status information found."
+
+        res = ["🤖 Agent Status Report:"]
+        for r in rows:
+            res.append(f"- {r['role'].upper()}: [{r['status']}] (Last Seen: {r['last_seen']})")
+            if r['current_task']:
+                res.append(f"  Task: {r['current_task'][:100]}...")
+        return "\n".join(res)
+    except Exception as e:
+        return f"❌ Error fetching agent statuses: {str(e)}"
 
 @mcp.tool()
 def clear_topic(workspace_path: str, topic: str) -> str:
@@ -200,7 +228,7 @@ def enforce_socratic_gate(action_name: str, impact_description: str, options: Li
     return prompt
 
 @mcp.tool()
-def delegate_to_subagent(workspace_path: str, target_role: str, task_description: str, context_files: List[str], timeout_mins: int = 10, run_background: bool = True, engine: str = "kilocode", model: str = "") -> str:
+def delegate_to_subagent(workspace_path: str, target_role: str, task_description: str, context_files: List[str], timeout_mins: int = 10, run_background: bool = True, engine: str = "copilot", model: str = "") -> str:
     """
     Delegate a task to a subagent running.
     If run_background is True, spawns the agent and returns immediately (parallel mode), sending logs to the bus.
@@ -222,6 +250,13 @@ def delegate_to_subagent(workspace_path: str, target_role: str, task_description
             workflow_file = ".agent/workflows/reviewer-audit.md"
         elif "tester" in role_lower:
             workflow_file = ".agent/workflows/tester-verification.md"
+
+        if "planner" in role_lower:
+            role_requirements = "CRITICAL ORCHESTRATION: You are the dispatcher. If 'coder', 'reviewer', or 'tester' are idling, you MUST assign tasks or request status. Do not allow the pipeline to stall.\n"
+        elif "reviewer" in role_lower:
+            role_requirements = "CRITICAL HANDOVER: If you FIND ISSUES, notify 'coder'. If you APPROVE, notify 'tester' to verify. Mandatory.\n"
+        elif "tester" in role_lower:
+            role_requirements = "CRITICAL REPORTING: If tests FAIL, notify 'coder' to fix. If tests PASS, notify 'planner' to advance the mission. Mandatory.\n"
 
         system_prompt = (
             f"You are the {target_role.upper()} in a Multi-Agent architecture. Your current task is: {task_description}.\n\n"
