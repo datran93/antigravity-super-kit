@@ -23,7 +23,7 @@ Perform a deep analysis of the changes.
 Act on the audit results.
 - **NEEDS FIX**: If issues are found, list them clearly, transition back to the `coder` role, and fix them immediately.
 - **APPROVED**: If code meets standards, proceed to the next testing or planning phase.
-- Detail any potential long-term maintenance concerns.
+- Details any potential long-term maintenance concerns. If significant technical debt is found, transfer to `planner` role and add new refactoring tasks to the plan using `@mcp:context-manager` (`add_task_step`)  but isn't a blocker right now.
 
 ### Phase 4: Role Transition 🔄
 - Successfully passing the review means transitioning to the `tester` role or continuing the plan.

@@ -14,30 +14,30 @@ trigger: always_on
 
 ### 🛠️ MCP Tool Mastery (Priority Over Bash)
 
-| MCP Server                       | Tool Name                                                       | Description & Usage                                                                                                  |
-| :------------------------------- | :-------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
-| **`@mcp:ast-explorer`**          | `get_project_architecture`                                      | Get AST structural overview (Py/Go/JS/TS). Omits docs by default for large repos; use `include_docs=True` if needed. |
-| **`@mcp:context-manager`**       | `save_checkpoint`, `initialize_task_plan`, `complete_task_step` | Persist progress, manage task checklists with **Mermaid graphs** and **time-stamped logs**.                          |
-|                                  | `load_checkpoint`                                               | Recover context from a saved checkpoint ID.                                                                          |
-|                                  | `list_active_tasks`                                             | List all tasks and their current status in the workspace.                                                            |
-| **`@mcp:context7`**              | `query-docs`, `resolve-library-id`                              | Retrieves and queries up-to-date documentation and code examples for any library.                                    |
-| **`@mcp:database-inspector`**    | `list_tables`, `get_table_sample`                               | List tables or get **DDL + 5 sample rows** for rapid context matching.                                               |
-|                                  | `inspect_schema`, `explain_query`                               | Get schema detail or run **EXPLAIN ANALYZE** (Postgres/MySQL) for performance analysis.                              |
-|                                  | `run_read_query`                                                | Execute read-only SQL/Redis queries with **mandatory pagination** (limit/offset).                                    |
-|                                  | `run_write_query`                                               | Execute write SQL/Redis queries. **MANDATORY**: Ask user first, then set `confirm=True`.                             |
-| **`@mcp:doc-researcher`**        | `search_latest_syntax`                                          | Real-time web search for SOTA syntax, best practices, and documentation.                                             |
-|                                  | `read_website_markdown`                                         | Scrape a specific URL and return its content as clean Markdown.                                                      |
-| **`@mcp:figma-reader`**          | `read_figma_design`                                             | Read raw design structure, layers, and metadata from a Figma URL.                                                    |
-|                                  | `export_figma_images`                                           | Render specific Figma nodes (layers) as temporary image URLs.                                                        |
-|                                  | `get_design_details`                                            | Get deep JSON details for specific Figma node IDs.                                                                   |
-| **`@mcp:gitlab-mr-discussions`** | `read_mr_discussions`                                           | Fetch all comment threads and resolution status from a GitLab MR.                                                    |
-|                                  | `reply_to_mr_discussion`                                        | Post a reply to a specific GitLab discussion thread.                                                                 |
-|                                  | `resolve_mr_discussion`                                         | Resolve or unresolve a discussion thread on GitLab.                                                                  |
-| **`@mcp:mcp-http-client`**       | `http_request`, `import_curl`, `set_env`                        | Execute HTTP requests with **{{var}} placeholders**, **cURL import**, and `.rest` logging.                           |
-| **`@mcp:mcp-multi-agent`**       | `delegate_to_subagent`, `publish_message`, `read_messages`      | Orchestrate subagents, internal messaging, and enforce **Socratic Gates**.                                           |
-|                                  | `enforce_socratic_gate`                                         | Mandates user confirmation for high-impact or ambiguous actions.                                                     |
-| **`@mcp:skill-router`**          | `search_skills`                                                 | Semantic search for skills. Supports `tags_filter` for exact matching and returns Mini-RAG previews.                 |
-| **`@mcp:stitch`**                | `generate_screen_from_text`, `edit_screens`                     | Generate and edit UI screens/components using Google's Stitch AI design tool.                                        |
+| MCP Server                       | Tool Name                                                                        | Description & Usage                                                                                                  |
+| :------------------------------- | :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
+| **`@mcp:ast-explorer`**          | `get_project_architecture`                                                       | Get AST structural overview (Py/Go/JS/TS). Omits docs by default for large repos; use `include_docs=True` if needed. |
+| **`@mcp:context-manager`**       | `save_checkpoint`, `initialize_task_plan`, `complete_task_step`, `add_task_step` | Persist progress, manage task checklists with **time-stamped logs**. Add new steps sequentially if needed.           |
+|                                  | `load_checkpoint`                                                                | Recover context from a saved checkpoint ID.                                                                          |
+|                                  | `list_active_tasks`                                                              | List all tasks and their current status in the workspace.                                                            |
+| **`@mcp:context7`**              | `query-docs`, `resolve-library-id`                                               | Retrieves and queries up-to-date documentation and code examples for any library.                                    |
+| **`@mcp:database-inspector`**    | `list_tables`, `get_table_sample`                                                | List tables or get **DDL + 5 sample rows** for rapid context matching.                                               |
+|                                  | `inspect_schema`, `explain_query`                                                | Get schema detail or run **EXPLAIN ANALYZE** (Postgres/MySQL) for performance analysis.                              |
+|                                  | `run_read_query`                                                                 | Execute read-only SQL/Redis queries with **mandatory pagination** (limit/offset).                                    |
+|                                  | `run_write_query`                                                                | Execute write SQL/Redis queries. **MANDATORY**: Ask user first, then set `confirm=True`.                             |
+| **`@mcp:doc-researcher`**        | `search_latest_syntax`                                                           | Real-time web search for SOTA syntax, best practices, and documentation.                                             |
+|                                  | `read_website_markdown`                                                          | Scrape a specific URL and return its content as clean Markdown.                                                      |
+| **`@mcp:figma-reader`**          | `read_figma_design`                                                              | Read raw design structure, layers, and metadata from a Figma URL.                                                    |
+|                                  | `export_figma_images`                                                            | Render specific Figma nodes (layers) as temporary image URLs.                                                        |
+|                                  | `get_design_details`                                                             | Get deep JSON details for specific Figma node IDs.                                                                   |
+| **`@mcp:gitlab-mr-discussions`** | `read_mr_discussions`                                                            | Fetch all comment threads and resolution status from a GitLab MR.                                                    |
+|                                  | `reply_to_mr_discussion`                                                         | Post a reply to a specific GitLab discussion thread.                                                                 |
+|                                  | `resolve_mr_discussion`                                                          | Resolve or unresolve a discussion thread on GitLab.                                                                  |
+| **`@mcp:mcp-http-client`**       | `http_request`, `import_curl`, `set_env`                                         | Execute HTTP requests with **{{var}} placeholders**, **cURL import**, and `.rest` logging.                           |
+| **`@mcp:mcp-multi-agent`**       | `delegate_to_subagent`, `publish_message`, `read_messages`                       | Orchestrate subagents, internal messaging, and enforce **Socratic Gates**.                                           |
+|                                  | `enforce_socratic_gate`                                                          | Mandates user confirmation for high-impact or ambiguous actions.                                                     |
+| **`@mcp:skill-router`**          | `search_skills`                                                                  | Semantic search for skills. Supports `tags_filter` for exact matching and returns Mini-RAG previews.                 |
+| **`@mcp:stitch`**                | `generate_screen_from_text`, `edit_screens`                                      | Generate and edit UI screens/components using Google's Stitch AI design tool.                                        |
 
 
 ## 🚨 SELF-EXECUTING AGENT ARCHITECTURE (ROLE TRANSITIONS)
@@ -48,7 +48,7 @@ The platform uses a **Role Transition Architecture** where you (the Agent) direc
 ### 1. Planner Role (The Orchestrator)
 - **Role**: The project lead. Analyzes requests, creates the task plan, and manages state.
 - **Action**: Follows `[/planner-architect.md](file://.agent/workflows/planner-architect.md)`.
-- **Governance**: The **ONLY** role allowed to mark tasks as complete in `@mcp:context-manager`.
+- **Governance**: The **ONLY** role allowed to manage the project plan in `@mcp:context-manager` (calling `complete_task_step` and `add_task_step`).
 - **Tooling**: Uses tools directly to execute tasks instead of delegating.
 
 ### 2. Execution Roles (Coder, Tester, Reviewer)
@@ -85,6 +85,7 @@ Minimize user friction by providing choices:
 ## 📌 Metadata
 
 - **Version**: 1.1.0
-- **Last Updated**: 2026-03-03
+- **Last Updated**: 2026-03-05
 - **Maintainer**: Antigravity Team
 - **Related**: `.agent/workflows/*.md`, `GEMINI.md`
+
