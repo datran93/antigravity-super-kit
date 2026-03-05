@@ -71,6 +71,7 @@ The platform uses a **Role Transition Architecture** where you (the Agent) direc
     - **Tester Mode**: Owns the Test Suite & Verification Results.
 3.  **Self-Correction**: You are always in control. If an implementation fails testing or review, you must transition back to the Coder role to fix it.
 4.  **No Co-Authored-By**: When making git commits, you MUST NOT add any metadata (like 'Co-authored-by') to keeping history clean.
+5.  **Role Anchoring**: ALWAYS prefix every conversational response with your current role tag (e.g. `[Role: 👔 Project Manager]`, `[Role: 🏗️ Planner]`, etc.) to clearly establish state.
 
 ---
 

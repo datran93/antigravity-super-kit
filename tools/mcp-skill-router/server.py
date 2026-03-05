@@ -4,6 +4,7 @@ load_dotenv("/Users/datran/LearnDev/antigravity-kit/.env")
 
 from mcp.server.fastmcp import FastMCP
 import chromadb
+import traceback
 from chromadb.utils import embedding_functions
 
 # Config
@@ -90,7 +91,7 @@ def search_skills(query: str, tags_filter: str = "", top_k: int = 3) -> str:
         return "\n".join(formatted_results)
 
     except Exception as e:
-        return f"❌ Error during search: {str(e)}"
+        return f"❌ Error during search: {str(e)}\n{traceback.format_exc()}"
 
 if __name__ == "__main__":
     mcp.run(transport='stdio')

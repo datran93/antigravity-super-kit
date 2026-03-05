@@ -1,6 +1,7 @@
 import json
 import requests
 import os
+import traceback
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 from mcp.server.fastmcp import FastMCP
@@ -137,7 +138,7 @@ def http_request(
         return "\n".join(output)
 
     except requests.exceptions.RequestException as e:
-        return f"❌ **Request Error**: {str(e)}"
+        return f"❌ **Request Error**: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def set_env(key: str, value: Any) -> str:
@@ -186,7 +187,7 @@ def import_curl(curl_command: str) -> str:
 
         return http_request(method=method, path=url, json_body=json_body, headers=headers, slug="curl-import")
     except Exception as e:
-        return f"❌ Error parsing cURL: {str(e)}"
+        return f"❌ Error parsing cURL: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def list_history() -> str:
@@ -209,7 +210,8 @@ def list_history() -> str:
                         latest_req = line.strip()
                         break
                 output.append(f"- **`{file}`**: {latest_req if latest_req else 'Empty'}")
-        except: output.append(f"- **`{file}`**: Read error.")
+        except Exception as e:
+            output.append(f"- **`{file}`**: Read error - {str(e)}")
 
     return "\n".join(output)
 

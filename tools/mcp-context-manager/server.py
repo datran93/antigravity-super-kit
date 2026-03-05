@@ -1,6 +1,8 @@
 import os
 import sqlite3
 import json
+import traceback
+from contextlib import closing
 from datetime import datetime
 from mcp.server.fastmcp import FastMCP
 from typing import List, Optional
@@ -39,11 +41,10 @@ def write_markdown_progress(workspace_path, task_id, description, status, comple
         md_path = os.path.join(workspace_path, "progress.md")
 
         # Get history of other completed tasks
-        conn = get_db_connection(workspace_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT task_id, description FROM checkpoints WHERE status = 'completed' AND task_id != ? ORDER BY updated_at DESC", (task_id,))
-        historical_tasks = cursor.fetchall()
-        conn.close()
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT task_id, description FROM checkpoints WHERE status = 'completed' AND task_id != ? ORDER BY updated_at DESC", (task_id,))
+            historical_tasks = cursor.fetchall()
 
         total_steps = len(completed_steps) + len(next_steps)
         progress_pct = (len(completed_steps) / total_steps * 100) if total_steps > 0 else 0
@@ -108,25 +109,24 @@ def save_checkpoint(
     Save or update a task checkpoint/context.
     """
     try:
-        conn = get_db_connection(workspace_path)
-        cursor = conn.cursor()
-        now = datetime.now().isoformat()
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            now = datetime.now().isoformat()
 
-        cursor.execute('''
-            INSERT INTO checkpoints (task_id, description, status, completed_steps, next_steps, active_files, notes, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(task_id) DO UPDATE SET
-                description=excluded.description,
-                status=excluded.status,
-                completed_steps=excluded.completed_steps,
-                next_steps=excluded.next_steps,
-                active_files=excluded.active_files,
-                notes=excluded.notes,
-                updated_at=excluded.updated_at
-        ''', (task_id, description, status, json.dumps(completed_steps), json.dumps(next_steps), json.dumps(active_files), notes, now))
+            cursor.execute('''
+                INSERT INTO checkpoints (task_id, description, status, completed_steps, next_steps, active_files, notes, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(task_id) DO UPDATE SET
+                    description=excluded.description,
+                    status=excluded.status,
+                    completed_steps=excluded.completed_steps,
+                    next_steps=excluded.next_steps,
+                    active_files=excluded.active_files,
+                    notes=excluded.notes,
+                    updated_at=excluded.updated_at
+            ''', (task_id, description, status, json.dumps(completed_steps), json.dumps(next_steps), json.dumps(active_files), notes, now))
 
-        conn.commit()
-        conn.close()
+            conn.commit()
 
         write_markdown_progress(workspace_path, task_id, description, status, completed_steps, next_steps, active_files, notes)
 
@@ -135,7 +135,7 @@ def save_checkpoint(
             msg += "\n\n🎉 ALL TASKS COMPLETED! Great job."
         return msg
     except Exception as e:
-        return f"❌ Error saving checkpoint: {str(e)}"
+        return f"❌ Error saving checkpoint: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def initialize_task_plan(workspace_path: str, task_id: str, description: str, steps: List[str]) -> str:
@@ -156,41 +156,38 @@ def initialize_task_plan(workspace_path: str, task_id: str, description: str, st
 def complete_task_step(workspace_path: str, task_id: str, step_name: str, active_files: Optional[List[str]] = None, notes: Optional[str] = None) -> str:
     """Mark step as done, track active files, update graph and bar."""
     try:
-        conn = get_db_connection(workspace_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM checkpoints WHERE task_id = ?", (task_id,))
-        row = cursor.fetchone()
-        if not row:
-            conn.close()
-            return f"❌ Task '{task_id}' not found."
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM checkpoints WHERE task_id = ?", (task_id,))
+            row = cursor.fetchone()
+            if not row:
+                return f"❌ Task '{task_id}' not found."
 
-        comp = json.loads(row['completed_steps'])
-        nxt = json.loads(row['next_steps'])
-        curr_active_files = json.loads(row['active_files']) if row['active_files'] else []
+            comp = json.loads(row['completed_steps'])
+            nxt = json.loads(row['next_steps'])
+            curr_active_files = json.loads(row['active_files']) if row['active_files'] else []
 
-        if step_name in nxt:
-            nxt.remove(step_name)
-            comp.append(step_name)
-        else:
-            conn.close()
-            return f"⚠️ Step '{step_name}' not in queue."
+            if step_name in nxt:
+                nxt.remove(step_name)
+                comp.append(step_name)
+            else:
+                return f"⚠️ Step '{step_name}' not in queue."
 
-        stat = "completed" if not nxt else row['status']
+            stat = "completed" if not nxt else row['status']
 
-        # Track Time & Log
-        end_time_str = datetime.now().strftime('%H:%M:%S')
-        log = row['notes'] + f"\n[{end_time_str}] ✅ Done: {step_name}"
+            # Track Time & Log
+            end_time_str = datetime.now().strftime('%H:%M:%S')
+            log = row['notes'] + f"\n[{end_time_str}] ✅ Done: {step_name}"
 
-        if active_files:
-            log += f"\n  - Files: {', '.join(active_files)}"
-            for f in active_files:
-                if f not in curr_active_files:
-                    curr_active_files.append(f)
+            if active_files:
+                log += f"\n  - Files: {', '.join(active_files)}"
+                for f in active_files:
+                    if f not in curr_active_files:
+                        curr_active_files.append(f)
 
-        if notes:
-            log += f"\n  - Notes: {notes}"
+            if notes:
+                log += f"\n  - Notes: {notes}"
 
-        conn.close()
         return save_checkpoint(
             workspace_path=workspace_path,
             task_id=task_id,
@@ -201,32 +198,30 @@ def complete_task_step(workspace_path: str, task_id: str, step_name: str, active
             active_files=curr_active_files,
             notes=log
         )
-    except Exception as e: return f"❌ Error: {str(e)}"
+    except Exception as e:
+        return f"❌ Error completing step: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def add_task_step(workspace_path: str, task_id: str, new_step: str) -> str:
     """Add a new task step to the next_steps list of an existing task."""
     try:
-        conn = get_db_connection(workspace_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM checkpoints WHERE task_id = ?", (task_id,))
-        row = cursor.fetchone()
-        if not row:
-            conn.close()
-            return f"❌ Task '{task_id}' not found."
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM checkpoints WHERE task_id = ?", (task_id,))
+            row = cursor.fetchone()
+            if not row:
+                return f"❌ Task '{task_id}' not found."
 
-        nxt = json.loads(row['next_steps'])
-        comp = json.loads(row['completed_steps'])
+            nxt = json.loads(row['next_steps'])
+            comp = json.loads(row['completed_steps'])
 
-        if new_step in nxt or new_step in comp:
-            conn.close()
-            return f"⚠️ Step '{new_step}' already exists in task '{task_id}'."
+            if new_step in nxt or new_step in comp:
+                return f"⚠️ Step '{new_step}' already exists in task '{task_id}'."
 
-        nxt.append(new_step)
+            nxt.append(new_step)
 
-        log = row['notes'] + f"\n[{datetime.now().strftime('%H:%M:%S')}] Added new step: {new_step}"
+            log = row['notes'] + f"\n[{datetime.now().strftime('%H:%M:%S')}] Added new step: {new_step}"
 
-        conn.close()
         return save_checkpoint(
             workspace_path=workspace_path,
             task_id=task_id,
@@ -237,7 +232,8 @@ def add_task_step(workspace_path: str, task_id: str, new_step: str) -> str:
             active_files=json.loads(row['active_files']),
             notes=log
         )
-    except Exception as e: return f"❌ Error adding step: {str(e)}"
+    except Exception as e:
+        return f"❌ Error adding step: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def load_checkpoint(workspace_path: str, task_id: str) -> str:
@@ -245,11 +241,10 @@ def load_checkpoint(workspace_path: str, task_id: str) -> str:
     Load a previously saved task checkpoint.
     """
     try:
-        conn = get_db_connection(workspace_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM checkpoints WHERE task_id = ?", (task_id,))
-        row = cursor.fetchone()
-        conn.close()
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM checkpoints WHERE task_id = ?", (task_id,))
+            row = cursor.fetchone()
 
         if not row:
             return f"❌ Checkpoint '{task_id}' not found."
@@ -271,7 +266,7 @@ def load_checkpoint(workspace_path: str, task_id: str) -> str:
         res.append(f"\n## 📝 Notes\n{row['notes']}")
         return "\n".join(res)
     except Exception as e:
-        return f"❌ Error loading: {str(e)}"
+        return f"❌ Error loading: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def list_active_tasks(workspace_path: str) -> str:
@@ -279,11 +274,10 @@ def list_active_tasks(workspace_path: str) -> str:
     List all active tasks.
     """
     try:
-        conn = get_db_connection(workspace_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT task_id, status, updated_at FROM checkpoints ORDER BY updated_at DESC")
-        rows = cursor.fetchall()
-        conn.close()
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT task_id, status, updated_at FROM checkpoints ORDER BY updated_at DESC")
+            rows = cursor.fetchall()
 
         if not rows: return "No tasks found."
 
@@ -292,7 +286,7 @@ def list_active_tasks(workspace_path: str) -> str:
             res.append(f"- **{r['task_id']}** ({r['status']}) - {r['updated_at']}")
         return "\n".join(res)
     except Exception as e:
-        return f"❌ Error: {str(e)}"
+        return f"❌ Error: {str(e)}\n{traceback.format_exc()}"
 
 if __name__ == "__main__":
     mcp.run(transport='stdio')

@@ -8,10 +8,10 @@ This workflow guides you to perform rigorous code reviews on your own implementa
 
 ## 🚀 Audit Phase
 
-### Phase 1: Review Intake 📥
-Load the context of the recent code changes.
-- Identify the target quality standards using `@mcp:skill-router` (`search_skills`).
-- Understand what was just implemented in the `coder` role.
+### Phase 1: Review Intake & Filtering 📥
+Evaluate if a distinct review phase is necessary.
+- **Bypass Rule**: If the task has low complexity (e.g. <= 3) and is low-impact (e.g., minor UI/Text changes), you may bypass this distinct audit and transition directly to the `tester` role.
+- **For High-Impact / High-Complexity Tasks**: Load the context of the recent code changes. Identify the target quality standards using `@mcp:skill-router` (`search_skills`) and understand what was implemented in the `coder` role.
 
 ### Phase 2: Rigorous Code Audit 🔍
 Perform a deep analysis of the changes.
@@ -31,6 +31,7 @@ Act on the audit results.
 ## 🔴 Critical Constraints
 1. **Strictly Audit First**: Evaluate the code objectively before trying to fix it.
 2. **Internal Governance**: Do not proceed to testing if the code does not meet the basic quality baseline.
+3. **Role Anchoring**: ALWAYS prefix every conversational response with `[Role: 🔍 Reviewer]`.
 
 ---
 

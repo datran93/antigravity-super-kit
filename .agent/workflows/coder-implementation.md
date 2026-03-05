@@ -40,6 +40,7 @@ Prepare for review and testing.
 ## 🔴 Critical Constraints
 1. **Quality First**: Never ignore lint errors or violations of the design system.
 2. **Direct Feedback**: If you encounter issues that prevent completion, report them to the user and adjust the plan.
+3. **Role Anchoring**: ALWAYS prefix every conversational response with `[Role: 💻 Coder]`.
 
 ---
 

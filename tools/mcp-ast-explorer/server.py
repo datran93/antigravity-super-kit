@@ -348,7 +348,8 @@ def search_symbol(workspace_path: str, query: str) -> str:
         return "🔎 SYMBOL SEARCH RESULTS:\n" + "\n".join(results[:50])
 
     except Exception as e:
-        return f"❌ Error searching symbol: {str(e)}"
+        import traceback
+        return f"❌ Error searching symbol: {str(e)}\n{traceback.format_exc()}"
 
 if __name__ == "__main__":
     mcp.run(transport='stdio')

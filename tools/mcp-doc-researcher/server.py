@@ -4,6 +4,8 @@ import sqlite3
 import hashlib
 import time
 from datetime import datetime
+import traceback
+from contextlib import closing
 from typing import List
 from mcp.server.fastmcp import FastMCP
 from duckduckgo_search import DDGS
@@ -26,25 +28,23 @@ def get_db():
     return conn
 
 def get_cache(key: str):
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT value, timestamp FROM cache WHERE key = ?", (key,))
-    row = cursor.fetchone()
-    conn.close()
-    if row:
-        value, timestamp = row
-        if time.time() - timestamp < CACHE_EXPIRY_SECONDS:
-            return value
+    with closing(get_db()) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT value, timestamp FROM cache WHERE key = ?", (key,))
+        row = cursor.fetchone()
+        if row:
+            value, timestamp = row
+            if time.time() - timestamp < CACHE_EXPIRY_SECONDS:
+                return value
     return None
 
 def set_cache(key: str, value: str):
-    conn = get_db()
-    conn.execute('''
-        INSERT OR REPLACE INTO cache (key, value, timestamp)
-        VALUES (?, ?, ?)
-    ''', (key, value, time.time()))
-    conn.commit()
-    conn.close()
+    with closing(get_db()) as conn:
+        conn.execute('''
+            INSERT OR REPLACE INTO cache (key, value, timestamp)
+            VALUES (?, ?, ?)
+        ''', (key, value, time.time()))
+        conn.commit()
 
 def generate_cache_key(prefix: str, content: str) -> str:
     return f"{prefix}_{hashlib.md5(content.encode('utf-8')).hexdigest()}"
@@ -57,7 +57,7 @@ def fetch_jina_markdown(url: str) -> str:
         response.raise_for_status()
         return response.text
     except Exception as e:
-        return f"Error fetching markdown from {url}: {str(e)}"
+        return f"Error fetching markdown from {url}: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def search_latest_syntax(topic: str, libraries: List[str] = []) -> str:
@@ -113,7 +113,7 @@ def search_latest_syntax(topic: str, libraries: List[str] = []) -> str:
         return final_report_str
 
     except Exception as e:
-        return f"❌ Error performing real-time research: {str(e)}"
+        return f"❌ Error performing real-time research: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def read_website_markdown(url: str) -> str:
@@ -138,7 +138,7 @@ def read_website_markdown(url: str) -> str:
 
         return final_content
     except Exception as e:
-         return f"❌ Error scraping URL: {str(e)}"
+         return f"❌ Error scraping URL: {str(e)}\n{traceback.format_exc()}"
 
 if __name__ == "__main__":
     mcp.run(transport='stdio')
