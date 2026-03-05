@@ -1,5 +1,6 @@
 import os
 import gitlab
+import traceback
 from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP Server
@@ -68,7 +69,7 @@ def read_mr_discussions(project_id: str, mr_iid: int) -> str:
 
         return "\n".join(output)
     except Exception as e:
-        return f"❌ Error reading MR discussions: {str(e)}"
+        return f"❌ Error reading MR discussions: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def reply_to_mr_discussion(project_id: str, mr_iid: int, discussion_id: str, body: str) -> str:
@@ -96,7 +97,7 @@ def reply_to_mr_discussion(project_id: str, mr_iid: int, discussion_id: str, bod
             return f"❌ Discussion '{discussion_id}' not found."
 
     except Exception as e:
-        return f"❌ Error replying to discussion: {str(e)}"
+        return f"❌ Error replying to discussion: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def resolve_mr_discussion(project_id: str, mr_iid: int, discussion_id: str, resolve: bool = True) -> str:
@@ -134,7 +135,7 @@ def resolve_mr_discussion(project_id: str, mr_iid: int, discussion_id: str, reso
             return f"❌ Discussion '{discussion_id}' not found."
 
     except Exception as e:
-        return f"❌ Error resolving discussion: {str(e)}"
+        return f"❌ Error resolving discussion: {str(e)}\n{traceback.format_exc()}"
 
 if __name__ == "__main__":
     mcp.run(transport='stdio')

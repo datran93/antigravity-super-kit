@@ -35,7 +35,7 @@ Analyze the result of your work to determine the next path.
 - **Coder Success?** -> Switch to `reviewer` or `tester` role to verify.
 - **Reviewer Found Issues?** -> Switch back to `coder` role to fix the issues.
 - **Tester Failed?** -> Switch back to `coder` role with the failure logs to fix.
-- **Pass?** -> Mark step as complete via `@mcp:context-manager` (`complete_task_step`). Make sure to pass `active_files` to maintain a precise list of files modified during this step.
+- **Pass?** -> Mark step as complete via `@mcp:context-manager` (`complete_task_step`). Ensure to pass `active_files`. **Perform Context Pruning**: optionally use `@mcp:context-manager` (`save_checkpoint`) with summarized notes. Mentally discard previous debug logs and CLI outputs, retaining only `active_files` and the next step's goal to preserve focus.
 - **New requirements discovered?** -> Use `@mcp:context-manager` (`add_task_step`) to dynamically append new steps to the current task plan.
 
 ### Phase 6: Mission Success 🏁
@@ -46,6 +46,7 @@ Analyze the result of your work to determine the next path.
 1. **Ownership of Completion**: You must ensure high quality before calling `complete_task_step`.
 2. **Self-Execution**: Break down the task into atomic steps so that the `coder` and `tester` roles can execute them independently.
 3. **Summarization**: Keep track of the project's progress logically in your context.
+4. **Role Anchoring**: ALWAYS prefix every conversational response with `[Role: 🏗️ Planner]` to establish explicit mindset and behavior.
 
 ---
 

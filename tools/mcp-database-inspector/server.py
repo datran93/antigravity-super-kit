@@ -3,6 +3,7 @@ import decimal
 import datetime
 import uuid
 import re
+import traceback
 from mcp.server.fastmcp import FastMCP
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine.reflection import Inspector
@@ -85,7 +86,7 @@ def list_tables(connection_string: str) -> str:
 
         return "\n".join(result)
     except Exception as e:
-        return f"❌ Error connecting or reading database: {str(e)}"
+        return f"❌ Error connecting or reading database: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def inspect_schema(connection_string: str, table_name: str) -> str:
@@ -167,7 +168,7 @@ def inspect_schema(connection_string: str, table_name: str) -> str:
 
         return "\n".join(result)
     except Exception as e:
-        return f"❌ Error inspecting table '{table_name}': {str(e)}"
+        return f"❌ Error inspecting table '{table_name}': {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def explain_query(connection_string: str, query: str) -> str:
@@ -204,7 +205,7 @@ def explain_query(connection_string: str, query: str) -> str:
             return f"🔍 **QUERY PLAN ({db_type.upper()})**\n\n```text\n{plan}\n```"
 
     except Exception as e:
-        return f"❌ Error explaining query: {str(e)}"
+        return f"❌ Error explaining query: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def get_table_sample(connection_string: str, table_name: str) -> str:
@@ -254,7 +255,7 @@ def get_table_sample(connection_string: str, table_name: str) -> str:
         return schema_md
 
     except Exception as e:
-        return f"❌ Error getting sample for '{table_name}': {str(e)}"
+        return f"❌ Error getting sample for '{table_name}': {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def run_read_query(connection_string: str, query: str, limit: int = 500, offset: int = 0) -> str:
@@ -336,7 +337,7 @@ def run_read_query(connection_string: str, query: str, limit: int = 500, offset:
                 return f"✅ Query executed successfully. Rows affected: {result.rowcount}"
 
     except Exception as e:
-        return f"❌ Error: {str(e)}"
+        return f"❌ Error: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
 def run_write_query(connection_string: str, query: str, confirm: bool = False) -> str:
@@ -417,7 +418,7 @@ def run_write_query(connection_string: str, query: str, confirm: bool = False) -
             return f"❌ SQLAlchemy Error: {error_msg}"
 
     except Exception as e:
-        return f"❌ Error executing write query: {str(e)}"
+        return f"❌ Error executing write query: {str(e)}\n{traceback.format_exc()}"
 
 if __name__ == "__main__":
     mcp.run(transport='stdio')
