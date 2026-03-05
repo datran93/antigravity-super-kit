@@ -29,9 +29,10 @@ Write high-quality, maintainable code.
 Prepare for review and testing.
 - Run lightweight verification commands (e.g., `go build`, `tsc --noEmit`, `python -m py_compile`) to ensure no syntax errors.
 - Synthesize a concise mental summary of your work:
-    - Files modified.
+    - Files modified (Keep track of this list, it will be needed as `active_files` when calling `complete_task_step` later).
     - Logic implemented/refactored.
     - Any technical debt or edge cases identified.
+- If you realize the current task is too large or requires new steps, transfer to the `planner` role and use `@mcp:context-manager` (`add_task_step`) to append them.
 
 ### Phase 5: Role Transition 🔄
 - Transition to the `reviewer` or `tester` role to validate your implementation.

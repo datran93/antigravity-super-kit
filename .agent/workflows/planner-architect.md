@@ -35,7 +35,8 @@ Analyze the result of your work to determine the next path.
 - **Coder Success?** -> Switch to `reviewer` or `tester` role to verify.
 - **Reviewer Found Issues?** -> Switch back to `coder` role to fix the issues.
 - **Tester Failed?** -> Switch back to `coder` role with the failure logs to fix.
-- **Pass?** -> Mark step as complete via `@mcp:context-manager` (`complete_task_step`).
+- **Pass?** -> Mark step as complete via `@mcp:context-manager` (`complete_task_step`). Make sure to pass `active_files` to maintain a precise list of files modified during this step.
+- **New requirements discovered?** -> Use `@mcp:context-manager` (`add_task_step`) to dynamically append new steps to the current task plan.
 
 ### Phase 6: Mission Success 🏁
 - Once all tasks in the plan are marked as complete, synthesize the final walkthrough for the USER.

@@ -38,6 +38,13 @@ def write_markdown_progress(workspace_path, task_id, description, status, comple
     try:
         md_path = os.path.join(workspace_path, "progress.md")
 
+        # Get history of other completed tasks
+        conn = get_db_connection(workspace_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT task_id, description FROM checkpoints WHERE status = 'completed' AND task_id != ? ORDER BY updated_at DESC", (task_id,))
+        historical_tasks = cursor.fetchall()
+        conn.close()
+
         total_steps = len(completed_steps) + len(next_steps)
         progress_pct = (len(completed_steps) / total_steps * 100) if total_steps > 0 else 0
 
@@ -50,23 +57,7 @@ def write_markdown_progress(workspace_path, task_id, description, status, comple
         content += f"**Status:** `{status.upper()}` | **Progress:** `[{bar}] {progress_pct:.1f}%` ({len(completed_steps)}/{total_steps})\n\n"
         content += f"> {description}\n\n"
 
-        # Mermaid Graph
-        if total_steps > 0:
-            content += "## 📊 Task Dependency Graph\n"
-            content += "```mermaid\ngraph TD\n"
-            content += f"  Start((Start)) --> Task1\n"
-            all_s = completed_steps + next_steps
-            for i, s in enumerate(all_s):
-                node_id = f"Task{i+1}"
-                style = "fill:#4caf50,stroke:#2e7d32,color:#fff" if s in completed_steps else "fill:#fbc02d,stroke:#f9a825,color:#000"
-                sanitized_name = s.replace('"', "'")
-                content += f'  {node_id}["{sanitized_name}"]\n'
-                content += f'  style {node_id} {style}\n'
-                if i < len(all_s) - 1:
-                    content += f"  {node_id} --> Task{i+2}\n"
-                else:
-                    content += f"  {node_id} --> End((End))\n"
-            content += "```\n\n"
+
 
         if active_files:
             content += "### 📁 Active Files\n"
@@ -88,6 +79,12 @@ def write_markdown_progress(workspace_path, task_id, description, status, comple
         if notes:
             content += "### 📝 Log & Notes\n"
             content += f"```text\n{notes}\n```\n\n"
+
+        if historical_tasks:
+            content += "---\n### 🏆 Historically Completed Tasks\n"
+            for t in historical_tasks:
+                content += f"- **{t['task_id']}**: {t['description']}\n"
+            content += "\n"
 
         content += f"---\n*Last sync: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*"
 
@@ -156,8 +153,8 @@ def initialize_task_plan(workspace_path: str, task_id: str, description: str, st
     )
 
 @mcp.tool()
-def complete_task_step(workspace_path: str, task_id: str, step_name: str, notes: Optional[str] = None) -> str:
-    """Mark step as done, update graph and bar."""
+def complete_task_step(workspace_path: str, task_id: str, step_name: str, active_files: Optional[List[str]] = None, notes: Optional[str] = None) -> str:
+    """Mark step as done, track active files, update graph and bar."""
     try:
         conn = get_db_connection(workspace_path)
         cursor = conn.cursor()
@@ -169,6 +166,7 @@ def complete_task_step(workspace_path: str, task_id: str, step_name: str, notes:
 
         comp = json.loads(row['completed_steps'])
         nxt = json.loads(row['next_steps'])
+        curr_active_files = json.loads(row['active_files']) if row['active_files'] else []
 
         if step_name in nxt:
             nxt.remove(step_name)
@@ -178,8 +176,19 @@ def complete_task_step(workspace_path: str, task_id: str, step_name: str, notes:
             return f"⚠️ Step '{step_name}' not in queue."
 
         stat = "completed" if not nxt else row['status']
-        log = row['notes'] + f"\n[{datetime.now().strftime('%H:%M:%S')}] Done: {step_name}"
-        if notes: log += f" - {notes}"
+
+        # Track Time & Log
+        end_time_str = datetime.now().strftime('%H:%M:%S')
+        log = row['notes'] + f"\n[{end_time_str}] ✅ Done: {step_name}"
+
+        if active_files:
+            log += f"\n  - Files: {', '.join(active_files)}"
+            for f in active_files:
+                if f not in curr_active_files:
+                    curr_active_files.append(f)
+
+        if notes:
+            log += f"\n  - Notes: {notes}"
 
         conn.close()
         return save_checkpoint(
@@ -189,10 +198,46 @@ def complete_task_step(workspace_path: str, task_id: str, step_name: str, notes:
             status=stat,
             completed_steps=comp,
             next_steps=nxt,
-            active_files=json.loads(row['active_files']),
+            active_files=curr_active_files,
             notes=log
         )
     except Exception as e: return f"❌ Error: {str(e)}"
+
+@mcp.tool()
+def add_task_step(workspace_path: str, task_id: str, new_step: str) -> str:
+    """Add a new task step to the next_steps list of an existing task."""
+    try:
+        conn = get_db_connection(workspace_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM checkpoints WHERE task_id = ?", (task_id,))
+        row = cursor.fetchone()
+        if not row:
+            conn.close()
+            return f"❌ Task '{task_id}' not found."
+
+        nxt = json.loads(row['next_steps'])
+        comp = json.loads(row['completed_steps'])
+
+        if new_step in nxt or new_step in comp:
+            conn.close()
+            return f"⚠️ Step '{new_step}' already exists in task '{task_id}'."
+
+        nxt.append(new_step)
+
+        log = row['notes'] + f"\n[{datetime.now().strftime('%H:%M:%S')}] Added new step: {new_step}"
+
+        conn.close()
+        return save_checkpoint(
+            workspace_path=workspace_path,
+            task_id=task_id,
+            description=row['description'],
+            status=row['status'],
+            completed_steps=comp,
+            next_steps=nxt,
+            active_files=json.loads(row['active_files']),
+            notes=log
+        )
+    except Exception as e: return f"❌ Error adding step: {str(e)}"
 
 @mcp.tool()
 def load_checkpoint(workspace_path: str, task_id: str) -> str:

@@ -16,7 +16,7 @@ Load the context of the implemented code.
 ### Phase 2: Test Engineering 🧪
 Create comprehensive test cases to challenge the implementation.
 - **Unit Tests**: Write surgical tests for new functions/logic.
-- **Integration Tests**: Verify components interact correctly with services (Database, Redis, etc.).
+- **Integration Tests**: Verify components interact correctly with services (Database, Redis, etc.). All integration tests must be written in the `./test` folder.
 - **Edge Cases**: Target boundary conditions and error paths.
 - Use `write_to_file` to create/update test files in the appropriate test directory.
 
@@ -27,15 +27,16 @@ Run the test suite and evaluate the results.
 
 ### Phase 4: Feedback & Resolution 📝
 Act on the test results.
-- **PASS**: If all tests pass, summarize the coverage and confirm stability. Mark the overall step as complete.
-- **FAIL**: If tests fail, analyze the error logs, transition back to the `coder` role, and pinpoint the failure in implementation to fix it.
+- **PASS**: If all tests pass, summarize the coverage and confirm stability. Transfer to `planner` role and mark the overall step as complete via `@mcp:context-manager` (`complete_task_step`), passing in the `active_files` array containing all files modified or created during this step's coding and testing phases.
+- **FAIL**: Analyze the error logs. If the failure is due to a bug in the implementation code, transition back to the `coder` role to fix it. If the failure is due to a flaw in the test code itself, fix the test code yourself in this `tester` role.
 
 ### Phase 5: Role Transition 🔄
 - Once tests pass, transition back to the `planner` role to pick up the next task in the plan.
 
 ## 🔴 Critical Constraints
 1. **Automated Verification**: Always run actual commands; never assume code works based on a visual scan.
-2. **End-to-End Ownership**: If a test fails, you are responsible for fixing the implementation until it passes.
+2. **No Implementation Fixes**: You MUST NOT modify the implementation code directly. You are only allowed to write or modify files in the test directories.
+3. **Minimum Test Coverage**: It is MANDATORY to ensure that test coverage is equal to or greater than 70%. If test coverage is below 70%, write more tests until this threshold is met.
 
 ---
 
