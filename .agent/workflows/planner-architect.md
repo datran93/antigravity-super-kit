@@ -19,7 +19,8 @@ Analyze the USER's initial request.
 ### Phase 2: Environment & Contextual Discovery 🔍
 Use MCP tools to build a comprehensive map of the impact area.
 - Quickly assess the environment (`list_dir`, `package.json`, `go.mod`, etc.) so you are not starting "blind".
-- Use `@mcp:ast-explorer` to understand structural relationships (Py/Go/JS/TS).
+- **Local RAG**: Use `@mcp:context-manager` (`recall_knowledge`) with the `Task Description` as the query to retrieve past KIs (Knowledge Items) and learn from previous modules.
+- Use `@mcp:ast-explorer` to understand structural relationships (Py/Go/JS/TS) and identify Blast Radius.
 - Use `find_by_name` and `grep_search` to locate relevant business logic.
 - Use `@mcp:context7` to research latest syntax or library patterns.
 

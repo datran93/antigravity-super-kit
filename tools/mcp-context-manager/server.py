@@ -56,6 +56,21 @@ def get_db_connection(workspace_path: str):
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS file_annotations (
+            file_path TEXT PRIMARY KEY,
+            gotchas TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    cursor.execute('''
+        CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(
+            tactic_name,
+            ki_path UNINDEXED,
+            summary,
+            decisions
+        )
+    ''')
     conn.commit()
     return conn
 
@@ -343,14 +358,72 @@ def check_intent_lock(workspace_path: str, task_id: str, file_path: str) -> str:
 
             is_locked = any(f in file_path or file_path in f for f in files)
             if is_locked:
-                return f"✅ File '{file_path}' is unlocked for current intent."
+                cursor.execute("SELECT gotchas FROM file_annotations WHERE file_path = ?", (file_path,))
+                ann_row = cursor.fetchone()
+                ghost_ctx = f"\n👻 GHOST CONTEXT: {ann_row['gotchas']}" if ann_row else ""
+                return f"✅ File '{file_path}' is unlocked for current intent.{ghost_ctx}"
             return f"❌ ALARM: Scope Creep! File '{file_path}' is NOT in the active_files lock. Switch to Planner to update intent via declare_intent."
     except Exception as e:
         return f"❌ Error checking lock: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
+def annotate_file(workspace_path: str, file_path: str, gotchas: str) -> str:
+    """Add 'Ghost Context' (lessons/gotchas) to a specific file, ensuring the Agent remembers them next time it touches this file."""
+    try:
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO file_annotations (file_path, gotchas)
+                VALUES (?, ?)
+                ON CONFLICT(file_path) DO UPDATE SET
+                    gotchas=excluded.gotchas,
+                    updated_at=CURRENT_TIMESTAMP
+            ''', (file_path, gotchas))
+            conn.commit()
+        return f"👻 Ghost Context added to '{file_path}'."
+    except Exception as e:
+        return f"❌ Error annotating file: {str(e)}\n{traceback.format_exc()}"
+
+@mcp.tool()
+def recall_knowledge(workspace_path: str, query: str, top_k: int = 3) -> str:
+    """Recall relevant Knowledge Items (Local RAG) based on a search query using SQLite FTS5."""
+    try:
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+
+            clean_query = ''.join(e for e in query if e.isalnum() or e.isspace())
+            tokens = [f"{t}*" for t in clean_query.split() if t.strip()]
+            fts_query = " OR ".join(tokens)
+
+            if not fts_query:
+                return "🔍 Please provide a valid search query."
+
+            cursor.execute('''
+                SELECT tactic_name, ki_path, summary, decisions
+                FROM knowledge_fts
+                WHERE knowledge_fts MATCH ?
+                ORDER BY rank
+                LIMIT ?
+            ''', (fts_query, top_k))
+
+            rows = cursor.fetchall()
+            if not rows:
+                return f"🔍 No relevant Knowledge Items found for query: '{query}'"
+
+            res = [f"🧠 Recalled Knowledge for '{query}':\n"]
+            for r in rows:
+                res.append(f"### KI: {r['tactic_name']}")
+                res.append(f"**Path**: `{r['ki_path']}`")
+                res.append(f"**Summary**: {r['summary']}")
+                res.append(f"**Decisions**: {r['decisions']}\n---")
+
+            return "\n".join(res)
+    except Exception as e:
+        return f"❌ Error recalling knowledge: {str(e)}\n{traceback.format_exc()}"
+
+@mcp.tool()
 def compact_memory(workspace_path: str, task_id: str, tactic_name: str, summary: str, decisions: str) -> str:
-    """Generate a Knowledge Item (KI) and prune context at the end of a tactic."""
+    """Generate a Knowledge Item (KI) and prune context at the end of a tactic. Also indexes KI into Semantic SQLite."""
     try:
         knowledge_dir = os.path.join(workspace_path, "knowledge")
         os.makedirs(knowledge_dir, exist_ok=True)
@@ -371,6 +444,12 @@ def compact_memory(workspace_path: str, task_id: str, tactic_name: str, summary:
             with open(ki_path, 'w', encoding='utf-8') as f:
                 f.write(content)
 
+            # Index into FTS5 for Local RAG!
+            cursor.execute('''
+                INSERT INTO knowledge_fts (tactic_name, ki_path, summary, decisions)
+                VALUES (?, ?, ?, ?)
+            ''', (tactic_name, ki_path, summary, decisions))
+
             cursor.execute("SELECT * FROM checkpoints WHERE task_id = ?", (task_id,))
             chk_row = cursor.fetchone()
             if chk_row:
@@ -378,9 +457,10 @@ def compact_memory(workspace_path: str, task_id: str, tactic_name: str, summary:
                 cursor.execute("UPDATE checkpoints SET active_files='[]', notes=? WHERE task_id=?", (new_notes, task_id))
                 cursor.execute("UPDATE intents SET locked_files='[]' WHERE task_id=?", (task_id,))
                 cursor.execute("UPDATE drift_tracker SET failure_count=0 WHERE task_id=?", (task_id,))
-                conn.commit()
 
-        return f"🗜️ Context Compaction successful. Knowledge Item saved to {ki_path}. Memory flushed."
+            conn.commit()
+
+        return f"🗜️ Context Compaction successful. Knowledge Item indexed into local RAG and saved to {ki_path}. Memory flushed."
     except Exception as e:
         return f"❌ Error compacting memory: {str(e)}\n{traceback.format_exc()}"
 
