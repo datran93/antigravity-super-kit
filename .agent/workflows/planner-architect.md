@@ -27,10 +27,16 @@ Use MCP tools to build a comprehensive map of the impact area.
 Define the "North Star" for the implementation.
 - Identify the core patterns (e.g., Clean Architecture, DDD).
 - Document architectural decisions in `DESIGN.md` if necessary.
+- Use `@mcp:context-manager` (`manage_anchors`) with `action="get"` or `action="list"` to fetch existing invariant rules. When establishing new rules, use `action="set"` to lock them in.
 
-### Phase 4: Task Plan Initialization 📋
+### Phase 4: Task Plan Initialization (3-Tier Context) 📋
 Initialize the lifecycle of the task in the project state.
-- Call `@mcp:context-manager` (`initialize_task_plan`) with a detailed list of atomic, executable steps.
+- Structure your task plan logically into 3 tiers:
+  - **Trajectory**: The overarching sprint/session goal.
+  - **Tactic**: The module or component phase (e.g., "Implement Auth API").
+  - **Action**: Atomic execution steps for `@mcp:context-manager` to track (e.g., "Create user.model.ts", "Update auth.spec.ts").
+- Call `@mcp:context-manager` (`initialize_task_plan`) with a detailed list of atomic, executable steps (Actions).
+- Call `@mcp:context-manager` (`declare_intent`) to lock the `active_files` to the current tactic's scope.
 - Set up checkpoints using `@mcp:context-manager` (`save_checkpoint`) at critical milestones.
 
 ### Phase 5: Task Execution 🤝 (Self-Execution)
@@ -44,7 +50,8 @@ Analyze the result of your work to determine the next path.
 - **Coder Success?** -> Switch to `reviewer` or `tester` role to verify.
 - **Reviewer Found Issues?** -> Switch back to `coder` role to fix the issues.
 - **Tester Failed?** -> Switch back to `coder` role with the failure logs to fix.
-- **Pass?** -> Mark step as complete via `@mcp:context-manager` (`complete_task_step`). Ensure to pass `active_files`. **Perform Context Pruning**: optionally use `@mcp:context-manager` (`save_checkpoint`) with summarized notes. Mentally discard previous debug logs and CLI outputs, retaining only `active_files` and the next step's goal to preserve focus.
+- **Pass?** -> Mark step as complete via `@mcp:context-manager` (`complete_task_step`), and call `clear_drift` to reset the failure counter. Ensure to pass `active_files`. 
+- **Perform Context Compression (KI Generation)**: If a major `Tactic` (module/phase) is completed, aggressively prune context by executing the `[/compact-session.md](file://.agent/workflows/compact-session.md)` workflow. Summarize the architectural decisions, patterns, and lessons learned into a Markdown file saved in the `knowledge/` directory (Knowledge Items). Then use `@mcp:context-manager` (`save_checkpoint`) with summarized notes and clear your working memory (CLI outputs, logs, debug traces), keeping only `active_files` to preserve sharp focus for the next Tactic.
 - **New requirements discovered?** -> Use `@mcp:context-manager` (`add_task_step`) to dynamically append new steps to the current task plan.
 
 ### Phase 7: Final Delivery & Review 🏁

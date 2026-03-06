@@ -8,9 +8,10 @@ This workflow guides you through implementing atomic tasks defined during the pl
 
 ## 🚀 Implementation Phase
 
-### Phase 1: Task Intake 📥
+### Phase 1: Task Intake & Intent Locking 📥
 Load the context for the current implementation step.
 - Analyze the task requirements and specific files to modify.
+- **Intent Locking**: Call `@mcp:context-manager` (`check_intent_lock`) on the files you intend to modify. If the tool returns a Scope Creep ALARM, you MUST transition back to the `[Role: 🏗️ Planner]` to update the intent via `declare_intent` before proceeding.
 - Review any feedback from previous review or testing cycles to understand the current state.
 
 ### Phase 2: Skill & Pattern Alignment 🔍
@@ -20,6 +21,7 @@ Align the implementation with project-specific standards.
 
 ### Phase 3: Execution & Engineering 🛠️
 Write high-quality, maintainable code.
+- **NO BLIND WRITES**: You MUST explicitly read a file (`view_file`, `grep_search`, or `ast-explorer`) before attempting to modify it (`replace_file_content`, `write_to_file`). Attempting to edit a file without prior reading is strictly forbidden.
 - Implement the changes using `replace_file_content` or `write_to_file`.
 - **MANDATORY**: Follow **Clean Code** principles (naming, small functions, SRP).
 - **MANDATORY**: Ensure code is **Testable** (Dependency Injection, modularity).
@@ -34,8 +36,12 @@ Prepare for review and testing.
     - Any technical debt or edge cases identified.
 - If you realize the current task is too large or requires new steps, transfer to the `planner` role and use `@mcp:context-manager` (`add_task_step`) to append them.
 
-### Phase 5: Role Transition 🔄
+### Phase 5: Role Transition & Export Intelligence 🔄
+Hand over your context cleanly to the next role.
+- Before transitioning, extract key "intelligence" (e.g., "Library X had a bug, so I downgraded it to Y", or "I had to adjust the DB schema for Z"). 
+- Pass this intelligence explicitly in your conversational response so the next role (e.g., Reviewer or Tester) doesn't start blind.
 - Transition to the `reviewer` or `tester` role to validate your implementation.
+
 
 ## 🔴 Critical Constraints
 1. **Quality First**: Never ignore lint errors or violations of the design system.

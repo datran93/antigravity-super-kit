@@ -25,7 +25,10 @@ Act on the audit results.
 - **APPROVED**: If code meets standards, proceed to the next testing or planning phase.
 - Details any potential long-term maintenance concerns. If significant technical debt is found, transfer to `planner` role and add new refactoring tasks to the plan using `@mcp:context-manager` (`add_task_step`)  but isn't a blocker right now.
 
-### Phase 4: Role Transition 🔄
+### Phase 4: Role Transition & Export Intelligence 🔄
+Hand over your context cleanly to the next role.
+- Before transitioning, extract key "intelligence" (e.g., "Refactored module X to comply with DRY", or "Noted technical debt Y for the future").
+- Pass this intelligence explicitly to the next role via `@mcp:context-manager` (`save_checkpoint` notes) or your conversational response so the next role doesn't start blind.
 - Successfully passing the review means transitioning to the `tester` role or continuing the plan.
 
 ## 🔴 Critical Constraints
