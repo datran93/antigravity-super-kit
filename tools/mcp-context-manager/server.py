@@ -33,6 +33,29 @@ def get_db_connection(workspace_path: str):
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS intents (
+            task_id TEXT PRIMARY KEY,
+            tactic TEXT,
+            locked_files TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS drift_tracker (
+            task_id TEXT PRIMARY KEY,
+            failure_count INTEGER DEFAULT 0,
+            last_failed_at TIMESTAMP
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS anchors (
+            key TEXT PRIMARY KEY,
+            value TEXT,
+            rule TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
     conn.commit()
     return conn
 
@@ -287,6 +310,151 @@ def list_active_tasks(workspace_path: str) -> str:
         return "\n".join(res)
     except Exception as e:
         return f"❌ Error: {str(e)}\n{traceback.format_exc()}"
+
+@mcp.tool()
+def declare_intent(workspace_path: str, task_id: str, tactic: str, locked_files: List[str]) -> str:
+    """Declare working intention and restrict changes to specific locked_files."""
+    try:
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO intents (task_id, tactic, locked_files)
+                VALUES (?, ?, ?)
+                ON CONFLICT(task_id) DO UPDATE SET
+                    tactic=excluded.tactic,
+                    locked_files=excluded.locked_files,
+                    updated_at=CURRENT_TIMESTAMP
+            ''', (task_id, tactic, json.dumps(locked_files)))
+            conn.commit()
+        return f"🔒 Intent declared. Lock applied to files: {', '.join(locked_files)}"
+    except Exception as e:
+        return f"❌ Error declaring intent: {str(e)}\n{traceback.format_exc()}"
+
+@mcp.tool()
+def check_intent_lock(workspace_path: str, task_id: str, file_path: str) -> str:
+    """Check if a file is unlocked for the current intent."""
+    try:
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT locked_files FROM intents WHERE task_id = ?", (task_id,))
+            row = cursor.fetchone()
+            if not row: return "⚠️ No intent declared for this task. Please declare_intent first."
+            files = json.loads(row['locked_files'])
+
+            is_locked = any(f in file_path or file_path in f for f in files)
+            if is_locked:
+                return f"✅ File '{file_path}' is unlocked for current intent."
+            return f"❌ ALARM: Scope Creep! File '{file_path}' is NOT in the active_files lock. Switch to Planner to update intent via declare_intent."
+    except Exception as e:
+        return f"❌ Error checking lock: {str(e)}\n{traceback.format_exc()}"
+
+@mcp.tool()
+def compact_memory(workspace_path: str, task_id: str, tactic_name: str, summary: str, decisions: str) -> str:
+    """Generate a Knowledge Item (KI) and prune context at the end of a tactic."""
+    try:
+        knowledge_dir = os.path.join(workspace_path, "knowledge")
+        os.makedirs(knowledge_dir, exist_ok=True)
+
+        safe_name = tactic_name.replace(" ", "_").lower()
+        ki_path = os.path.join(knowledge_dir, f"{safe_name}.md")
+
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT locked_files FROM intents WHERE task_id = ?", (task_id,))
+            row = cursor.fetchone()
+            files = json.loads(row['locked_files']) if row else []
+
+            content = f"# KI: {tactic_name}\n\n## Summary\n{summary}\n\n## Affected Files\n"
+            for f in files: content += f"- `{f}`\n"
+            content += f"\n## Architecture & Decisions\n{decisions}\n"
+
+            with open(ki_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+
+            cursor.execute("SELECT * FROM checkpoints WHERE task_id = ?", (task_id,))
+            chk_row = cursor.fetchone()
+            if chk_row:
+                new_notes = chk_row['notes'] + f"\n[COMPACTION] Tactic '{tactic_name}' completed. KI saved to {ki_path}"
+                cursor.execute("UPDATE checkpoints SET active_files='[]', notes=? WHERE task_id=?", (new_notes, task_id))
+                cursor.execute("UPDATE intents SET locked_files='[]' WHERE task_id=?", (task_id,))
+                cursor.execute("UPDATE drift_tracker SET failure_count=0 WHERE task_id=?", (task_id,))
+                conn.commit()
+
+        return f"🗜️ Context Compaction successful. Knowledge Item saved to {ki_path}. Memory flushed."
+    except Exception as e:
+        return f"❌ Error compacting memory: {str(e)}\n{traceback.format_exc()}"
+
+@mcp.tool()
+def record_failure(workspace_path: str, task_id: str) -> str:
+    """Record a failure (e.g. test failing, compile error) to detect context drift."""
+    try:
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO drift_tracker (task_id, failure_count, last_failed_at)
+                VALUES (?, 1, CURRENT_TIMESTAMP)
+                ON CONFLICT(task_id) DO UPDATE SET
+                    failure_count=failure_count + 1,
+                    last_failed_at=CURRENT_TIMESTAMP
+            ''', (task_id,))
+            cursor.execute("SELECT failure_count FROM drift_tracker WHERE task_id=?", (task_id,))
+            count = cursor.fetchone()['failure_count']
+            conn.commit()
+
+            if count >= 3:
+                return f"🚨 DRIFT DETECTED (Failures: {count}): You have failed 3 or more times. Trigger 'think_back' panic protocol immediately!"
+            return f"⚠️ Failure recorded. Count: {count}"
+    except Exception as e:
+        return f"❌ Error tracking drift: {str(e)}\n{traceback.format_exc()}"
+
+@mcp.tool()
+def clear_drift(workspace_path: str, task_id: str) -> str:
+    """Reset the failure counter after a success or planner intervention."""
+    try:
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE drift_tracker SET failure_count=0 WHERE task_id=?", (task_id,))
+            conn.commit()
+        return "🧹 Drift counter reset to 0."
+    except Exception as e:
+        return f"❌ Error resetting drift: {str(e)}\n{traceback.format_exc()}"
+
+@mcp.tool()
+def manage_anchors(workspace_path: str, action: str, key: str = "", value: str = "", rule: str = "") -> str:
+    """Manage architectural anchors. Action can be 'set', 'get', or 'list'."""
+    try:
+        with closing(get_db_connection(workspace_path)) as conn:
+            cursor = conn.cursor()
+            if action == "set":
+                if not key or not value: return "❌ Key and value required for 'set'."
+                cursor.execute('''
+                    INSERT INTO anchors (key, value, rule)
+                    VALUES (?, ?, ?)
+                    ON CONFLICT(key) DO UPDATE SET
+                        value=excluded.value,
+                        rule=excluded.rule,
+                        updated_at=CURRENT_TIMESTAMP
+                ''', (key, value, rule))
+                conn.commit()
+                return f"⚓ Anchor '{key}' secured successfully."
+            elif action == "get":
+                cursor.execute("SELECT * FROM anchors WHERE key = ?", (key,))
+                row = cursor.fetchone()
+                if not row: return f"⚠️ Anchor '{key}' not found."
+                return f"⚓ ANCHOR [{key}]: {row['value']} (Rule: {row['rule']})"
+            elif action == "list":
+                cursor.execute("SELECT * FROM anchors ORDER BY key")
+                rows = cursor.fetchall()
+                if not rows: return "No anchors defined."
+                res = ["⚓ PROJECT ANCHORS:"]
+                for r in rows:
+                    res.append(f"- **{r['key']}**: {r['value']}")
+                    if r['rule']: res.append(f"  Rule: {r['rule']}")
+                return "\n".join(res)
+            else:
+                return "❌ Unknown action. Use 'set', 'get', or 'list'."
+    except Exception as e:
+        return f"❌ Error managing anchors: {str(e)}\n{traceback.format_exc()}"
 
 if __name__ == "__main__":
     mcp.run(transport='stdio')

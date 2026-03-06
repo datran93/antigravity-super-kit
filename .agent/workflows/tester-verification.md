@@ -28,10 +28,13 @@ Run the test suite and evaluate the results.
 ### Phase 4: Feedback & Resolution 📝
 Act on the test results.
 - **PASS**: If all tests pass, and coverage is >= 70%, summarize the coverage and confirm stability. Transfer to `planner` role and mark the overall step as complete via `@mcp:context-manager` (`complete_task_step`), passing in the `active_files` array.
-- **FAIL**: Analyze the error logs. If the failure is due to a bug in the implementation code, transition back to the `coder` role to fix it. If the failure is due to a flaw in the test code itself, fix the test code yourself in this `tester` role.
-- **Circuit Breaker**: If you reach 3 consecutive FAIL cycles for the same logic, ABORT the `coder` ↔ `tester` loop to prevent token wastage. Transition to the `planner` role to re-evaluate the architecture, or the `project-manager` role to ask the USER for guidance.
+- **FAIL**: Analyze the error logs. Call `@mcp:context-manager` (`record_failure`) to register the drift. If the failure is due to a bug in the implementation code, transition back to the `coder` role to fix it. If the failure is due to a flaw in the test code itself, fix the test code yourself in this `tester` role.
+- **Circuit Breaker**: If `record_failure` returns a `DRIFT DETECTED` alarm (=> 3 failures), ABORT the `coder` ↔ `tester` loop immediately to prevent token wastage. Transition to the `planner` role and trigger the `think_back` panic protocol, re-evaluating the architecture, or reading `ANCHORS.md`.
 
-### Phase 5: Role Transition 🔄
+### Phase 5: Role Transition & Export Intelligence 🔄
+Hand over your context cleanly.
+- Before transitioning, extract key "intelligence" (e.g., "Test X failed because of Y, but it's resolved", or "Added edge cases for Z").
+- Pass this intelligence explicitly to the next role via `@mcp:context-manager` (`save_checkpoint` notes) or your conversational response so the next role doesn't start blind.
 - Once tests pass, transition back to the `planner` role to pick up the next task in the plan.
 
 ## 🔴 Critical Constraints
