@@ -20,9 +20,9 @@ trigger: always_on
 | **`@mcp:context-manager`**       | `save_checkpoint`, `initialize_task_plan`, `complete_task_step`, `add_task_step` | Persist progress, manage task checklists with **time-stamped logs**. Add new steps sequentially if needed.           |
 |                                  | `load_checkpoint`, `list_active_tasks`                                           | Recover context from a saved checkpoint ID or list tasks.                                                            |
 |                                  | `declare_intent`, `check_intent_lock`                                            | Apply Intent Locking to prevent blind writes and scope creep.                                                        |
-|                                  | `compact_memory`                                                                 | Automatically extract a Knowledge Item (KI) and prune working memory.                                                |
+|                                  | `compact_memory`, `recall_knowledge`                                             | Automatically extract and index KIs into Local RAG, or recall them via SQLite FTS5.                                  |
 |                                  | `record_failure`, `clear_drift`                                                  | Track successive test or logic failures to detect drift and trigger `think_back`.                                    |
-|                                  | `manage_anchors`                                                                 | Retrieve and set immutable architectural facts (Anchors) via SQLite.                                                 |
+|                                  | `manage_anchors`, `annotate_file`                                                | Retrieve/set immutable Anchor rules, or inject Ghost Context (gotchas) into specific files.                          |
 | **`@mcp:context7`**              | `query-docs`, `resolve-library-id`                                               | Retrieves and queries up-to-date documentation and code examples for any library.                                    |
 | **`@mcp:database-inspector`**    | `list_tables`, `get_table_sample`                                                | List tables or get **DDL + 5 sample rows** for rapid context matching.                                               |
 |                                  | `inspect_schema`, `explain_query`                                                | Get schema detail or run **EXPLAIN ANALYZE** (Postgres/MySQL) for performance analysis.                              |
@@ -67,8 +67,7 @@ The platform uses a **Role Transition Architecture** where you (the Agent) direc
     - **Coder Mode**: Owns the Source Code Implementation & Blind Write Prevention.
     - **Tester Mode**: Owns the Test Suite & Verification Results.
 3.  **Self-Correction**: You are always in control. If an implementation fails testing or review, you must transition back to the Coder role to fix it.
-4.  **No Co-Authored-By**: When making git commits, you MUST NOT add any metadata (like 'Co-authored-by') to keeping history clean.
-5.  **Role Anchoring**: ALWAYS prefix every conversational response with your current role tag (e.g. `[Role: 🏗️ Planner]`, `[Role: 💻 Coder]`, etc.) to clearly establish state.
+4.  **Role Anchoring**: ALWAYS prefix every conversational response with your current role tag (e.g. `[Role: 🏗️ Planner]`, `[Role: 💻 Coder]`, etc.) to clearly establish state.
 
 ### 🛡️ SAFEGUARDS AND GOVERNANCE
 
