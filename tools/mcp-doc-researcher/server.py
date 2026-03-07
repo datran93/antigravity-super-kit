@@ -97,16 +97,29 @@ def search_latest_syntax(topic: str, libraries: List[str] = []) -> str:
         # 3. Deep dive into the top 1 result using Jina Reader to get actual Markdown Code
         top_url = results[0].get('href', '')
         if top_url:
-            final_report.append(f"### 2. DEEP DIVE (FULL MARKDOWN EXTRACTION OF TOP RESULT)")
+            final_report.append(f"### 2. DEEP DIVE (PARTIAL EXTRACTION OF TOP RESULT)")
             final_report.append(f"Source: {top_url}")
-            final_report.append("Reading content... (Truncated to first 4000 characters to save context)")
 
-            markdown_content = fetch_jina_markdown(top_url)
-            # Truncate to avoid context limit explosion, focus on the top of the article/docs
-            truncated = markdown_content[:4000]
-            final_report.append("\n```markdown\n" + truncated + "\n...\n```\n")
+            # Cache the full version so subsequent read_website_markdown calls are instant
+            cache_key_full = generate_cache_key("url_full", top_url)
+            full_content = get_cache(cache_key_full)
+            if not full_content:
+                full_content = fetch_jina_markdown(top_url)
+                if not full_content.startswith("Error fetching markdown"):
+                    set_cache(cache_key_full, full_content)
 
-        final_report.append("💡 ADVICE FOR AGENT: Synthesize these latest patterns and strictly apply them to your code generation. DO NOT use legacy patterns from your original training data if they conflict with these new docs.")
+            total_len = len(full_content)
+            truncated = full_content[:4000]
+
+            if total_len > 4000:
+                final_report.append(f"Reading content... (Previewing first 4000/{total_len} characters)")
+                final_report.append("\n```markdown\n" + truncated + "\n...\n```\n")
+                final_report.append(f"\n💡 NOTICE: The full document has {total_len} characters. To read beyond this preview, use `read_website_markdown(url=\"{top_url}\", page=1)`.")
+            else:
+                final_report.append("Reading content...")
+                final_report.append("\n```markdown\n" + truncated + "\n```\n")
+
+        final_report.append("\n💡 ADVICE FOR AGENT: Synthesize these latest patterns and strictly apply them to your code generation. DO NOT use legacy patterns from your original training data if they conflict with these new docs.")
 
         final_report_str = "\n".join(final_report)
         set_cache(cache_key, final_report_str)
@@ -116,27 +129,48 @@ def search_latest_syntax(topic: str, libraries: List[str] = []) -> str:
         return f"❌ Error performing real-time research: {str(e)}\n{traceback.format_exc()}"
 
 @mcp.tool()
-def read_website_markdown(url: str) -> str:
+def read_website_markdown(url: str, page: int = 1) -> str:
     """
     Scrape any specific documentation URL or website and return its content perfectly formatted as clean Markdown.
-    Use this when you know the exact URL of the documentation you need to read.
+    Supports pagination for large documents. Each page returns up to 8000 characters.
 
     Args:
         url: The absolute URL including https:// (e.g. 'https://react.dev/reference/react/useActionState')
+        page: The page number to read (default 1).
     """
     try:
-        cache_key = generate_cache_key("url", url)
-        cached_result = get_cache(cache_key)
-        if cached_result:
-            return f"⚡ (Cached - Loaded instantly from memory)\n{cached_result}"
+        cache_key = generate_cache_key("url_full", url)
+        content = get_cache(cache_key)
 
-        content = fetch_jina_markdown(url)
-        final_content = content[:8000] # Return up to 8000 characters
+        if not content:
+            content = fetch_jina_markdown(url)
+            if not content.startswith("Error fetching markdown"):
+                set_cache(cache_key, content)
 
-        if not content.startswith("Error"):
-            set_cache(cache_key, final_content)
+        if content.startswith("Error fetching markdown"):
+            return content
 
-        return final_content
+        chunk_size = 8000
+        total_length = len(content)
+        total_pages = max(1, (total_length + chunk_size - 1) // chunk_size)
+
+        page = max(1, min(page, total_pages))
+
+        start_idx = (page - 1) * chunk_size
+        end_idx = min(start_idx + chunk_size, total_length)
+
+        page_content = content[start_idx:end_idx]
+
+        header = f"📄 Source: {url} | Page {page}/{total_pages}\n"
+        header += "-" * 50 + "\n"
+
+        footer = "\n" + "-" * 50 + "\n"
+        if page < total_pages:
+            footer += f"💡 (Page {page}/{total_pages}. There is more content. Extract the next page by calling this tool again with page={page+1})\n"
+        else:
+            footer += f"✅ (End of document)\n"
+
+        return header + page_content + footer
     except Exception as e:
          return f"❌ Error scraping URL: {str(e)}\n{traceback.format_exc()}"
 
