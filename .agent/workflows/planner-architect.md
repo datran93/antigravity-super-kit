@@ -13,6 +13,15 @@ coverage).
 
 ## 🚀 Orchestration & Execution Phase
 
+### Phase 0: Session Bootstrap & State Recovery 🔋
+
+Before processing any requests, you must initialize the workspace context.
+
+- **Load State**: Call `@mcp:context-manager` (`load_checkpoint`) if the USER is continuing an existing task to restore
+  your context, preventing redundant questions.
+- **Load Anchors**: Read `.agent/ANCHORS.md` to refresh the immutable guardrails and core facts of the project before
+  evaluating the USER's request.
+
 ### Phase 1: Request Intake & Clarification 🗣️
 
 Analyze the USER's initial request.
@@ -25,17 +34,17 @@ Analyze the USER's initial request.
 
 ### Phase 2: Environment & Contextual Discovery 🔍
 
-Use MCP tools to build a comprehensive map of the impact area.
+Use MCP tools to build a comprehensive map of the impact area. **Execute read-only discovery tools in PARALLEL to reduce
+latency.**
 
 - Quickly assess the environment (`list_dir`, `package.json`, `go.mod`, etc.) so you are not starting "blind".
-- **Local RAG**: Use `@mcp:context-manager` (`recall_knowledge`) with the `Task Description` as the query to retrieve
-  past KIs (Knowledge Items) and learn from previous modules.
-- Use `@mcp:ast-explorer` (`get_project_architecture`, `search_symbol`) to understand structural relationships
-  (Py/Go/JS/TS) and identify Blast Radius.
-- Use `find_by_name` and `grep_search` to locate relevant business logic.
-- Use `@mcp:doc-researcher` (`read_doc_file`, `read_website_markdown`) if the user provides local requirement documents
-  or reference URLs.
-- Use `@mcp:context7` to research latest syntax or library patterns.
+- **Parallel Context Gathering**: Combine multiple MCP calls in the same turn to build a comprehensive prompt context:
+  - **Local RAG**: Use `@mcp:context-manager` (`recall_knowledge`) to search past KIs.
+  - **Architecture**: Use `@mcp:ast-explorer` (`get_project_architecture`, `search_symbol`) to understand code
+    structure.
+  - **Database**: Use `@mcp:database-inspector` (`get_table_sample`) if database schemas are involved.
+  - **Web Research**: Use `@mcp:context7` or `@mcp:doc-researcher` to pull the latest syntax and external doc context.
+- Aggregate all gathered information to correctly identify the Blast Radius.
 
 ### Phase 3: Architectural Design 🏗️
 
@@ -53,13 +62,15 @@ Initialize the lifecycle of the task in the project state.
 - Structure your task plan logically into 3 tiers:
   - **Trajectory**: The overarching sprint/session goal.
   - **Tactic**: The module or component phase (e.g., "Implement Auth API").
-  - **Action**: Atomic execution steps for `@mcp:context-manager` to track (e.g., "Create user.model.ts", "Update
-    auth.spec.ts").
-- Call `@mcp:context-manager` (`initialize_task_plan`) with a detailed list of atomic, executable steps (Actions).
+  - **Action**: Atomic execution steps for `@mcp:context-manager` to track. **MANDATORY**: Each Action must define a
+    clear **Verification Command** to act as its Acceptance Criteria (TDD-First). (e.g., "Create user.model.ts (Passes
+    `npm run test:models`)").
+- Call `@mcp:context-manager` (`initialize_task_plan`) with a detailed list of atomic, verified, executable steps
+  (Actions).
 - Call `@mcp:context-manager` (`declare_intent`) to lock the `active_files` to the current tactic's scope.
 - Set up checkpoints using `@mcp:context-manager` (`save_checkpoint`) at critical milestones.
 
-### Phase 5: Task Execution 🤝 (Self-Execution)
+### Phase 5.A: Task Execution 🤝 (Self-Execution)
 
 Execute the plan one step at a time by taking on the required roles yourself.
 
@@ -67,6 +78,16 @@ Execute the plan one step at a time by taking on the required roles yourself.
 - **EXECUTE**: Switch your mindset to the appropriate role (`coder`, `reviewer`, `tester`) based on the task nature and
   perform the work directly.
 - Read the corresponding `.agent/workflows/<role>.md` if needed to understand the expectations of that role.
+
+### Phase 5.B: Drift Detection & Panic Reset 🚨
+
+Prevent infinite loops and blind writes when implementations fail repeatedly.
+
+- **Detect**: If you transition between `coder` and `tester` to fix the same failing logic **3 times**, you MUST STOP
+  processing code.
+- **Reset**: Call `@mcp:context-manager` (`record_failure`) to track the drift.
+- **Assess**: Reload the architecture context (`DESIGN.md`), and use Socratic questioning to discuss the blocker with
+  the USER instead of hallucinating fixes.
 
 ### Phase 6: Result Analysis & Pipeline Routing 🔄
 
@@ -77,6 +98,9 @@ Analyze the result of your work to determine the next path.
 - **Tester Failed?** -> Switch back to `coder` role with the failure logs to fix.
 - **Pass?** -> Mark step as complete via `@mcp:context-manager` (`complete_task_step`), and call `clear_drift` to reset
   the failure counter. Ensure to pass `active_files`.
+- **Inject Ghost Context**: If you encounter a language gotcha or complex quirk while fixing a file, call
+  `@mcp:context-manager` (`annotate_file`) to attach that lesson directly to the file. This ensures future interactions
+  with this file immediately retrieve the short-term memory lesson.
 - **Perform Context Compression (KI Generation)**: If a major `Tactic` (module/phase) is completed, aggressively prune
   context by executing the `[/compact-session.md](file://.agent/workflows/compact-session.md)` workflow. Summarize the
   architectural decisions, patterns, and lessons learned into a Markdown file saved in the `knowledge/` directory
