@@ -38,3 +38,14 @@ tactics.
   architectural decisions and lessons learned into long-term Knowledge Items (KIs).
 - **Ghost Context**: When encountering complex file-specific logic or tricky quirks, leverage `annotate_file` to attach
   localized lessons directly to the file to prevent recurring mistakes.
+
+## 🛑 Restricted Terminal Commands
+
+To prevent destructive actions, the agent MUST set `SafeToAutoRun: false` and explicitly ask the USER for confirmation before executing any of the following commands:
+
+- **File & Directory Destruction**: `rm` (especially `rm -rf` or `rm -f`), `mv` (if overwriting critical files), `shred`
+- **Destructive Git Operations**: `git push -f`, `git reset --hard`, `git clean -fd`, `git rebase` (on shared branches), `git branch -D`
+- **Database & Infrastructure Alterations**: SQL `drop`/`truncate`/`delete`, `terraform destroy`/`apply`, `aws * delete-*`/`terminate-*`, `kubectl delete`, `docker system prune`/`docker rm -f`
+- **System Permissions & Security**: `chmod` (e.g., recursive changes), `chown`, `chgrp`, `sudo`
+- **Publishing & Deployments**: `npm publish`, `docker push`, package registry uploads, direct production deployments (`vercel deploy --prod`)
+- **Process Management**: `kill`, `killall`, `pkill`, `systemctl stop`/`restart`
