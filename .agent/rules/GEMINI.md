@@ -9,11 +9,10 @@ trigger: always_on
 ### 🚀 Mandatory Initialization
 
 - **Session Start**: At the beginning of **EVERY** session, the Agent MUST read `@/.agent/rules/GEMINI.md` to ensure all
-  core protocols are fresh, and MUST read `@/.agent/ANCHORS.md` to load the immutable facts and project guardrails.
+  core protocols are fresh, and MUST read `@/.agent/rules/ANCHORS.md` to load the immutable facts and project
+  guardrails.
 - **Proactive MCP Tooling**: Always use MCP tools for discovery, research, and analysis tasks **automatically**. Do NOT
   ask for permission to use read-only discovery tools.
-- **Code Always in English**: All source code, variables, functions, comments, and commit messages MUST be in English.
-  No exceptions for code files.
 
 ### 🛠️ MCP Tool Mastery (Priority Over Bash)
 
@@ -86,13 +85,6 @@ Role] <-> [Tester Role]**
 
 ### 🛡️ SAFEGUARDS AND GOVERNANCE
 
-- **Panic Protocol (`think_back`)**: If you fail at the same step 3 times (e.g., tool errors, failing tests looping
-  Coder->Tester), you MUST STOP. Transition back to the `[Role: 🏗️ Planner]` and read the `DESIGN.md` / `ANCHORS.md` or
-  invoke `load_checkpoint` to reset your situational awareness instead of blindly continuing to code.
-- **Context Compaction (`compact_session`)**: When finishing a major feature/tactic, use
-  `[/compact-session.md](file://.agent/workflows/compact-session.md)` to extract intelligence into long-term Knowledge
-  Items (KIs) inside the `knowledge/` folder. This flushes short-term memory to prevent hallucination drift on long
-  tasks.
 - **Governance Modes (`strict/coach`)**: If the user provides a `--mode=coach` or `--mode=strict` modifier in their
   request, you must adopt a skeptical stance. Refuse to execute code without Socratic questioning first, and force the
   `Tester` to prove the solution.
