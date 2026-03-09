@@ -16,8 +16,8 @@ Evaluate if a distinct review phase is necessary.
 - **Bypass Rule**: If the task has low complexity (e.g. <= 3) and is low-impact (e.g., minor UI/Text changes), you may
   bypass this distinct audit and transition directly to the `tester` role.
 - **For High-Impact / High-Complexity Tasks**: Load the context of the recent code changes. Identify the target quality
-  standards using `@mcp:skill-router` (`search_skills`), re-read `.agent/ANCHORS.md`, and understand the **Verification
-  Command** to ensure the code's intended behavior meets Planner's acceptance criteria.
+  standards using `@mcp:skill-router` (`search_skills`), re-read `.agent/rules/ANCHORS.md`, and understand the
+  **Verification Command** to ensure the code's intended behavior meets Planner's acceptance criteria.
 
 ### Phase 2: Rigorous Code Audit & Parallel Discovery 🔍
 

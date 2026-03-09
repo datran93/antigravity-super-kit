@@ -19,8 +19,8 @@ Before processing any requests, you must initialize the workspace context.
 
 - **Load State**: Call `@mcp:context-manager` (`load_checkpoint`) if the USER is continuing an existing task to restore
   your context, preventing redundant questions.
-- **Load Anchors**: Read `.agent/ANCHORS.md` to refresh the immutable guardrails and core facts of the project before
-  evaluating the USER's request.
+- **Load Anchors**: Read `.agent/rules/ANCHORS.md` to refresh the immutable guardrails and core facts of the project
+  before evaluating the USER's request.
 
 ### Phase 1: Request Intake & Clarification 🗣️
 
