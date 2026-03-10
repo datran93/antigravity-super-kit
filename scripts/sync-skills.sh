@@ -41,8 +41,10 @@ fi
 
 echo "🎉 Sync complete!"
 
-# --- 3. Re-index CSDL Vector ---
-echo "🔄 Re-indexing skill vectors in ChromaDB..."
-cd /Users/datran/LearnDev/antigravity-kit/tools/mcp-skill-router || exit 1
-.venv/bin/python3 skill_indexer.py
-echo "✅ Vector sync complete!"
+# --- 3. Rebuild MCP Skill Router Go ---
+echo "🔄 Rebuilding MCP Skill Router Go..."
+cd /Users/datran/LearnDev/antigravity-kit/tools/mcp-skill-router-go || exit 1
+go build -o mcp-skill-router-go main.go
+# Clear the cache to force a re-index on next launch
+rm -f .db/skills_cache.json
+echo "✅ MCP Skill Router sync complete!"

@@ -82,6 +82,7 @@ Role] <-> [Tester Role]**
     back to the Coder role to fix it.
 4.  **Role Anchoring**: ALWAYS prefix every conversational response with your current role tag (e.g.
     `[Role: 🏗️ Planner]`, `[Role: 💻 Coder]`, etc.) to clearly establish state.
+5.  **Skill Transparency**: BEFORE executing any task, you MUST explicitly print out the names and paths of the specialized skills you are using for the request.
 
 ### 🛡️ SAFEGUARDS AND GOVERNANCE
 
