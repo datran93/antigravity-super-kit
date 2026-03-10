@@ -2,17 +2,19 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"os/exec"
 	"strings"
 
 	"code.sajari.com/docconv"
-	"github.com/ledongthuc/pdf"
 )
 
 // ReadLocalDoc Extracts text from a local .doc, .docx, or .pdf file.
+// For PDFs, uses pdftotext (poppler) for accurate Unicode extraction.
+// For .doc/.docx, uses docconv (supports OLE2 and OOXML formats).
 func ReadLocalDoc(filePath string) (string, error) {
-	if strings.HasSuffix(strings.ToLower(filePath), ".pdf") {
-		return readPdf(filePath)
+	lower := strings.ToLower(filePath)
+	if strings.HasSuffix(lower, ".pdf") {
+		return readPdfWithPoppler(filePath)
 	}
 
 	res, err := docconv.ConvertPath(filePath)
@@ -22,21 +24,31 @@ func ReadLocalDoc(filePath string) (string, error) {
 	return strings.TrimSpace(res.Body), nil
 }
 
-func readPdf(path string) (string, error) {
-	f, r, err := pdf.Open(path)
+// readPdfWithPoppler uses pdftotext (poppler) to extract text from a PDF.
+// This correctly handles custom-embedded fonts, CIDFonts, and Unicode PDFs
+// that the pure-Go ledongthuc/pdf library cannot decode.
+func readPdfWithPoppler(path string) (string, error) {
+	pdfToText, err := exec.LookPath("pdftotext")
 	if err != nil {
-		return "", fmt.Errorf("error opening pdf %s: %v", path, err)
-	}
-	defer f.Close()
-
-	b, err := r.GetPlainText()
-	if err != nil {
-		return "", fmt.Errorf("error getting text from pdf %s: %v", path, err)
+		return "", fmt.Errorf("pdftotext (poppler) is not installed. Install it with: brew install poppler (macOS) or apt install poppler-utils (Linux)")
 	}
 
-	bytes, err := io.ReadAll(b)
+	// pdftotext -layout path - outputs text to stdout
+	cmd := exec.Command(pdfToText, "-layout", path, "-")
+	out, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("error reading text from pdf %s: %v", path, err)
+		// Try without -layout flag as a fallback
+		cmd2 := exec.Command(pdfToText, path, "-")
+		out2, err2 := cmd2.Output()
+		if err2 != nil {
+			return "", fmt.Errorf("pdftotext failed on %s: %v", path, err2)
+		}
+		out = out2
 	}
-	return strings.TrimSpace(string(bytes)), nil
+
+	text := strings.TrimSpace(string(out))
+	if text == "" {
+		return "", fmt.Errorf("pdftotext extracted no text from %s (possibly a scanned/image-only PDF)", path)
+	}
+	return text, nil
 }
