@@ -17,4 +17,4 @@ progress.md
 
 # Compiled MCP binaries
 tools/*/mcp-*-go
-mcp-*-go
+/mcp-*-go
