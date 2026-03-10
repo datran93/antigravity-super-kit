@@ -39,6 +39,7 @@ latency.**
 
 - Quickly assess the environment (`list_dir`, `package.json`, `go.mod`, etc.) so you are not starting "blind".
 - **Parallel Context Gathering**: Combine multiple MCP calls in the same turn to build a comprehensive prompt context:
+  - **Skills Retrieval**: Use `@mcp:skill-router` (`search_skills`) to discover relevant specialized workflow skills.
   - **Local RAG**: Use `@mcp:context-manager` (`recall_knowledge`) to search past KIs.
   - **Architecture**: Use `@mcp:ast-explorer` (`get_project_architecture`, `search_symbol`) to understand code
     structure.
