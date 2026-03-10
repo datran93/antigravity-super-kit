@@ -146,8 +146,11 @@ func main() {
 			return mcp.NewToolResultText(content), nil
 		}
 
-		chunkSize := 8000
-		totalLength := len(content)
+		// Use rune-based pagination to avoid splitting multi-byte UTF-8 characters
+		// (e.g. Vietnamese, Chinese, Arabic). Byte-based slicing corrupts such text.
+		const chunkSize = 8000
+		runes := []rune(content)
+		totalLength := len(runes)
 		totalPages := (totalLength + chunkSize - 1) / chunkSize
 		if totalPages == 0 {
 			totalPages = 1
@@ -166,7 +169,7 @@ func main() {
 			endIdx = totalLength
 		}
 
-		pageContent := content[startIdx:endIdx]
+		pageContent := string(runes[startIdx:endIdx])
 
 		header := fmt.Sprintf("📄 Source: %s | Page %d/%d\n--------------------------------------------------\n", url, page, totalPages)
 		footer := "\n--------------------------------------------------\n"
@@ -214,8 +217,11 @@ func main() {
 			setCache(cacheKey, content)
 		}
 
-		chunkSize := 8000
-		totalLength := len(content)
+		// Use rune-based pagination to avoid splitting multi-byte UTF-8 characters
+		// (e.g. Vietnamese, Chinese, Arabic). Byte-based slicing corrupts such text.
+		const chunkSize = 8000
+		runes := []rune(content)
+		totalLength := len(runes)
 		totalPages := (totalLength + chunkSize - 1) / chunkSize
 		if totalPages == 0 {
 			totalPages = 1
@@ -234,7 +240,7 @@ func main() {
 			endIdx = totalLength
 		}
 
-		pageContent := content[startIdx:endIdx]
+		pageContent := string(runes[startIdx:endIdx])
 
 		header := fmt.Sprintf("📄 Source: %s | Page %d/%d\n--------------------------------------------------\n", filePath, page, totalPages)
 		footer := "\n--------------------------------------------------\n"

@@ -5,7 +5,6 @@ go 1.25.0
 require (
 	code.sajari.com/docconv v1.3.8
 	github.com/PuerkitoBio/goquery v1.11.0
-	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
 	github.com/mark3labs/mcp-go v0.45.0
 	github.com/mattn/go-sqlite3 v1.14.34
 )
