@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/gomarkdown/markdown"
 )
 
 // Client is a Confluence Cloud REST API client using Basic Auth.
@@ -240,6 +242,7 @@ func (c *Client) CreatePage(spaceID, parentID, title, bodyHTML string) (*Page, e
 
 // UpdatePageRequest is the payload for updating an existing page (v2 API).
 type UpdatePageRequest struct {
+	ID      string `json:"id"`
 	Title   string `json:"title"`
 	Version struct {
 		Number int `json:"number"`
@@ -261,6 +264,7 @@ func (c *Client) UpdatePage(pageID, title, bodyHTML string) (*Page, error) {
 	}
 
 	req := UpdatePageRequest{
+		ID:     pageID,
 		Title:  title,
 		Status: "current",
 	}
@@ -312,14 +316,9 @@ func (c *Client) AddComment(pageID, commentText string) (*Comment, error) {
 // MARKDOWN → CONFLUENCE STORAGE HELPER
 // ─────────────────────────────────────────────
 
-// MarkdownToStorage does a best-effort conversion of simple Markdown
-// to Confluence storage format HTML. For production use, consider
-// the Confluence /wiki/rest/api/contentbody/convert/storage endpoint.
+// MarkdownToStorage converts Markdown to Confluence storage format HTML natively.
 func MarkdownToStorage(md string) string {
-	// Wrap raw Markdown in a Confluence macro that renders it.
-	// This uses the "noformat" macro as a safe fallback that preserves content.
-	// A full converter can be added later via the /convert endpoint.
-	return fmt.Sprintf(`<ac:structured-macro ac:name="markdown" ac:schema-version="1">
-  <ac:plain-text-body><![CDATA[%s]]></ac:plain-text-body>
-</ac:structured-macro>`, md)
+	// Parse the markdown using gomarkdown/markdown
+	html := markdown.ToHTML([]byte(md), nil, nil)
+	return string(html)
 }
