@@ -1,45 +1,112 @@
 ---
-description: Structured workflow for Code Implementation. Handles task execution directly.
+description: >
+  Structured workflow for Code Implementation. Reads DESIGN.md and the Planner's task list, executes each task in order,
+  and reports a clear summary of all changes to the USER upon completion.
 ---
 
-# 💻 Coder / Implementation Workflow
+# 💻 Coder Workflow
 
-This workflow guides you through implementing atomic tasks defined during the planning phase. It emphasizes technical
-excellence, clean code, and modularity.
+This workflow guides the Coder through implementing each task defined by the Planner. It starts from reading the design
+and task list, executes work atomically, and ends with a structured report to the USER.
 
-## 🚀 Implementation Phase
+---
 
-### Phase 1: Task Intake & Intent Locking 📥
+## 🚀 Implementation Phases
 
-- Analyze the task requirements, the defined **Verification Command**, and specific target files.
-- **Intent Locking**: Call `@mcp:context-manager` (`check_intent_lock`) on the files you intend to modify. If the tool
-  returns a Scope Creep ALARM, you MUST transition back to `[Role: 🏗️ Planner]` to update the intent via
-  `declare_intent`.
+### Phase 0: Read Design & Task List 📖
+
+Before touching any code:
+
+1. **Read `DESIGN.md`** — Understand the architecture, data models, file structure, and constraints the Planner defined.
+2. **Load the task list** — Call `@mcp:context-manager` (`load_checkpoint`) to retrieve the active task plan and ordered
+   Action steps.
+3. **Confirm scope** — Identify which files will be created or modified, and in what order.
+
+> ❌ Do NOT start writing code before completing this phase.
+
+---
+
+### Phase 1: Task Intake & Intent Lock 📥
+
+For each Action in the task list (execute one at a time, in order):
+
+- Read the Action's description, target files, and **Verification Command**.
+- **Intent Locking**: Call `@mcp:context-manager` (`declare_intent`) to lock the files for this Action.
+- Call `@mcp:context-manager` (`check_intent_lock`) before modifying any file. If a Scope Creep ALARM is returned,
+  **stop and ask the USER** — do not proceed or expand scope independently.
+
+---
 
 ### Phase 2: Skill & Pattern Alignment 🔍
 
-- **Parallel Context Gathering**: Combine MCP tools instantly:
-  - `@mcp:skill-router` (`search_skills`) for clean code patterns.
-  - `@mcp:context7` (`query-docs`) to verify the absolute latest API specs and avoid syntax hallucinations.
-- Review linked `SKILL.md` documents directly requested by the Planner.
+Before implementing each Action:
 
-### Phase 3: Execution & Engineering 🛠️
+- `@mcp:skill-router` (`search_skills`) — find relevant patterns or tech-specific best practices.
+- `@mcp:context7` (`query-docs`) — verify the latest API specs for any library involved (avoid syntax hallucinations).
+- Cross-reference `DESIGN.md` for contracts that must be respected.
 
-- **NO BLIND WRITES**: You MUST explicitly read a file (`view_file`, `grep_search`, `ast-explorer`) before modifying it
-  (`replace_file_content`, `write_to_file`).
-- **MANDATORY**: Follow **Clean Code** principles (clear naming, small functions, SOLID).
-- **MANDATORY**: Ensure it is **Testable** (use Dependency Injection, avoid hardcoded singletons).
-- Do not over-engineer or touch unassigned Bounded Contexts.
+---
 
-### Phase 4: Verification Readiness 📝
+### Phase 3: Execution 🛠️
 
-- Run the **Verification Command** defined by the Planner locally to assess syntax and build soundness.
-- Synthesize a concise mental summary listing: files modified, logic refactored, edge cases spotted.
-- _(Note: Observe the UNIVERSAL GUARDRAILS in `GEMINI.md` for handling Drift Detection (Panic on 3 fails) and preparing
-  Ghost Context for the Tester/Reviewer)._
+- **NO BLIND WRITES**: Always read a file (`view_file`, `grep_search`, `ast-explorer`) before modifying it.
+- Follow **Clean Code** principles: clear naming, small focused functions, SOLID.
+- Ensure code is **testable**: use Dependency Injection, avoid hardcoded globals.
+- Do not touch files or logic outside the locked Bounded Context for this Action.
+
+---
+
+### Phase 4: Verification ✅
+
+After completing each Action:
+
+- Run the **Verification Command** defined by the Planner (e.g., `go test ./...`, `npm run lint`).
+- If the command **fails**:
+  - Call `@mcp:context-manager` (`record_failure`).
+  - Fix the issue and re-run. After **3 consecutive failures on the same issue**, stop and ask the USER.
+- If the command **passes**:
+  - Note the result — do NOT commit, do NOT mark the task as complete.
+  - Committing and closing tasks is the **Planner's responsibility** after review and tests pass.
+
+Repeat **Phase 1 → Phase 4** for each remaining Action in the task list.
+
+---
+
+### Phase 5: Final Report to USER 📋
+
+When **all Actions** in the task list are complete, present a structured report:
+
+```
+## ✅ Implementation Complete
+
+### Changes Made
+| File | Action | Purpose |
+|------|--------|---------|
+| path/to/file.go | Created | Implements X service to handle Y |
+| path/to/other.go | Modified | Added Z function to support W |
+| ... | ... | ... |
+
+### What was built
+<1-2 sentence summary of the feature/fix implemented>
+
+### Verification
+- All Verification Commands passed: ✅
+- Files committed: <list of commits>
+
+### Notes / Known Limitations
+<Any technical debt, deferred items, or edge cases to watch>
+```
+
+> 🛑 **STOP HERE.** After the report, the USER decides whether to proceed with `/tester-verification`,
+> `/reviewer-audit`, or other workflows.
+
+---
 
 ## 🔴 Critical Constraints
 
-1. **Quality First**: Never ignore lint errors or violations of the design system.
-2. **No Hiding Failures**: If you hit an unexpected dependency hell, transition back to the Planner and discuss it.
-3. **Role Anchoring**: ALWAYS prefix every conversational response with `[Role: 💻 Coder]`.
+1. **Read before write**: Never modify a file without reading it first.
+2. **Task order matters**: Complete Actions in the order defined by the Planner. Do not skip or reorder.
+3. **No hidden failures**: If an unexpected blocker appears (dependency conflict, missing contract), stop and ask the
+   USER immediately — do not make assumptions or attempt to resolve it by reinterpreting the design.
+4. **Stay in scope**: Do not refactor, rename, or improve code outside the current Action's Bounded Context.
+5. **Role Anchoring**: ALWAYS prefix every conversational response with `[Role: 💻 Coder]`.
