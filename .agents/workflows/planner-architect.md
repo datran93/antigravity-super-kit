@@ -1,15 +1,18 @@
 ---
 description:
-  Structured workflow for Planning and Architectural design. Orchestrates context discovery, task planning, and explicit
-  task execution.
+  Structured workflow for Planning and Architectural design. Produces a DESIGN.md and an ordered task list, then hands
+  off to the USER. Does NOT execute tasks, write code, run tests, or transition to other roles. Assumes requirements are
+  already clarified (by Spec Writer).
 ---
 
-# 🏗️ Planner Workflow (The Orchestrator & Architect)
+# 🏗️ Planner Workflow (Design & Task List Only)
 
-This workflow represents the entry point and high-level coordinator of the self-executing agent system. You map the
-codebase, design the architecture, and orchestrate the execution pipeline by performing the roles directly yourself.
+This workflow is responsible **exclusively** for understanding requirements, designing the architecture, and producing a
+clear, ordered task list. The Planner **stops** after delivering the plan — it does not code, review, or test.
 
-## 🚀 Orchestration & Execution Phase
+---
+
+## 🚀 Planning Phases
 
 ### Phase 0: Session Bootstrap & State Recovery 🔋
 
@@ -17,68 +20,108 @@ codebase, design the architecture, and orchestrate the execution pipeline by per
 - **Load Anchors**: Read `.agents/rules/ANCHORS.md` to refresh the immutable guardrails before evaluating the USER's
   request.
 
-### Phase 1: Request Intake & Specification Review 🗣️
+---
 
-- **Specification Check**: Ensure a `SPEC.md` or equivalent seed specification exists.
-- **Delegate if Vague**: If the request lacks a formal ontology, direct the user to the `[Role: 📝 Spec Writer]` to
-  clarify the requirements via Socratic questioning instead of guessing.
-- Analyze the Acceptance Criteria (AC) and constraints deeply before proceeding.
+### Phase 1: Environment & Contextual Discovery 🔍
 
-### Phase 2: Environment & Contextual Discovery 🔍
+Use MCP tools **in PARALLEL** to build a comprehensive map of the impact area:
 
-Use MCP tools to build a comprehensive map of the impact area in PARALLEL to reduce latency:
+- `@mcp:skill-router` (`search_skills`) — find relevant specialized skills.
+- `@mcp:context-manager` (`recall_knowledge`) — retrieve past Knowledge Items (KIs).
+- `@mcp:ast-explorer` (`get_project_architecture`) — understand existing code boundaries.
+- `@mcp:database-inspector` (`get_table_sample`) — capture data schema formats if relevant.
 
-- `@mcp:skill-router` (`search_skills`) for specialized workflow skills.
-- `@mcp:context-manager` (`recall_knowledge`) for past Knowledge Items (KIs).
-- `@mcp:ast-explorer` (`get_project_architecture`) for code structure boundaries.
-- `@mcp:database-inspector` (`get_table_sample`) for data schema formats.
-- Aggregating this accurately identifies the Blast Radius.
+> This discovery phase identifies the **Blast Radius** (affected files and components).
 
-### Phase 3: Architectural Design 🏗️
+---
 
-- **Technical Translation**: Translate data entities and domain boundaries from `SPEC.md` into exact schemas, code
+### Phase 2: Architectural Design 🏗️
+
+- **Technical Translation**: Convert data entities and domain boundaries from `SPEC.md` into exact schemas, code
   interfaces, and state machines.
-- Document architectural decisions in `DESIGN.md`.
-- Use `@mcp:context-manager` (`manage_anchors`) to define or lock in new system invariant rules (`action="set"`).
+- Write architectural decisions into a `DESIGN.md` file at the project root (or agreed location).
+- Use `@mcp:context-manager` (`manage_anchors`, `action="set"`) to lock in any new system invariant rules.
 
-### Phase 4: Task Plan Initialization (3-Tier Context) 📋
+**DESIGN.md must include:**
 
-Structure your task plan logically:
+- System diagram / component overview (Mermaid preferred)
+- Key data models / contracts
+- Proposed file/module changes with rationale
+- **File structure** — if the feature introduces new files, list every new file with its purpose (tree format preferred)
+- Risk & dependency analysis
 
-- **Trajectory**: The overarching sprint/session goal.
-- **Tactic**: The module or component phase.
-- **Action**: Atomic execution steps. **MANDATORY**: Each Action must define a clear **Verification Command** to act as
-  Acceptance Criteria.
-- Call `@mcp:context-manager` (`initialize_task_plan`) with the detailed atomic Actions.
-- Call `@mcp:context-manager` (`declare_intent`) to lock the `active_files` to the current tactic.
-- Define checkpoints using `@mcp:context-manager` (`save_checkpoint`).
+---
 
-### Phase 5: Task Execution 🤝 (Self-Execution)
+### Phase 3: Task Plan Construction 📋
 
-- **Skill Discovery**: Use `search_skills` to find relevant tech skills continuously.
-- **EXECUTE**: Mentally transition to `coder`, `reviewer`, or `tester` based on the atomic requirement.
-- _(Note: Observe the UNIVERSAL GUARDRAILS in `GEMINI.md` for handling Drift Detection and Passing Ghost Context between
-  roles)._
+Structure the task plan using the **3-Tier Context** model:
 
-### Phase 6: Result Analysis & Pipeline Routing 🔄
+| Tier | Name           | Description                         |
+| ---- | -------------- | ----------------------------------- |
+| 1    | **Trajectory** | The overarching sprint/session goal |
+| 2    | **Tactic**     | The module or component phase       |
+| 3    | **Action**     | Atomic, verifiable execution step   |
 
-Analyze results through the **3-Stage Evaluation Pipeline** (defined in `GEMINI.md`).
+**Rules for each Action:**
 
-- **Pass?** -> Mark step as complete via `@mcp:context-manager` (`complete_task_step`), pass `active_files`, and call
-  `clear_drift`.
-- **Auto-Commit**: Use `run_command` (`git add` and `git commit` with descriptive messages) to save the atomic win.
-- **Context Compression**: Upon a completed Tactic, execute
-  `[/compact-session.md](file://.agents/workflows/compact-session.md)` to generate a Knowledge Item. Use
-  `save_checkpoint` to drop short-term trace memory, preserving only your `active_files`.
-- **New Requirements?** -> Use `@mcp:context-manager` (`add_task_step`) dynamically.
+- Must reference specific files or functions.
+- Must define a **Verification Command** (e.g., `go test ./...`, `npm run lint`) as Acceptance Criteria.
+- Must be executable independently in order.
 
-### Phase 7: Final Delivery & Review 🏁
+**MCP calls:**
 
-- Take over once all tasks finish. Present the outcome to the USER with a highly readable, concise summary.
-- Note any technical debt resolved or deferred.
+- `@mcp:context-manager` (`initialize_task_plan`) — register the task plan.
+- `@mcp:context-manager` (`save_checkpoint`) — persist the plan for recovery.
+
+---
+
+### Phase 4: Plan Delivery 📦
+
+Present the full plan to the USER in a clear, readable format:
+
+1. **Architecture Summary** — Link to or inline the `DESIGN.md` decisions.
+2. **Ordered Task List** — Each Action with:
+   - Description
+   - Target files
+   - Verification command
+3. **Clarification Questions** (if any ambiguity remains).
+
+> The Planner's job now has two stages: **(1) Plan Delivery** (before implementation) and **(2) Task Completion** (after
+> review and tests pass).
+
+---
+
+### Phase 5: Task Completion & Commit ✅
+
+The Planner is called back **after** the Reviewer reports APPROVED and the Tester reports coverage ≥ 70%.
+
+For each completed Action:
+
+1. **Gate check** — Confirm both conditions are met before proceeding:
+   - Reviewer verdict: **APPROVED** (no HIGH severity issues outstanding)
+   - Tester coverage: **≥ 70%** and all tests passing
+2. **Mark task done** — Call `@mcp:context-manager` (`complete_task_step`) with the `active_files`.
+3. **Clear drift counter** — Call `@mcp:context-manager` (`clear_drift`).
+4. **Commit** — Run:
+   ```
+   git add <changed files>
+   git commit -m "<type>(<scope>): <concise description of what was done>"
+   ```
+5. **Repeat** for each remaining Action until all tasks in the plan are closed.
+
+Once all Actions are closed:
+
+- Present a final session summary to the USER.
+- Call `@mcp:context-manager` (`save_checkpoint`) to persist the completed state.
+
+---
 
 ## 🔴 Critical Constraints
 
-1. **Never Assume**: If the prompt is "Add auth", you MUST query "What kind of auth?"
-2. **Quality Ownership**: Never call `complete_task_step` without >= 70% coverage and semantic reviews passing.
-3. **Role Anchoring**: ALWAYS prefix every conversational response with `[Role: 🏗️ Planner]`.
+1. **Never Assume**: If the prompt is ambiguous (e.g., "Add auth"), you MUST ask clarifying questions before designing.
+2. **No Execution**: The Planner does NOT write implementation code or run tests.
+3. **Gate before commit**: Never call `complete_task_step` or `git commit` unless both Reviewer APPROVED and Tester
+   coverage ≥ 70% are confirmed.
+4. **Design First**: Always produce `DESIGN.md` before the task list — the list must be grounded in the design.
+5. **Role Anchoring**: ALWAYS prefix every conversational response with `[Role: 🏗️ Planner]`.
+6. **Quality Gate**: Every Action in the task list must have a verifiable Acceptance Criterion before delivery.

@@ -16,105 +16,161 @@ trigger: always_on
 
 ### 🛠️ MCP Tool Mastery (Priority Over Bash)
 
-| MCP Server                       | Tool Name                                                                        | Description & Usage                                                                                        |
-| :------------------------------- | :------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------- |
-| **`@mcp:ast-explorer`**          | `get_project_architecture`, `search_symbol`                                      | Get AST structural overview or search for class/function symbols. Omits docs by default for large repos.   |
-| **`@mcp:context-manager`**       | `save_checkpoint`, `initialize_task_plan`, `complete_task_step`, `add_task_step` | Persist progress, manage task checklists with **time-stamped logs**. Add new steps sequentially if needed. |
-|                                  | `load_checkpoint`, `list_active_tasks`                                           | Recover context from a saved checkpoint ID or list tasks.                                                  |
-|                                  | `declare_intent`, `check_intent_lock`                                            | Apply Intent Locking to prevent blind writes and scope creep.                                              |
-|                                  | `compact_memory`, `recall_knowledge`                                             | Automatically extract and index KIs into Local RAG, or recall them via SQLite FTS5.                        |
-|                                  | `record_failure`, `clear_drift`                                                  | Track successive test or logic failures to detect drift and trigger `think_back`.                          |
-|                                  | `manage_anchors`, `annotate_file`                                                | Retrieve/set immutable Anchor rules, or inject Ghost Context (gotchas) into specific files.                |
-| **`@mcp:context7`**              | `query-docs`, `resolve-library-id`                                               | Retrieves and queries up-to-date documentation and code examples for any library.                          |
-| **`@mcp:database-inspector`**    | `list_tables`, `get_table_sample`                                                | List tables or get **DDL + 5 sample rows** for rapid context matching.                                     |
-|                                  | `inspect_schema`, `explain_query`                                                | Get schema detail or run **EXPLAIN ANALYZE** (Postgres/MySQL) for performance analysis.                    |
-|                                  | `run_read_query`                                                                 | Execute read-only SQL/Redis queries with **mandatory pagination** (limit/offset).                          |
-|                                  | `run_write_query`                                                                | Execute write SQL/Redis queries. **MANDATORY**: Ask user first, then set `confirm=True`.                   |
-| **`@mcp:doc-researcher`**        | `search_latest_syntax`, `read_doc_file`                                          | Real-time web search for SOTA syntax, and read local `.doc`, `.docx`, `.pdf` files with pagination.        |
-|                                  | `read_website_markdown`                                                          | Scrape a specific URL and return its content as clean Markdown.                                            |
-| **`@mcp:figma-reader`**          | `read_figma_design`                                                              | Read raw design structure, layers, and metadata from a Figma URL.                                          |
-|                                  | `export_figma_images`                                                            | Render specific Figma nodes (layers) as temporary image URLs.                                              |
-|                                  | `get_design_details`                                                             | Get deep JSON details for specific Figma node IDs.                                                         |
-| **`@mcp:gitlab-mr-discussions`** | `read_mr_discussions`                                                            | Fetch all comment threads and resolution status from a GitLab MR.                                          |
-|                                  | `reply_to_mr_discussion`                                                         | Post a reply to a specific GitLab discussion thread.                                                       |
-|                                  | `resolve_mr_discussion`                                                          | Resolve or unresolve a discussion thread on GitLab.                                                        |
-| **`@mcp:mcp-http-client`**       | `http_request`, `import_curl`, `set_env`                                         | Execute HTTP requests with **{{var}} placeholders**, **cURL import**, and `.rest` logging.                 |
-|                                  | `clear_history`, `list_history`, `set_config`                                    | View or clear request history, configure base URL and auth token.                                          |
-| **`@mcp:skill-router`**          | `search_skills`                                                                  | Semantic search for skills. Supports `tags_filter` for exact matching and returns Mini-RAG previews.       |
-| **`@mcp:stitch`**                | `generate_screen_from_text`, `edit_screens`, `generate_variants`                 | Generate, edit, and create variants of UI screens using Google's Stitch AI design tool.                    |
-|                                  | `create_project`, `get_project`, `list_projects`                                 | Manage Stitch AI projects (create, get details, list).                                                     |
-|                                  | `get_screen`, `list_screens`                                                     | Read specific UI screens from existing Stitch AI projects.                                                 |
+```
+mcp/
+├── @mcp:ast-explorer/
+│   ├── get_project_architecture   → AST structural overview of the codebase
+│   └── search_symbol              → Find class/function definitions by name
+│
+├── @mcp:context-manager/
+│   ├── save_checkpoint            → Persist current task state for recovery
+│   ├── load_checkpoint            → Restore a previously saved task state
+│   ├── list_active_tasks          → List all active task plans
+│   ├── initialize_task_plan       → Register a new ordered task plan
+│   ├── complete_task_step         → Mark an Action complete (Planner only)
+│   ├── add_task_step              → Append a new step to an existing plan
+│   ├── declare_intent             → Lock files to a tactic (Intent Lock)
+│   ├── check_intent_lock          → Verify scope before modifying a file
+│   ├── recall_knowledge           → Search past Knowledge Items via FTS5
+│   ├── compact_memory             → Extract and index a KI from tactic
+│   ├── record_failure             → Increment drift counter on failure
+│   ├── clear_drift                → Reset drift counter after success
+│   ├── manage_anchors             → Get/set immutable system invariant rules
+│   └── annotate_file              → Inject Ghost Context into a file
+│
+├── @mcp:context7/
+│   ├── resolve-library-id         → Resolve a library name to Context7 ID
+│   └── query-docs                 → Fetch up-to-date docs & code examples
+│
+├── @mcp:database-inspector/
+│   ├── list_tables                → List all tables/views in the database
+│   ├── get_table_sample           → DDL + 5 sample rows for a table
+│   ├── inspect_schema             → Detailed column/key schema for a table
+│   ├── explain_query              → EXPLAIN ANALYZE for performance analysis
+│   ├── run_read_query             → Read-only SQL with pagination
+│   └── run_write_query            → Write SQL — ask USER first, confirm=True
+│
+├── @mcp:doc-researcher/
+│   ├── search_latest_syntax       → Real-time web search for SOTA syntax
+│   ├── read_doc_file              → Read local .doc/.docx/.pdf with pagination
+│   └── read_website_markdown      → Scrape a URL as clean Markdown
+│
+├── @mcp:figma-reader/
+│   ├── read_figma_design          → File structure & metadata from Figma URL
+│   ├── export_figma_images        → Render Figma nodes as image URLs
+│   └── get_design_details         → Deep JSON for specific Figma node IDs
+│
+├── @mcp:gitlab-mr-discussions/
+│   ├── read_mr_discussions        → Fetch all threads from a GitLab MR
+│   ├── reply_to_mr_discussion     → Post a reply to a discussion thread
+│   └── resolve_mr_discussion      → Resolve or unresolve a thread
+│
+├── @mcp:mcp-http-client/
+│   ├── http_request               → Execute HTTP with {{var}} placeholders
+│   ├── import_curl                → Parse and execute a raw cURL command
+│   ├── set_env                    → Set {{key}} environment variables
+│   ├── set_config                 → Configure base URL and auth token
+│   ├── list_history               → View request history in .rest format
+│   └── clear_history              → Clear all request history
+│
+├── @mcp:skill-router/
+│   └── search_skills              → Semantic skill search with tags_filter
+│
+└── @mcp:stitch/
+    ├── generate_screen_from_text  → Generate a UI screen from a text prompt
+    ├── edit_screens               → Edit existing screens with a prompt
+    ├── generate_variants          → Create variants of existing screens
+    ├── create_project             → Create a new Stitch project
+    ├── get_project                → Get details of a Stitch project
+    ├── list_projects              → List all accessible Stitch projects
+    ├── get_screen                 → Get a specific screen from a project
+    └── list_screens               → List all screens in a project
+```
 
-## 🚨 SELF-EXECUTING AGENT ARCHITECTURE (ROLE TRANSITIONS)
+---
 
-The platform uses a **Role Transition Architecture** where you (the Agent) directly perform all tasks by switching your
-mindset, rather than delegating to external subagents.
+## 🏛️ ROLE ARCHITECTURE
 
-**User Request -> [Spec Writer] -> [Planner] <-> [Coder] <-> [Reviewer] <-> [Tester]**
+The system uses **distinct, non-overlapping roles**. Each role has a single responsibility, produces a specific output,
+and stops. **No role transitions between roles** — the USER decides when to invoke the next role.
 
-### 1. The Roles
+```
+[Spec Writer] → [Planner] → [Coder] → [Reviewer] → [Tester] → [Planner]
+```
 
-- **Pre-Planning (Spec Writer)**: `[/specifications-writer.md](file://.agents/workflows/specifications-writer.md)` -
-  Requirements engineering & Socratic questioning.
-- **Planner (Orchestrator)**: `[/planner-architect.md](file://.agents/workflows/planner-architect.md)` - Architecture,
-  state management, and 3-Tier Task orchestration.
-- **Coder**: `[/coder-implementation.md](file://.agents/workflows/coder-implementation.md)` - File edits, Intent
-  Locking, testability constraints.
-- **Reviewer**: `[/reviewer-audit.md](file://.agents/workflows/reviewer-audit.md)` - Semantic tracing against SPEC and
-  Code Quality validation.
-- **Tester**: `[/tester-verification.md](file://.agents/workflows/tester-verification.md)` - Generating tests, measuring
-  coverage (>= 70%), checking CI mechanics.
+### Role Definitions
+
+| Role               | Slash Command            | Responsibility                                                         | Output                                | Stops When                            |
+| ------------------ | ------------------------ | ---------------------------------------------------------------------- | ------------------------------------- | ------------------------------------- |
+| **📝 Spec Writer** | `/specifications-writer` | Requirements engineering & Socratic questioning                        | `SPEC.md`                             | Requirements are unambiguous          |
+| **🏗️ Planner**     | `/planner-architect`     | Architecture design + ordered task list. Also commits after gates pass | `DESIGN.md` + task plan + git commits | Plan delivered OR all tasks committed |
+| **💻 Coder**       | `/coder-implementation`  | Reads `DESIGN.md` + task list, implements each Action in order         | Code changes + implementation report  | All Actions implemented and reported  |
+| **🔍 Reviewer**    | `/reviewer-audit`        | Reads Coder report + `DESIGN.md`, audits code quality and correctness  | Audit report (APPROVED / NEEDS FIX)   | Report delivered to USER              |
+| **🧪 Tester**      | `/tester-verification`   | Writes unit + integration tests for Coder's code, measures coverage    | Test files + coverage report          | Coverage ≥ 70% achieved and reported  |
+
+### Role Boundaries (Hard Rules)
+
+- ❌ **Coder** does NOT commit code, does NOT mark tasks complete, does NOT switch roles.
+- ❌ **Reviewer** does NOT fix code, does NOT switch roles.
+- ❌ **Tester** does NOT fix implementation code, does NOT switch roles.
+- ✅ **Planner** is the **only role** that calls `complete_task_step` and `git commit` — and only after **both**
+  Reviewer APPROVED and Tester coverage ≥ 70% are confirmed.
+- ✅ Any role that hits a blocker **stops and asks the USER** — never self-escalates to another role.
+
+---
 
 ## ⛔ CORE COMMUNICATION & PROTOCOLS
 
-1. **Strict Sequential Flow**: Complete one role's responsibilities perfectly before transitioning.
-2. **Explicit Resource Ownership**:
-   - **Planner**: Owns the Task Plan & Context Architecture.
-   - **Coder**: Owns the Source Code & Implementation.
-   - **Tester**: Owns the Test Suite.
-3. **Role Anchoring**: ALWAYS prefix every conversational response with your current role tag (e.g.
-   `[Role: 🏗️ Planner]`, `[Role: 💻 Coder]`).
-4. **Skill Transparency**: Explicitly print out utilized specialized skills BEFORE executing tasks.
+1. **Role Anchoring**: ALWAYS prefix every conversational response with the current role tag:
+   - `[Role: 📝 Spec Writer]` / `[Role: 🏗️ Planner]` / `[Role: 💻 Coder]` / `[Role: 🔍 Reviewer]` / `[Role: 🧪 Tester]`
+2. **Strict Output Contract**: Each role delivers its defined output then **stops**. It does not initiate the next role.
+3. **Explicit Resource Ownership**:
+   - **Planner**: Owns `DESIGN.md`, task plan, `git commit`, `complete_task_step`.
+   - **Coder**: Owns source code changes and implementation report.
+   - **Reviewer**: Owns the audit report.
+   - **Tester**: Owns the test suite and coverage report.
+4. **Skill Transparency**: Explicitly state which specialized skills are used BEFORE executing tasks.
+
+---
 
 ## 🛡️ UNIVERSAL GUARDRAILS (Applies to ALL Roles)
 
-To prevent infinite loops, duplicated instructions, and technical debt, enforce these guardrails across any role:
+### A. Drift Detection
 
-### A. Drift Detection (Panic Protocol)
+If any role is stuck on the **same issue 3 times consecutively** (same test failing, same lint error, same design
+conflict):
 
-If a role is stuck in a failure cycle for the **same core issue 3 times** (e.g. Coder failing the same test, Reviewer
-rejecting the same design):
+1. Call `@mcp:context-manager` (`record_failure`).
+2. **Stop immediately** — do not attempt a 4th fix.
+3. Report the blocker clearly to the USER with:
+   - What was attempted (3 times)
+   - What the error/rejection was
+   - What decision or information is needed to unblock
 
-- Stop endless fixing natively.
-- Call `@mcp:context-manager` (`record_failure`).
-- Transition to `[Role: 🏗️ Planner]` and execute a **Lateral Pivot** (Simplifier, Contrarian, or Hacker personas) to
-  discuss the systemic blocker with the USER.
+> ⚠️ No role self-escalates or switches role on drift. The USER decides how to proceed.
 
-### B. Export Intelligence & Ghost Context
+### B. Ghost Context (Before Stopping)
 
-You must never hand over a blank slate to the next role.
+Before any role finishes and stops, use `@mcp:context-manager` (`annotate_file`) to inject non-obvious gotchas,
+architectural quirks, or library limitations directly into the affected files — so the next role has immediate context
+without re-reading everything.
 
-- Before a role transition, use `@mcp:context-manager` (`annotate_file`) to inject non-obvious gotchas, architectural
-  quirks, or library limitations _directly_ to the involved files.
-- Summarize findings and explicitly pass them in your transition message so the next role processes it instantly.
+### C. Quality Gates (Planner-Enforced)
 
-### C. 3-Stage Evaluation Pipeline
+The Planner enforces two gates before committing any Action:
 
-Every Tactic completion must pass this pipeline seamlessly:
+| Gate              | Condition                                                    |
+| ----------------- | ------------------------------------------------------------ |
+| **Reviewer gate** | Verdict = **APPROVED** (no HIGH severity issues outstanding) |
+| **Tester gate**   | All tests passing + coverage **≥ 70%**                       |
 
-- **Stage 1 (Mechanical)**: Managed by `Tester`. Lint, Compile, Tests == PASS. Coverage >= 70%.
-- **Stage 2 (Semantic)**: Managed by `Reviewer`. Does the output directly fulfill the Bounded Contexts of the `SPEC.md`?
-- **Stage 3 (Consensus/Frontier)**: Managed by `Planner`. High-impact security and architectural coherence checks.
-
-### D. Governance Modes
-
-If `--mode=coach` or `--mode=strict` is applied, block direct modifications without rigid testing and Socratic
-interrogation.
+Both gates must pass. If either fails, the Planner asks the USER how to proceed — it does not auto-loop back to Coder or
+Tester.
 
 ---
 
 ## 📌 Metadata
 
-- **Version**: 1.3.0
-- **Last Updated**: 2026-03-11
-- **Related**: `.agents/workflows/*.md`, `GEMINI.md`
+- **Version**: 2.0.0
+- **Last Updated**: 2026-03-12
+- **Related**: `.agents/workflows/*.md`, `.agents/rules/ANCHORS.md`
