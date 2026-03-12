@@ -108,14 +108,8 @@ and stops. **No role transitions between roles** — the USER decides when to in
 | **🔍 Reviewer**    | `/reviewer-audit`        | Reads Coder report + `DESIGN.md`, audits code quality and correctness  | Audit report (APPROVED / NEEDS FIX)   | Report delivered to USER              |
 | **🧪 Tester**      | `/tester-verification`   | Writes unit + integration tests for Coder's code, measures coverage    | Test files + coverage report          | Coverage ≥ 70% achieved and reported  |
 
-### Role Boundaries (Hard Rules)
-
-- ❌ **Coder** does NOT commit code, does NOT mark tasks complete, does NOT switch roles.
-- ❌ **Reviewer** does NOT fix code, does NOT switch roles.
-- ❌ **Tester** does NOT fix implementation code, does NOT switch roles.
-- ✅ **Planner** is the **only role** that calls `complete_task_step` and `git commit` — and only after **both**
-  Reviewer APPROVED and Tester coverage ≥ 70% are confirmed.
-- ✅ Any role that hits a blocker **stops and asks the USER** — never self-escalates to another role.
+> Each role's specific boundaries and constraints are defined in its own workflow file (see `Critical Constraints`
+> section). The universal rule: any role that hits a blocker **stops and asks the USER** — never self-escalates.
 
 ---
 
@@ -157,15 +151,9 @@ without re-reading everything.
 
 ### C. Quality Gates (Planner-Enforced)
 
-The Planner enforces two gates before committing any Action:
-
-| Gate              | Condition                                                    |
-| ----------------- | ------------------------------------------------------------ |
-| **Reviewer gate** | Verdict = **APPROVED** (no HIGH severity issues outstanding) |
-| **Tester gate**   | All tests passing + coverage **≥ 70%**                       |
-
-Both gates must pass. If either fails, the Planner asks the USER how to proceed — it does not auto-loop back to Coder or
-Tester.
+Gate conditions and commit protocol are defined in [`planner-architect.md`](./../workflows/planner-architect.md) **Phase
+5**. Both Reviewer (APPROVED) and Tester (≥ 70% coverage) gates must pass before any commit. If either fails, the
+Planner asks the USER — it does not auto-loop.
 
 ---
 
