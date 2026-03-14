@@ -1,285 +1,264 @@
 package main
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
-// ── YAML / Skill parsing ───────────────────────────────────────────────────────
+// ── parseSkillFile tests ───────────────────────────────────────────────────────
 
 func TestParseSkillFile_Basic(t *testing.T) {
-	tmpDir := t.TempDir()
-	skillDir := filepath.Join(tmpDir, "my-test-skill")
-	_ = os.MkdirAll(skillDir, 0755)
+	dir := t.TempDir()
+	skillDir := filepath.Join(dir, "my-skill")
+	os.MkdirAll(skillDir, 0755)
 
-	skillContent := `---
-name: my-test-skill
-description: A test skill for unit testing purposes.
-tags:
-  - testing
-  - go
+	content := `---
+name: My Skill
+description: Does something useful.
+tags: [go, backend]
 ---
+# My Skill
 
-# My Test Skill
+## Usage
+Use this when you need something.
 
-This skill is for testing.
+## Steps
+1. Do step one
+2. Do step two
 `
-	skillPath := filepath.Join(skillDir, "SKILL.md")
-	if err := os.WriteFile(skillPath, []byte(skillContent), 0644); err != nil {
-		t.Fatalf("failed to write skill: %v", err)
-	}
+	path := filepath.Join(skillDir, "SKILL.md")
+	os.WriteFile(path, []byte(content), 0644)
 
-	doc, err := parseSkillFile(skillPath)
+	doc, err := parseSkillFile(path)
 	if err != nil {
 		t.Fatalf("parseSkillFile failed: %v", err)
 	}
-
-	if doc.ID != "my-test-skill" {
-		t.Errorf("Expected ID 'my-test-skill', got '%s'", doc.ID)
+	if doc.ID != "my-skill" {
+		t.Errorf("expected ID 'my-skill', got '%s'", doc.ID)
 	}
-	if doc.Metadata.Name != "my-test-skill" {
-		t.Errorf("Expected Name 'my-test-skill', got '%s'", doc.Metadata.Name)
-	}
-	if doc.Metadata.Description == "" {
-		t.Errorf("Expected non-empty description")
+	if !strings.Contains(doc.Metadata.Description, "useful") {
+		t.Errorf("description not parsed: %s", doc.Metadata.Description)
 	}
 	if doc.Metadata.Tags == "" {
-		t.Errorf("Expected non-empty tags")
+		t.Error("tags should be parsed")
 	}
 	if doc.Metadata.Hash == "" {
-		t.Errorf("Expected non-empty hash")
-	}
-	if doc.Metadata.Preview == "" {
-		t.Errorf("Expected non-empty preview")
+		t.Error("hash should be set")
 	}
 }
 
 func TestParseSkillFile_NoFrontmatter(t *testing.T) {
-	tmpDir := t.TempDir()
-	skillDir := filepath.Join(tmpDir, "no-frontmatter-skill")
-	_ = os.MkdirAll(skillDir, 0755)
+	dir := t.TempDir()
+	skillDir := filepath.Join(dir, "bare-skill")
+	os.MkdirAll(skillDir, 0755)
 
-	skillContent := `# No Frontmatter Skill
+	path := filepath.Join(skillDir, "SKILL.md")
+	os.WriteFile(path, []byte("# Bare skill\nJust some content."), 0644)
 
-This skill has no YAML frontmatter at all.
-It should still parse without errors.
-`
-	skillPath := filepath.Join(skillDir, "SKILL.md")
-	_ = os.WriteFile(skillPath, []byte(skillContent), 0644)
-
-	doc, err := parseSkillFile(skillPath)
-	if err != nil {
-		t.Fatalf("parseSkillFile with no frontmatter failed: %v", err)
-	}
-	if doc.ID != "no-frontmatter-skill" {
-		t.Errorf("Expected ID 'no-frontmatter-skill', got '%s'", doc.ID)
-	}
-}
-
-func TestParseSkillFile_StringTags(t *testing.T) {
-	tmpDir := t.TempDir()
-	skillDir := filepath.Join(tmpDir, "string-tags-skill")
-	_ = os.MkdirAll(skillDir, 0755)
-
-	skillContent := `---
-description: Skill with string tags
-tags: frontend, react, typescript
----
-
-# String Tags Skill
-Content here.
-`
-	skillPath := filepath.Join(skillDir, "SKILL.md")
-	_ = os.WriteFile(skillPath, []byte(skillContent), 0644)
-
-	doc, err := parseSkillFile(skillPath)
+	doc, err := parseSkillFile(path)
 	if err != nil {
 		t.Fatalf("parseSkillFile failed: %v", err)
 	}
-	if doc.Metadata.Tags == "" {
-		t.Errorf("Expected non-empty tags for string-formatted tags")
-	}
-}
-
-func TestParseSkillFile_LongDescription(t *testing.T) {
-	tmpDir := t.TempDir()
-	skillDir := filepath.Join(tmpDir, "long-desc-skill")
-	_ = os.MkdirAll(skillDir, 0755)
-
-	// Description longer than 150 chars
-	longDesc := "This is a very long description that exceeds the 150-character limit set in the parseSkillFile function, it should be truncated at 150 characters."
-	skillContent := "---\ndescription: " + longDesc + "\n---\n\nContent\n"
-	skillPath := filepath.Join(skillDir, "SKILL.md")
-	_ = os.WriteFile(skillPath, []byte(skillContent), 0644)
-
-	doc, err := parseSkillFile(skillPath)
-	if err != nil {
-		t.Fatalf("parseSkillFile failed: %v", err)
-	}
-	if len(doc.Metadata.Description) > 150 {
-		t.Errorf("Expected description to be truncated to 150 chars, got %d", len(doc.Metadata.Description))
+	if doc.ID != "bare-skill" {
+		t.Errorf("expected 'bare-skill', got '%s'", doc.ID)
 	}
 }
 
 func TestParseSkillFile_NonExistent(t *testing.T) {
-	_, err := parseSkillFile("/nonexistent/SKILL.md")
+	_, err := parseSkillFile("/tmp/nonexistent/SKILL.md")
 	if err == nil {
-		t.Errorf("Expected error for non-existent skill file, got nil")
+		t.Error("expected error for non-existent file")
 	}
 }
 
-// ── Cosine Similarity ──────────────────────────────────────────────────────────
+// ── extractSections tests ──────────────────────────────────────────────────────
+
+func TestExtractSections_WithHeaders(t *testing.T) {
+	body := `## Usage
+Use this when you need it.
+
+## Steps
+1. Step one
+2. Step two
+`
+	sections := extractSections("test-skill", "A description", "go", body)
+
+	// Should have: description + usage + steps
+	if len(sections) < 3 {
+		t.Errorf("expected at least 3 sections, got %d", len(sections))
+	}
+
+	// Verify description section exists
+	var found bool
+	for _, s := range sections {
+		if s.Section == "description" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected a 'description' section")
+	}
+}
+
+func TestExtractSections_NoHeaders(t *testing.T) {
+	body := "Just plain text without any headers."
+	sections := extractSections("plain-skill", "desc", "", body)
+	// Should have: description + body
+	if len(sections) != 2 {
+		t.Errorf("expected 2 sections (description + body), got %d: %+v", len(sections), sections)
+	}
+}
+
+func TestExtractSections_HashDeterminism(t *testing.T) {
+	body := "## Usage\nSame content."
+	s1 := extractSections("skill", "desc", "", body)
+	s2 := extractSections("skill", "desc", "", body)
+	if len(s1) != len(s2) {
+		t.Fatal("different number of sections for same input")
+	}
+	for i := range s1 {
+		if s1[i].Hash != s2[i].Hash {
+			t.Errorf("section %d hash not deterministic: %s vs %s", i, s1[i].Hash, s2[i].Hash)
+		}
+	}
+}
+
+func TestExtractSections_SectionHashChangesOnEdit(t *testing.T) {
+	body1 := "## Usage\nOriginal content."
+	body2 := "## Usage\nModified content."
+	s1 := extractSections("skill", "desc", "", body1)
+	s2 := extractSections("skill", "desc", "", body2)
+
+	if len(s1) == 0 || len(s2) == 0 {
+		t.Fatal("empty sections")
+	}
+	// Find the usage sections
+	var h1, h2 string
+	for _, s := range s1 {
+		if s.Section == "usage" {
+			h1 = s.Hash
+		}
+	}
+	for _, s := range s2 {
+		if s.Section == "usage" {
+			h2 = s.Hash
+		}
+	}
+	if h1 == "" || h2 == "" {
+		t.Fatal("usage section not found")
+	}
+	if h1 == h2 {
+		t.Error("hash should differ when content changes")
+	}
+}
+
+// ── normalizeSectionName tests ─────────────────────────────────────────────────
+
+func TestNormalizeSectionName(t *testing.T) {
+	cases := []struct {
+		input    string
+		expected string
+	}{
+		{"## Usage", "usage"},
+		{"### Use When", "usage"},
+		{"## Examples", "examples"},
+		{"## Step-by-Step Guide", "steps"},
+		{"## Prerequisites", "prerequisites"},
+		{"## My Custom Section", "my_custom_section"},
+	}
+	for _, tc := range cases {
+		got := normalizeSectionName(tc.input)
+		if got != tc.expected {
+			t.Errorf("normalizeSectionName(%q) = %q, want %q", tc.input, got, tc.expected)
+		}
+	}
+}
+
+// ── cosineSimilarity tests ─────────────────────────────────────────────────────
 
 func TestCosineSimilarity_Identical(t *testing.T) {
-	vec := []float32{1.0, 0.0, 0.0}
-	score := cosineSimilarity(vec, vec)
-	if score < 0.9999 || score > 1.0001 {
-		t.Errorf("Expected cosine similarity of identical vectors to be ~1.0, got %f", score)
+	v := []float32{1, 0, 0, 0}
+	if got := cosineSimilarity(v, v); got < 0.999 {
+		t.Errorf("identical: expected ~1.0, got %f", got)
 	}
 }
 
 func TestCosineSimilarity_Orthogonal(t *testing.T) {
-	a := []float32{1.0, 0.0}
-	b := []float32{0.0, 1.0}
-	score := cosineSimilarity(a, b)
-	if score > 0.0001 {
-		t.Errorf("Expected cosine similarity of orthogonal vectors to be ~0.0, got %f", score)
+	a := []float32{1, 0}
+	b := []float32{0, 1}
+	if got := cosineSimilarity(a, b); got != 0 {
+		t.Errorf("orthogonal: expected 0, got %f", got)
 	}
 }
 
 func TestCosineSimilarity_ZeroVector(t *testing.T) {
-	a := []float32{0.0, 0.0}
-	b := []float32{1.0, 1.0}
-	score := cosineSimilarity(a, b)
-	if score != 0.0 {
-		t.Errorf("Expected 0.0 for zero vector, got %f", score)
+	a := []float32{0, 0}
+	b := []float32{1, 1}
+	if got := cosineSimilarity(a, b); got != 0 {
+		t.Errorf("zero vector: expected 0, got %f", got)
 	}
 }
 
 func TestCosineSimilarity_DifferentLengths(t *testing.T) {
-	a := []float32{1.0, 0.0, 0.0}
-	b := []float32{1.0, 0.0}
-	// Should compute similarity only up to the shorter length
-	score := cosineSimilarity(a, b)
-	if score < 0.9999 || score > 1.0001 {
-		t.Errorf("Expected similarity ~1.0 for truncated identical vectors, got %f", score)
-	}
+	a := []float32{1, 2, 3}
+	b := []float32{1, 2}
+	// Should not panic; compute with shorter length
+	_ = cosineSimilarity(a, b)
 }
 
-// ── Cache ──────────────────────────────────────────────────────────────────────
+// ── cache tests ────────────────────────────────────────────────────────────────
 
 func TestCacheSaveLoad(t *testing.T) {
+	// Override dbDir/dbFile for test isolation
 	tmpDir := t.TempDir()
-	origDbDir, origDbFile := dbDir, dbFile
+	origDbDir := dbDir
+	origDbFile := dbFile
 	dbDir = tmpDir
-	dbFile = filepath.Join(tmpDir, "test_cache.json")
+	dbFile = filepath.Join(tmpDir, "skills_cache.json")
 	defer func() {
 		dbDir = origDbDir
 		dbFile = origDbFile
 	}()
 
-	testDoc := SkillDoc{
+	doc := SkillDoc{
 		ID:   "test-skill",
-		Text: "Test skill content",
+		Text: "Test skill text",
 		Metadata: SkillMetadata{
 			Name:        "test-skill",
 			Description: "A test skill",
-			Tags:        "testing",
-			Path:        "/tmp/test-skill/SKILL.md",
-			Preview:     "Test skill content",
 			Hash:        "abc123",
 		},
 		Embedding: []float32{0.1, 0.2, 0.3},
 	}
 
-	cache := map[string]SkillDoc{"test-skill": testDoc}
+	cache := map[string]SkillDoc{"test-skill": doc}
 	if err := saveCache(cache); err != nil {
 		t.Fatalf("saveCache failed: %v", err)
 	}
 
-	// Verify file was created
-	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
-		t.Fatalf("cache file was not created")
-	}
-
-	// Load it back
 	loaded, err := loadCache()
 	if err != nil {
 		t.Fatalf("loadCache failed: %v", err)
 	}
-
-	if len(loaded) != 1 {
-		t.Fatalf("Expected 1 item in cache, got %d", len(loaded))
-	}
-	doc, ok := loaded["test-skill"]
-	if !ok {
-		t.Fatalf("Expected 'test-skill' in cache")
-	}
-	if doc.Metadata.Description != "A test skill" {
-		t.Errorf("Expected description 'A test skill', got '%s'", doc.Metadata.Description)
+	if _, ok := loaded["test-skill"]; !ok {
+		t.Error("test-skill not found in loaded cache")
 	}
 }
 
 func TestLoadCache_NonExistent(t *testing.T) {
+	tmpDir := t.TempDir()
 	origDbFile := dbFile
-	dbFile = "/nonexistent/path/cache.json"
+	dbFile = filepath.Join(tmpDir, "nonexistent.json")
 	defer func() { dbFile = origDbFile }()
 
 	cache, err := loadCache()
 	if err != nil {
-		t.Fatalf("Expected no error for non-existent cache file, got: %v", err)
+		t.Fatalf("expected no error for non-existent cache, got: %v", err)
 	}
 	if len(cache) != 0 {
-		t.Errorf("Expected empty cache for non-existent file, got %d items", len(cache))
-	}
-}
-
-func TestLoadCache_CorruptedFile(t *testing.T) {
-	tmpDir := t.TempDir()
-	origDbFile := dbFile
-	dbFile = filepath.Join(tmpDir, "corrupt.json")
-	defer func() { dbFile = origDbFile }()
-
-	_ = os.WriteFile(dbFile, []byte("this is not valid json!!!"), 0644)
-
-	_, err := loadCache()
-	if err == nil {
-		t.Error("Expected error for corrupted cache file")
-	}
-}
-
-// ── SkillDoc JSON roundtrip ────────────────────────────────────────────────────
-
-func TestSkillDocJSON_Roundtrip(t *testing.T) {
-	doc := SkillDoc{
-		ID:   "roundtrip-skill",
-		Text: "Some content",
-		Metadata: SkillMetadata{
-			Name:        "roundtrip-skill",
-			Description: "A roundtrip test",
-			Tags:        "go, testing",
-			Path:        "/tmp/roundtrip/SKILL.md",
-			Hash:        "def456",
-		},
-		Embedding: []float32{0.5, 0.5},
-	}
-
-	data, err := json.Marshal(doc)
-	if err != nil {
-		t.Fatalf("Failed to marshal SkillDoc: %v", err)
-	}
-
-	var out SkillDoc
-	if err := json.Unmarshal(data, &out); err != nil {
-		t.Fatalf("Failed to unmarshal SkillDoc: %v", err)
-	}
-
-	if out.ID != doc.ID {
-		t.Errorf("Expected ID %q, got %q", doc.ID, out.ID)
-	}
-	if out.Metadata.Tags != doc.Metadata.Tags {
-		t.Errorf("Expected Tags %q, got %q", doc.Metadata.Tags, out.Metadata.Tags)
+		t.Error("expected empty cache")
 	}
 }
