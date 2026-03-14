@@ -17,7 +17,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 # --- Configuration ---
 CACHE_DIR="$HOME/.antigravity/cache"
-REPO_URL="git@github.com:Dang-Hai-Tran/antigravity-kit.git"
+REPO_URL="git@github.com:datran93/antigravity-super-kit.git"
 REPO_NAME="antigravity-kit"
 SOURCE_AGENT_DIR="$CACHE_DIR/$REPO_NAME/.agents"
 TARGET_AGENT_DIR="./.agents"
