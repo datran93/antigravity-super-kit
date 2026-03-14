@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -126,13 +127,25 @@ func (t *Tracker) GetSummary() (SessionSummary, error) {
 }
 
 // GetMaxBudget returns the configured token budget for the session.
+// Resolution order (highest → lowest priority):
+//  1. MAX_BUDGET_TOKENS env var (e.g. 200000 for Claude, 1048576 for Gemini Flash)
+//  2. max_budget column in session_meta (set via SetMaxBudget)
+//  3. Default: 100 000 tokens
 func (t *Tracker) GetMaxBudget() int {
+	// 1. Env var takes precedence — allows per-model tuning without DB writes
+	if raw := os.Getenv("MAX_BUDGET_TOKENS"); raw != "" {
+		if v, err := strconv.Atoi(raw); err == nil && v > 0 {
+			return v
+		}
+	}
+	// 2. DB-persisted value (set via SetMaxBudget or future MCP tool)
 	var max int
 	t.db.QueryRow(`SELECT max_budget FROM session_meta WHERE session_id=?`, t.SessionID).Scan(&max)
-	if max == 0 {
-		return 100000 // default 100K tokens
+	if max > 0 {
+		return max
 	}
-	return max
+	// 3. Hardcoded fallback
+	return 100_000
 }
 
 // SetMaxBudget updates the max token budget for the session.
