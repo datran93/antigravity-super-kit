@@ -102,7 +102,8 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID, description, statu
 	mdPath := filepath.Join(workspacePath, "progress.md")
 
 	// Historical completed tasks (other task_ids)
-	rows, err := db.Query("SELECT task_id, description FROM checkpoints WHERE status = 'completed' AND task_id != ? ORDER BY updated_at DESC", taskID)
+	// Use LOWER() for backward-compat with any uppercase status values stored in DB.
+	rows, err := db.Query("SELECT task_id, description FROM checkpoints WHERE LOWER(status) = 'completed' AND task_id != ? ORDER BY updated_at DESC", taskID)
 	var historicalTasks []map[string]string
 	if err == nil {
 		defer rows.Close()
@@ -215,6 +216,8 @@ func SaveCheckpoint(workspacePath, taskID, description, status string, completed
 	}
 	defer db.Close()
 
+	// Normalize status to lowercase — callers may pass "COMMITTED", "DONE", etc.
+	status = strings.ToLower(status)
 	now := time.Now().Format(time.RFC3339)
 
 	compBytes, _ := json.Marshal(completedSteps)
