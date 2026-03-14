@@ -76,6 +76,18 @@ mcp/
 ├── @mcp:skill-router/
 │   └── search_skills              → Semantic skill search with tags_filter
 │
+├── @mcp:codebase-search/
+│   ├── index_codebase             → Index a project for hybrid semantic + keyword search
+│   ├── search_code                → RRF hybrid search (BM25 + cosine) over codebase
+│   ├── get_indexing_status        → Track indexing progress
+│   └── clear_index                → Clear project search index
+│
+├── @mcp:context-governor/
+│   ├── get_budget_status          → Session token usage level (ok/warning/critical/overflow)
+│   ├── estimate_cost              → Estimate token cost of file or text
+│   ├── suggest_compression        → Get compression strategies for current level
+│   └── trigger_compact            → Reset token counter + prompt compact_memory call
+│
 └── @mcp:stitch/
     ├── generate_screen_from_text  → Generate a UI screen from a text prompt
     ├── edit_screens               → Edit existing screens with a prompt
@@ -100,13 +112,14 @@ and stops. **No role transitions between roles** — the USER decides when to in
 
 ### Role Definitions
 
-| Role               | Slash Command            | Responsibility                                                         | Output                                | Stops When                            |
-| ------------------ | ------------------------ | ---------------------------------------------------------------------- | ------------------------------------- | ------------------------------------- |
-| **📝 Spec Writer** | `/specifications-writer` | Requirements engineering & Socratic questioning                        | `SPEC.md`                             | Requirements are unambiguous          |
-| **🏗️ Planner**     | `/planner-architect`     | Architecture design + ordered task list. Also commits after gates pass | `DESIGN.md` + task plan + git commits | Plan delivered OR all tasks committed |
-| **💻 Coder**       | `/coder-implementation`  | Reads `DESIGN.md` + task list, implements each Action in order         | Code changes + implementation report  | All Actions implemented and reported  |
-| **🔍 Reviewer**    | `/reviewer-audit`        | Reads Coder report + `DESIGN.md`, audits code quality and correctness  | Audit report (APPROVED / NEEDS FIX)   | Report delivered to USER              |
-| **🧪 Tester**      | `/tester-verification`   | Writes unit + integration tests for Coder's code, measures coverage    | Test files + coverage report          | Coverage ≥ 70% achieved and reported  |
+| Role               | Slash Command            | Responsibility                                                          | Output                                | Stops When                            |
+| ------------------ | ------------------------ | ----------------------------------------------------------------------- | ------------------------------------- | ------------------------------------- |
+| **📝 Spec Writer** | `/specifications-writer` | Requirements engineering & Socratic questioning                         | `SPEC.md`                             | Requirements are unambiguous          |
+| **🏗️ Planner**     | `/planner-architect`     | Architecture design + ordered task list. Also commits after gates pass  | `DESIGN.md` + task plan + git commits | Plan delivered OR all tasks committed |
+| **💻 Coder**       | `/coder-implementation`  | Reads `DESIGN.md` + task list, implements each Action in order          | Code changes + implementation report  | All Actions implemented and reported  |
+| **🔍 Reviewer**    | `/reviewer-audit`        | Reads Coder report + `DESIGN.md`, audits code quality and correctness   | Audit report (APPROVED / NEEDS FIX)   | Report delivered to USER              |
+| **🧪 Tester**      | `/tester-verification`   | Writes unit + integration tests for Coder's code, measures coverage     | Test files + coverage report          | Coverage ≥ 70% achieved and reported  |
+| **🧭 Router**      | `/smart-route`           | Classifies user intent and routes to the correct workflow automatically | Confirmation + routed workflow        | USER confirms routing decision        |
 
 > Each role's specific boundaries and constraints are defined in its own workflow file (see `Critical Constraints`
 > section). The universal rule: any role that hits a blocker **stops and asks the USER** — never self-escalates.
@@ -159,6 +172,8 @@ Planner asks the USER — it does not auto-loop.
 
 ## 📌 Metadata
 
-- **Version**: 2.0.0
-- **Last Updated**: 2026-03-12
+- **Version**: 2.1.0
+- **Last Updated**: 2026-03-14
 - **Related**: `.agents/workflows/*.md`, `.agents/rules/ANCHORS.md`
+- **New in 2.1.0**: mcp-codebase-search (hybrid RRF search), mcp-context-governor (token budget tracking),
+  smart-workflow-router (/smart-route)
