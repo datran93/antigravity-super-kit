@@ -8,12 +8,11 @@ others
 .venv
 .chroma_db
 *.log
-context.db
-research_cache.db
 __pycache__
 test_*.py
 progress.md
 !.agents
+*.db
 
 # Compiled MCP binaries
 tools/*/mcp-*-go
