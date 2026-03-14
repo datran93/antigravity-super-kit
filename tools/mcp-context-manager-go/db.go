@@ -8,6 +8,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// embeddingDim is the fixed dimension of OpenAI text-embedding-3-small vectors.
+const embeddingDim = 1536
+
 // GetDBConnection opens a connection to the SQLite database and initializes the schema.
 func GetDBConnection(workspacePath string) (*sql.DB, error) {
 	if workspacePath == "" {
@@ -72,6 +75,13 @@ func initializeSchema(db *sql.DB) error {
             ki_path UNINDEXED,
             summary,
             decisions
+        )`,
+		// ki_embeddings stores float32 vectors as JSON blobs for cosine-similarity
+		// hybrid recall. Kept separate from knowledge_fts for additive-only migration.
+		`CREATE TABLE IF NOT EXISTS ki_embeddings (
+            ki_path  TEXT PRIMARY KEY,
+            tactic   TEXT NOT NULL,
+            embedding TEXT NOT NULL
         )`,
 	}
 
