@@ -72,6 +72,48 @@ Structure the task plan using the **3-Tier Context** model:
 - Must define a **Verification Command** (e.g., `go test ./...`, `npm run lint`) as Acceptance Criteria.
 - Must be executable independently in order.
 
+#### 🗂️ Phase Division (mandatory for large projects)
+
+When a sprint has **more than 5 Actions**, group them into **Phases** using the following convention:
+
+```
+[Px-Ty] Step description
+│  │
+│  └── Ty = Tactic index within the phase (T1, T2, …)
+└──── Px = Phase index (P0, P1, P2, …)
+```
+
+**Examples:**
+
+```
+[P0-T1] Add ki_embeddings table to db.go
+[P0-T2] Implement cosineSimKI + rrfScore
+[P1-T1] Scaffold mcp-codebase-search-go module
+[P1-T2] Implement store/db.go with FTS5 schema
+[P2-T1] Write smart-workflow-router.md
+```
+
+**Phase rules:**
+
+- P0 = Foundation / Infrastructure phase (no user-facing features yet)
+- Group Actions by **logical dependency** — a phase should be independently releasable
+- Steps without a phase prefix (e.g., bare `"Run tests"`) are rendered in a "General" group
+
+> ⚠️ **Why this matters**: The `context-manager` parses `[Px]` prefixes to render `progress.md` with a Phase Overview
+> table and per-phase checklists. Without prefixes, the view is a flat list.
+
+#### 🔄 Phase Gate — Auto Compact Session
+
+The `complete_task_step` tool **automatically emits a reminder** when the last step of a phase is marked done. When you
+see:
+
+```
+💡 Phase Px is complete — run /compact-session to persist a KI before starting the next phase.
+```
+
+**The Coder must stop and run `/compact-session` before starting the next phase.** This is not optional — it flushes
+context and prevents drift across phases.
+
 **MCP calls:**
 
 - `@mcp:context-manager` (`initialize_task_plan`) — register the task plan.

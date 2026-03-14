@@ -68,6 +68,17 @@ After completing each Action:
   - Note the result — do NOT commit, do NOT mark the task as complete.
   - Committing and closing tasks is the **Planner's responsibility** after review and tests pass.
 
+#### 🔄 Phase Gate — Auto Compact Session
+
+When `complete_task_step` returns a message containing:
+
+```
+💡 Phase Px is complete — run /compact-session to persist a KI before starting the next phase.
+```
+
+**Stop immediately and run `/compact-session`** before proceeding to the next phase. This is mandatory — it flushes
+context, generates a KI, and prevents drift across phases.
+
 Repeat **Phase 1 → Phase 4** for each remaining Action in the task list.
 
 ---
