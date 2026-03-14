@@ -36,16 +36,29 @@ tactics.
 
 - **Session Compaction**: At the end of a major Tactic/Phase, run the `compact_session` workflow to distill
   architectural decisions and lessons learned into long-term Knowledge Items (KIs).
+- **Context Budget**: Always check `@mcp:context-governor` (`get_budget_status`) at the start of large planning or
+  implementation sessions. At `critical` (≥ 80%) or `overflow` (≥ 95%), run `/compact-session` before continuing.
 - **Ghost Context**: When encountering complex file-specific logic or tricky quirks, leverage `annotate_file` to attach
   localized lessons directly to the file to prevent recurring mistakes.
 
+## 🔍 Codebase Intelligence
+
+- **Index Before Search**: Before using `@mcp:codebase-search` (`search_code`) on a new project, call `index_codebase`
+  first. The index is persistent (SQLite) — subsequent sessions can search immediately.
+- **Semantic Precedence**: Prefer `@mcp:codebase-search` over raw `grep_search` for finding conceptually related code
+  (e.g., "authentication middleware", "retry logic"). Use `grep_search` only for exact string matches.
+
 ## 🛑 Restricted Terminal Commands
 
-To prevent destructive actions, the agent MUST set `SafeToAutoRun: false` and explicitly ask the USER for confirmation before executing any of the following commands:
+To prevent destructive actions, the agent MUST set `SafeToAutoRun: false` and explicitly ask the USER for confirmation
+before executing any of the following commands:
 
 - **File & Directory Destruction**: `rm` (especially `rm -rf` or `rm -f`), `mv` (if overwriting critical files), `shred`
-- **Destructive Git Operations**: `git push -f`, `git reset --hard`, `git clean -fd`, `git rebase` (on shared branches), `git branch -D`
-- **Database & Infrastructure Alterations**: SQL `drop`/`truncate`/`delete`, `terraform destroy`/`apply`, `aws * delete-*`/`terminate-*`, `kubectl delete`, `docker system prune`/`docker rm -f`
+- **Destructive Git Operations**: `git push -f`, `git reset --hard`, `git clean -fd`, `git rebase` (on shared branches),
+  `git branch -D`
+- **Database & Infrastructure Alterations**: SQL `drop`/`truncate`/`delete`, `terraform destroy`/`apply`,
+  `aws * delete-*`/`terminate-*`, `kubectl delete`, `docker system prune`/`docker rm -f`
 - **System Permissions & Security**: `chmod` (e.g., recursive changes), `chown`, `chgrp`, `sudo`
-- **Publishing & Deployments**: `npm publish`, `docker push`, package registry uploads, direct production deployments (`vercel deploy --prod`)
+- **Publishing & Deployments**: `npm publish`, `docker push`, package registry uploads, direct production deployments
+  (`vercel deploy --prod`)
 - **Process Management**: `kill`, `killall`, `pkill`, `systemctl stop`/`restart`

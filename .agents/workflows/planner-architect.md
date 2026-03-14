@@ -29,7 +29,11 @@ Use MCP tools **in PARALLEL** to build a comprehensive map of the impact area:
 - `@mcp:skill-router` (`search_skills`) — find relevant specialized skills.
 - `@mcp:context-manager` (`recall_knowledge`) — retrieve past Knowledge Items (KIs).
 - `@mcp:ast-explorer` (`get_project_architecture`) — understand existing code boundaries.
+- `@mcp:codebase-search` (`search_code`) — semantic search over the codebase for related implementations (requires prior
+  `index_codebase` run).
 - `@mcp:database-inspector` (`get_table_sample`) — capture data schema formats if relevant.
+- `@mcp:context-governor` (`get_budget_status`) — check session token budget before designing large plans; if level is
+  `critical` or `overflow`, run `/compact-session` first.
 
 > This discovery phase identifies the **Blast Radius** (affected files and components).
 
