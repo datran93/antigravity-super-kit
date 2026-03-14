@@ -13,6 +13,7 @@ test_*.py
 progress.md
 !.agents
 *.db
+.db/*
 
 # Compiled MCP binaries
 tools/*/mcp-*-go
