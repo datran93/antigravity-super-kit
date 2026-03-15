@@ -384,3 +384,46 @@ func fetchIdleTasks(workspacePath, currentTaskID string, idleThresholdDays int) 
 	}
 	return results, nil
 }
+
+// DeleteTask permanently removes a task checkpoint and its associated intent locks
+// from the database, then refreshes progress.md so the task no longer appears.
+// Returns an error if the task_id is not found.
+func DeleteTask(workspacePath, taskID string) (string, error) {
+	db, err := GetDBConnection(workspacePath)
+	if err != nil {
+		return "", err
+	}
+	defer db.Close()
+
+	// Verify the task exists before deleting
+	var count int
+	if err := db.QueryRow("SELECT COUNT(*) FROM checkpoints WHERE task_id = ?", taskID).Scan(&count); err != nil {
+		return "", fmt.Errorf("failed to query task '%s': %v", taskID, err)
+	}
+	if count == 0 {
+		return fmt.Sprintf("❌ Task '%s' not found. Nothing was deleted.", taskID), nil
+	}
+
+	// Remove associated intent locks first (foreign-key style cleanup)
+	if _, err := db.Exec("DELETE FROM intent_locks WHERE task_id = ?", taskID); err != nil {
+		// Non-fatal: intent_locks table may not exist on older DBs
+		fmt.Printf("Warning: could not remove intent_locks for '%s': %v\n", taskID, err)
+	}
+
+	// Remove the checkpoint itself
+	res, err := db.Exec("DELETE FROM checkpoints WHERE task_id = ?", taskID)
+	if err != nil {
+		return "", fmt.Errorf("failed to delete task '%s': %v", taskID, err)
+	}
+	affected, _ := res.RowsAffected()
+	if affected == 0 {
+		return fmt.Sprintf("⚠️ Task '%s' was not deleted (0 rows affected).", taskID), nil
+	}
+
+	// Refresh progress.md using a sentinel empty state so the deleted task
+	// is no longer rendered (WriteMarkdownProgress queries live DB).
+	_ = WriteMarkdownProgress(db, workspacePath, taskID, "[deleted]", "deleted",
+		nil, nil, nil, "", "", 0)
+
+	return fmt.Sprintf("🗑️ Task '%s' deleted successfully.", taskID), nil
+}

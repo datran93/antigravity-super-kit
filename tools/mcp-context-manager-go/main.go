@@ -413,6 +413,23 @@ func main() {
 		return mcp.NewToolResultText(res), nil
 	})
 
+	// delete_task
+	mcpServer.AddTool(mcp.NewTool("delete_task",
+		mcp.WithDescription("Permanently delete a task checkpoint and its intent locks from the database. Use when the USER explicitly requests to remove a task. Progress.md is refreshed automatically."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID to delete")),
+	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		taskID, _ := args["task_id"].(string)
+
+		res, err := DeleteTask(workspacePath, taskID)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	})
+
 	// Run standard I/O server
 	if err := server.ServeStdio(mcpServer); err != nil {
 		fmt.Printf("Server error: %v\n", err)

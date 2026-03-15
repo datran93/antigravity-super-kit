@@ -18,6 +18,8 @@ not code, review, or test.
 - Call `@mcp:context-manager` (`load_checkpoint`) if the USER is continuing an existing task.
 - Use `@mcp:context-manager` (`find_recent_task`) when the USER describes a task by topic — fuzzy search for matching
   checkpoint.
+- Use `@mcp:context-manager` (`delete_task`) when the USER explicitly requests to **remove** a task — this permanently
+  deletes the checkpoint and its intent locks, then refreshes `progress.md`.
 - Read `.agents/rules/ANCHORS.md` to refresh immutable guardrails.
 
 ---
@@ -103,7 +105,9 @@ For each completed Action:
 5. `git add <files> && git commit -m "<type>(<scope>): <description>"`
 6. Repeat for each remaining Action.
 
-Once all Actions are closed: present a final summary and call `save_checkpoint`.
+Once all Actions are closed: present a final summary and call `save_checkpoint` with **`status = "completed"`** (must be
+exactly this value — never "done", "committed", or any other variant, as `progress.md` relies on this exact string to
+display completed tasks).
 
 ---
 
