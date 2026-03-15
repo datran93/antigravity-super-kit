@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -176,4 +177,48 @@ func BuildCompletedSet(completed []string) map[string]bool {
 		s[c] = true
 	}
 	return s
+}
+
+// GetTaskDAG loads a checkpoint and renders its step dependency graph as Mermaid.
+// Returns a human-readable block showing completed (✅) and pending (⏳) steps.
+func GetTaskDAG(workspacePath, taskID string) (string, error) {
+	db, err := GetDBConnection(workspacePath)
+	if err != nil {
+		return "", err
+	}
+	defer db.Close()
+
+	row := db.QueryRow(
+		"SELECT completed_steps, next_steps FROM checkpoints WHERE task_id = ?",
+		taskID,
+	)
+	var completedStr, nextStr string
+	if err := row.Scan(&completedStr, &nextStr); err != nil {
+		return fmt.Sprintf("❌ Task '%s' not found.", taskID), nil
+	}
+
+	var comp, nxt []string
+	json.Unmarshal([]byte(completedStr), &comp)
+	json.Unmarshal([]byte(nextStr), &nxt)
+
+	allSteps := append(comp, nxt...)
+	cleanedSteps, deps := ParseStepDeps(allSteps)
+	completedSet := BuildCompletedSet(comp)
+
+	if len(deps) == 0 {
+		// No dependencies declared — show flat step list instead
+		var sb strings.Builder
+		sb.WriteString(fmt.Sprintf("🔗 Task DAG: %s (no dependencies declared)\n\n", taskID))
+		for _, s := range cleanedSteps {
+			icon := "⏳"
+			if completedSet[s] {
+				icon = "✅"
+			}
+			sb.WriteString(fmt.Sprintf("  %s %s\n", icon, s))
+		}
+		return sb.String(), nil
+	}
+
+	dag := RenderDAGBlock(cleanedSteps, deps, completedSet)
+	return fmt.Sprintf("🔗 Task DAG: %s\n\n%s", taskID, dag), nil
 }

@@ -430,6 +430,47 @@ func main() {
 		return mcp.NewToolResultText(res), nil
 	})
 
+	// get_task_summary
+	mcpServer.AddTool(mcp.NewTool("get_task_summary",
+		mcp.WithDescription("Get a compact JSON summary of a task (status, progress%, next step). Cheaper than load_checkpoint when you only need a quick status check."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
+	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		taskID, _ := args["task_id"].(string)
+
+		res, err := GetTaskSummary(workspacePath, taskID)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	})
+
+	// get_task_dag
+	mcpServer.AddTool(mcp.NewTool("get_task_dag",
+		mcp.WithDescription("Render the dependency graph of a task as a Mermaid LR diagram. Shows which steps are completed (✅) and pending (⏳)."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
+	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		taskID, _ := args["task_id"].(string)
+
+		res, err := GetTaskDAG(workspacePath, taskID)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	})
+
+	// ping
+	mcpServer.AddTool(mcp.NewTool("ping",
+		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
+	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		return mcp.NewToolResultText(`{"status":"ok","server":"McpContextManager","version":"1.0.0"}`), nil
+	})
+
 	// Run standard I/O server
 	if err := server.ServeStdio(mcpServer); err != nil {
 		fmt.Printf("Server error: %v\n", err)
