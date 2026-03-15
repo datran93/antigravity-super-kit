@@ -151,6 +151,18 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID, description, statu
 	return os.WriteFile(mdPath, []byte(content), 0644)
 }
 
+// NormalizeStatus converts any completion-alias status to the canonical value
+// "completed" that progress.md SQL queries and the progress renderer rely on.
+// Non-completion statuses (e.g. "in_progress", "blocked") are only lowercased.
+func NormalizeStatus(status string) string {
+	s := strings.ToLower(status)
+	switch s {
+	case "done", "committed", "complete", "finished", "closed":
+		return "completed"
+	}
+	return s
+}
+
 func SaveCheckpoint(workspacePath, taskID, description, status string, completedSteps, nextSteps, activeFiles []string, notes string) (string, error) {
 	db, err := GetDBConnection(workspacePath)
 	if err != nil {
@@ -158,8 +170,8 @@ func SaveCheckpoint(workspacePath, taskID, description, status string, completed
 	}
 	defer db.Close()
 
-	// Normalize status to lowercase — callers may pass "COMMITTED", "DONE", etc.
-	status = strings.ToLower(status)
+	// Normalize status via canonical function (maps aliases like "done", "committed" → "completed")
+	status = NormalizeStatus(status)
 	now := time.Now().Format(time.RFC3339)
 
 	// Capture current git SHA for traceability (empty string if not a git repo)

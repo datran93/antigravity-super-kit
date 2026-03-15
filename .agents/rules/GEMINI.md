@@ -22,7 +22,7 @@ mcp/
 │                             add_task_step · declare_intent · check_intent_lock
 │                             recall_knowledge · compact_memory · record_failure
 │                             clear_drift · manage_anchors · annotate_file
-│                             find_recent_task · review_checkpoint
+│                             find_recent_task · review_checkpoint · delete_task
 ├── @mcp:context7/            resolve-library-id · query-docs
 ├── @mcp:database-inspector/  list_tables · get_table_sample · inspect_schema
 │                             explain_query · run_read_query · run_write_query
@@ -101,5 +101,5 @@ asks the USER — it does not auto-loop. See [`planner-architect.md`](./../workf
 
 ## 📌 Metadata
 
-- **Version**: 2.4.0
-- **Last Updated**: 2026-03-15
+- **Version**: 2.4.1
+- **Last Updated**: 2026-03-16

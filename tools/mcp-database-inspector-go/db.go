@@ -10,6 +10,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -46,7 +47,18 @@ func getGormDB(connStr string) (*gorm.DB, error) {
 		dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", parsed.User.Username(), pass, parsed.Host, strings.TrimPrefix(parsed.Path, "/"))
 		dialector = mysql.Open(dsn)
 	} else if strings.HasPrefix(connStr, "sqlite://") {
-		return nil, fmt.Errorf("unsupported or unrecognized database connection string format")
+		// Accept sqlite:///absolute/path or sqlite://relative/path
+		// Strip the scheme so we get the raw filesystem path.
+		rawPath := strings.TrimPrefix(connStr, "sqlite://")
+		// url.Parse treats the host part of sqlite:///foo as empty + path "/foo";
+		// handle both sqlite:///abs/path and sqlite://rel/path.
+		if parsed, parseErr := url.Parse(connStr); parseErr == nil {
+			rawPath = parsed.Host + parsed.Path
+		}
+		if rawPath == "" {
+			return nil, fmt.Errorf("sqlite connection string is missing the file path (e.g. sqlite:///path/to/file.db)")
+		}
+		dialector = sqlite.Open(rawPath)
 	}
 
 	db, err := gorm.Open(dialector, &gorm.Config{
