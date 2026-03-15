@@ -73,7 +73,7 @@ func TestGovernanceOperations(t *testing.T) {
 	taskID := "test-task-2"
 
 	// Intent declaration
-	_, err := DeclareIntent(tempDir, taskID, "Test intent", []string{"fileA.go", "fileB.go"})
+	_, err := DeclareIntent(tempDir, taskID, "Test intent", []string{"fileA.go", "fileB.go"}, 0)
 	if err != nil {
 		t.Fatalf("Failed to declare intent: %v", err)
 	}
@@ -94,7 +94,7 @@ func TestGovernanceOperations(t *testing.T) {
 	}
 
 	// Record drift
-	res, err = RecordFailure(tempDir, taskID)
+	res, err = RecordFailure(tempDir, taskID, "", "")
 	if err != nil || res == "" {
 		t.Fatalf("Failed to record failure")
 	}

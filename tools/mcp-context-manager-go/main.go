@@ -184,11 +184,12 @@ func main() {
 
 	// declare_intent
 	mcpServer.AddTool(mcp.NewTool("declare_intent",
-		mcp.WithDescription("Declare working intention and restrict changes to specific locked_files."),
+		mcp.WithDescription("Declare working intention and restrict changes to specific locked_files. TTL default=60min (0=no expiry)."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
 		mcp.WithString("tactic", mcp.Required(), mcp.Description("Tactic name")),
 		mcp.WithArray("locked_files", mcp.Items(map[string]interface{}{"type": "string"}), mcp.Description("Locked files")),
+		mcp.WithNumber("ttl_minutes", mcp.Description("Lock TTL in minutes. 0=no expiry (default=60)")),
 	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
@@ -203,7 +204,14 @@ func main() {
 			}
 		}
 
-		res, err := DeclareIntent(workspacePath, taskID, tactic, locked)
+		ttlMinutes := 60 // default
+		if val, ok := args["ttl_minutes"]; ok && val != nil {
+			if num, ok2 := val.(float64); ok2 {
+				ttlMinutes = int(num)
+			}
+		}
+
+		res, err := DeclareIntent(workspacePath, taskID, tactic, locked, ttlMinutes)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
@@ -253,12 +261,22 @@ func main() {
 		mcp.WithDescription("Record a failure (e.g. test failing, compile error) to detect context drift."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
+		mcp.WithString("step_name", mcp.Description("Optional: current step name for war-room context")),
+		mcp.WithString("error_context", mcp.Description("Optional: error message or context for war-room KI")),
 	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
 
-		res, err := RecordFailure(workspacePath, taskID)
+		var stepName, errorContext string
+		if val, ok := args["step_name"]; ok && val != nil {
+			stepName, _ = val.(string)
+		}
+		if val, ok := args["error_context"]; ok && val != nil {
+			errorContext, _ = val.(string)
+		}
+
+		res, err := RecordFailure(workspacePath, taskID, stepName, errorContext)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
@@ -355,6 +373,40 @@ func main() {
 		decisions, _ := args["decisions"].(string)
 
 		res, err := CompactMemory(workspacePath, taskID, tacticName, summary, decisions)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	})
+
+	// find_recent_task (Improvement #4: Smart session continuity)
+	mcpServer.AddTool(mcp.NewTool("find_recent_task",
+		mcp.WithDescription("Fuzzy keyword search across checkpoint descriptions. Returns top 3 matching tasks for smart session continuity."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("keywords", mcp.Required(), mcp.Description("Keywords to search for in task descriptions")),
+	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		keywords, _ := args["keywords"].(string)
+
+		res, err := FindRecentTask(workspacePath, keywords)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	})
+
+	// review_checkpoint (Improvement #9: Checkpoint quality validator)
+	mcpServer.AddTool(mcp.NewTool("review_checkpoint",
+		mcp.WithDescription("Run 5 quality checks on a checkpoint: stale detection, active_files guard, step label format, duplicate steps, git SHA match."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID to validate")),
+	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		taskID, _ := args["task_id"].(string)
+
+		res, err := ReviewCheckpoint(workspacePath, taskID)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}

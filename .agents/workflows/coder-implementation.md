@@ -1,7 +1,7 @@
 ---
 description:
-  Structured workflow for Code Implementation. Reads DESIGN.md and the Planner's task list, executes each task in order,
-  and reports a clear summary of all changes to the USER upon completion.
+  Structured workflow for Code Implementation. Reads design/design-*.md and the Planner's task list, executes each task
+  in order, and reports a clear summary of all changes to the USER upon completion.
 ---
 
 # 💻 Coder Workflow
@@ -14,7 +14,7 @@ Implements each task defined by the Planner atomically, then delivers a structur
 
 ### Phase 0: Read Design & Task List 📖
 
-1. **Read `DESIGN.md`** — architecture, data models, file structure, constraints.
+1. **Read `design/design-{task-id}.md`** — architecture, data models, file structure, constraints.
 2. **Load the task list** — Call `@mcp:context-manager` (`load_checkpoint`).
 3. **Confirm scope** — identify files to create/modify and in what order.
 
@@ -36,7 +36,7 @@ For each Action (one at a time, in order):
 
 - `@mcp:skill-router` (`search_skills`) — find relevant patterns and best practices.
 - `@mcp:context7` (`query-docs`) — verify latest API specs (avoid syntax hallucinations).
-- Cross-reference `DESIGN.md` for contracts to respect.
+- Cross-reference `design/design-{task-id}.md` for contracts to respect.
 
 ---
 

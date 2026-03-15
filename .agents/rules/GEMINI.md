@@ -22,6 +22,7 @@ mcp/
 │                             add_task_step · declare_intent · check_intent_lock
 │                             recall_knowledge · compact_memory · record_failure
 │                             clear_drift · manage_anchors · annotate_file
+│                             find_recent_task · review_checkpoint
 ├── @mcp:context7/            resolve-library-id · query-docs
 ├── @mcp:database-inspector/  list_tables · get_table_sample · inspect_schema
 │                             explain_query · run_read_query · run_write_query
@@ -47,14 +48,14 @@ transitions** — the USER decides when to invoke the next role.
 [Spec Writer] → [Planner] → [Coder] → [Reviewer] → [Tester] → [Planner]
 ```
 
-| Role               | Slash Command            | Output                                | Stops When                            |
-| ------------------ | ------------------------ | ------------------------------------- | ------------------------------------- |
-| **📝 Spec Writer** | `/specifications-writer` | `SPEC.md`                             | Requirements are unambiguous          |
-| **🏗️ Planner**     | `/planner-architect`     | `DESIGN.md` + task plan + git commits | Plan delivered OR all tasks committed |
-| **💻 Coder**       | `/coder-implementation`  | Code changes + implementation report  | All Actions implemented and reported  |
-| **🔍 Reviewer**    | `/reviewer-audit`        | Audit report (APPROVED / NEEDS FIX)   | Report delivered to USER              |
-| **🧪 Tester**      | `/tester-verification`   | Test files + coverage report          | Coverage ≥ 70% achieved and reported  |
-| **🧭 Router**      | `/smart-route`           | Confirmation + routed workflow        | USER confirms routing decision        |
+| Role               | Slash Command            | Output                                         | Stops When                            |
+| ------------------ | ------------------------ | ---------------------------------------------- | ------------------------------------- |
+| **📝 Spec Writer** | `/specifications-writer` | `spec/spec-*.md`                               | Requirements are unambiguous          |
+| **🏗️ Planner**     | `/planner-architect`     | `design/design-*.md` + task plan + git commits | Plan delivered OR all tasks committed |
+| **💻 Coder**       | `/coder-implementation`  | Code changes + implementation report           | All Actions implemented and reported  |
+| **🔍 Reviewer**    | `/reviewer-audit`        | Audit report (APPROVED / NEEDS FIX)            | Report delivered to USER              |
+| **🧪 Tester**      | `/tester-verification`   | Test files + coverage report                   | Coverage ≥ 70% achieved and reported  |
+| **🧭 Router**      | `/smart-route`           | Confirmation + routed workflow                 | USER confirms routing decision        |
 
 > Any role that hits a blocker **stops and asks the USER** — never self-escalates.
 
@@ -66,7 +67,7 @@ transitions** — the USER decides when to invoke the next role.
    `[Role: 💻 Coder]` / `[Role: 🔍 Reviewer]` / `[Role: 🧪 Tester]`
 2. **Strict Output Contract**: Each role delivers its defined output then **stops**. It does not initiate the next role.
 3. **Explicit Resource Ownership**:
-   - **Planner**: Owns `DESIGN.md`, task plan, `git commit`, `complete_task_step`.
+   - **Planner**: Owns `design/design-*.md`, task plan, `git commit`, `complete_task_step`.
    - **Coder**: Owns source code changes and implementation report.
    - **Reviewer**: Owns the audit report.
    - **Tester**: Owns the test suite and coverage report.
@@ -100,5 +101,5 @@ asks the USER — it does not auto-loop. See [`planner-architect.md`](./../workf
 
 ## 📌 Metadata
 
-- **Version**: 2.3.0
+- **Version**: 2.4.0
 - **Last Updated**: 2026-03-15
