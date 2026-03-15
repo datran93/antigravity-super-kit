@@ -82,12 +82,6 @@ mcp/
 │   ├── get_indexing_status        → Track indexing progress
 │   └── clear_index                → Clear project search index
 │
-├── @mcp:context-governor/
-│   ├── get_budget_status          → Session token usage level (ok/warning/critical/overflow)
-│   ├── estimate_cost              → Estimate token cost of file or text
-│   ├── suggest_compression        → Get compression strategies for current level
-│   └── trigger_compact            → Reset token counter + prompt compact_memory call
-│
 └── @mcp:stitch/
     ├── generate_screen_from_text  → Generate a UI screen from a text prompt
     ├── edit_screens               → Edit existing screens with a prompt
@@ -172,8 +166,8 @@ Planner asks the USER — it does not auto-loop.
 
 ## 📌 Metadata
 
-- **Version**: 2.1.0
-- **Last Updated**: 2026-03-14
+- **Version**: 2.2.0
+- **Last Updated**: 2026-03-15
 - **Related**: `.agents/workflows/*.md`, `.agents/rules/ANCHORS.md`
-- **New in 2.1.0**: mcp-codebase-search (hybrid RRF search), mcp-context-governor (token budget tracking),
-  smart-workflow-router (/smart-route)
+- **New in 2.2.0**: Removed mcp-context-governor (not functional in Gemini Code Assist). Git hooks moved to
+  `.agents/hooks/git/` via `core.hooksPath`.

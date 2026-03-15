@@ -36,8 +36,6 @@ tactics.
 
 - **Session Compaction**: At the end of a major Tactic/Phase, run the `compact_session` workflow to distill
   architectural decisions and lessons learned into long-term Knowledge Items (KIs).
-- **Context Budget**: Always check `@mcp:context-governor` (`get_budget_status`) at the start of large planning or
-  implementation sessions. At `critical` (≥ 80%) or `overflow` (≥ 95%), run `/compact-session` before continuing.
 - **Ghost Context**: When encountering complex file-specific logic or tricky quirks, leverage `annotate_file` to attach
   localized lessons directly to the file to prevent recurring mistakes.
 

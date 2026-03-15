@@ -27,8 +27,6 @@ Before writing any tests:
    interfaces that need test coverage.
 5. **Find existing patterns** — Use `@mcp:codebase-search` (`search_code`) with queries like `"_test.go"` or
    `"test fixture"` to discover existing test patterns and helpers in the codebase.
-6. **Budget check** — Call `@mcp:context-governor` (`get_budget_status`); if `critical` / `overflow`, run
-   `/compact-session` before writing extensive tests.
 
 > ❌ Do NOT write tests before completing this phase.
 
