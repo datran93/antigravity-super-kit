@@ -45,6 +45,12 @@ func initDB() error {
 }
 
 func getCache(key string) *string {
+	return getCacheWithTTL(key, 0) // 0 = use global default (30 days)
+}
+
+// getCacheWithTTL retrieves a cache entry, respecting a max age in hours.
+// Pass maxAgeHours=0 to use the global default (cacheExpirySeconds).
+func getCacheWithTTL(key string, maxAgeHours int) *string {
 	if db == nil {
 		return nil
 	}
@@ -59,7 +65,11 @@ func getCache(key string) *string {
 	}
 
 	now := float64(time.Now().Unix())
-	if now-timestamp < cacheExpirySeconds {
+	expiry := float64(cacheExpirySeconds)
+	if maxAgeHours > 0 {
+		expiry = float64(maxAgeHours * 3600)
+	}
+	if now-timestamp < expiry {
 		return &value
 	}
 	return nil

@@ -26,6 +26,7 @@ func main() {
 		mcp.WithDescription("Search the real-time internet for the absolute latest SOTA (State Of The Art) syntax, best practices, and documentation for a specific programming topic or library.\\nUse this tool before writing any logic to ensure you are not generating legacy code or using deprecated APIs."),
 		mcp.WithString("topic", mcp.Required(), mcp.Description("The specific concept to research (e.g., 'React server components data fetching', 'Next.js 14 App Router layout constraints', 'Zustand slices 2026').")),
 		mcp.WithArray("libraries", mcp.Description("Optional list of specific libraries being used to narrow down the context."), mcp.Items(map[string]interface{}{"type": "string"})),
+		mcp.WithNumber("max_age_hours", mcp.Description("Optional cache TTL override in hours (e.g. 24 = re-fetch if older than 24h). Default: 720h (30 days)")),
 	)
 
 	s.AddTool(searchSyntaxTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -48,12 +49,17 @@ func main() {
 			}
 		}
 
+		maxAgeHours := 0
+		if v, ok := args["max_age_hours"].(float64); ok && v > 0 {
+			maxAgeHours = int(v)
+		}
+
 		cacheKey := generateCacheKey("search", searchQuery)
-		if cachedResult := getCache(cacheKey); cachedResult != nil {
+		if cachedResult := getCacheWithTTL(cacheKey, maxAgeHours); cachedResult != nil {
 			return mcp.NewToolResultText(fmt.Sprintf("⚡ (Cached - Loaded instantly from memory)\n%s", *cachedResult)), nil
 		}
 
-		results, err := SearchDDGLite(searchQuery+" tutorial OR documentation", 3)
+		results, err := SearchWithFallback(searchQuery+" tutorial OR documentation", 3)
 		if err != nil || len(results) == 0 {
 			return mcp.NewToolResultText(fmt.Sprintf("❌ No recent results found for: %s", topic)), nil
 		}
@@ -253,6 +259,12 @@ func main() {
 
 		finalStr := header + pageContent + footer
 		return mcp.NewToolResultText(finalStr), nil
+	})
+
+	s.AddTool(mcp.NewTool("ping",
+		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
+	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		return mcp.NewToolResultText(`{"status":"ok","server":"McpDocResearcher","version":"1.0.0"}`), nil
 	})
 
 	if err := server.ServeStdio(s); err != nil {
