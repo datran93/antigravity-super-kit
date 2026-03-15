@@ -245,7 +245,7 @@ func handleSearchCode(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallTo
 		queryEmbs, err := emb.EmbedBatch(ctx, []string{query})
 		if err == nil && len(queryEmbs) > 0 {
 			queryEmb := queryEmbs[0]
-			allEmbs, _ := db.GetAllEmbeddings()
+			allEmbs, _ := db.GetAllEmbeddings(0) // 0 = use default cap (10000)
 
 			type scored struct {
 				e     store.EmbeddingRow
@@ -459,6 +459,12 @@ func main() {
 		mcp.WithDescription("Clear the search index for a project."),
 		mcp.WithString("project_path", mcp.Required(), mcp.Description("Path to the project root.")),
 	), handleClearIndex)
+
+	s.AddTool(mcp.NewTool("ping",
+		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
+	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		return mcp.NewToolResultText(`{"status":"ok","server":"McpCodebaseSearch","version":"1.0.0"}`), nil
+	})
 
 	if err := server.ServeStdio(s); err != nil {
 		fmt.Fprintf(os.Stderr, "Server error: %v\n", err)

@@ -302,7 +302,7 @@ func TestStoreDB_CreateAndQuery(t *testing.T) {
 	}
 
 	// GetAllEmbeddings
-	embs, err := db.GetAllEmbeddings()
+	embs, err := db.GetAllEmbeddings(0)
 	if err != nil {
 		t.Fatal(err)
 	}
