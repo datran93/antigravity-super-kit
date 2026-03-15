@@ -379,3 +379,115 @@ func TestRenderHistoricallyIncomplete_Format(t *testing.T) {
 		t.Error("description should have been truncated")
 	}
 }
+
+// ── GetTaskSummary tests (T2) ─────────────────────────────────────────────────
+
+func TestGetTaskSummary_HappyPath(t *testing.T) {
+	tempDir := t.TempDir()
+	taskID := "summary-test"
+
+	_, err := InitializeTaskPlan(tempDir, taskID, "Summary test task", []string{
+		"[T1] Step one",
+		"[T2] Step two",
+		"[T3] Step three",
+	})
+	if err != nil {
+		t.Fatalf("failed to initialize: %v", err)
+	}
+
+	// Complete one step
+	CompleteTaskStep(tempDir, taskID, "[T1] Step one", nil, "")
+
+	summary, err := GetTaskSummary(tempDir, taskID)
+	if err != nil {
+		t.Fatalf("GetTaskSummary error: %v", err)
+	}
+	if !strings.Contains(summary, `"task_id"`) {
+		t.Errorf("expected task_id in summary, got: %s", summary)
+	}
+	if !strings.Contains(summary, "1/3") {
+		t.Errorf("expected 1/3 progress, got: %s", summary)
+	}
+	if !strings.Contains(summary, "[T2] Step two") {
+		t.Errorf("expected next_step to be T2, got: %s", summary)
+	}
+}
+
+func TestGetTaskSummary_NotFound(t *testing.T) {
+	tempDir := t.TempDir()
+	summary, err := GetTaskSummary(tempDir, "nonexistent-id")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(summary, "not found") {
+		t.Errorf("expected 'not found' message, got: %s", summary)
+	}
+}
+
+func TestGetTaskSummary_AllComplete(t *testing.T) {
+	tempDir := t.TempDir()
+	taskID := "all-done"
+
+	InitializeTaskPlan(tempDir, taskID, "All done task", []string{"[T1] Only step"})
+	CompleteTaskStep(tempDir, taskID, "[T1] Only step", nil, "")
+
+	summary, err := GetTaskSummary(tempDir, taskID)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(summary, "1/1") {
+		t.Errorf("expected 1/1 steps, got: %s", summary)
+	}
+}
+
+// ── GetTaskDAG tests (T3) ─────────────────────────────────────────────────────
+
+func TestGetTaskDAG_NoDeps(t *testing.T) {
+	tempDir := t.TempDir()
+	taskID := "dag-nodeps"
+
+	InitializeTaskPlan(tempDir, taskID, "DAG test no deps", []string{
+		"[T1] Step one",
+		"[T2] Step two",
+	})
+
+	result, err := GetTaskDAG(tempDir, taskID)
+	if err != nil {
+		t.Fatalf("GetTaskDAG error: %v", err)
+	}
+	if !strings.Contains(result, taskID) {
+		t.Errorf("expected task ID in DAG output, got: %s", result)
+	}
+	if !strings.Contains(result, "no dependencies declared") {
+		t.Errorf("expected no-deps message, got: %s", result)
+	}
+}
+
+func TestGetTaskDAG_WithDeps(t *testing.T) {
+	tempDir := t.TempDir()
+	taskID := "dag-withdeps"
+
+	InitializeTaskPlan(tempDir, taskID, "DAG with deps", []string{
+		"[T1] Foundation",
+		"[T2] Build depends:[T1]",
+	})
+
+	result, err := GetTaskDAG(tempDir, taskID)
+	if err != nil {
+		t.Fatalf("GetTaskDAG error: %v", err)
+	}
+	if !strings.Contains(result, "mermaid") {
+		t.Errorf("expected mermaid diagram in output when deps exist, got: %s", result)
+	}
+}
+
+func TestGetTaskDAG_NotFound(t *testing.T) {
+	tempDir := t.TempDir()
+	result, err := GetTaskDAG(tempDir, "ghost-task")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(result, "not found") {
+		t.Errorf("expected not found message, got: %s", result)
+	}
+}

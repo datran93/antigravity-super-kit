@@ -21,6 +21,45 @@ func InitializeTaskPlan(workspacePath, taskID, description string, steps []strin
 	)
 }
 
+// GetTaskSummary returns a compact JSON summary of a task's current state.
+// Designed for quick status checks without loading the full checkpoint.
+func GetTaskSummary(workspacePath, taskID string) (string, error) {
+	db, err := GetDBConnection(workspacePath)
+	if err != nil {
+		return "", err
+	}
+	defer db.Close()
+
+	row := db.QueryRow(
+		"SELECT status, updated_at, completed_steps, next_steps FROM checkpoints WHERE task_id = ?",
+		taskID,
+	)
+	var status, updatedAt, completedStepsStr, nextStepsStr string
+	if err := row.Scan(&status, &updatedAt, &completedStepsStr, &nextStepsStr); err != nil {
+		return fmt.Sprintf(`{"error": "task '%s' not found"}`, taskID), nil
+	}
+
+	var comp, nxt []string
+	json.Unmarshal([]byte(completedStepsStr), &comp)
+	json.Unmarshal([]byte(nextStepsStr), &nxt)
+
+	total := len(comp) + len(nxt)
+	pct := 0.0
+	if total > 0 {
+		pct = float64(len(comp)) / float64(total) * 100.0
+	}
+
+	nextStep := ""
+	if len(nxt) > 0 {
+		nextStep = nxt[0]
+	}
+
+	return fmt.Sprintf(
+		`{"task_id": %q, "status": %q, "progress": "%d/%d steps (%.0f%%)", "next_step": %q, "last_updated": %q}`,
+		taskID, status, len(comp), total, pct, nextStep, updatedAt,
+	), nil
+}
+
 func CompleteTaskStep(workspacePath, taskID, stepName string, activeFiles []string, notes string) (string, error) {
 	db, err := GetDBConnection(workspacePath)
 	if err != nil {
