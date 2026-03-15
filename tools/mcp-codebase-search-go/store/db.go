@@ -292,14 +292,21 @@ func (d *DB) GetChunksByIDs(ids []string) ([]ChunkRow, error) {
 	return chunks, nil
 }
 
-// GetAllEmbeddings loads all chunk embeddings for the project (for cosine search).
-func (d *DB) GetAllEmbeddings() ([]EmbeddingRow, error) {
+// GetAllEmbeddings loads chunk embeddings for the project up to maxRows.
+// Pass 0 for maxRows to use the default safety cap (10000).
+// This prevents unbounded RAM usage on large codebases.
+func (d *DB) GetAllEmbeddings(maxRows int) ([]EmbeddingRow, error) {
+	const defaultCap = 10000
+	if maxRows <= 0 {
+		maxRows = defaultCap
+	}
 	rows, err := d.conn.Query(`
 		SELECT ce.id, cc.rel_path, cc.symbol_name, ce.embedding
 		FROM chunk_embeddings ce
 		JOIN code_chunks cc ON cc.id = ce.id
 		WHERE cc.project_path = ?
-	`, d.ProjectPath)
+		LIMIT ?
+	`, d.ProjectPath, maxRows)
 	if err != nil {
 		return nil, err
 	}
@@ -314,6 +321,17 @@ func (d *DB) GetAllEmbeddings() ([]EmbeddingRow, error) {
 		result = append(result, r)
 	}
 	return result, nil
+}
+
+// GetEmbeddingCount returns the total number of embeddings stored for this project.
+func (d *DB) GetEmbeddingCount() (int, error) {
+	var count int
+	err := d.conn.QueryRow(`
+		SELECT COUNT(*) FROM chunk_embeddings ce
+		JOIN code_chunks cc ON cc.id = ce.id
+		WHERE cc.project_path = ?
+	`, d.ProjectPath).Scan(&count)
+	return count, err
 }
 
 // ── Value types ───────────────────────────────────────────────────────────────
