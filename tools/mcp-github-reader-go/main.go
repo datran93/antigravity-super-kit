@@ -49,6 +49,11 @@ func logRateLimit(resp *github.Response) {
 
 // ─── Tool: get_file_content ────────────────────────────────────────────────
 
+const (
+	defaultPageSize = 8000  // characters per page
+	maxPageSize     = 32000 // hard cap
+)
+
 func getFileContentTool(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	args, ok := request.Params.Arguments.(map[string]any)
 	if !ok {
@@ -59,6 +64,18 @@ func getFileContentTool(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 	repo, _ := args["repo"].(string)
 	path, _ := args["path"].(string)
 	ref, _ := args["ref"].(string)
+
+	page := 1
+	if v, ok := args["page"].(float64); ok && v > 0 {
+		page = int(v)
+	}
+	pageSize := defaultPageSize
+	if v, ok := args["page_size"].(float64); ok && v > 0 {
+		pageSize = int(v)
+		if pageSize > maxPageSize {
+			pageSize = maxPageSize
+		}
+	}
 
 	if owner == "" || repo == "" || path == "" {
 		return mcp.NewToolResultError("owner, repo, and path are required"), nil
@@ -106,7 +123,34 @@ func getFileContentTool(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 		)), nil
 	}
 
-	return mcp.NewToolResultText(rawContent), nil
+	// ── Rune-based pagination ────────────────────────────────────────────────
+	runes := []rune(rawContent)
+	totalRunes := len(runes)
+	totalPages := (totalRunes + pageSize - 1) / pageSize
+	if totalPages == 0 {
+		totalPages = 1
+	}
+	if page > totalPages {
+		return mcp.NewToolResultText(fmt.Sprintf(
+			"⚠️ Page %d exceeds total pages (%d) for '%s' (%d chars, page_size=%d).",
+			page, totalPages, path, totalRunes, pageSize,
+		)), nil
+	}
+	start := (page - 1) * pageSize
+	end := start + pageSize
+	if end > totalRunes {
+		end = totalRunes
+	}
+	pageContent := string(runes[start:end])
+
+	// Prefix pagination header when there is more than one page
+	if totalPages > 1 {
+		header := fmt.Sprintf("📄 `%s` — Page %d/%d (%d chars, page_size=%d)\n\n",
+			path, page, totalPages, totalRunes, pageSize)
+		pageContent = header + pageContent
+	}
+
+	return mcp.NewToolResultText(pageContent), nil
 }
 
 // ─── Tool: list_directory ──────────────────────────────────────────────────
@@ -313,6 +357,8 @@ func main() {
 		mcp.WithString("repo", mcp.Required(), mcp.Description("Repository name")),
 		mcp.WithString("path", mcp.Required(), mcp.Description("File path within the repo (e.g. 'src/main.go')")),
 		mcp.WithString("ref", mcp.Description("Branch, tag, or commit SHA (defaults to repo default branch)")),
+		mcp.WithNumber("page", mcp.Description("Page number (1-indexed). Default: 1")),
+		mcp.WithNumber("page_size", mcp.Description("Characters per page (default 8000, max 32000)")),
 	)
 	s.AddTool(getFileContent, getFileContentTool)
 
@@ -354,6 +400,12 @@ func main() {
 		mcp.WithNumber("per_page", mcp.Description("Number of results to return (default: 10, max: 30)")),
 	)
 	s.AddTool(searchCode, searchCodeTool)
+
+	s.AddTool(mcp.NewTool("ping",
+		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
+	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		return mcp.NewToolResultText(`{"status":"ok","server":"McpGitHubReader","version":"1.0.0"}`), nil
+	})
 
 	server.ServeStdio(s)
 }
