@@ -237,3 +237,92 @@ func SearchSymbol(workspacePath, query string) (string, error) {
 
 	return "🔎 SYMBOL SEARCH RESULTS:\n" + strings.Join(results, "\n"), nil
 }
+
+// UsageRef represents a single reference to a symbol: file path + line number + line text.
+type UsageRef struct {
+	File    string
+	Line    int
+	Content string
+}
+
+// FindUsages scans all source files in workspacePath for references to symbolName.
+// It uses a bounded concurrency pattern (8 goroutines) identical to SearchSymbol.
+// Returns a Markdown-formatted list of file:line references.
+func FindUsages(workspacePath, symbolName string) (string, error) {
+	if symbolName == "" {
+		return "❌ symbol_name is required.", nil
+	}
+
+	allFiles := getProjectFiles(workspacePath)
+	if len(allFiles) == 0 {
+		return fmt.Sprintf("❌ No source files found in: %s", workspacePath), nil
+	}
+
+	const concurrency = 8
+	sem := make(chan struct{}, concurrency)
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	var usages []UsageRef
+
+	for _, filePath := range allFiles {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(fp string) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			data, err := os.ReadFile(fp)
+			if err != nil {
+				return
+			}
+
+			lines := strings.Split(string(data), "\n")
+			lower := strings.ToLower(symbolName)
+
+			relPath, err := filepath.Rel(workspacePath, fp)
+			if err != nil {
+				relPath = fp
+			}
+
+			for lineNum, line := range lines {
+				if strings.Contains(strings.ToLower(line), lower) {
+					mu.Lock()
+					usages = append(usages, UsageRef{
+						File:    relPath,
+						Line:    lineNum + 1, // 1-indexed
+						Content: strings.TrimSpace(line),
+					})
+					mu.Unlock()
+				}
+			}
+		}(filePath)
+	}
+
+	wg.Wait()
+
+	if len(usages) == 0 {
+		return fmt.Sprintf("🔍 No usages of '%s' found in %s.", symbolName, workspacePath), nil
+	}
+
+	// Sort: by file, then by line
+	sort.Slice(usages, func(i, j int) bool {
+		if usages[i].File != usages[j].File {
+			return usages[i].File < usages[j].File
+		}
+		return usages[i].Line < usages[j].Line
+	})
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("🔍 **%d usages** of `%s`:\n\n", len(usages), symbolName))
+
+	currentFile := ""
+	for _, u := range usages {
+		if u.File != currentFile {
+			sb.WriteString(fmt.Sprintf("\n### `%s`\n", u.File))
+			currentFile = u.File
+		}
+		sb.WriteString(fmt.Sprintf("  - **L%d**: `%s`\n", u.Line, u.Content))
+	}
+
+	return sb.String(), nil
+}
