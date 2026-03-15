@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -86,9 +87,45 @@ func rrfScore(bm25Rank, vecRank int) float64 {
 	return score
 }
 
+// bm25SearchFTS5 tries FTS5 MATCH query. Returns (rows, nil) on success,
+// (nil, err) if FTS5 module is unavailable (graceful degradation trigger).
+func bm25SearchFTS5(db interface {
+	Query(string, ...interface{}) (*sql.Rows, error)
+}, ftsQuery string) (*sql.Rows, error) {
+	return db.Query(`
+		SELECT tactic_name, ki_path, summary, decisions
+		FROM knowledge_fts
+		WHERE knowledge_fts MATCH ?
+		ORDER BY rank
+		LIMIT 20
+	`, ftsQuery)
+}
+
+// likeSearchFallback performs a multi-token LIKE search across knowledge_fts columns.
+// Used when SQLite FTS5 module is unavailable (e.g. macOS system SQLite).
+func likeSearchFallback(db interface {
+	Query(string, ...interface{}) (*sql.Rows, error)
+}, tokens []string) (*sql.Rows, error) {
+	if len(tokens) == 0 {
+		return nil, fmt.Errorf("no tokens")
+	}
+	// Build: WHERE (summary LIKE '%t1%' OR decisions LIKE '%t1%' OR tactic_name LIKE '%t1%')
+	//        AND   (summary LIKE '%t2%' OR ...)
+	var clauses []string
+	var args []interface{}
+	for _, tok := range tokens {
+		pat := "%" + tok + "%"
+		clauses = append(clauses, "(summary LIKE ? OR decisions LIKE ? OR tactic_name LIKE ?)")
+		args = append(args, pat, pat, pat)
+	}
+	q := `SELECT tactic_name, ki_path, summary, decisions FROM knowledge_fts WHERE ` +
+		strings.Join(clauses, " AND ") + ` LIMIT 20`
+	return db.Query(q, args...)
+}
+
 // RecallKnowledge retrieves the most relevant Knowledge Items using hybrid search:
 // BM25 (FTS5) + cosine similarity (OpenAI embeddings), fused via RRF.
-// Falls back to FTS5-only when OPENAI_API_KEY is not set.
+// Falls back to multi-token LIKE search when FTS5 module is unavailable.
 func RecallKnowledge(workspacePath, query string, topK int) (string, error) {
 	db, err := GetDBConnection(workspacePath)
 	if err != nil {
@@ -105,26 +142,29 @@ func RecallKnowledge(workspacePath, query string, topK int) (string, error) {
 	var tokens []string
 	for _, p := range parts {
 		if strings.TrimSpace(p) != "" {
-			tokens = append(tokens, fmt.Sprintf("%s*", p))
+			tokens = append(tokens, p)
 		}
 	}
-	ftsQuery := strings.Join(tokens, " OR ")
 
-	if ftsQuery == "" {
+	if len(tokens) == 0 {
 		return "🔍 Please provide a valid search query.", nil
 	}
 
-	// ── Step 1: BM25 via FTS5 (get up to 20 candidates) ────────────────────
-	bm25SQL := `
-		SELECT tactic_name, ki_path, summary, decisions
-		FROM knowledge_fts
-		WHERE knowledge_fts MATCH ?
-		ORDER BY rank
-		LIMIT 20
-	`
-	rows, err := db.Query(bm25SQL, ftsQuery)
+	// Build FTS5 query string (for BM25 path)
+	var ftsTokens []string
+	for _, t := range tokens {
+		ftsTokens = append(ftsTokens, t+"*")
+	}
+	ftsQuery := strings.Join(ftsTokens, " OR ")
+
+	// ── Step 1: BM25 via FTS5; graceful fallback to LIKE ────────────────────
+	rows, err := bm25SearchFTS5(db, ftsQuery)
 	if err != nil {
-		return "", fmt.Errorf("failed to query knowledge_fts: %v", err)
+		// FTS5 unavailable (e.g. "no such module: fts5") — use LIKE fallback
+		rows, err = likeSearchFallback(db, tokens)
+		if err != nil {
+			return "", fmt.Errorf("knowledge search failed (both FTS5 and LIKE): %v", err)
+		}
 	}
 	defer rows.Close()
 
@@ -199,7 +239,8 @@ func RecallKnowledge(workspacePath, query string, topK int) (string, error) {
 				if r, exists := rankMap[vs.kiPath]; exists {
 					r.vecRank = vecIdx
 				} else {
-					// Vec found something BM25 missed — fetch its metadata
+					// Vec found something BM25 missed — fetch its metadata via LIKE
+					// (avoid FTS5 dependency in this secondary lookup path)
 					var tacticName, summary, decisions string
 					err := db.QueryRow(`
 						SELECT tactic_name, ki_path, summary, decisions
