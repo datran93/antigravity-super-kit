@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # ⚓ ANCHORS (Immutable Facts & Guardrails)
 
 This file contains the absolute, non-negotiable project facts, architectural constraints, and guardrails for the agent
