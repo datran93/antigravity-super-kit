@@ -28,6 +28,7 @@ mcp/
 ├── @mcp:doc-researcher/      search_latest_syntax · read_doc_file · read_website_markdown
 ├── @mcp:figma-reader/        read_figma_design · export_figma_images · get_design_details
 ├── @mcp:gitlab-mr-discussions/ read_mr_discussions · reply_to_mr_discussion · resolve_mr_discussion
+├── @mcp:github-reader/       get_file_content · list_directory · get_repository_info · search_code
 ├── @mcp:mcp-http-client/     http_request · import_curl · set_env · set_config · list_history · clear_history
 ├── @mcp:skill-router/        search_skills
 ├── @mcp:codebase-search/     index_codebase · search_code · get_indexing_status · clear_index
@@ -99,7 +100,5 @@ asks the USER — it does not auto-loop. See [`planner-architect.md`](./../workf
 
 ## 📌 Metadata
 
-- **Version**: 2.2.0
+- **Version**: 2.3.0
 - **Last Updated**: 2026-03-15
-- **Related**: `.agents/workflows/*.md`, `.agents/rules/ANCHORS.md`
-- **New in 2.2.0**: Removed mcp-context-governor (not functional in Gemini Code Assist). Compacted MCP tool tree.
