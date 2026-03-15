@@ -77,6 +77,38 @@ func main() {
 		return mcp.NewToolResultText(res), nil
 	})
 
+	// Tool: find_usages
+	findUsagesTool := mcp.NewTool("find_usages",
+		mcp.WithDescription("Find all usages/references of a symbol (function, class, variable) across the project. Returns file:line references grouped by file."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("The base absolute path of the project workspace.")),
+		mcp.WithString("symbol_name", mcp.Required(), mcp.Description("The symbol name to search for (case-insensitive substring match).")),
+	)
+
+	s.AddTool(findUsagesTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := request.GetArguments()
+		workspacePath, ok := args["workspace_path"].(string)
+		if !ok {
+			return mcp.NewToolResultError("workspace_path is required"), nil
+		}
+		symbolName, ok := args["symbol_name"].(string)
+		if !ok {
+			return mcp.NewToolResultError("symbol_name is required"), nil
+		}
+		res, err := FindUsages(workspacePath, symbolName)
+		if err != nil {
+			return mcp.NewToolResultError(fmt.Sprintf("Error: %v", err)), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	})
+
+	// Tool: ping
+	pingTool := mcp.NewTool("ping",
+		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
+	)
+	s.AddTool(pingTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		return mcp.NewToolResultText(`{"status":"ok","server":"McpAstExplorer","version":"1.0.0"}`), nil
+	})
+
 	if err := server.ServeStdio(s); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}
