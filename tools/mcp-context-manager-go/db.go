@@ -78,6 +78,33 @@ func addColumnIfNotExist(db *sql.DB, tableName, columnName, columnType string) e
 	return nil
 }
 
+// tryCreateFTS5 creates the knowledge_fts virtual table using FTS5.
+// If FTS5 is unavailable (e.g. macOS system SQLite without FTS5 extension),
+// it falls back to a plain table with identical column structure.
+// The LIKE-based search path in knowledge.go works against either table type.
+func tryCreateFTS5(db *sql.DB) error {
+	_, err := db.Exec(`CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(
+		tactic_name,
+		ki_path UNINDEXED,
+		summary,
+		decisions
+	)`)
+	if err == nil {
+		return nil // FTS5 available
+	}
+	// FTS5 unavailable — create equivalent plain table so LIKE queries work.
+	_, plainErr := db.Exec(`CREATE TABLE IF NOT EXISTS knowledge_fts (
+		tactic_name TEXT,
+		ki_path     TEXT,
+		summary     TEXT,
+		decisions   TEXT
+	)`)
+	if plainErr != nil {
+		return fmt.Errorf("knowledge_fts setup failed (FTS5: %v, plain: %v)", err, plainErr)
+	}
+	return nil
+}
+
 func initializeSchema(db *sql.DB) error {
 	// Initial table creation queries (idempotent with IF NOT EXISTS)
 	createTableQueries := []string{
@@ -113,12 +140,6 @@ func initializeSchema(db *sql.DB) error {
             gotchas TEXT,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`,
-		`CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(
-            tactic_name,
-            ki_path UNINDEXED,
-            summary,
-            decisions
-        )`,
 		// ki_embeddings stores float32 vectors as JSON blobs for cosine-similarity
 		// hybrid recall. Kept separate from knowledge_fts for additive-only migration.
 		`CREATE TABLE IF NOT EXISTS ki_embeddings (
@@ -132,6 +153,11 @@ func initializeSchema(db *sql.DB) error {
 		if _, err := db.Exec(query); err != nil {
 			return fmt.Errorf("failed to initialize schema query:\n%s\nerror: %v", query, err)
 		}
+	}
+
+	// knowledge_fts: try FTS5 virtual table, fall back to plain table if FTS5 unavailable
+	if err := tryCreateFTS5(db); err != nil {
+		return err
 	}
 
 	// Schema migrations for existing tables (v3 changes)
