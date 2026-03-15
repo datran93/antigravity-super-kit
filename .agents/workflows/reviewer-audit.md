@@ -1,7 +1,8 @@
 ---
 description:
   Structured workflow for Code Review and Quality Audit. Reads the Coder's implementation report and the original
-  DESIGN.md, performs a thorough audit, and reports findings to the USER. Does NOT fix code, does NOT switch roles.
+  design/design-*.md, performs a thorough audit, and reports findings to the USER. Does NOT fix code, does NOT switch
+  roles.
 ---
 
 # 🔍 Reviewer Workflow (Audit & Report Only)
@@ -19,7 +20,8 @@ The Reviewer does **not** fix code and does **not** transition to other roles.
 
 Before reviewing any code:
 
-1. **Read `DESIGN.md`** — Understand the intended architecture, contracts, file structure, and acceptance criteria.
+1. **Read `design/design-{task-id}.md`** — Understand the intended architecture, contracts, file structure, and
+   acceptance criteria.
 2. **Read the Coder's report** — Review what files were created/modified and the stated purpose of each change.
 3. **Load task plan** — Call `@mcp:context-manager` (`load_checkpoint`) to confirm which Actions were completed.
 4. **Load anchors** — Read `.agents/rules/ANCHORS.md` to refresh immutable system guardrails.
@@ -47,7 +49,8 @@ Document any failures found — do not fix them.
 
 Deep analysis against the design and acceptance criteria:
 
-- **Traceability**: Does each changed file directly implement what `DESIGN.md` and the task list specified?
+- **Traceability**: Does each changed file directly implement what `design/design-{task-id}.md` and the task list
+  specified?
 - **Contracts**: Are data models, interfaces, and function signatures consistent with the design?
 - **Boundary compliance**: No unapproved scope creep into unrelated modules or files?
 - **Testability**: Is the new code structured for clean testing (Dependency Injection, no hardcoded globals)?
@@ -64,7 +67,7 @@ Deliver a structured audit report — findings only, no fixes:
 ## 🔍 Review Report
 
 ### ✅ Approved Items
-- path/to/file.go — Correctly implements X, aligned with DESIGN.md section Y
+- path/to/file.go — Correctly implements X, aligned with design/design-{task-id}.md section Y
 - ...
 
 ### ⚠️ Issues Found

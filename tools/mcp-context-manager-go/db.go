@@ -36,8 +36,51 @@ func GetDBConnection(workspacePath string) (*sql.DB, error) {
 	return db, nil
 }
 
+// columnExists checks if a column exists in a given table.
+// SAFETY: tableName MUST be a hardcoded constant (e.g., "checkpoints", "intents").
+// Never pass user-controlled input — PRAGMA does not support parameterized table names.
+func columnExists(db *sql.DB, tableName, columnName string) (bool, error) {
+	rows, err := db.Query(fmt.Sprintf("PRAGMA table_info(%s)", tableName))
+	if err != nil {
+		return false, fmt.Errorf("failed to query table info for %s: %w", tableName, err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var cid int
+		var name string
+		var ctype string
+		var notnull int
+		var dflt_value sql.NullString
+		var pk int
+		if err := rows.Scan(&cid, &name, &ctype, &notnull, &dflt_value, &pk); err != nil {
+			return false, fmt.Errorf("failed to scan table info row for %s: %w", tableName, err)
+		}
+		if name == columnName {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// addColumnIfNotExist adds a column to a table if it doesn't already exist.
+func addColumnIfNotExist(db *sql.DB, tableName, columnName, columnType string) error {
+	exists, err := columnExists(db, tableName, columnName)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		alterQuery := fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s", tableName, columnName, columnType)
+		if _, err := db.Exec(alterQuery); err != nil {
+			return fmt.Errorf("failed to add column %s to table %s: %w", columnName, tableName, err)
+		}
+	}
+	return nil
+}
+
 func initializeSchema(db *sql.DB) error {
-	queries := []string{
+	// Initial table creation queries (idempotent with IF NOT EXISTS)
+	createTableQueries := []string{
 		`CREATE TABLE IF NOT EXISTS checkpoints (
             task_id TEXT PRIMARY KEY,
             description TEXT,
@@ -85,9 +128,37 @@ func initializeSchema(db *sql.DB) error {
         )`,
 	}
 
-	for _, query := range queries {
+	for _, query := range createTableQueries {
 		if _, err := db.Exec(query); err != nil {
 			return fmt.Errorf("failed to initialize schema query:\n%s\nerror: %v", query, err)
+		}
+	}
+
+	// Schema migrations for existing tables (v3 changes)
+	// checkpoints: git SHA + burndown columns
+	for _, m := range []struct{ col, def string }{
+		{"git_sha", "TEXT DEFAULT ''"},
+		{"step_timestamps", "TEXT DEFAULT '{}'"},
+		{"step_drift", "TEXT DEFAULT '{}'"},
+		{"step_deps", "TEXT DEFAULT '{}'"},
+	} {
+		if err := addColumnIfNotExist(db, "checkpoints", m.col, m.def); err != nil {
+			return fmt.Errorf("checkpoints.%s migration: %w", m.col, err)
+		}
+	}
+
+	// intents: TTL support (Improvement #2)
+	if err := addColumnIfNotExist(db, "intents", "expires_at", "INTEGER DEFAULT 0"); err != nil {
+		return fmt.Errorf("intents.expires_at migration: %w", err)
+	}
+
+	// drift_tracker: per-step war-room context (Improvement #8)
+	for _, m := range []struct{ col, def string }{
+		{"step_name", "TEXT DEFAULT ''"},
+		{"error_context", "TEXT DEFAULT ''"},
+	} {
+		if err := addColumnIfNotExist(db, "drift_tracker", m.col, m.def); err != nil {
+			return fmt.Errorf("drift_tracker.%s migration: %w", m.col, err)
 		}
 	}
 

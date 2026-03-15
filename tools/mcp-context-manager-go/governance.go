@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 )
 
-func DeclareIntent(workspacePath, taskID, tactic string, lockedFiles []string) (string, error) {
+// DeclareIntent locks a set of files for the current tactic.
+// ttlMinutes: how long the lock is valid (0 = no expiry / legacy mode; default = 60).
+func DeclareIntent(workspacePath, taskID, tactic string, lockedFiles []string, ttlMinutes int) (string, error) {
 	db, err := GetDBConnection(workspacePath)
 	if err != nil {
 		return "", err
@@ -15,20 +18,30 @@ func DeclareIntent(workspacePath, taskID, tactic string, lockedFiles []string) (
 
 	lockedBytes, _ := json.Marshal(lockedFiles)
 
+	var expiresAt int64
+	if ttlMinutes > 0 {
+		expiresAt = time.Now().Add(time.Duration(ttlMinutes) * time.Minute).Unix()
+	}
+
 	query := `
-        INSERT INTO intents (task_id, tactic, locked_files)
-        VALUES (?, ?, ?)
+        INSERT INTO intents (task_id, tactic, locked_files, expires_at)
+        VALUES (?, ?, ?, ?)
         ON CONFLICT(task_id) DO UPDATE SET
             tactic=excluded.tactic,
             locked_files=excluded.locked_files,
+            expires_at=excluded.expires_at,
             updated_at=CURRENT_TIMESTAMP
     `
-	_, err = db.Exec(query, taskID, tactic, string(lockedBytes))
+	_, err = db.Exec(query, taskID, tactic, string(lockedBytes), expiresAt)
 	if err != nil {
 		return "", fmt.Errorf("failed to declare intent: %v", err)
 	}
 
-	return fmt.Sprintf("🔒 Intent declared. Lock applied to files: %s", strings.Join(lockedFiles, ", ")), nil
+	ttlMsg := "no expiry"
+	if expiresAt > 0 {
+		ttlMsg = fmt.Sprintf("expires in %d min at %s", ttlMinutes, time.Unix(expiresAt, 0).Format("15:04:05"))
+	}
+	return fmt.Sprintf("🔒 Intent declared. Lock applied to files: %s (%s)", strings.Join(lockedFiles, ", "), ttlMsg), nil
 }
 
 func CheckIntentLock(workspacePath, taskID, filePath string) (string, error) {
@@ -39,9 +52,16 @@ func CheckIntentLock(workspacePath, taskID, filePath string) (string, error) {
 	defer db.Close()
 
 	var lockedFilesStr string
-	err = db.QueryRow("SELECT locked_files FROM intents WHERE task_id = ?", taskID).Scan(&lockedFilesStr)
+	var expiresAt int64
+	err = db.QueryRow("SELECT locked_files, COALESCE(expires_at, 0) FROM intents WHERE task_id = ?", taskID).Scan(&lockedFilesStr, &expiresAt)
 	if err != nil {
 		return "⚠️ No intent declared for this task. Please declare_intent first.", nil
+	}
+
+	// TTL check — treat expired lock as if no lock was declared
+	if expiresAt > 0 && time.Now().Unix() > expiresAt {
+		return fmt.Sprintf("⚠️ EXPIRED LOCK: Intent lock for task '%s' expired at %s. Call declare_intent again to renew.",
+			taskID, time.Unix(expiresAt, 0).Format("15:04:05")), nil
 	}
 
 	var lockedFiles []string
@@ -92,7 +112,9 @@ func AnnotateFile(workspacePath, filePath, gotchas string) (string, error) {
 	return fmt.Sprintf("👻 Ghost Context added to '%s'.", filePath), nil
 }
 
-func RecordFailure(workspacePath, taskID string) (string, error) {
+// RecordFailure increments the drift counter. stepName and errorContext are optional
+// but recommended for Improvement #8 war-room KI generation.
+func RecordFailure(workspacePath, taskID, stepName, errorContext string) (string, error) {
 	db, err := GetDBConnection(workspacePath)
 	if err != nil {
 		return "", err
@@ -100,13 +122,15 @@ func RecordFailure(workspacePath, taskID string) (string, error) {
 	defer db.Close()
 
 	query := `
-        INSERT INTO drift_tracker (task_id, failure_count, last_failed_at)
-        VALUES (?, 1, CURRENT_TIMESTAMP)
+        INSERT INTO drift_tracker (task_id, failure_count, last_failed_at, step_name, error_context)
+        VALUES (?, 1, CURRENT_TIMESTAMP, ?, ?)
         ON CONFLICT(task_id) DO UPDATE SET
             failure_count=failure_count + 1,
-            last_failed_at=CURRENT_TIMESTAMP
+            last_failed_at=CURRENT_TIMESTAMP,
+            step_name=excluded.step_name,
+            error_context=excluded.error_context
     `
-	if _, err := db.Exec(query, taskID); err != nil {
+	if _, err := db.Exec(query, taskID, stepName, errorContext); err != nil {
 		return "", fmt.Errorf("failed to record failure: %v", err)
 	}
 
@@ -116,9 +140,17 @@ func RecordFailure(workspacePath, taskID string) (string, error) {
 	}
 
 	if count >= 3 {
-		return fmt.Sprintf("🚨 DRIFT DETECTED (Failures: %d): You have failed 3 or more times. Trigger 'think_back' panic protocol immediately!", count), nil
+		warRoomMsg := fmt.Sprintf("🚨 DRIFT DETECTED (Failures: %d): You have failed 3 or more times", count)
+		if stepName != "" {
+			warRoomMsg += fmt.Sprintf(" on step '%s'", stepName)
+		}
+		warRoomMsg += ". Trigger 'think_back' panic protocol immediately!"
+		if errorContext != "" {
+			warRoomMsg += fmt.Sprintf("\n📋 Last error: %s", errorContext)
+		}
+		return warRoomMsg, nil
 	}
-	return fmt.Sprintf("⚠️ Failure recorded. Count: %d", count), nil
+	return fmt.Sprintf("⚠️ Failure recorded. Count: %d/3", count), nil
 }
 
 func ClearDrift(workspacePath, taskID string) (string, error) {

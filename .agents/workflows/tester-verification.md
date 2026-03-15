@@ -16,7 +16,7 @@ or transition roles.
 
 ### Phase 0: Read Implementation Context 📖
 
-1. **Read `DESIGN.md`** — understand contracts, boundaries, and expected behaviors.
+1. **Read `design/design-{task-id}.md`** — understand contracts, boundaries, and expected behaviors.
 2. **Read the Coder's report** — know exactly what was created/modified.
 3. **Load the task plan** — Call `@mcp:context-manager` (`load_checkpoint`).
 4. **Scan the code** — Use `@mcp:ast-explorer` (`get_project_architecture`) to map public functions needing coverage.

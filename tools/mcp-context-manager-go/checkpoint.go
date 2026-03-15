@@ -1,104 +1,53 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 )
 
-type CheckpointRow struct {
-	TaskID         string
-	Description    string
-	Status         string
-	CompletedSteps string // JSON array
-	NextSteps      string // JSON array
-	ActiveFiles    string // JSON array
-	Notes          string
-	UpdatedAt      string
-}
-
-// phaseKey extracts the phase prefix from a step name.
-// "[P0-T1] Implement X" → "P0", "[P1] Foo" → "P1", "bare step" → "".
-func phaseKey(step string) string {
-	if len(step) == 0 || step[0] != '[' {
+// captureGitSHA runs `git rev-parse HEAD` in the given directory with a 2s timeout.
+// Returns empty string if the directory is not a git repo or git is unavailable.
+func captureGitSHA(workspacePath string) string {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "git", "-C", workspacePath, "rev-parse", "HEAD")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
 		return ""
 	}
-	end := strings.Index(step, "]")
-	if end < 0 {
-		return ""
-	}
-	inner := step[1:end] // e.g. "P0-T1" or "P1"
-	// Keep only the phase part (Px) before any dash
-	dash := strings.Index(inner, "-")
-	if dash >= 0 {
-		return inner[:dash]
-	}
-	return inner
+	return strings.TrimSpace(out.String())
 }
 
-// phaseEntry holds all steps belonging to a single phase.
-type phaseEntry struct {
-	key       string
-	completed []string
-	pending   []string
-}
-
-// groupByPhase groups completed + pending steps into ordered phaseEntry slices.
-// Order is determined by first appearance across the combined list.
-func groupByPhase(completed, pending []string) []phaseEntry {
-	order := []string{}
-	seen := map[string]bool{}
-	phases := map[string]*phaseEntry{}
-
-	add := func(step string, done bool) {
-		k := phaseKey(step)
-		if !seen[k] {
-			seen[k] = true
-			order = append(order, k)
-			phases[k] = &phaseEntry{key: k}
-		}
-		if done {
-			phases[k].completed = append(phases[k].completed, step)
-		} else {
-			phases[k].pending = append(phases[k].pending, step)
-		}
-	}
-
+// hasBracketSteps returns true when at least one step starts with '[',
+// indicating that steps use the [T1] / [Px-Ty] label convention.
+func hasBracketSteps(completed, pending []string) bool {
 	for _, s := range completed {
-		add(s, true)
+		if len(s) > 0 && s[0] == '[' {
+			return true
+		}
 	}
 	for _, s := range pending {
-		add(s, false)
+		if len(s) > 0 && s[0] == '[' {
+			return true
+		}
 	}
-
-	result := make([]phaseEntry, 0, len(order))
-	for _, k := range order {
-		result = append(result, *phases[k])
-	}
-	return result
+	return false
 }
 
-// phaseIcon returns the status icon for a phase.
-func phaseIcon(p phaseEntry) string {
-	if len(p.pending) == 0 && len(p.completed) > 0 {
-		return "✅"
-	}
-	if len(p.completed) > 0 {
-		return "🔄"
-	}
-	return "🔲"
-}
-
-// isPhaseComplete returns true when all steps in p are done.
-func isPhaseComplete(p phaseEntry) bool {
-	return len(p.pending) == 0 && len(p.completed) > 0
-}
-
-func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID, description, status string, completedSteps, nextSteps, activeFiles []string, notes string) error {
+// WriteMarkdownProgress renders progress.md with burndown dashboard, drift heatmap,
+// DAG visualization, and git SHA footer.
+// gitSHA is passed in by SaveCheckpoint (already captured once) to avoid a second
+// subprocess call for the footer line.
+func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID, description, status string, completedSteps, nextSteps, activeFiles []string, notes, gitSHA string, idleThresholdDays int) error {
 	mdPath := filepath.Join(workspacePath, "progress.md")
 
 	// Historical completed tasks (other task_ids)
@@ -115,6 +64,13 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID, description, statu
 		}
 	}
 
+	// ── Load step metadata for burndown rendering ──────────────────────────────
+	var stepTimestampsStr, stepDriftStr string
+	db.QueryRow("SELECT COALESCE(step_timestamps,'{}'), COALESCE(step_drift,'{}') FROM checkpoints WHERE task_id=?", taskID).
+		Scan(&stepTimestampsStr, &stepDriftStr) //nolint:errcheck — fallback to empty maps on failure
+	stepTs := ParseStepTimestamps(stepTimestampsStr)
+	stepDrift := ParseStepDrift(stepDriftStr)
+
 	totalSteps := len(completedSteps) + len(nextSteps)
 	progressPct := float64(0)
 	if totalSteps > 0 {
@@ -129,6 +85,9 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID, description, statu
 		strings.ToUpper(status), bar, progressPct, len(completedSteps), totalSteps)
 	content += fmt.Sprintf("> %s\n\n", description)
 
+	// ── Burndown header (velocity + ETA) ──────────────────────────────────────
+	content += RenderBurndownHeader(taskID, stepTs, len(nextSteps))
+
 	if len(activeFiles) > 0 {
 		content += "### 📁 Active Files\n"
 		for _, f := range activeFiles {
@@ -137,59 +96,30 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID, description, statu
 		content += "\n"
 	}
 
-	// ── Phase-aware rendering ──────────────────────────────────────────────
-	phases := groupByPhase(completedSteps, nextSteps)
-	hasPhases := len(phases) > 0 && phases[0].key != ""
+	// ── Parse DAG deps (opt-in: steps with 'depends:[...]' suffix) ─────────────
+	allRaw := append(append([]string{}, completedSteps...), nextSteps...)
+	_, deps := ParseStepDeps(allRaw)
+	completedSet := BuildCompletedSet(completedSteps)
 
-	if hasPhases {
-		// Phase summary table
-		content += "### 📊 Phase Overview\n\n"
-		content += "| Phase | Done | Todo | Status |\n"
-		content += "|-------|------|------|--------|\n"
-		for _, p := range phases {
-			label := p.key
-			if label == "" {
-				label = "General"
-			}
-			content += fmt.Sprintf("| **%s** | %d | %d | %s |\n",
-				label, len(p.completed), len(p.pending), phaseIcon(p))
+	// ── Step rendering ─────────────────────────────────────────────────────────
+	if hasBracketSteps(completedSteps, nextSteps) {
+		// Steps use [T1] / [Px-Ty] labels: render under a single flat header.
+		content += "### 📋 Steps Overview\n\n"
+		for _, s := range completedSteps {
+			content += RenderStepWithMeta(s, true, stepTs, stepDrift)
+		}
+		for _, s := range nextSteps {
+			content += RenderStepWithMeta(s, false, stepTs, stepDrift)
 		}
 		content += "\n"
-
-		// Per-phase step lists
-		for _, p := range phases {
-			label := p.key
-			if label == "" {
-				label = "General"
-			}
-			content += fmt.Sprintf("#### %s %s\n", phaseIcon(p), label)
-			for _, s := range p.completed {
-				content += fmt.Sprintf("- [x] %s\n", s)
-			}
-			for _, s := range p.pending {
-				content += fmt.Sprintf("- [ ] %s\n", s)
-			}
-			content += "\n"
-		}
 	} else {
-		// Fallback: flat rendering for tasks without phase prefixes
-		content += "### ✅ Completed\n"
-		if len(completedSteps) == 0 {
-			content += "_None yet_\n"
-		} else {
-			for _, s := range completedSteps {
-				content += fmt.Sprintf("- [x] %s\n", s)
-			}
-		}
-		content += "\n### ⏳ Next Steps\n"
-		if len(nextSteps) == 0 {
-			content += "_All tasks done!_ 🎉\n"
-		} else {
-			for _, s := range nextSteps {
-				content += fmt.Sprintf("- [ ] %s\n", s)
-			}
-		}
-		content += "\n"
+		// Plain steps (no label prefix): use section-header rendering.
+		content += RenderBurndownSection(completedSteps, nextSteps, stepTs, stepDrift)
+	}
+
+	// ── DAG block (emitted only when steps have 'depends:[...]' declarations) ──
+	if dagBlock := RenderDAGBlock(allRaw, deps, completedSet); dagBlock != "" {
+		content += dagBlock
 	}
 
 	if notes != "" {
@@ -205,7 +135,19 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID, description, statu
 		content += "\n"
 	}
 
-	content += fmt.Sprintf("---\n*Last sync: %s*", time.Now().Format("2006-01-02 15:04:05"))
+	// ── Historically Incomplete Tasks ────────────────────────────────────────
+	if idleThresholdDays > 0 {
+		if idleTasks, err := fetchIdleTasks(workspacePath, taskID, idleThresholdDays); err == nil && len(idleTasks) > 0 {
+			content += RenderHistoricallyIncomplete(idleTasks)
+		}
+	}
+
+	// Footer: timestamp + short git SHA (reuse the SHA already captured by SaveCheckpoint)
+	shaStr := ""
+	if gitSHA != "" && len(gitSHA) >= 7 {
+		shaStr = fmt.Sprintf(" | 🔗 Git: `%s`", gitSHA[:7])
+	}
+	content += fmt.Sprintf("---\n*Last sync: %s%s*", time.Now().Format("2006-01-02 15:04:05"), shaStr)
 	return os.WriteFile(mdPath, []byte(content), 0644)
 }
 
@@ -220,13 +162,16 @@ func SaveCheckpoint(workspacePath, taskID, description, status string, completed
 	status = strings.ToLower(status)
 	now := time.Now().Format(time.RFC3339)
 
+	// Capture current git SHA for traceability (empty string if not a git repo)
+	gitSHA := captureGitSHA(workspacePath)
+
 	compBytes, _ := json.Marshal(completedSteps)
 	nextBytes, _ := json.Marshal(nextSteps)
 	activeBytes, _ := json.Marshal(activeFiles)
 
 	query := `
-        INSERT INTO checkpoints (task_id, description, status, completed_steps, next_steps, active_files, notes, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO checkpoints (task_id, description, status, completed_steps, next_steps, active_files, notes, updated_at, git_sha)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(task_id) DO UPDATE SET
             description=excluded.description,
             status=excluded.status,
@@ -234,41 +179,26 @@ func SaveCheckpoint(workspacePath, taskID, description, status string, completed
             next_steps=excluded.next_steps,
             active_files=excluded.active_files,
             notes=excluded.notes,
-            updated_at=excluded.updated_at
+            updated_at=excluded.updated_at,
+            git_sha=excluded.git_sha
     `
-	_, err = db.Exec(query, taskID, description, status, string(compBytes), string(nextBytes), string(activeBytes), notes, now)
+	_, err = db.Exec(query, taskID, description, status, string(compBytes), string(nextBytes), string(activeBytes), notes, now, gitSHA)
 	if err != nil {
 		return "", fmt.Errorf("failed to save checkpoint table: %v", err)
 	}
 
-	if err := WriteMarkdownProgress(db, workspacePath, taskID, description, status, completedSteps, nextSteps, activeFiles, notes); err != nil {
+	if err := WriteMarkdownProgress(db, workspacePath, taskID, description, status, completedSteps, nextSteps, activeFiles, notes, gitSHA, 3); err != nil {
 		fmt.Printf("Error writing progress.md: %v\n", err)
 	}
 
-	// ── Phase completion hint ──────────────────────────────────────────────
-	// Detect if the last completed step just finished a phase → emit reminder.
-	phases := groupByPhase(completedSteps, nextSteps)
-	phaseHint := ""
-	if len(completedSteps) > 0 {
-		lastStep := completedSteps[len(completedSteps)-1]
-		lastKey := phaseKey(lastStep)
-		if lastKey != "" {
-			for _, p := range phases {
-				if p.key == lastKey && isPhaseComplete(p) {
-					phaseHint = fmt.Sprintf(
-						"\n\n💡 Phase **%s** is complete — run `/compact-session` to persist a KI before starting the next phase.",
-						lastKey,
-					)
-					break
-				}
-			}
-		}
-	}
+	// No per-step-group compact hint needed — steps are sequential, not grouped.
 
 	msg := fmt.Sprintf("✅ Checkpoint '%s' saved.", taskID)
+	if gitSHA != "" {
+		msg += fmt.Sprintf(" [git: %s]", gitSHA[:min(7, len(gitSHA))])
+	}
 	if len(nextSteps) == 0 && len(completedSteps) > 0 {
 		msg += "\n\n🎉 ALL TASKS COMPLETED! Great job."
 	}
-	msg += phaseHint
 	return msg, nil
 }

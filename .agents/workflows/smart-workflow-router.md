@@ -12,21 +12,21 @@ Analyses the USER's request and **automatically routes** it to the most appropri
 
 ### Step 1: Classify Intent
 
-| If the request involves...                               | Route to                 |
-| -------------------------------------------------------- | ------------------------ |
-| Requirements, spec, ambiguity, "what should we build"    | `/specifications-writer` |
-| Architecture, design, DESIGN.md, task list, plan         | `/planner-architect`     |
-| Implementation, writing code, "build X", "add feature Y" | `/coder-implementation`  |
-| Code review, audit, quality, "check my code"             | `/reviewer-audit`        |
-| Tests, coverage, "write tests for", TDD                  | `/tester-verification`   |
-| Git commit, stage changes                                | `/git-commit`            |
-| Git push, "push to remote"                               | `/git-push`              |
-| GitLab MR, "fix MR comments", review thread              | `/gitlab-mr-read-fix`    |
-| Brownfield, existing codebase, legacy analysis           | `/brownfield-scan`       |
-| Codebase map, visualisation, "show me the structure"     | `/codemap`               |
-| Emergency, production issue, "site is down"              | `/war-room`              |
-| Context too long, "compact session"                      | `/compact-session`       |
-| Knowledge wiki, deep documentation                       | `/deepwiki`              |
+| If the request involves...                                 | Route to                 |
+| ---------------------------------------------------------- | ------------------------ |
+| Requirements, spec, ambiguity, "what should we build"      | `/specifications-writer` |
+| Architecture, design, design/design-\*.md, task list, plan | `/planner-architect`     |
+| Implementation, writing code, "build X", "add feature Y"   | `/coder-implementation`  |
+| Code review, audit, quality, "check my code"               | `/reviewer-audit`        |
+| Tests, coverage, "write tests for", TDD                    | `/tester-verification`   |
+| Git commit, stage changes                                  | `/git-commit`            |
+| Git push, "push to remote"                                 | `/git-push`              |
+| GitLab MR, "fix MR comments", review thread                | `/gitlab-mr-read-fix`    |
+| Brownfield, existing codebase, legacy analysis             | `/brownfield-scan`       |
+| Codebase map, visualisation, "show me the structure"       | `/codemap`               |
+| Emergency, production issue, "site is down"                | `/war-room`              |
+| Context too long, "compact session"                        | `/compact-session`       |
+| Knowledge wiki, deep documentation                         | `/deepwiki`              |
 
 ### Step 2: Confirm Before Routing
 
