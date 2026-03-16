@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -88,6 +89,16 @@ func (d *DB) initSchema() error {
 	}
 	for _, s := range stmts {
 		if _, err := d.conn.Exec(s); err != nil {
+			// Detect FTS5 missing — this means the binary was built without the required flags.
+			// Fix: cd tools/mcp-codebase-search-go && make build
+			if strings.Contains(err.Error(), "no such module: fts5") {
+				return fmt.Errorf(
+					"FTS5 extension not available in this SQLite build.\n"+
+						"The binary must be compiled with:\n"+
+						"  CGO_CFLAGS=\"-DSQLITE_ENABLE_FTS5\" go build -tags fts5 -o mcp-codebase-search-go .\n"+
+						"Or simply run: cd tools/mcp-codebase-search-go && make build\n"+
+						"Original error: %w", err)
+			}
 			return fmt.Errorf("schema init error: %w\nSQL: %s", err, s)
 		}
 	}
