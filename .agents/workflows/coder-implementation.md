@@ -1,7 +1,6 @@
 ---
 description:
   Structured workflow for Code Implementation. Reads design/design-*.md and the Planner's task list, executes each task
-  in order, and reports a clear summary of all changes to the USER upon completion.
 ---
 
 # 💻 Coder Workflow
@@ -54,9 +53,6 @@ For each Action (one at a time, in order):
 - Run the **Verification Command** (e.g. `go test ./...`, `npm run lint`).
 - On **fail**: Call `record_failure`. Fix and re-run. After **3 consecutive failures**, stop and ask the USER.
 - On **pass**: Note the result. Do NOT commit — committing is the Planner's responsibility.
-
-> On phase-complete signal (`💡 Phase Px is complete — run /compact-session`): stop and run `/compact-session` before
-> the next phase.
 
 Repeat **Phase 1 → Phase 4** for each remaining Action.
 
