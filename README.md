@@ -69,15 +69,15 @@ All servers are written in **Go** and communicate via stdio (MCP protocol). Regi
 
 ### Tooling & Integrations
 
-| Server                  | Key Tools                                                                |
-| ----------------------- | ------------------------------------------------------------------------ |
-| `ast-explorer`          | `get_project_architecture`, `search_symbol`                              |
-| `database-inspector`    | `list_tables`, `inspect_schema`, `run_read_query`, `explain_query`       |
-| `doc-researcher`        | `search_latest_syntax`, `read_website_markdown`, `read_doc_file`         |
-| `figma-reader`          | `read_figma_design`, `export_figma_images`                               |
-| `gitlab-mr-discussions` | `read_mr_discussions`, `reply_to_mr_discussion`, `resolve_mr_discussion` |
-| `mcp-http-client`       | `http_request`, `import_curl`, `set_env`                                 |
-| `confluence`            | `search_pages`, `get_page`, `create_page`, `update_page`                 |
+| Server               | Key Tools                                                                                                                                            |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ast-explorer`       | `get_project_architecture`, `search_symbol`                                                                                                          |
+| `database-inspector` | `list_tables`, `inspect_schema`, `run_read_query`, `explain_query`                                                                                   |
+| `doc-researcher`     | `search_latest_syntax`, `read_website_markdown`, `read_doc_file`                                                                                     |
+| `figma-reader`       | `read_figma_design`, `export_figma_images`                                                                                                           |
+| `gitlab`             | `get_file_content`, `list_directory`, `get_repository_info`, `search_code`, `read_mr_discussions`, `reply_to_mr_discussion`, `resolve_mr_discussion` |
+| `mcp-http-client`    | `http_request`, `import_curl`, `set_env`                                                                                                             |
+| `confluence`         | `search_pages`, `get_page`, `create_page`, `update_page`                                                                                             |
 
 ### Hybrid Search Architecture
 
@@ -244,7 +244,7 @@ antigravity-kit/
 │   ├── mcp-database-inspector-go/
 │   ├── mcp-doc-researcher-go/
 │   ├── mcp-figma-reader-go/
-│   ├── mcp-gitlab-mr-discussions-go/
+│   ├── mcp-gitlab-go/            # GitLab: file reader + MR discussions (unified)
 │   ├── mcp-http-client-go/
 │   └── mcp-confluence-go/
 ├── DESIGN.md                  # Current sprint architecture
