@@ -14,8 +14,6 @@ progress.md
 !.agents
 *.db
 .db/*
-!spec-document-reviewer.md
-!spec-reviewer.md
 
 # Compiled MCP binaries
 tools/*/mcp-*-go

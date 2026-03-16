@@ -37,28 +37,6 @@ mcp/
                               create_project · get_project · list_projects · get_screen · list_screens
 ```
 
-### 🤖 Subagent Spawning (Context Isolation)
-
-For complex or long-running tasks, the Coder can spawn **fresh, isolated Gemini subprocesses** per T-step using the
-subagent engine. This prevents context rot and enables per-task 2-stage review.
-
-```bash
-# Spawn an isolated implementer subagent for a task
-.agents/subagents/spawn-subagent.sh \
-  --role implementer \
-  --task-file /tmp/task-T3.md \
-  --context-files "src/handler.go,src/handler_test.go" \
-  --workspace "$PWD"
-
-# Exit codes: 0=DONE, 1=BLOCKED/NEEDS_CONTEXT, 2=TIMEOUT, 3=ERROR
-```
-
-**Role → Model defaults:** | Role | Model | Timeout | |------|-------|---------| | `implementer` |
-`gemini-3.1-pro-preview` | 600s | | `spec-reviewer` | `gemini-3-flash-preview` | 300s | | `quality-reviewer` |
-`gemini-3-flash-preview` | 300s |
-
-See `.agents/subagents/README.md` for full usage and `.agents/workflows/dispatch-subagent.md` for the orchestrator loop.
-
 ---
 
 ## 🏛️ ROLE ARCHITECTURE
@@ -75,7 +53,6 @@ transitions** — the USER decides when to invoke the next role.
 | **📝 Spec Writer** | `/specifications-writer` | `spec/spec-*.md`                               | Requirements are unambiguous          |
 | **🏗️ Planner**     | `/planner-architect`     | `design/design-*.md` + task plan + git commits | Plan delivered OR all tasks committed |
 | **💻 Coder**       | `/coder-implementation`  | Code changes + implementation report           | All Actions implemented and reported  |
-| **🤖 Subagent**    | `/dispatch-subagent`     | Isolated per-task execution + 2-stage review   | All T-steps complete with APPROVED    |
 | **🔍 Reviewer**    | `/reviewer-audit`        | Audit report (APPROVED / NEEDS FIX)            | Report delivered to USER              |
 | **🧪 Tester**      | `/tester-verification`   | Test files + coverage report                   | Coverage ≥ 70% achieved and reported  |
 | **🧭 Router**      | `/smart-route`           | Confirmation + routed workflow                 | USER confirms routing decision        |
@@ -124,7 +101,5 @@ asks the USER — it does not auto-loop. See [`planner-architect.md`](./../workf
 
 ## 📌 Metadata
 
-- **Version**: 2.5.0
+- **Version**: 2.4.1
 - **Last Updated**: 2026-03-16
-- **Changelog**: Added subagent engine (`spawn-subagent.sh`, `/dispatch-subagent` workflow) enabling per-task context
-  isolation via `gemini --prompt` headless mode.
