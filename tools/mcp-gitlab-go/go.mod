@@ -1,4 +1,4 @@
-module antigravity-kit/mcp-gitlab-mr-discussions-go
+module antigravity-kit/mcp-gitlab-go
 
 go 1.25.0
 
@@ -10,7 +10,6 @@ require (
 require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
