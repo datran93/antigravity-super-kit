@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 )
@@ -155,7 +156,7 @@ func CompleteTaskStep(workspacePath, taskID, stepName string, activeFiles []stri
 		"UPDATE checkpoints SET step_timestamps=?, step_drift=? WHERE task_id=?",
 		string(timestampsBytes), string(driftBytes), taskID,
 	); execErr != nil {
-		fmt.Printf("Warning: failed to persist step metadata for task '%s': %v\n", taskID, execErr)
+		fmt.Fprintf(os.Stderr, "[context-manager] warning: failed to persist step metadata for task '%s': %v\n", taskID, execErr)
 	}
 
 	return SaveCheckpoint(workspacePath, taskID, description, stat, comp, newNxt, currActiveFiles, log)
@@ -446,7 +447,7 @@ func DeleteTask(workspacePath, taskID string) (string, error) {
 	// Remove associated intent locks first (foreign-key style cleanup)
 	if _, err := db.Exec("DELETE FROM intent_locks WHERE task_id = ?", taskID); err != nil {
 		// Non-fatal: intent_locks table may not exist on older DBs
-		fmt.Printf("Warning: could not remove intent_locks for '%s': %v\n", taskID, err)
+		fmt.Fprintf(os.Stderr, "[context-manager] warning: could not remove intent_locks for '%s': %v\n", taskID, err)
 	}
 
 	// Remove the checkpoint itself

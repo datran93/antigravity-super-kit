@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -473,6 +474,6 @@ func main() {
 
 	// Run standard I/O server
 	if err := server.ServeStdio(mcpServer); err != nil {
-		fmt.Printf("Server error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "[context-manager] server error: %v\n", err)
 	}
 }
