@@ -200,7 +200,7 @@ func SaveCheckpoint(workspacePath, taskID, description, status string, completed
 	}
 
 	if err := WriteMarkdownProgress(db, workspacePath, taskID, description, status, completedSteps, nextSteps, activeFiles, notes, gitSHA, 3); err != nil {
-		fmt.Printf("Error writing progress.md: %v\n", err)
+		fmt.Fprintf(os.Stderr, "[context-manager] error writing progress.md: %v\n", err)
 	}
 
 	// No per-step-group compact hint needed — steps are sequential, not grouped.
