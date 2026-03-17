@@ -19,8 +19,9 @@ or transition roles.
 1. **Read `design/design-{task-id}.md`** — understand contracts, boundaries, and expected behaviors.
 2. **Read the Coder's report** — know exactly what was created/modified.
 3. **Load the task plan** — Call `@mcp:context-manager` (`load_checkpoint`).
-4. **Scan the code** — Use `@mcp:ast-explorer` (`get_project_architecture`) to map public functions needing coverage.
-5. **Find existing patterns** — Use `@mcp:codebase-search` (`search_code`) for existing test helpers and fixtures.
+4. **Scan the code** — Use `@mcp:codebase-explorer` (`get_project_architecture`) to map public functions needing
+   coverage.
+5. **Find existing patterns** — Use `@mcp:codebase-explorer` (`search_code`) for existing test helpers and fixtures.
 
 > ❌ Do NOT write tests before completing this phase.
 

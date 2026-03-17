@@ -17,7 +17,9 @@ trigger: always_on
 
 ```
 mcp/
-├── @mcp:ast-explorer/        get_project_architecture · search_symbol
+├── @mcp:codebase-explorer/   index_codebase · search_code · get_indexing_status · clear_index
+│                             get_project_architecture · search_symbol · find_usages
+│                             context · ping
 ├── @mcp:context-manager/     save/load_checkpoint · initialize_task_plan · complete_task_step
 │                             add_task_step · declare_intent · check_intent_lock
 │                             recall_knowledge · compact_memory · record_failure
@@ -34,7 +36,7 @@ mcp/
 ├── @mcp:github-reader/       get_file_content · list_directory · get_repository_info · search_code · ping
 ├── @mcp:mcp-http-client/     http_request · import_curl · set_env · set_config · list_history · clear_history
 ├── @mcp:skill-router/        search_skills
-├── @mcp:codebase-search/     index_codebase · search_code · get_indexing_status · clear_index
+
 └── @mcp:stitch/              generate_screen_from_text · edit_screens · generate_variants
                               create_project · get_project · list_projects · get_screen · list_screens
 ```
@@ -103,5 +105,5 @@ asks the USER — it does not auto-loop. See [`planner-architect.md`](./../workf
 
 ## 📌 Metadata
 
-- **Version**: 2.5.0
-- **Last Updated**: 2026-03-16
+- **Version**: 2.6.0
+- **Last Updated**: 2026-03-17

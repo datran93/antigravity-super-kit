@@ -45,9 +45,9 @@ tactics.
 
 ## 🔍 Codebase Intelligence
 
-- **Index Before Search**: Before using `@mcp:codebase-search` (`search_code`) on a new project, call `index_codebase`
+- **Index Before Search**: Before using `@mcp:codebase-explorer` (`search_code`) on a new project, call `index_codebase`
   first. The index is persistent (SQLite) — subsequent sessions can search immediately.
-- **Semantic Precedence**: Prefer `@mcp:codebase-search` over raw `grep_search` for finding conceptually related code
+- **Semantic Precedence**: Prefer `@mcp:codebase-explorer` over raw `grep_search` for finding conceptually related code
   (e.g., "authentication middleware", "retry logic"). Use `grep_search` only for exact string matches.
 
 ## 🛑 Restricted Terminal Commands

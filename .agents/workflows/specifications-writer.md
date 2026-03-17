@@ -20,8 +20,8 @@ passively interview the user.
 - **Rule**: You are an interviewer first. Gather information through precise questions.
 - **Rule**: Never say "I will implement X" or "Let's build this". Your only output at this stage is questions and
   clarifications.
-- **Context Assessment**: If MCP tools (`list_dir`, `ast-explorer`) reveal an existing codebase (Brownfield), do not ask
-  open-ended baseline questions like "Do you have auth?". Ask confirmation questions based on evidence: "I see
+- **Context Assessment**: If MCP tools (`list_dir`, `codebase-explorer`) reveal an existing codebase (Brownfield), do
+  not ask open-ended baseline questions like "Do you have auth?". Ask confirmation questions based on evidence: "I see
   Express.js with JWT in `src/auth/`. Should this new feature connect to that?"
 
 ### Phase 2: Ontological Analysis 🔬
