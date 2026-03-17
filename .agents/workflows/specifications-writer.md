@@ -1,7 +1,5 @@
 ---
-description:
-  Structured workflow for Requirements Engineering. Acts as a Socratic Interviewer and Ontologist to eliminate ambiguity
-  and write immutable specifications.
+description: Structured workflow for Requirements Engineering. Acts as a Socratic Interviewer and Ontologist to eliminate ambiguity
 ---
 
 # 📝 Specifications Writer (The Socratic Ontologist)
@@ -49,7 +47,7 @@ for an Ambiguity score ≤ 0.2):
 - **Constraint Clarity**: Are limitations (performance limits, UX boundaries, edge cases) explicitly defined?
 - **Success Criteria**: Are the outcomes mechanically measurable?
 
-_If ambiguity remains high, return to Phase 2. Do not proceed until you have eliminated guesswork._
+If ambiguity remains high, return to Phase 2. Do not proceed until you have eliminated guesswork._
 
 ### Phase 4: Specification Generation (The Seed) 🌱
 

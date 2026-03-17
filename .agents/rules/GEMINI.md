@@ -19,21 +19,21 @@ trigger: always_on
 mcp/
 ├── @mcp:codebase-explorer/   index_codebase · search_code · get_indexing_status · clear_index
 │                             get_project_architecture · search_symbol · find_usages
-│                             context · ping
+│                             context
 ├── @mcp:context-manager/     save/load_checkpoint · initialize_task_plan · complete_task_step
 │                             add_task_step · declare_intent · check_intent_lock
 │                             recall_knowledge · compact_memory · record_failure
 │                             clear_drift · manage_anchors · annotate_file
 │                             find_recent_task · review_checkpoint · delete_task
-│                             get_task_summary · get_task_dag · ping
+│                             get_task_summary · get_task_dag
 ├── @mcp:context7/            resolve-library-id · query-docs
 ├── @mcp:database-inspector/  list_tables · get_table_sample · inspect_schema
 │                             explain_query · run_read_query · run_write_query
 ├── @mcp:doc-researcher/      search_latest_syntax · read_doc_file · read_website_markdown
 ├── @mcp:figma-reader/        read_figma_design · export_figma_images · get_design_details
 ├── @mcp:gitlab/              get_file_content · list_directory · get_repository_info · search_code
-│                             read_mr_discussions · reply_to_mr_discussion · resolve_mr_discussion · ping
-├── @mcp:github-reader/       get_file_content · list_directory · get_repository_info · search_code · ping
+│                             read_mr_discussions · reply_to_mr_discussion · resolve_mr_discussion
+├── @mcp:github-reader/       get_file_content · list_directory · get_repository_info · search_code
 ├── @mcp:mcp-http-client/     http_request · import_curl · set_env · set_config · list_history · clear_history
 ├── @mcp:skill-router/        search_skills
 

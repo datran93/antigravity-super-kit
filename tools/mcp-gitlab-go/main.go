@@ -582,12 +582,5 @@ func main() {
 		mcp.WithBoolean("resolve", mcp.Required(), mcp.Description("True to resolve, False to unresolve")),
 	), resolveMRDiscussionTool)
 
-	// Tool: ping
-	s.AddTool(mcp.NewTool("ping",
-		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		return mcp.NewToolResultText(`{"status":"ok","server":"McpGitLab","version":"1.0.0"}`), nil
-	})
-
 	server.ServeStdio(s)
 }

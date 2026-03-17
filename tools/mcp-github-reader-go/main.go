@@ -401,11 +401,5 @@ func main() {
 	)
 	s.AddTool(searchCode, searchCodeTool)
 
-	s.AddTool(mcp.NewTool("ping",
-		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		return mcp.NewToolResultText(`{"status":"ok","server":"McpGitHubReader","version":"1.0.0"}`), nil
-	})
-
 	server.ServeStdio(s)
 }
