@@ -14,9 +14,10 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
-	"mcp-codebase-search-go/indexer"
-	"mcp-codebase-search-go/search"
-	"mcp-codebase-search-go/store"
+	"mcp-codebase-explorer-go/indexer"
+	"mcp-codebase-explorer-go/parser"
+	"mcp-codebase-explorer-go/search"
+	"mcp-codebase-explorer-go/store"
 )
 
 // dataDir stores per-project SQLite databases alongside this binary.
@@ -44,6 +45,7 @@ type indexStatus struct {
 }
 
 // ── Tool: index_codebase ──────────────────────────────────────────────────────
+// Enhanced: also extracts and persists symbols via Tree-sitter AST.
 
 func handleIndexCodebase(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	args := req.GetArguments()
@@ -56,7 +58,6 @@ func handleIndexCodebase(ctx context.Context, req mcp.CallToolRequest) (*mcp.Cal
 		return mcp.NewToolResultError(fmt.Sprintf("invalid path: %v", err)), nil
 	}
 
-	// Optional params
 	var extensions []string
 	if raw, ok := args["extensions"].([]interface{}); ok {
 		for _, v := range raw {
@@ -74,7 +75,6 @@ func handleIndexCodebase(ctx context.Context, req mcp.CallToolRequest) (*mcp.Cal
 		}
 	}
 
-	// Start indexing in background
 	statusMu.Lock()
 	statuses[absPath] = &indexStatus{}
 	statusMu.Unlock()
@@ -107,15 +107,13 @@ func runIndexing(projectPath string, extensions, ignorePatterns []string) {
 	}
 	defer db.Close()
 
-	// ── Merkle diff: load stored hashes from DB → detect only changed files ──
+	// Merkle diff for incremental indexing
 	storedHashes, _ := db.GetFileHashes()
 	tree := indexer.NewMerkleTree()
-	// Restore tree from DB-persisted hashes
 	for rel, hash := range storedHashes {
 		tree.Set(rel, hash)
 	}
 
-	// Diff: find which files need re-indexing
 	added, changed, _ := tree.Diff(files)
 	needsIndexing := make(map[string]bool, len(added)+len(changed))
 	for _, r := range added {
@@ -125,7 +123,7 @@ func runIndexing(projectPath string, extensions, ignorePatterns []string) {
 		needsIndexing[r] = true
 	}
 
-	// Delete chunks for changed files (stale data) — removed files handled by ClearProject
+	// Delete stale chunks/symbols for changed files
 	for _, rel := range changed {
 		for _, f := range files {
 			if f.RelPath == rel {
@@ -136,7 +134,6 @@ func runIndexing(projectPath string, extensions, ignorePatterns []string) {
 	}
 
 	if len(needsIndexing) == 0 {
-		// Nothing changed — update root and finish
 		tree.Apply(files)
 		db.UpdateMeta(len(storedHashes), tree.Root())
 		setStatus(projectPath, len(files), len(files), true, "")
@@ -146,9 +143,9 @@ func runIndexing(projectPath string, extensions, ignorePatterns []string) {
 	emb, _ := indexer.NewEmbedder()
 
 	totalChunks := 0
+	totalSymbols := 0
 	for i, f := range files {
 		if !needsIndexing[f.RelPath] {
-			// Skip unchanged file — its chunks are already in DB
 			continue
 		}
 
@@ -189,10 +186,29 @@ func runIndexing(projectPath string, extensions, ignorePatterns []string) {
 			totalChunks++
 		}
 
+		// Extract and persist symbols via Tree-sitter AST
+		symbols := parser.ExtractSymbols(projectPath, f.AbsPath, f.RelPath, f.Lang)
+		for _, sym := range symbols {
+			db.UpsertSymbol(store.SymbolRow{
+				ID:          sym.ID,
+				ProjectPath: projectPath,
+				FilePath:    sym.FilePath,
+				RelPath:     sym.RelPath,
+				Name:        sym.Name,
+				Kind:        sym.Kind,
+				Signature:   sym.Signature,
+				Doc:         sym.Doc,
+				LineStart:   sym.LineStart,
+				LineEnd:     sym.LineEnd,
+				ParentID:    sym.ParentID,
+				Lang:        sym.Lang,
+			})
+			totalSymbols++
+		}
+
 		setStatus(projectPath, len(files), i+1, false, "")
 	}
 
-	// Update tree with new state and persist
 	tree.Apply(files)
 	prevTotal, _, _ := db.GetMeta()
 	db.UpdateMeta(prevTotal+totalChunks, tree.Root())
@@ -230,22 +246,20 @@ func handleSearchCode(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallTo
 	bm25Raw, _ := db.BM25Search(ftsQuery, 20)
 
 	var bm25Inputs []search.BM25Input
-	bm25IDSet := make(map[string]bool)
 	for i, r := range bm25Raw {
 		bm25Inputs = append(bm25Inputs, search.BM25Input{
 			ID: r.ID, RelPath: r.RelPath, SymbolName: r.SymbolName, BM25Rank: i,
 		})
-		bm25IDSet[r.ID] = true
 	}
 
-	// Vector search (if embedder available)
+	// Vector search
 	var vecInputs []search.VecInput
 	emb, _ := indexer.NewEmbedder()
 	if emb != nil {
 		queryEmbs, err := emb.EmbedBatch(ctx, []string{query})
 		if err == nil && len(queryEmbs) > 0 {
 			queryEmb := queryEmbs[0]
-			allEmbs, _ := db.GetAllEmbeddings(0) // 0 = use default cap (10000)
+			allEmbs, _ := db.GetAllEmbeddings(0)
 
 			type scored struct {
 				e     store.EmbeddingRow
@@ -317,6 +331,167 @@ func handleSearchCode(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallTo
 	return mcp.NewToolResultText(header + strings.Join(out, "\n---\n")), nil
 }
 
+// ── Tool: get_project_architecture ────────────────────────────────────────────
+
+func handleGetProjectArchitecture(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	args := req.GetArguments()
+	workspacePath, ok := args["workspace_path"].(string)
+	if !ok {
+		return mcp.NewToolResultError("workspace_path is required"), nil
+	}
+	subPath, _ := args["sub_path"].(string)
+	maxFiles := 1000
+	if mf, ok := args["max_files"].(float64); ok {
+		maxFiles = int(mf)
+	}
+	includeDocs := false
+	if id, ok := args["include_docs"].(bool); ok {
+		includeDocs = id
+	}
+
+	res, err := parser.GetProjectArchitecture(workspacePath, subPath, maxFiles, includeDocs)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Error: %v", err)), nil
+	}
+	return mcp.NewToolResultText(res), nil
+}
+
+// ── Tool: search_symbol ───────────────────────────────────────────────────────
+
+func handleSearchSymbol(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	args := req.GetArguments()
+	workspacePath, ok := args["workspace_path"].(string)
+	if !ok {
+		return mcp.NewToolResultError("workspace_path is required"), nil
+	}
+	query, ok := args["query"].(string)
+	if !ok {
+		return mcp.NewToolResultError("query is required"), nil
+	}
+
+	// Try DB first (fast path) if project has been indexed
+	absPath, _ := filepath.Abs(workspacePath)
+	db, err := store.Open(absPath, dataDir)
+	if err == nil {
+		defer db.Close()
+		symbols, err := db.SearchSymbolsByName(query, 50)
+		if err == nil && len(symbols) > 0 {
+			var results []string
+			for _, s := range symbols {
+				sig := ""
+				if s.Signature != "" {
+					sig = " " + s.Signature
+				}
+				results = append(results, fmt.Sprintf("📍 %s -> [%s] %s%s", s.RelPath, s.Kind, s.Name, sig))
+			}
+			return mcp.NewToolResultText("🔎 SYMBOL SEARCH RESULTS (from index):\n" + strings.Join(results, "\n")), nil
+		}
+	}
+
+	// Fallback to AST parsing (slow path)
+	res, err := parser.SearchSymbol(workspacePath, query)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Error: %v", err)), nil
+	}
+	return mcp.NewToolResultText(res), nil
+}
+
+// ── Tool: find_usages ─────────────────────────────────────────────────────────
+
+func handleFindUsages(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	args := req.GetArguments()
+	workspacePath, ok := args["workspace_path"].(string)
+	if !ok {
+		return mcp.NewToolResultError("workspace_path is required"), nil
+	}
+	symbolName, ok := args["symbol_name"].(string)
+	if !ok {
+		return mcp.NewToolResultError("symbol_name is required"), nil
+	}
+
+	res, err := parser.FindUsages(workspacePath, symbolName)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Error: %v", err)), nil
+	}
+	return mcp.NewToolResultText(res), nil
+}
+
+// ── Tool: context (NEW — P1) ─────────────────────────────────────────────────
+
+func handleContext(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	args := req.GetArguments()
+	name, _ := args["name"].(string)
+	projectPath, _ := args["project_path"].(string)
+	if name == "" {
+		return mcp.NewToolResultError("name is required"), nil
+	}
+	if projectPath == "" {
+		return mcp.NewToolResultError("project_path is required"), nil
+	}
+	absPath, _ := filepath.Abs(projectPath)
+
+	// 1. Get symbol definition from DB
+	db, err := store.Open(absPath, dataDir)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("failed to open index: %v", err)), nil
+	}
+	defer db.Close()
+
+	symbol, _ := db.GetSymbolByName(name)
+
+	// 2. Get usages via grep-based find_usages
+	usagesResult, _ := parser.FindUsages(absPath, name)
+
+	// 3. Get related search results
+	ftsQuery := buildFTSQuery(name)
+	bm25Raw, _ := db.BM25Search(ftsQuery, 10)
+
+	// Build combined output
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("## 🔍 Context for `%s`\n\n", name))
+
+	// Symbol definition
+	if symbol != nil {
+		sb.WriteString("### 📌 Definition\n")
+		sb.WriteString(fmt.Sprintf("- **Name**: `%s`\n", symbol.Name))
+		sb.WriteString(fmt.Sprintf("- **Kind**: %s\n", symbol.Kind))
+		if symbol.Signature != "" {
+			sb.WriteString(fmt.Sprintf("- **Signature**: `%s`\n", symbol.Signature))
+		}
+		sb.WriteString(fmt.Sprintf("- **File**: `%s`\n", symbol.RelPath))
+		if symbol.Doc != "" {
+			sb.WriteString(fmt.Sprintf("- **Doc**: %s\n", symbol.Doc))
+		}
+		sb.WriteString("\n")
+	} else {
+		sb.WriteString("### ⚠️ No indexed definition found (project may need re-indexing)\n\n")
+	}
+
+	// Usages
+	sb.WriteString("### 📋 Usages\n")
+	sb.WriteString(usagesResult)
+	sb.WriteString("\n")
+
+	// Related code
+	if len(bm25Raw) > 0 {
+		sb.WriteString("\n### 🔗 Related Code Chunks\n")
+		ids := make([]string, 0, len(bm25Raw))
+		for _, r := range bm25Raw {
+			ids = append(ids, r.ID)
+		}
+		chunks, _ := db.GetChunksByIDs(ids)
+		for _, c := range chunks {
+			if len(c.Content) > 200 {
+				c.Content = c.Content[:200] + "..."
+			}
+			sb.WriteString(fmt.Sprintf("- **%s** [%s] in `%s` (L%d-%d)\n",
+				c.SymbolName, c.SymbolKind, c.RelPath, c.LineStart, c.LineEnd))
+		}
+	}
+
+	return mcp.NewToolResultText(sb.String()), nil
+}
+
 // ── Tool: get_indexing_status ─────────────────────────────────────────────────
 
 func handleGetIndexingStatus(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -332,16 +507,17 @@ func handleGetIndexingStatus(_ context.Context, req mcp.CallToolRequest) (*mcp.C
 	statusMu.Unlock()
 
 	if !ok {
-		// Check if already indexed
 		db, err := store.Open(absPath, dataDir)
 		if err == nil {
 			total, _, _ := db.GetMeta()
+			symbolCount, _ := db.GetSymbolCount()
 			db.Close()
 			if total > 0 {
 				out, _ := json.Marshal(map[string]any{
-					"status":       "indexed",
-					"total_chunks": total,
-					"percent":      100,
+					"status":        "indexed",
+					"total_chunks":  total,
+					"total_symbols": symbolCount,
+					"percent":       100,
 				})
 				return mcp.NewToolResultText(string(out)), nil
 			}
@@ -429,12 +605,13 @@ func buildFTSQuery(query string) string {
 // ── main ──────────────────────────────────────────────────────────────────────
 
 func main() {
-	s := server.NewMCPServer("McpCodebaseSearch", "1.0.0",
+	s := server.NewMCPServer("McpCodebaseExplorer", "1.0.0",
 		server.WithToolCapabilities(true),
 	)
 
+	// Tool 1: index_codebase
 	s.AddTool(mcp.NewTool("index_codebase",
-		mcp.WithDescription("Index a project directory for hybrid semantic + keyword code search."),
+		mcp.WithDescription("Index a project directory for hybrid semantic + keyword code search.\nAlso extracts AST symbols for fast symbol lookup."),
 		mcp.WithString("path", mcp.Required(), mcp.Description("Absolute or relative path to the project root.")),
 		mcp.WithArray("extensions", mcp.Items(map[string]interface{}{"type": "string"}),
 			mcp.Description("File extensions to include (e.g. [\".go\",\".ts\"]). Default: all common code files.")),
@@ -442,6 +619,7 @@ func main() {
 			mcp.Description("Directory or file names to exclude (e.g. [\"dist\",\"generated\"]).")),
 	), handleIndexCodebase)
 
+	// Tool 2: search_code
 	s.AddTool(mcp.NewTool("search_code",
 		mcp.WithDescription("Search the indexed codebase using natural language. Returns ranked code chunks."),
 		mcp.WithString("query", mcp.Required(), mcp.Description("Natural language search query.")),
@@ -450,20 +628,53 @@ func main() {
 		mcp.WithString("lang_filter", mcp.Description("Filter by language (e.g. 'go', 'typescript').")),
 	), handleSearchCode)
 
+	// Tool 3: get_project_architecture (from ast-explorer)
+	s.AddTool(mcp.NewTool("get_project_architecture",
+		mcp.WithDescription("Get a structural overview (AST-based) of the project architecture.\nExtracts Classes, Functions, and Methods with signatures."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("The base absolute path of the project workspace.")),
+		mcp.WithString("sub_path", mcp.Description("Optional sub-path within the workspace to limit scope.")),
+		mcp.WithNumber("max_files", mcp.Description("Max number of files to process, default 1000.")),
+		mcp.WithBoolean("include_docs", mcp.Description("If true, includes the first line of docstrings/comments.")),
+	), handleGetProjectArchitecture)
+
+	// Tool 4: search_symbol (from ast-explorer, enhanced with DB)
+	s.AddTool(mcp.NewTool("search_symbol",
+		mcp.WithDescription("Search for a class or function symbol across the project using AST.\nUseful for finding definitions quickly. Uses indexed DB if available, falls back to AST parsing."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("The base absolute path of the project workspace.")),
+		mcp.WithString("query", mcp.Required(), mcp.Description("The symbol name to search for (case-insensitive substring match).")),
+	), handleSearchSymbol)
+
+	// Tool 5: find_usages (from ast-explorer)
+	s.AddTool(mcp.NewTool("find_usages",
+		mcp.WithDescription("Find all usages/references of a symbol (function, class, variable) across the project. Returns file:line references grouped by file."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("The base absolute path of the project workspace.")),
+		mcp.WithString("symbol_name", mcp.Required(), mcp.Description("The symbol name to search for (case-insensitive substring match).")),
+	), handleFindUsages)
+
+	// Tool 6: context (NEW — P1)
+	s.AddTool(mcp.NewTool("context",
+		mcp.WithDescription("360-degree view of a code symbol. Shows definition, usages, and related code chunks.\nCombines symbol lookup, usage search, and semantic search in one call."),
+		mcp.WithString("name", mcp.Required(), mcp.Description("Symbol name (e.g., 'HandleLogin', 'UserService').")),
+		mcp.WithString("project_path", mcp.Required(), mcp.Description("Path to the indexed project root.")),
+	), handleContext)
+
+	// Tool 7: get_indexing_status
 	s.AddTool(mcp.NewTool("get_indexing_status",
 		mcp.WithDescription("Check the indexing status of a project."),
 		mcp.WithString("project_path", mcp.Required(), mcp.Description("Path to the project root.")),
 	), handleGetIndexingStatus)
 
+	// Tool 8: clear_index
 	s.AddTool(mcp.NewTool("clear_index",
 		mcp.WithDescription("Clear the search index for a project."),
 		mcp.WithString("project_path", mcp.Required(), mcp.Description("Path to the project root.")),
 	), handleClearIndex)
 
+	// Tool 9: ping
 	s.AddTool(mcp.NewTool("ping",
 		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
 	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		return mcp.NewToolResultText(`{"status":"ok","server":"McpCodebaseSearch","version":"1.0.0"}`), nil
+		return mcp.NewToolResultText(`{"status":"ok","server":"McpCodebaseExplorer","version":"1.0.0"}`), nil
 	})
 
 	if err := server.ServeStdio(s); err != nil {

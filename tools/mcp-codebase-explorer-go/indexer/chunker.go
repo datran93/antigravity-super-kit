@@ -1,4 +1,5 @@
 // Package indexer provides AST-based and line-based code chunking.
+// Enhanced: uses Tree-sitter parser for multi-language AST-aware chunking.
 package indexer
 
 import (
@@ -10,6 +11,8 @@ import (
 	"go/token"
 	"os"
 	"strings"
+
+	tsparser "mcp-codebase-explorer-go/parser"
 )
 
 // CodeChunk represents one indexable unit of source code.
@@ -26,7 +29,8 @@ type CodeChunk struct {
 	FileHash   string // sha256 of file content (for Merkle diff)
 }
 
-// ChunkFile splits a source file into CodeChunks using AST for Go,
+// ChunkFile splits a source file into CodeChunks.
+// Uses Go native AST for .go files, Tree-sitter for Python/JS/TS/TSX,
 // and falls back to line-window chunking for other languages.
 func ChunkFile(entry FileEntry) ([]CodeChunk, error) {
 	data, err := os.ReadFile(entry.AbsPath)
@@ -38,8 +42,10 @@ func ChunkFile(entry FileEntry) ([]CodeChunk, error) {
 	switch entry.Lang {
 	case "go":
 		return chunkGo(entry, data, fileHash)
+	case "python", "javascript", "typescript":
+		return chunkByTreeSitter(entry, data, fileHash)
 	default:
-		return chunkByLines(entry, data, fileHash, 40, 10) // 40-line windows, 10-line overlap
+		return chunkByLines(entry, data, fileHash, 40, 10)
 	}
 }
 
@@ -49,7 +55,6 @@ func chunkGo(entry FileEntry, src []byte, fileHash string) ([]CodeChunk, error) 
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, entry.AbsPath, src, parser.ParseComments)
 	if err != nil {
-		// Fall back to line chunking on parse error
 		return chunkByLines(entry, src, fileHash, 40, 10)
 	}
 
@@ -66,7 +71,6 @@ func chunkGo(entry FileEntry, src []byte, fileHash string) ([]CodeChunk, error) 
 			kind := "function"
 			if d.Recv != nil && len(d.Recv.List) > 0 {
 				kind = "method"
-				// Prepend receiver type
 				if rt := receiverType(d.Recv.List[0].Type); rt != "" {
 					symbolName = rt + "." + symbolName
 				}
@@ -92,7 +96,6 @@ func chunkGo(entry FileEntry, src []byte, fileHash string) ([]CodeChunk, error) 
 		}
 	}
 
-	// If no AST nodes found (e.g. only imports), fall back to line chunks
 	if len(chunks) == 0 {
 		return chunkByLines(entry, src, fileHash, 40, 10)
 	}
@@ -109,6 +112,154 @@ func receiverType(expr ast.Expr) string {
 		}
 	}
 	return ""
+}
+
+// ── Tree-sitter AST chunker (Python, JS, TS, TSX) ───────────────────────────
+
+func chunkByTreeSitter(entry FileEntry, src []byte, fileHash string) ([]CodeChunk, error) {
+	// Map indexer lang names to parser lang names
+	parserLang := entry.Lang
+	if parserLang == "typescript" {
+		ext := strings.ToLower(entry.RelPath)
+		if strings.HasSuffix(ext, ".tsx") {
+			parserLang = "tsx"
+		}
+	}
+
+	// Check if parser supports this language
+	if _, ok := tsparser.Parsers[parserLang]; !ok {
+		return chunkByLines(entry, src, fileHash, 40, 10)
+	}
+
+	_, nodes := tsparser.ParseAndExtract(entry.AbsPath, "", parserLang)
+	if len(nodes) == 0 {
+		return chunkByLines(entry, src, fileHash, 40, 10)
+	}
+
+	lines := strings.Split(string(src), "\n")
+	var chunks []CodeChunk
+
+	// Tree-sitter nodes don't carry exact line info in our current NodeResult.
+	// For now, use the full file content per symbol as a single chunk.
+	// This is still better than arbitrary line windows because we have symbol names.
+	for _, n := range nodes {
+		if n.Level > 0 {
+			continue // skip nested (methods inside classes are handled by their parent)
+		}
+		// Create a chunk per top-level symbol
+		content := strings.Join(lines, "\n") // fallback: full file
+		// Try to find the symbol in the source to get its boundaries
+		symbolContent := findSymbolInSource(string(src), n.Name, n.Type)
+		if symbolContent != "" {
+			content = symbolContent
+		}
+		chunks = append(chunks, makeChunk(entry, fileHash, n.Name, n.Type, content, 1, len(lines)))
+	}
+
+	if len(chunks) == 0 {
+		return chunkByLines(entry, src, fileHash, 40, 10)
+	}
+	return chunks, nil
+}
+
+// findSymbolInSource tries to find a symbol definition in source code and extract its content.
+// This is a simple heuristic — finds the line containing the definition keyword + name.
+func findSymbolInSource(src, name, kind string) string {
+	lines := strings.Split(src, "\n")
+	patterns := getDefinitionPatterns(name, kind)
+
+	for _, pattern := range patterns {
+		for startIdx, line := range lines {
+			if strings.Contains(line, pattern) {
+				// Find the end of the block by counting braces/indentation
+				endIdx := findBlockEnd(lines, startIdx, kind)
+				if endIdx > startIdx {
+					return strings.Join(lines[startIdx:endIdx+1], "\n")
+				}
+			}
+		}
+	}
+	return ""
+}
+
+// getDefinitionPatterns returns search patterns for a symbol definition.
+func getDefinitionPatterns(name, kind string) []string {
+	switch kind {
+	case "function":
+		return []string{"func " + name, "def " + name, "function " + name}
+	case "class":
+		return []string{"class " + name}
+	case "method":
+		return []string{"def " + name, name + "("}
+	case "interface":
+		return []string{"interface " + name}
+	case "type":
+		return []string{"type " + name}
+	default:
+		return []string{name}
+	}
+}
+
+// findBlockEnd finds the end of a code block starting at startIdx.
+func findBlockEnd(lines []string, startIdx int, kind string) int {
+	if startIdx >= len(lines) {
+		return startIdx
+	}
+
+	// Simple brace counting for C-style languages
+	braceCount := 0
+	foundOpening := false
+	for i := startIdx; i < len(lines); i++ {
+		line := lines[i]
+		for _, ch := range line {
+			if ch == '{' {
+				braceCount++
+				foundOpening = true
+			} else if ch == '}' {
+				braceCount--
+			}
+		}
+		if foundOpening && braceCount <= 0 {
+			return i
+		}
+	}
+
+	// Python-style: use indentation
+	if !foundOpening && startIdx+1 < len(lines) {
+		baseIndent := countIndent(lines[startIdx])
+		for i := startIdx + 1; i < len(lines); i++ {
+			line := lines[i]
+			if strings.TrimSpace(line) == "" {
+				continue
+			}
+			if countIndent(line) <= baseIndent {
+				return i - 1
+			}
+		}
+		return len(lines) - 1
+	}
+
+	// Fallback: return 30 lines after start
+	end := startIdx + 30
+	if end >= len(lines) {
+		end = len(lines) - 1
+	}
+	return end
+}
+
+// countIndent returns the number of leading spaces/tabs.
+func countIndent(line string) int {
+	count := 0
+	for _, ch := range line {
+		if ch == ' ' {
+			count++
+		} else if ch == '\t' {
+			count += 4
+		} else {
+			break
+		}
+	}
+	return count
 }
 
 // ── Line-window fallback chunker ─────────────────────────────────────────────

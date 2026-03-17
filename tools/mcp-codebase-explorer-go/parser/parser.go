@@ -1,4 +1,7 @@
-package main
+// Package parser provides multi-language AST parsing via Tree-sitter.
+// Extracts functions, classes, methods, interfaces, and type declarations
+// with their signatures and docstrings.
+package parser
 
 import (
 	"os"
@@ -13,6 +16,7 @@ import (
 	"github.com/smacker/go-tree-sitter/typescript/typescript"
 )
 
+// Parsers maps language name to its Tree-sitter grammar.
 var Parsers map[string]*sitter.Language
 
 func init() {
@@ -25,7 +29,18 @@ func init() {
 	}
 }
 
-func getLanguageFromExt(ext string) string {
+// NodeResult represents one parsed symbol from a source file.
+type NodeResult struct {
+	Level     int
+	Type      string // function, class, method, struct, interface, type, arrowFunc
+	Name      string
+	Signature string
+	Doc       string
+}
+
+// LanguageFromExt maps a file extension to the Tree-sitter language key.
+// Returns "" for unsupported languages.
+func LanguageFromExt(ext string) string {
 	ext = strings.ToLower(ext)
 	switch ext {
 	case ".py":
@@ -42,7 +57,8 @@ func getLanguageFromExt(ext string) string {
 	return ""
 }
 
-func getFamilyFromExt(ext string) string {
+// FamilyFromExt maps a file extension to its language family name.
+func FamilyFromExt(ext string) string {
 	ext = strings.ToLower(ext)
 	switch ext {
 	case ".py":
@@ -57,14 +73,7 @@ func getFamilyFromExt(ext string) string {
 	return ""
 }
 
-type NodeResult struct {
-	Level     int
-	Type      string
-	Name      string
-	Signature string
-	Doc       string
-}
-
+// getNodeText extracts the text content of an AST node.
 func getNodeText(node *sitter.Node, code []byte) string {
 	if node == nil {
 		return ""
@@ -72,6 +81,7 @@ func getNodeText(node *sitter.Node, code []byte) string {
 	return string(code[node.StartByte():node.EndByte()])
 }
 
+// getDocstring extracts the docstring/comment for a node.
 func getDocstring(node *sitter.Node, langType string, code []byte) string {
 	if langType == "python" {
 		block := node.ChildByFieldName("body")
@@ -93,10 +103,9 @@ func getDocstring(node *sitter.Node, langType string, code []byte) string {
 			foundComment := false
 			for prev != nil && (prev.Type() == "comment" || prev.Type() == "line_comment" || prev.Type() == "block_comment") {
 				text := getNodeText(prev, code)
-				// Trim leading slashes and stars, spaces
 				text = strings.TrimLeft(text, "/* ")
 				text = strings.TrimRight(text, "*/ \n")
-				doc = append([]string{strings.TrimSpace(text)}, doc...) // prepend
+				doc = append([]string{strings.TrimSpace(text)}, doc...)
 				prev = prev.PrevSibling()
 				foundComment = true
 			}
@@ -120,7 +129,8 @@ func getDocstring(node *sitter.Node, langType string, code []byte) string {
 	return ""
 }
 
-func extractNodes(node *sitter.Node, langType string, code []byte, level int) []NodeResult {
+// ExtractNodes recursively extracts symbol nodes from the AST.
+func ExtractNodes(node *sitter.Node, langType string, code []byte, level int) []NodeResult {
 	if node == nil {
 		return nil
 	}
@@ -232,14 +242,16 @@ func extractNodes(node *sitter.Node, langType string, code []byte, level int) []
 		if targetTypes[node.Type()] {
 			inc = 1
 		}
-		childResults := extractNodes(child, langType, code, level+inc)
+		childResults := ExtractNodes(child, langType, code, level+inc)
 		results = append(results, childResults...)
 	}
 
 	return results
 }
 
-func parseAndExtract(filepathStr, workspacePath, lang string) (string, []NodeResult) {
+// ParseAndExtract parses a source file and extracts symbol nodes.
+// Returns the relative path and a slice of NodeResult.
+func ParseAndExtract(filepathStr, workspacePath, lang string) (string, []NodeResult) {
 	code, err := os.ReadFile(filepathStr)
 	if err != nil {
 		return "", nil
@@ -250,16 +262,14 @@ func parseAndExtract(filepathStr, workspacePath, lang string) (string, []NodeRes
 		return "", nil
 	}
 
-	parser := sitter.NewParser()
-	parser.SetLanguage(langPtr)
+	p := sitter.NewParser()
+	p.SetLanguage(langPtr)
 
-	// Create a new parser tree
-	tree := parser.Parse(nil, code)
-	defer tree.Close() // Keep memory safe if supported
+	tree := p.Parse(nil, code)
+	defer tree.Close()
 
-	nodes := extractNodes(tree.RootNode(), lang, code, 0)
+	nodes := ExtractNodes(tree.RootNode(), lang, code, 0)
 
-	// Ensure uniform paths
 	relPath, err := filepath.Rel(workspacePath, filepathStr)
 	if err != nil {
 		relPath = filepathStr

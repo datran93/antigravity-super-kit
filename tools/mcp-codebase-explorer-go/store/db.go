@@ -1,4 +1,5 @@
-// Package store manages SQLite persistence for the codebase search index.
+// Package store manages SQLite persistence for the codebase explorer index.
+// Enhanced with symbols table for unified symbol tracking.
 package store
 
 import (
@@ -14,22 +15,20 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// DB wraps a SQLite connection for the codebase search index.
+// DB wraps a SQLite connection for the codebase explorer index.
 type DB struct {
 	conn        *sql.DB
 	ProjectPath string
 }
 
 // projectDBPath computes a stable per-project SQLite path.
-// Uses sha256(absProjectPath) to avoid filesystem collisions.
 func projectDBPath(projectPath, dataDir string) string {
 	h := sha256.Sum256([]byte(projectPath))
-	name := hex.EncodeToString(h[:16]) // first 16 bytes = 32 hex chars
+	name := hex.EncodeToString(h[:16])
 	return filepath.Join(dataDir, name+".db")
 }
 
 // Open opens (or creates) the SQLite database for a given project.
-// dataDir is the directory where per-project DBs are stored.
 func Open(projectPath, dataDir string) (*DB, error) {
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create data dir: %w", err)
@@ -84,19 +83,35 @@ func (d *DB) initSchema() error {
 			id        TEXT PRIMARY KEY,
 			embedding TEXT NOT NULL
 		)`,
+		// NEW: Unified symbols table for AST-extracted symbols
+		`CREATE TABLE IF NOT EXISTS symbols (
+			id           TEXT PRIMARY KEY,
+			project_path TEXT NOT NULL,
+			file_path    TEXT NOT NULL,
+			rel_path     TEXT NOT NULL,
+			name         TEXT NOT NULL,
+			kind         TEXT NOT NULL,
+			signature    TEXT DEFAULT '',
+			doc          TEXT DEFAULT '',
+			line_start   INTEGER DEFAULT 0,
+			line_end     INTEGER DEFAULT 0,
+			parent_id    TEXT DEFAULT '',
+			lang         TEXT NOT NULL
+		)`,
 		`CREATE INDEX IF NOT EXISTS idx_chunks_project ON code_chunks(project_path)`,
 		`CREATE INDEX IF NOT EXISTS idx_chunks_file    ON code_chunks(file_path)`,
+		`CREATE INDEX IF NOT EXISTS idx_symbols_project ON symbols(project_path)`,
+		`CREATE INDEX IF NOT EXISTS idx_symbols_name    ON symbols(name)`,
+		`CREATE INDEX IF NOT EXISTS idx_symbols_file    ON symbols(file_path)`,
 	}
 	for _, s := range stmts {
 		if _, err := d.conn.Exec(s); err != nil {
-			// Detect FTS5 missing — this means the binary was built without the required flags.
-			// Fix: cd tools/mcp-codebase-search-go && make build
 			if strings.Contains(err.Error(), "no such module: fts5") {
 				return fmt.Errorf(
 					"FTS5 extension not available in this SQLite build.\n"+
 						"The binary must be compiled with:\n"+
-						"  CGO_CFLAGS=\"-DSQLITE_ENABLE_FTS5\" go build -tags fts5 -o mcp-codebase-search-go .\n"+
-						"Or simply run: cd tools/mcp-codebase-search-go && make build\n"+
+						"  CGO_CFLAGS=\"-DSQLITE_ENABLE_FTS5\" go build -tags fts5 -o mcp-codebase-explorer-go .\n"+
+						"Or simply run: cd tools/mcp-codebase-explorer-go && make build\n"+
 						"Original error: %w", err)
 			}
 			return fmt.Errorf("schema init error: %w\nSQL: %s", err, s)
@@ -104,6 +119,8 @@ func (d *DB) initSchema() error {
 	}
 	return nil
 }
+
+// ── Chunk CRUD ────────────────────────────────────────────────────────────────
 
 // UpsertChunk inserts or replaces a code chunk and its FTS entry.
 func (d *DB) UpsertChunk(c ChunkRow) error {
@@ -127,7 +144,6 @@ func (d *DB) UpsertChunk(c ChunkRow) error {
 		return err
 	}
 
-	// Delete old FTS entry (if any) then re-insert
 	if _, err := tx.Exec(`DELETE FROM chunks_fts WHERE id = ?`, c.ID); err != nil {
 		return fmt.Errorf("failed to delete old FTS entry: %w", err)
 	}
@@ -177,12 +193,12 @@ func (d *DB) DeleteByFile(filePath string) error {
 		tx.Exec(`DELETE FROM chunks_fts WHERE id=?`, id)
 		tx.Exec(`DELETE FROM chunk_embeddings WHERE id=?`, id)
 	}
+	// Also delete symbols for this file
+	tx.Exec(`DELETE FROM symbols WHERE file_path=? AND project_path=?`, filePath, d.ProjectPath)
 	return tx.Commit()
 }
 
 // ClearProject deletes all indexed data for the project.
-// NOTE: chunks_fts and chunk_embeddings are filtered via JOIN to code_chunks
-// to avoid accidentally deleting data from other projects sharing the DB.
 func (d *DB) ClearProject() error {
 	tx, err := d.conn.Begin()
 	if err != nil {
@@ -190,22 +206,85 @@ func (d *DB) ClearProject() error {
 	}
 	defer tx.Rollback()
 
-	// Remove FTS entries for chunks belonging to this project
-	tx.Exec(`
-		DELETE FROM chunks_fts
-		WHERE id IN (SELECT id FROM code_chunks WHERE project_path=?)
-	`, d.ProjectPath)
-	// Remove embeddings for chunks belonging to this project
-	tx.Exec(`
-		DELETE FROM chunk_embeddings
-		WHERE id IN (SELECT id FROM code_chunks WHERE project_path=?)
-	`, d.ProjectPath)
+	tx.Exec(`DELETE FROM chunks_fts WHERE id IN (SELECT id FROM code_chunks WHERE project_path=?)`, d.ProjectPath)
+	tx.Exec(`DELETE FROM chunk_embeddings WHERE id IN (SELECT id FROM code_chunks WHERE project_path=?)`, d.ProjectPath)
 	tx.Exec(`DELETE FROM code_chunks WHERE project_path=?`, d.ProjectPath)
+	tx.Exec(`DELETE FROM symbols WHERE project_path=?`, d.ProjectPath)
 	tx.Exec(`DELETE FROM project_meta WHERE project_path=?`, d.ProjectPath)
 	return tx.Commit()
 }
 
-// UpdateMeta upserts project metadata (indexed_at, total_chunks, merkle_root).
+// ── Symbol CRUD (NEW) ─────────────────────────────────────────────────────────
+
+// UpsertSymbol inserts or replaces a symbol in the symbols table.
+func (d *DB) UpsertSymbol(s SymbolRow) error {
+	_, err := d.conn.Exec(`
+		INSERT INTO symbols (id, project_path, file_path, rel_path, name, kind, signature, doc, line_start, line_end, parent_id, lang)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+		ON CONFLICT(id) DO UPDATE SET
+			name=excluded.name, kind=excluded.kind, signature=excluded.signature,
+			doc=excluded.doc, line_start=excluded.line_start, line_end=excluded.line_end,
+			parent_id=excluded.parent_id
+	`, s.ID, s.ProjectPath, s.FilePath, s.RelPath, s.Name, s.Kind, s.Signature,
+		s.Doc, s.LineStart, s.LineEnd, s.ParentID, s.Lang)
+	return err
+}
+
+// SearchSymbolsByName searches for symbols by name (case-insensitive substring match).
+func (d *DB) SearchSymbolsByName(name string, limit int) ([]SymbolRow, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	rows, err := d.conn.Query(`
+		SELECT id, project_path, file_path, rel_path, name, kind, signature, doc, line_start, line_end, parent_id, lang
+		FROM symbols
+		WHERE project_path = ? AND LOWER(name) LIKE ?
+		LIMIT ?
+	`, d.ProjectPath, "%"+strings.ToLower(name)+"%", limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []SymbolRow
+	for rows.Next() {
+		var s SymbolRow
+		rows.Scan(&s.ID, &s.ProjectPath, &s.FilePath, &s.RelPath, &s.Name, &s.Kind,
+			&s.Signature, &s.Doc, &s.LineStart, &s.LineEnd, &s.ParentID, &s.Lang)
+		results = append(results, s)
+	}
+	return results, nil
+}
+
+// GetSymbolByName fetches the first matching symbol with exact name.
+func (d *DB) GetSymbolByName(name string) (*SymbolRow, error) {
+	var s SymbolRow
+	err := d.conn.QueryRow(`
+		SELECT id, project_path, file_path, rel_path, name, kind, signature, doc, line_start, line_end, parent_id, lang
+		FROM symbols
+		WHERE project_path = ? AND name = ?
+		LIMIT 1
+	`, d.ProjectPath, name).Scan(&s.ID, &s.ProjectPath, &s.FilePath, &s.RelPath, &s.Name, &s.Kind,
+		&s.Signature, &s.Doc, &s.LineStart, &s.LineEnd, &s.ParentID, &s.Lang)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &s, nil
+}
+
+// GetSymbolCount returns the total number of symbols for this project.
+func (d *DB) GetSymbolCount() (int, error) {
+	var count int
+	err := d.conn.QueryRow(`SELECT COUNT(*) FROM symbols WHERE project_path=?`, d.ProjectPath).Scan(&count)
+	return count, err
+}
+
+// ── Metadata ──────────────────────────────────────────────────────────────────
+
+// UpdateMeta upserts project metadata.
 func (d *DB) UpdateMeta(totalChunks int, merkleRoot string) error {
 	_, err := d.conn.Exec(`
 		INSERT INTO project_meta (project_path, indexed_at, total_chunks, merkle_root)
@@ -216,8 +295,7 @@ func (d *DB) UpdateMeta(totalChunks int, merkleRoot string) error {
 	return err
 }
 
-// GetFileHashes returns a map[relPath]fileHash for all indexed files in this project.
-// Used to restore the Merkle tree state for incremental diff detection.
+// GetFileHashes returns a map[relPath]fileHash for Merkle tree restoration.
 func (d *DB) GetFileHashes() (map[string]string, error) {
 	rows, err := d.conn.Query(`
 		SELECT DISTINCT rel_path, file_hash
@@ -252,7 +330,7 @@ func (d *DB) GetMeta() (int, string, error) {
 	return total, root, err
 }
 
-// BM25Search runs FTS5 keyword search and returns up to limit chunk IDs ranked by BM25.
+// BM25Search runs FTS5 keyword search.
 func (d *DB) BM25Search(query string, limit int) ([]BM25Result, error) {
 	rows, err := d.conn.Query(`
 		SELECT id, rel_path, symbol_name, rank
@@ -304,8 +382,6 @@ func (d *DB) GetChunksByIDs(ids []string) ([]ChunkRow, error) {
 }
 
 // GetAllEmbeddings loads chunk embeddings for the project up to maxRows.
-// Pass 0 for maxRows to use the default safety cap (10000).
-// This prevents unbounded RAM usage on large codebases.
 func (d *DB) GetAllEmbeddings(maxRows int) ([]EmbeddingRow, error) {
 	const defaultCap = 10000
 	if maxRows <= 0 {
@@ -332,17 +408,6 @@ func (d *DB) GetAllEmbeddings(maxRows int) ([]EmbeddingRow, error) {
 		result = append(result, r)
 	}
 	return result, nil
-}
-
-// GetEmbeddingCount returns the total number of embeddings stored for this project.
-func (d *DB) GetEmbeddingCount() (int, error) {
-	var count int
-	err := d.conn.QueryRow(`
-		SELECT COUNT(*) FROM chunk_embeddings ce
-		JOIN code_chunks cc ON cc.id = ce.id
-		WHERE cc.project_path = ?
-	`, d.ProjectPath).Scan(&count)
-	return count, err
 }
 
 // ── Value types ───────────────────────────────────────────────────────────────
@@ -376,6 +441,22 @@ type EmbeddingRow struct {
 	RelPath    string
 	SymbolName string
 	Embedding  []float32
+}
+
+// SymbolRow mirrors the symbols table.
+type SymbolRow struct {
+	ID          string
+	ProjectPath string
+	FilePath    string
+	RelPath     string
+	Name        string
+	Kind        string
+	Signature   string
+	Doc         string
+	LineStart   int
+	LineEnd     int
+	ParentID    string
+	Lang        string
 }
 
 func joinStr(ss []string, sep string) string {
