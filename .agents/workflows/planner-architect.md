@@ -1,7 +1,7 @@
 ---
 description:
   Structured workflow for Planning and Architectural design. Produces a design/design-*.md and an ordered task list,
-  then hands
+  then hands off to the Coder. Does NOT write implementation code.
 ---
 
 # 🏗️ Planner Workflow (Design & Task List Only)
@@ -34,7 +34,8 @@ Use MCP tools **in PARALLEL** to map the impact area:
 - `@mcp:codebase-explorer` (`search_code`) — semantic search for related implementations.
 - `@mcp:database-inspector` (`get_table_sample`) — capture schema formats if relevant.
 
-> This discovery phase identifies the **Blast Radius** (affected files and components).
+> This discovery phase identifies the **Blast Radius** (affected files and components). Document the blast radius
+> explicitly — it will be validated against the design in Phase 2.5.
 
 ---
 
@@ -51,6 +52,35 @@ Use MCP tools **in PARALLEL** to map the impact area:
 - Proposed file/module changes with rationale
 - File structure — list every new file with its purpose
 - Risk & dependency analysis
+- **Migration & Rollback Strategy** (mandatory for DB schema changes or API contract changes):
+
+  ```markdown
+  ## Migration Strategy
+
+  - **Schema changes**: What migrations are needed? Are they backward-compatible?
+  - **Data backfill**: Does existing data need transformation?
+  - **Rollback plan**: If deployment fails, can we safely revert the migration?
+  - **Zero-downtime**: Can the migration run without service interruption?
+  - **API versioning**: Do existing clients break? Is a deprecation period needed?
+  ```
+
+  > If no DB/API changes are involved, state explicitly: "No migration needed — code-only changes."
+
+---
+
+### Phase 2.5: Design Self-Review ✅
+
+Before presenting to the USER, validate the design against:
+
+1. **Blast Radius Containment** — Does the design ONLY touch files identified in Phase 1? If new files appeared, justify
+   why they weren't in the initial blast radius.
+2. **ANCHORS.md Compliance** — Does the design respect all immutable guardrails (tech stack, no destruction, etc.)?
+3. **Spec AC Coverage** — Does every Acceptance Criterion from `spec/spec-{task-id}.md` have a corresponding design
+   element? Flag any AC that isn't addressed.
+4. **Pattern Consistency** — Does the design follow existing codebase patterns? If deviating, document the rationale.
+5. **Migration Safety** — If applicable, is the migration strategy safe for production?
+
+> Only proceed to Phase 3 after this self-review passes.
 
 ---
 
@@ -62,9 +92,35 @@ Each task is a flat ordered list of **Actions**. Every Action must:
 - Define a **Verification Command** as acceptance criteria
 - Be independently executable
 
-#### Step ID Labelling (mandatory for > 3 Actions)
+#### Action Typing & Risk Tags
 
-Format: `[T1] Step description` — e.g. `[T1] Add schema migration`, `[T2] Implement TTL logic`.
+Format: `[T1][type] Step description` — type indicates the nature of the work.
+
+Available types:
+
+- `[migration]` — DB schema changes, data backfill
+- `[core]` — Core business logic, services, domain
+- `[handler]` — API handlers, controllers, routes
+- `[config]` — Configuration, environment, infrastructure
+- `[integration]` — External API, third-party service integration
+
+Risk tags (append when applicable):
+
+- `⚠️ HIGH-RISK` — Authorization logic, data mutation, financial operations
+- `⚠️ BREAKING` — Changes that break existing API contracts or data formats
+
+Examples:
+
+```
+[T1][migration] Add integrations table schema
+[T2][core] Implement IntegrationService with CRUD logic  depends:[T1]
+[T3][handler] ⚠️ HIGH-RISK Add REST endpoints with auth checks  depends:[T2]
+```
+
+> Action types and risk tags propagate to downstream roles: Reviewer focuses deeper on `HIGH-RISK` actions, Tester
+> prioritizes bug hunting on `HIGH-RISK` actions.
+
+#### Step ID Labelling (mandatory for > 3 Actions)
 
 - IDs are sequential integers: `[T1]`, `[T2]`, `[T3]` …
 - Used by `context-manager` to render `progress.md` and power DAG dependency tracking.
@@ -84,8 +140,9 @@ Format: `[T1] Step description` — e.g. `[T1] Add schema migration`, `[T2] Impl
 Present to the USER:
 
 1. **Architecture Summary** — link to or inline `design/design-{task-id}.md` decisions.
-2. **Ordered Task List** — each Action with description, target files, verification command.
-3. **Clarification Questions** (if any ambiguity remains).
+2. **Ordered Task List** — each Action with type, risk level, description, target files, verification command.
+3. **Migration Strategy** (if applicable) — summary of schema changes and rollback plan.
+4. **Clarification Questions** (if any ambiguity remains).
 
 > The Planner has two stages: **(1) Plan Delivery** (before implementation) and **(2) Task Completion** (after review
 > and tests pass).
@@ -94,7 +151,7 @@ Present to the USER:
 
 ### Phase 5: Task Completion & Commit ✅
 
-Called back **after** Reviewer reports APPROVED and Tester reports ≥ 70% coverage.
+Called back **after** Reviewer reports APPROVED and Tester reports bugs hunted + ≥ 70% coverage.
 
 For each completed Action:
 
@@ -117,5 +174,7 @@ display completed tasks).
 2. **No Execution**: The Planner does NOT write implementation code or run tests.
 3. **Gate before commit**: Never commit unless Reviewer APPROVED and Tester ≥ 70%.
 4. **Design First**: Always produce `design/design-{task-id}.md` before the task list.
-5. **Role Anchoring**: ALWAYS prefix every response with `[Role: 🏗️ Planner]`.
-6. **Quality Gate**: Every Action must have a verifiable Acceptance Criterion.
+5. **Self-Review Before Delivery**: Always complete Phase 2.5 before presenting the plan.
+6. **Migration Strategy**: Any DB schema or API contract change MUST have a migration & rollback plan.
+7. **Role Anchoring**: ALWAYS prefix every response with `[Role: 🏗️ Planner]`.
+8. **Quality Gate**: Every Action must have a verifiable Acceptance Criterion.
