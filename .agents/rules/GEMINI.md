@@ -58,7 +58,7 @@ transitions** — the USER decides when to invoke the next role.
 | **🏗️ Planner**     | `/planner-architect`     | `design/design-*.md` + task plan + git commits | Plan delivered OR all tasks committed |
 | **💻 Coder**       | `/coder-implementation`  | Code changes + implementation report           | All Actions implemented and reported  |
 | **🔍 Reviewer**    | `/reviewer-audit`        | Audit report (APPROVED / NEEDS FIX)            | Report delivered to USER              |
-| **🧪 Tester**      | `/tester-verification`   | Test files + coverage report                   | Coverage ≥ 70% achieved and reported  |
+| **🧪 Tester**      | `/tester-verification`   | Bug report + test files + coverage report      | Bugs hunted, coverage ≥ 70%, reported |
 | **🧭 Router**      | `/smart-route`           | Confirmation + routed workflow                 | USER confirms routing decision        |
 
 > Any role that hits a blocker **stops and asks the USER** — never self-escalates.
@@ -74,7 +74,7 @@ transitions** — the USER decides when to invoke the next role.
    - **Planner**: Owns `design/design-*.md`, task plan, `git commit`, `complete_task_step`.
    - **Coder**: Owns source code changes and implementation report.
    - **Reviewer**: Owns the audit report.
-   - **Tester**: Owns the test suite and coverage report.
+   - **Tester**: Owns the bug report, test suite, and coverage report.
 4. **Skill Transparency**: Explicitly state which specialized skills are used BEFORE executing tasks.
 
 ---
@@ -98,12 +98,13 @@ quirks, or library limitations into affected files.
 
 ### C. Quality Gates (Planner-Enforced)
 
-Both Reviewer (APPROVED) and Tester (≥ 70% coverage) gates must pass before any commit. If either fails, the Planner
-asks the USER — it does not auto-loop. See [`planner-architect.md`](./../workflows/planner-architect.md) **Phase 5**.
+Both Reviewer (APPROVED) and Tester (bugs hunted + ≥ 70% coverage) gates must pass before any commit. If either fails,
+the Planner asks the USER — it does not auto-loop. See [`planner-architect.md`](./../workflows/planner-architect.md)
+**Phase 5**.
 
 ---
 
 ## 📌 Metadata
 
-- **Version**: 2.6.0
+- **Version**: 2.7.0
 - **Last Updated**: 2026-03-17
