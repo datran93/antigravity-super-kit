@@ -56,6 +56,8 @@ Deep analysis against the design and acceptance criteria:
 - **Testability**: Is the new code structured for clean testing (Dependency Injection, no hardcoded globals)?
 - **Clean Code**: Naming clarity, function size, SOLID principles adherence.
 - **Security / Edge cases**: Any obvious unhandled errors, missing validations, or unsafe patterns?
+- **Performance**: Flag N+1 queries, goroutine leaks, missing timeouts, unnecessary allocations, or O(n²) patterns in
+  hot paths.
 
 ---
 
