@@ -670,13 +670,6 @@ func main() {
 		mcp.WithString("project_path", mcp.Required(), mcp.Description("Path to the project root.")),
 	), handleClearIndex)
 
-	// Tool 9: ping
-	s.AddTool(mcp.NewTool("ping",
-		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		return mcp.NewToolResultText(`{"status":"ok","server":"McpCodebaseExplorer","version":"1.0.0"}`), nil
-	})
-
 	if err := server.ServeStdio(s); err != nil {
 		fmt.Fprintf(os.Stderr, "Server error: %v\n", err)
 		os.Exit(1)

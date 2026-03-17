@@ -261,12 +261,6 @@ func main() {
 		return mcp.NewToolResultText(finalStr), nil
 	})
 
-	s.AddTool(mcp.NewTool("ping",
-		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		return mcp.NewToolResultText(`{"status":"ok","server":"McpDocResearcher","version":"1.0.0"}`), nil
-	})
-
 	if err := server.ServeStdio(s); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}

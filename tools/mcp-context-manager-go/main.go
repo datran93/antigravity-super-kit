@@ -465,13 +465,6 @@ func main() {
 		return mcp.NewToolResultText(res), nil
 	})
 
-	// ping
-	mcpServer.AddTool(mcp.NewTool("ping",
-		mcp.WithDescription("Health-check endpoint. Returns server name, version, and status=ok."),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		return mcp.NewToolResultText(`{"status":"ok","server":"McpContextManager","version":"1.0.0"}`), nil
-	})
-
 	// Run standard I/O server
 	if err := server.ServeStdio(mcpServer); err != nil {
 		fmt.Fprintf(os.Stderr, "[context-manager] server error: %v\n", err)
