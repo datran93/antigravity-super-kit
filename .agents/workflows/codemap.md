@@ -11,8 +11,8 @@ relationships. It helps on-board new developers (and refresh yourself) on how th
 
 ### Phase 1: Structural Discovery 🔍
 
-- Use `@mcp:ast-explorer` (`get_project_architecture`, `search_symbol`) to map the high-level project structure and find
-  exact symbol locations.
+- Use `@mcp:codebase-explorer` (`get_project_architecture`, `search_symbol`) to map the high-level project structure and
+  find exact symbol locations.
 - Identify the main entry points (e.g., `main.go`, `index.ts`, `app/server.py`).
 - List the primary modules, services, and directories.
 

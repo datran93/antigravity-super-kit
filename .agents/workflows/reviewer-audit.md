@@ -36,9 +36,9 @@ Run static analysis to surface objective issues:
 
 - **Linting**: Check for lint errors or formatting violations.
 - **Build**: Confirm the code compiles / builds without errors.
-- **AST Scan**: Use `@mcp:ast-explorer` (`get_project_architecture`) to detect unapproved changes outside the declared
-  Bounded Context.
-- **Semantic Scan**: Use `@mcp:codebase-search` (`search_code`) to find callers or dependants of modified symbols —
+- **AST Scan**: Use `@mcp:codebase-explorer` (`get_project_architecture`) to detect unapproved changes outside the
+  declared Bounded Context.
+- **Semantic Scan**: Use `@mcp:codebase-explorer` (`search_code`) to find callers or dependants of modified symbols —
   confirms no unintended breakage in adjacent code.
 
 Document any failures found — do not fix them.
