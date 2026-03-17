@@ -1,6 +1,8 @@
-package main
+package parser
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,6 +11,7 @@ import (
 	"sync"
 )
 
+// FileTask represents a file to be parsed.
 type FileTask struct {
 	Folder   string
 	Filepath string
@@ -16,11 +19,35 @@ type FileTask struct {
 	Lang     string
 }
 
+// FileResult collects parsed nodes for one file.
 type FileResult struct {
 	Filename string
 	Nodes    []NodeResult
 }
 
+// SymbolInfo represents a persisted symbol extracted from AST.
+type SymbolInfo struct {
+	ID        string
+	FilePath  string
+	RelPath   string
+	Name      string
+	Kind      string
+	Signature string
+	Doc       string
+	LineStart int
+	LineEnd   int
+	ParentID  string
+	Lang      string
+}
+
+// symbolID generates a deterministic ID for a symbol.
+func symbolID(projectPath, relPath, name string, lineStart int) string {
+	raw := fmt.Sprintf("%s:%s:%s:%d", projectPath, relPath, name, lineStart)
+	h := sha256.Sum256([]byte(raw))
+	return hex.EncodeToString(h[:])
+}
+
+// GetProjectArchitecture returns a structural overview of the project using AST.
 func GetProjectArchitecture(workspacePath, subPath string, maxFiles int, includeDocs bool) (string, error) {
 	baseDir := workspacePath
 	if subPath != "" {
@@ -31,8 +58,8 @@ func GetProjectArchitecture(workspacePath, subPath string, maxFiles int, include
 		return fmt.Sprintf("❌ Path not found: %s", baseDir), nil
 	}
 
-	allFiles := getProjectFiles(workspacePath)
-	mainFamily := getMainLanguageFamily(allFiles)
+	allFiles := GetProjectFiles(workspacePath)
+	mainFamily := GetMainLanguageFamily(allFiles)
 
 	folderToFiles := make(map[string][]FileTask)
 	for _, f := range allFiles {
@@ -41,7 +68,7 @@ func GetProjectArchitecture(workspacePath, subPath string, maxFiles int, include
 		}
 
 		ext := filepath.Ext(f)
-		family := getFamilyFromExt(ext)
+		family := FamilyFromExt(ext)
 		if family != mainFamily || family == "" {
 			continue
 		}
@@ -54,7 +81,7 @@ func GetProjectArchitecture(workspacePath, subPath string, maxFiles int, include
 		folder := filepath.Dir(relPath)
 		filename := filepath.Base(relPath)
 
-		lang := getLanguageFromExt(ext)
+		lang := LanguageFromExt(ext)
 		if lang == "" {
 			continue
 		}
@@ -99,14 +126,13 @@ func GetProjectArchitecture(workspacePath, subPath string, maxFiles int, include
 	var output []string
 	output = append(output, fmt.Sprintf("🏗 PROJECT ARCHITECTURE AST: %s (Main Lang: %s)\n", subPathMsg, mainFamily))
 
-	// Process using a bounded thread pool / goroutines
 	var wg sync.WaitGroup
 	resultCh := make(chan struct {
 		Folder string
 		Res    FileResult
 	}, len(tasks))
 
-	sem := make(chan struct{}, 8) // Limit concurrency to 8
+	sem := make(chan struct{}, 8)
 
 	for _, task := range tasks {
 		wg.Add(1)
@@ -115,7 +141,7 @@ func GetProjectArchitecture(workspacePath, subPath string, maxFiles int, include
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
-			_, nodes := parseAndExtract(t.Filepath, workspacePath, t.Lang)
+			_, nodes := ParseAndExtract(t.Filepath, workspacePath, t.Lang)
 			if len(nodes) > 0 {
 				resultCh <- struct {
 					Folder string
@@ -175,19 +201,20 @@ func GetProjectArchitecture(workspacePath, subPath string, maxFiles int, include
 	return strings.Join(output, "\n"), nil
 }
 
+// SearchSymbol searches for a symbol name across the project using AST.
 func SearchSymbol(workspacePath, query string) (string, error) {
-	allFiles := getProjectFiles(workspacePath)
-	mainFamily := getMainLanguageFamily(allFiles)
+	allFiles := GetProjectFiles(workspacePath)
+	mainFamily := GetMainLanguageFamily(allFiles)
 
 	var tasks []FileTask
 	for _, filepathStr := range allFiles {
 		ext := filepath.Ext(filepathStr)
-		family := getFamilyFromExt(ext)
+		family := FamilyFromExt(ext)
 		if family != mainFamily || family == "" {
 			continue
 		}
 
-		lang := getLanguageFromExt(ext)
+		lang := LanguageFromExt(ext)
 		if lang == "" {
 			continue
 		}
@@ -211,7 +238,7 @@ func SearchSymbol(workspacePath, query string) (string, error) {
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
-			relPath, nodes := parseAndExtract(t.Filepath, workspacePath, t.Lang)
+			relPath, nodes := ParseAndExtract(t.Filepath, workspacePath, t.Lang)
 			if len(nodes) == 0 {
 				return
 			}
@@ -238,22 +265,20 @@ func SearchSymbol(workspacePath, query string) (string, error) {
 	return "🔎 SYMBOL SEARCH RESULTS:\n" + strings.Join(results, "\n"), nil
 }
 
-// UsageRef represents a single reference to a symbol: file path + line number + line text.
+// UsageRef represents a single reference to a symbol.
 type UsageRef struct {
 	File    string
 	Line    int
 	Content string
 }
 
-// FindUsages scans all source files in workspacePath for references to symbolName.
-// It uses a bounded concurrency pattern (8 goroutines) identical to SearchSymbol.
-// Returns a Markdown-formatted list of file:line references.
+// FindUsages scans all source files for references to symbolName.
 func FindUsages(workspacePath, symbolName string) (string, error) {
 	if symbolName == "" {
 		return "❌ symbol_name is required.", nil
 	}
 
-	allFiles := getProjectFiles(workspacePath)
+	allFiles := GetProjectFiles(workspacePath)
 	if len(allFiles) == 0 {
 		return fmt.Sprintf("❌ No source files found in: %s", workspacePath), nil
 	}
@@ -289,7 +314,7 @@ func FindUsages(workspacePath, symbolName string) (string, error) {
 					mu.Lock()
 					usages = append(usages, UsageRef{
 						File:    relPath,
-						Line:    lineNum + 1, // 1-indexed
+						Line:    lineNum + 1,
 						Content: strings.TrimSpace(line),
 					})
 					mu.Unlock()
@@ -304,7 +329,6 @@ func FindUsages(workspacePath, symbolName string) (string, error) {
 		return fmt.Sprintf("🔍 No usages of '%s' found in %s.", symbolName, workspacePath), nil
 	}
 
-	// Sort: by file, then by line
 	sort.Slice(usages, func(i, j int) bool {
 		if usages[i].File != usages[j].File {
 			return usages[i].File < usages[j].File
@@ -325,4 +349,31 @@ func FindUsages(workspacePath, symbolName string) (string, error) {
 	}
 
 	return sb.String(), nil
+}
+
+// ExtractSymbols parses a file and returns SymbolInfo for DB persistence.
+func ExtractSymbols(projectPath, filePath, relPath, lang string) []SymbolInfo {
+	_, nodes := ParseAndExtract(filePath, projectPath, lang)
+	if len(nodes) == 0 {
+		return nil
+	}
+
+	var symbols []SymbolInfo
+	for _, n := range nodes {
+		sym := SymbolInfo{
+			ID:        symbolID(projectPath, relPath, n.Name, 0), // lineStart from node not available in NodeResult
+			FilePath:  filePath,
+			RelPath:   relPath,
+			Name:      n.Name,
+			Kind:      n.Type,
+			Signature: n.Signature,
+			Doc:       n.Doc,
+			LineStart: 0, // Not tracked in current NodeResult
+			LineEnd:   0,
+			ParentID:  "",
+			Lang:      lang,
+		}
+		symbols = append(symbols, sym)
+	}
+	return symbols
 }

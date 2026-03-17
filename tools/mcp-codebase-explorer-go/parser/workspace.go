@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"os"
@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-var IGNORE_DIRS = map[string]bool{
+// IgnoreDirs are directories always excluded from project file listing.
+var IgnoreDirs = map[string]bool{
 	".git":         true,
 	"node_modules": true,
 	"vendor":       true,
@@ -19,7 +20,8 @@ var IGNORE_DIRS = map[string]bool{
 	".agents":      true,
 }
 
-func getProjectFiles(workspacePath string) []string {
+// GetProjectFiles returns all source files for a workspace, using git ls-files if available.
+func GetProjectFiles(workspacePath string) []string {
 	// Try git first
 	cmd := exec.Command("git", "-C", workspacePath, "ls-files", "--cached", "--others", "--exclude-standard")
 	out, err := cmd.Output()
@@ -43,7 +45,7 @@ func getProjectFiles(workspacePath string) []string {
 			return nil
 		}
 		if info.IsDir() {
-			if IGNORE_DIRS[info.Name()] || strings.HasPrefix(info.Name(), ".") && info.Name() != "." {
+			if IgnoreDirs[info.Name()] || strings.HasPrefix(info.Name(), ".") && info.Name() != "." {
 				return filepath.SkipDir
 			}
 			return nil
@@ -55,7 +57,8 @@ func getProjectFiles(workspacePath string) []string {
 	return files
 }
 
-func getMainLanguageFamily(files []string) string {
+// GetMainLanguageFamily determines the dominant language family in a file list.
+func GetMainLanguageFamily(files []string) string {
 	familyCounts := make(map[string]int)
 
 	for _, f := range files {
