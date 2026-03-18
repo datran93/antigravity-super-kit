@@ -10,12 +10,19 @@ system. These **Anchors** must survive context compaction and session restarts.
 As a Self-Executing Agent, you MUST respect these facts before executing any code changes or planning any project
 tactics.
 
-## �️ Technology Stack
+## 🏗️ Technology Stack
 
-- **Backend Stack**: Golang >= 1.25.
-- **Frontend Stack**: React >= 19 / Next.js >= 16 App Router.
-- **Package Manager**: Use `pnpm` instead of `npm` for better performance.
-- **Database**: PostgreSQL 15+. DO NOT use MongoDB or MySQL.
+> **⚠️ Research-First Rule**: Before selecting or pinning any technology version, the agent MUST use
+> `@mcp:doc-researcher` (`search_latest_syntax`) or `@mcp:context7` (`resolve-library-id` → `query-docs`) to discover
+> the **latest stable version** of each stack component. Always start new projects on the **latest stable release**.
+> Never rely on memorized or training-data versions — they may be outdated.
+
+- **Backend Stack**: Golang (latest stable). Verify at [go.dev/dl](https://go.dev/dl/).
+- **Frontend Stack**: React (latest stable) / Next.js (latest stable) App Router. Verify at
+  [react.dev/versions](https://react.dev/versions) and [nextjs.org/docs](https://nextjs.org/docs).
+- **Package Manager**: Use `pnpm` (latest stable) instead of `npm` for better performance.
+- **Database**: PostgreSQL (latest stable major). DO NOT use MongoDB or MySQL. Verify at
+  [postgresql.org/support/versioning](https://www.postgresql.org/support/versioning/).
 
 ## 🛡️ Agentic Guardrails & Execution Constraints
 
