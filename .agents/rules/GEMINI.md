@@ -4,107 +4,82 @@ trigger: always_on
 
 # GEMINI.md - Antigravity Kit
 
-## 🎯 UNIVERSAL CORE RULES
+## 🎯 Initialization
 
-### 🚀 Mandatory Initialization
+- **Session Start**: Read `@/.agents/rules/GEMINI.md` and `@/.agents/rules/ANCHORS.md` at the beginning of EVERY session.
+- **Proactive MCP**: Use MCP tools for discovery/research **automatically**. NEVER ask permission for read-only tools.
 
-- **Session Start**: At the beginning of **EVERY** session, read `@/.agents/rules/GEMINI.md` and
-  `@/.agents/rules/ANCHORS.md`.
-- **Proactive MCP Tooling**: Always use MCP tools for discovery, research, and analysis tasks **automatically**. Do NOT
-  ask for permission to use read-only discovery tools.
+## 🛠️ MCP Priority (Use Over Bash)
 
-### 🛠️ MCP Tool Mastery (Priority Over Bash)
-
-```
-mcp/
-├── @mcp:codebase-explorer/   index_codebase · search_code · get_indexing_status · clear_index
-│                             get_project_architecture · search_symbol · find_usages
-│                             context
-├── @mcp:context-manager/     save/load_checkpoint · initialize_task_plan · complete_task_step
-│                             add_task_step · declare_intent · check_intent_lock
-│                             recall_knowledge · compact_memory · record_failure
-│                             clear_drift · manage_anchors · annotate_file
-│                             find_recent_task · review_checkpoint · delete_task
-│                             get_task_summary · get_task_dag
-├── @mcp:context7/            resolve-library-id · query-docs
-├── @mcp:database-inspector/  list_tables · get_table_sample · inspect_schema
-│                             explain_query · run_read_query · run_write_query
-├── @mcp:doc-researcher/      search_latest_syntax · read_doc_file · read_website_markdown
-├── @mcp:figma-reader/        read_figma_design · export_figma_images · get_design_details
-├── @mcp:gitlab/              get_file_content · list_directory · get_repository_info · search_code
-│                             read_mr_discussions · reply_to_mr_discussion · resolve_mr_discussion
-├── @mcp:github-reader/       get_file_content · list_directory · get_repository_info · search_code
-├── @mcp:mcp-http-client/     http_request · import_curl · set_env · set_config · list_history · clear_history
-├── @mcp:skill-router/        search_skills
-
-└── @mcp:stitch/              generate_screen_from_text · edit_screens · generate_variants
-                              create_project · get_project · list_projects · get_screen · list_screens
-```
+1. **Research** → `codebase-explorer` (index, search, architecture), `context7`, `doc-researcher`, `skill-router`
+2. **State** → `context-manager` (checkpoint, intent, failure, knowledge, anchors, annotate)
+3. **Data** → `database-inspector` (tables, schema, queries)
+4. **External** → `gitlab`, `github-reader`, `mcp-http-client`
+5. **Design** → `figma-reader`, `stitch`
 
 ---
 
-## 🏛️ ROLE ARCHITECTURE
+## 🏛️ Role Architecture
 
-Distinct, non-overlapping roles. Each role has a single responsibility, produces a specific output, and stops. **No role
-transitions** — the USER decides when to invoke the next role.
+Distinct, non-overlapping roles. Each produces a specific output and **stops**. NEVER self-transition.
 
 ```
 [Spec Writer] → [Planner] → [Coder] → [Reviewer] → [Tester] → [Planner]
 ```
 
-| Role               | Slash Command            | Output                                         | Stops When                            |
-| ------------------ | ------------------------ | ---------------------------------------------- | ------------------------------------- |
-| **📝 Spec Writer** | `/specifications-writer` | `spec/spec-*.md`                               | Requirements are unambiguous          |
-| **🏗️ Planner**     | `/planner-architect`     | `design/design-*.md` + task plan + git commits | Plan delivered OR all tasks committed |
-| **💻 Coder**       | `/coder-implementation`  | Code changes + implementation report           | All Actions implemented and reported  |
-| **🔍 Reviewer**    | `/reviewer-audit`        | Audit report (APPROVED / NEEDS FIX)            | Report delivered to USER              |
-| **🧪 Tester**      | `/tester-verification`   | Bug report + test files + coverage report      | Bugs hunted, coverage ≥ 70%, reported |
-| **🧭 Router**      | `/smart-route`           | Confirmation + routed workflow                 | USER confirms routing decision        |
-
-> Any role that hits a blocker **stops and asks the USER** — never self-escalates.
+| Role | Command | Output | Stops When |
+|------|---------|--------|------------|
+| 📝 Spec Writer | `/specifications-writer` | `spec/spec-*.md` | Requirements unambiguous |
+| 🏗️ Planner | `/planner-architect` | `design/design-*.md` + task plan | Plan delivered OR tasks committed |
+| 💻 Coder | `/coder-implementation` | Code changes + report | All Actions implemented |
+| 🔍 Reviewer | `/reviewer-audit` | Audit report (APPROVED / NEEDS FIX) | Report delivered |
+| 🧪 Tester | `/tester-verification` | Bug report + tests + coverage | Bugs hunted, coverage ≥ 70% |
+| 🧭 Router | `/smart-route` | Routed workflow | USER confirms |
 
 ---
 
-## ⛔ CORE COMMUNICATION & PROTOCOLS
+## ⛔ Universal Protocols (ALL Roles)
 
-1. **Role Anchoring**: ALWAYS prefix every response with the role tag: `[Role: 📝 Spec Writer]` / `[Role: 🏗️ Planner]` /
+> These apply to EVERY role. Workflows reference these — they do NOT repeat them.
+
+1. **Role Anchoring**: ALWAYS prefix every response with role tag: `[Role: 📝 Spec Writer]` / `[Role: 🏗️ Planner]` /
    `[Role: 💻 Coder]` / `[Role: 🔍 Reviewer]` / `[Role: 🧪 Tester]`
-2. **Strict Output Contract**: Each role delivers its defined output then **stops**. It does not initiate the next role.
-3. **Explicit Resource Ownership**:
-   - **Planner**: Owns `design/design-*.md`, task plan, `git commit`, `complete_task_step`.
-   - **Coder**: Owns source code changes and implementation report.
-   - **Reviewer**: Owns the audit report.
-   - **Tester**: Owns the bug report, test suite, and coverage report.
-4. **Skill Transparency**: Explicitly state which specialized skills are used BEFORE executing tasks.
+2. **Output Contract**: Deliver defined output then **STOP**. NEVER initiate the next role.
+3. **No Self-Escalation**: Hit a blocker? **Stop and ask the USER.** NEVER switch roles autonomously.
+4. **Ghost Context**: Before finishing, ALWAYS use `annotate_file` to inject non-obvious gotchas into affected files.
+5. **Skill Transparency**: State which specialized skills are used BEFORE executing.
+6. **No Destruction**: NEVER delete existing API contracts, database columns, or core functionality without explicit USER
+   confirmation.
+7. **No Assumptions**: If requirements are vague, stop and clarify via Socratic questioning before writing any code.
 
----
+### Drift Detection (Panic Protocol)
 
-## 🛡️ UNIVERSAL GUARDRAILS (Applies to ALL Roles)
+If stuck on the **same issue 3 times consecutively**:
 
-### A. Drift Detection
+1. Call `record_failure`.
+2. **STOP immediately** — NEVER attempt a 4th fix.
+3. Report to the USER: what was attempted, what failed, what is needed.
 
-If any role is stuck on the **same issue 3 times consecutively**:
+### Resource Ownership
 
-1. Call `@mcp:context-manager` (`record_failure`).
-2. **Stop immediately** — do not attempt a 4th fix.
-3. Report the blocker to the USER: what was attempted, what failed, what is needed to unblock.
+- **Planner**: Owns `design/design-*.md`, task plan, `git commit`, `complete_task_step`.
+- **Coder**: Owns source code changes and implementation report.
+- **Reviewer**: Owns the audit report.
+- **Tester**: Owns bug report, test suite, and coverage report.
 
-> ⚠️ No role self-escalates or switches role on drift. The USER decides how to proceed.
+### Quality Gates (Planner-Enforced)
 
-### B. Ghost Context (Before Stopping)
+Both Reviewer (APPROVED) and Tester (≥ 70% coverage + bugs hunted) MUST pass before any commit. If either fails, the
+Planner asks the USER — NEVER auto-loops.
 
-Before any role finishes, use `@mcp:context-manager` (`annotate_file`) to inject non-obvious gotchas, architectural
-quirks, or library limitations into affected files.
+### Shared References
 
-### C. Quality Gates (Planner-Enforced)
-
-Both Reviewer (APPROVED) and Tester (bugs hunted + ≥ 70% coverage) gates must pass before any commit. If either fails,
-the Planner asks the USER — it does not auto-loop. See [`planner-architect.md`](./../workflows/planner-architect.md)
-**Phase 5**.
+- **Security Checklist**: `.agents/references/security-checklist.md`
+- **Report Templates**: `.agents/references/report-templates/`
 
 ---
 
 ## 📌 Metadata
 
-- **Version**: 2.7.0
-- **Last Updated**: 2026-03-17
+- **Version**: 3.0.0
+- **Last Updated**: 2026-03-18
