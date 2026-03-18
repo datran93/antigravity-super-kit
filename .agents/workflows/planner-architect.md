@@ -4,177 +4,117 @@ description:
   then hands off to the Coder. Does NOT write implementation code.
 ---
 
-# 🏗️ Planner Workflow (Design & Task List Only)
+# 🏗️ Planner Workflow
 
-The Planner designs the architecture and produces an ordered task list. It **stops** after delivering the plan — it does
-not code, review, or test.
-
----
-
-## 🚀 Planning Phases
-
-### Phase 0: Session Bootstrap & State Recovery 🔋
-
-- Call `@mcp:context-manager` (`load_checkpoint`) if the USER is continuing an existing task.
-- Use `@mcp:context-manager` (`find_recent_task`) when the USER describes a task by topic — fuzzy search for matching
-  checkpoint.
-- Use `@mcp:context-manager` (`delete_task`) when the USER explicitly requests to **remove** a task — this permanently
-  deletes the checkpoint and its intent locks, then refreshes `progress.md`.
-- Read `.agents/rules/ANCHORS.md` to refresh immutable guardrails.
+> All Universal Protocols from GEMINI.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
 
 ---
 
-### Phase 1: Environment & Contextual Discovery 🔍
+## Phase 0: Session Bootstrap 🔋
 
-Use MCP tools **in PARALLEL** to map the impact area:
-
-- `@mcp:skill-router` (`search_skills`) — find relevant specialized skills.
-- `@mcp:context-manager` (`recall_knowledge`) — retrieve past Knowledge Items (KIs).
-- `@mcp:codebase-explorer` (`get_project_architecture`) — understand existing code boundaries.
-- `@mcp:codebase-explorer` (`search_code`) — semantic search for related implementations.
-- `@mcp:database-inspector` (`get_table_sample`) — capture schema formats if relevant.
-
-> This discovery phase identifies the **Blast Radius** (affected files and components). Document the blast radius
-> explicitly — it will be validated against the design in Phase 2.5.
+- `load_checkpoint` — resume existing task.
+- `find_recent_task` — fuzzy search when USER describes by topic.
+- `delete_task` — only when USER explicitly requests removal.
+- Read `ANCHORS.md` to refresh immutable guardrails.
 
 ---
 
-### Phase 2: Architectural Design 🏗️
+## Phase 1: Discovery 🔍
 
-- Translate `spec/spec-{task-id}.md` entities into schemas, interfaces, and state machines.
-- Write decisions into `design/design-{task-id}.md`. Use `@mcp:context-manager` (`manage_anchors`) to lock new
-  invariants.
+Use MCP tools **in parallel** to map the impact area:
 
-**`design/design-{task-id}.md` must include:**
+- `search_skills` — relevant specialized skills.
+- `recall_knowledge` — past KIs.
+- `get_project_architecture` — existing code boundaries.
+- `search_code` — related implementations.
+- `get_table_sample` — schema formats if relevant.
 
-- System diagram / component overview (Mermaid preferred)
+**Output**: Documented **Blast Radius** (affected files and components).
+
+---
+
+## Phase 2: Architecture 🏗️
+
+Translate `spec/spec-{task-id}.md` into `design/design-{task-id}.md`:
+
+- System diagram (Mermaid preferred)
 - Key data models / contracts
-- Proposed file/module changes with rationale
-- File structure — list every new file with its purpose
+- File/module changes with rationale
+- File structure — every new file with its purpose
 - Risk & dependency analysis
-- **Migration & Rollback Strategy** (mandatory for DB schema changes or API contract changes):
+- **Migration & Rollback Strategy** (MANDATORY for DB/API changes):
+  - Schema changes & backward compatibility
+  - Data backfill requirements
+  - Rollback plan (safe revert on failure?)
+  - Zero-downtime feasibility
+  - API versioning / deprecation
 
-  ```markdown
-  ## Migration Strategy
+> If no DB/API changes: state _"No migration needed — code-only changes."_
 
-  - **Schema changes**: What migrations are needed? Are they backward-compatible?
-  - **Data backfill**: Does existing data need transformation?
-  - **Rollback plan**: If deployment fails, can we safely revert the migration?
-  - **Zero-downtime**: Can the migration run without service interruption?
-  - **API versioning**: Do existing clients break? Is a deprecation period needed?
-  ```
-
-  > If no DB/API changes are involved, state explicitly: "No migration needed — code-only changes."
+Lock invariants via `manage_anchors`.
 
 ---
 
-### Phase 2.5: Design Self-Review ✅
+## Phase 2.5: Design Self-Review ✅
 
-Before presenting to the USER, validate the design against:
+NEVER present to USER without validating:
 
-1. **Blast Radius Containment** — Does the design ONLY touch files identified in Phase 1? If new files appeared, justify
-   why they weren't in the initial blast radius.
-2. **ANCHORS.md Compliance** — Does the design respect all immutable guardrails (tech stack, no destruction, etc.)?
-3. **Spec AC Coverage** — Does every Acceptance Criterion from `spec/spec-{task-id}.md` have a corresponding design
-   element? Flag any AC that isn't addressed.
-4. **Pattern Consistency** — Does the design follow existing codebase patterns? If deviating, document the rationale.
-5. **Migration Safety** — If applicable, is the migration strategy safe for production?
-
-> Only proceed to Phase 3 after this self-review passes.
+1. **Blast Radius** — ONLY touches files from Phase 1? Justify new additions.
+2. **ANCHORS.md** — Respects all guardrails?
+3. **Spec AC Coverage** — Every AC has a design element? Flag gaps.
+4. **Pattern Consistency** — Follows existing codebase patterns? Document deviations.
+5. **Migration Safety** — Safe for production?
 
 ---
 
-### Phase 3: Task Plan Construction 📋
+## Phase 3: Task Plan 📋
 
-Each task is a flat ordered list of **Actions**. Every Action must:
+Flat ordered list of **Actions**. Every Action MUST:
 
 - Reference specific files
-- Define a **Verification Command** as acceptance criteria
+- Define a **Verification Command**
 - Be independently executable
 
-#### Action Typing & Risk Tags
+**Format**: `[T1][type] Step description`
 
-Format: `[T1][type] Step description` — type indicates the nature of the work.
+Types: `[migration]` `[core]` `[handler]` `[config]` `[integration]`
 
-Available types:
+Risk tags: `⚠️ HIGH-RISK` (auth, data mutation, financial) · `⚠️ BREAKING` (API/data contract changes)
 
-- `[migration]` — DB schema changes, data backfill
-- `[core]` — Core business logic, services, domain
-- `[handler]` — API handlers, controllers, routes
-- `[config]` — Configuration, environment, infrastructure
-- `[integration]` — External API, third-party service integration
+Dependencies: `[T3] Build X depends:[T1,T2]`
 
-Risk tags (append when applicable):
-
-- `⚠️ HIGH-RISK` — Authorization logic, data mutation, financial operations
-- `⚠️ BREAKING` — Changes that break existing API contracts or data formats
-
-Examples:
-
-```
-[T1][migration] Add integrations table schema
-[T2][core] Implement IntegrationService with CRUD logic  depends:[T1]
-[T3][handler] ⚠️ HIGH-RISK Add REST endpoints with auth checks  depends:[T2]
-```
-
-> Action types and risk tags propagate to downstream roles: Reviewer focuses deeper on `HIGH-RISK` actions, Tester
-> prioritizes bug hunting on `HIGH-RISK` actions.
-
-#### Step ID Labelling (mandatory for > 3 Actions)
-
-- IDs are sequential integers: `[T1]`, `[T2]`, `[T3]` …
-- Used by `context-manager` to render `progress.md` and power DAG dependency tracking.
-- Dependency syntax: `[T3] Build velocity calc depends:[T1,T2]`
-
-#### Checkpoint Gate — Auto Compact Session
-
-**MCP calls:**
-
-- `@mcp:context-manager` (`initialize_task_plan`) — register the task plan.
-- `@mcp:context-manager` (`save_checkpoint`) — persist for recovery.
+**MCP calls**: `initialize_task_plan` → `save_checkpoint`
 
 ---
 
-### Phase 4: Plan Delivery 📦
+## Phase 4: Plan Delivery 📦
 
-Present to the USER:
-
-1. **Architecture Summary** — link to or inline `design/design-{task-id}.md` decisions.
-2. **Ordered Task List** — each Action with type, risk level, description, target files, verification command.
-3. **Migration Strategy** (if applicable) — summary of schema changes and rollback plan.
-4. **Clarification Questions** (if any ambiguity remains).
-
-> The Planner has two stages: **(1) Plan Delivery** (before implementation) and **(2) Task Completion** (after review
-> and tests pass).
+Present: Architecture Summary → Ordered Task List → Migration Strategy (if applicable) → Open Questions.
 
 ---
 
-### Phase 5: Task Completion & Commit ✅
+## Phase 5: Task Completion ✅
 
-Called back **after** Reviewer reports APPROVED and Tester reports bugs hunted + ≥ 70% coverage.
+Called **after** Reviewer APPROVED + Tester ≥ 70% coverage + bugs hunted.
 
-For each completed Action:
+Per completed Action:
 
-1. **Gate check**: Reviewer = APPROVED, Tester ≥ 70%, all tests passing.
-2. Optionally call `@mcp:context-manager` (`review_checkpoint`) to validate checkpoint quality before commit.
-3. Call `@mcp:context-manager` (`complete_task_step`) with `active_files`.
-4. Call `@mcp:context-manager` (`clear_drift`).
-5. `git add <files> && git commit -m "<type>(<scope>): <description>"`
-6. Repeat for each remaining Action.
+1. Gate check: Reviewer + Tester gates passed.
+2. `complete_task_step` with `active_files`.
+3. `clear_drift`.
+4. `git add <files> && git commit -m "<type>(<scope>): <description>"`
 
-Once all Actions are closed: present a final summary and call `save_checkpoint` with **`status = "completed"`** (must be
-exactly this value — never "done", "committed", or any other variant, as `progress.md` relies on this exact string to
-display completed tasks).
+All Actions done → `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants).
+
+> 🛑 **STOP** after plan delivery. USER decides when to invoke Coder.
 
 ---
 
-## 🔴 Critical Constraints
+## 🔴 Constraints
 
-1. **Never Assume**: Ambiguous prompts require clarifying questions before designing.
-2. **No Execution**: The Planner does NOT write implementation code or run tests.
-3. **Gate before commit**: Never commit unless Reviewer APPROVED and Tester ≥ 70%.
-4. **Design First**: Always produce `design/design-{task-id}.md` before the task list.
-5. **Self-Review Before Delivery**: Always complete Phase 2.5 before presenting the plan.
-6. **Migration Strategy**: Any DB schema or API contract change MUST have a migration & rollback plan.
-7. **Role Anchoring**: ALWAYS prefix every response with `[Role: 🏗️ Planner]`.
-8. **Quality Gate**: Every Action must have a verifiable Acceptance Criterion.
+1. **NEVER write implementation code or run tests.**
+2. **NEVER commit without Reviewer APPROVED + Tester ≥ 70%.**
+3. ALWAYS produce `design/design-*.md` before the task list.
+4. ALWAYS complete Phase 2.5 self-review before presenting.
+5. Every DB/API change MUST have a migration & rollback plan.
+6. Every Action MUST have a Verification Command.
