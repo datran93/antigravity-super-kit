@@ -35,7 +35,22 @@ Use MCP tools **in parallel** to map the impact area:
 
 ## Phase 2: Architecture 🏗️
 
-Translate `spec/spec-{task-id}.md` into `design/design-{task-id}.md`:
+Translate `spec/spec-{task-id}.md` into design artifacts.
+
+### Output Format
+
+**For complex tasks** (data models, API contracts, or research required): produce a **directory** `design/design-{task-id}/`:
+
+| File | Purpose | When Required |
+|------|---------|---------------|
+| `architecture.md` | System diagram, module changes, risk analysis, migration strategy | **Always** |
+| `research.md` | Decisions, rationale, alternatives considered | When unknowns exist |
+| `data-model.md` | Entities, fields, relationships, validation rules, state transitions | When data entities involved |
+| `contracts/` | API contracts, interface definitions (OpenAPI, gRPC proto, etc.) | When external interfaces exist |
+
+**For simple tasks** (no data model, no research, no contracts): produce a single `design/design-{task-id}.md`.
+
+### Required Content (in `architecture.md` or flat file)
 
 - System diagram (Mermaid preferred)
 - Key data models / contracts
@@ -69,19 +84,57 @@ NEVER present to USER without validating:
 
 ## Phase 3: Task Plan 📋
 
-Flat ordered list of **Actions**. Every Action MUST:
+Produce a **story-grouped task plan** organized by user-story phases. Every Action MUST:
 
 - Reference specific files
 - Define a **Verification Command**
 - Be independently executable
 
-**Format**: `[T1][type] Step description`
+### Task Format
+
+**ID format**: `[T001][type]` (3-digit, zero-padded)
 
 Types: `[migration]` `[core]` `[handler]` `[config]` `[integration]`
 
 Risk tags: `⚠️ HIGH-RISK` (auth, data mutation, financial) · `⚠️ BREAKING` (API/data contract changes)
 
-Dependencies: `[T3] Build X depends:[T1,T2]`
+Dependencies: `[T003] Build X depends:[T001,T002]`
+
+Parallel marker: `[P]` for tasks within a story that can run simultaneously
+
+### Story-Grouped Structure
+
+Organize tasks into phases aligned with spec user stories:
+
+```
+## Phase 1: Setup
+[T001][config] Initialize project structure
+
+## Phase 2: Foundation (Blocking prerequisites)
+[T002][core] Create shared utilities — file: pkg/utils/
+
+## Phase 3: User Story 1 — [P1] Story Title
+ Goal: <story goal statement>
+ Independent Test: <how to verify this story works end-to-end>
+ MVP Scope: Yes/No
+[T003][core] Create X model — file: internal/models/x.go
+[T004][handler] Create X handler — file: internal/handlers/x.go
+
+## Phase 4: User Story 2 — [P2] Story Title
+ Goal: <story goal statement>
+ Independent Test: <how to verify this story works end-to-end>
+[T005][core] Create Y service — file: internal/services/y.go
+
+## Phase 5: Polish & Cross-Cutting
+[T006][config] Add middleware / observability
+```
+
+**Key rules**:
+- Label MVP scope (typically just Phase 3 / US1)
+- Each story phase has: Goal, Independent Test
+- Tasks trace to stories: `[T003][US1][core]` format when helpful
+- Phase 1 (Setup) and Phase 2 (Foundation) are always present
+- Last phase is always Polish & Cross-Cutting
 
 **MCP calls**: `initialize_task_plan` → `save_checkpoint`
 

@@ -58,19 +58,37 @@ If ambiguity remains → return to Phase 2.
 
 ## Phase 4: Specification Generation 🌱
 
-Write `spec/spec-{task-id}.md` containing:
+Write `spec/spec-{task-id}.md` following the canonical template at `.agents/references/spec-template.md`.
 
-- **Core Ontology**: Data entities, property definitions, domain boundaries, state machines.
-- **Acceptance Criteria**: MANDATORY `GIVEN/WHEN/THEN` format:
+**Required sections**:
 
-  ```
-  AC-1: GIVEN <precondition>, WHEN <action>, THEN <measurable outcome>
-  ```
+- **Overview**: One-paragraph problem statement.
 
-  > ❌ NEVER accept vague AC like _"System should handle errors gracefully"_
+- **Prioritized User Stories** (P1, P2, P3):
+  - Each story MUST include:
+    - **Priority Justification**: Why this priority order
+    - **Independent Test**: _"Can be fully tested by [specific action]"_
+    - **Acceptance Criteria**: MANDATORY `GIVEN/WHEN/THEN` format:
 
+      ```
+      AC-1: GIVEN <precondition>, WHEN <action>, THEN <measurable outcome>
+      ```
+
+      > ❌ NEVER accept vague AC like _"System should handle errors gracefully"_
+
+- **Key Entities**: Data entities as first-class spec citizens:
+
+  | Entity | Core Attributes | Relationships | Uniqueness/Identity | State Transitions |
+  |--------|----------------|---------------|--------------------|--------------------|
+  | _Name_ | _attr1, attr2_ | _belongs to X_ | _Unique by [field]_ | _created → active_ |
+
+- **Core Ontology**: Domain boundaries, property definitions, state machines.
 - **Explicit Non-Goals**: What we are deliberately NOT building.
 - **Constraining Assumptions**: Explicit boundaries and trade-offs.
+
+- **Clarification Markers** (max 3):
+  - `[NEEDS CLARIFICATION]` — only for scope/security/UX ambiguities where no reasonable default exists
+  - These will be resolved by `/clarify-specification`
 
 Save state via `save_checkpoint`.
 
@@ -78,7 +96,10 @@ Save state via `save_checkpoint`.
 
 ## Phase 5: Hand-off 🔄
 
-Present spec to USER for sign-off. Once approved, advise transition to `/planner-architect`.
+Present spec to USER for sign-off. Once approved, advise:
+
+1. **If `[NEEDS CLARIFICATION]` markers exist**: Recommend `/clarify-specification` to resolve ambiguities
+2. **If spec is fully clear**: Recommend `/planner-architect` for architecture and task planning
 
 > 🛑 **STOP HERE.** NEVER generate code, architecture, or bash scripts. Your artifact is the spec.
 
@@ -90,3 +111,5 @@ Present spec to USER for sign-off. Once approved, advise transition to `/planner
 2. **≤ 3 questions per response**: Tightly related, highest-priority last.
 3. **Brownfield**: ALWAYS complete Phase 1.5 before deep questioning.
 4. **AC format**: Every AC MUST follow `GIVEN/WHEN/THEN`. Reject vague criteria.
+5. **Template compliance**: MUST follow `.agents/references/spec-template.md` structure.
+6. **Max 3 `[NEEDS CLARIFICATION]` markers**: Only for blocking ambiguities with no reasonable default.

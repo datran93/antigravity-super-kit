@@ -15,10 +15,13 @@ Analyses the USER's request and **automatically routes** it to the most appropri
 | If the request involves...                                 | Route to                 |
 | ---------------------------------------------------------- | ------------------------ |
 | Requirements, spec, ambiguity, "what should we build"      | `/specifications-writer` |
+| Clarify spec, resolve ambiguities, "questions about spec"  | `/clarify-specification` |
 | Architecture, design, design/design-\*.md, task list, plan | `/planner-architect`     |
+| Consistency check, coverage, "analyze artifacts", "verify" | `/analyze-artifacts`     |
 | Implementation, writing code, "build X", "add feature Y"   | `/coder-implementation`  |
 | Code review, audit, quality, "check my code"               | `/reviewer-audit`        |
 | Tests, coverage, "write tests for", TDD                    | `/tester-verification`   |
+| Checklist, "generate checklist", "security checklist"      | `/checklist-generator`   |
 | Git commit, stage changes                                  | `/git-commit`            |
 | Git push, "push to remote"                                 | `/git-push`              |
 | GitLab MR, "fix MR comments", review thread                | `/gitlab-mr-read-fix`    |

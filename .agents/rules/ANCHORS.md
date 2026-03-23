@@ -4,6 +4,13 @@ trigger: always_on
 
 # ⚓ ANCHORS (Immutable Facts & Guardrails)
 
+> **Version**: 1.0.0 | **Last Amended**: 2026-03-24
+>
+> **Amendment Process**: Changes to ANCHORS require:
+> 1. Explicit USER request with rationale
+> 2. Document what changed and why
+> 3. Increment version (MAJOR: new constraint, MINOR: refinement, PATCH: wording)
+
 Non-negotiable project facts and constraints. Must survive context compaction and session restarts.
 
 ## 🏗️ Technology Stack

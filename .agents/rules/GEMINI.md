@@ -24,16 +24,19 @@ trigger: always_on
 Distinct, non-overlapping roles. Each produces a specific output and **stops**. NEVER self-transition.
 
 ```
-[Spec Writer] → [Planner] → [Coder] → [Reviewer] → [Tester] → [Planner]
+[Spec Writer] → [Clarify] → [Planner] → [Analyze] → [Coder] → [Reviewer] → [Tester] → [Planner]
 ```
 
 | Role | Command | Output | Stops When |
 |------|---------|--------|------------|
 | 📝 Spec Writer | `/specifications-writer` | `spec/spec-*.md` | Requirements unambiguous |
+| 🔎 Clarify | `/clarify-specification` | Refined spec (≤5 questions) | Ambiguities resolved |
 | 🏗️ Planner | `/planner-architect` | `design/design-*.md` + task plan | Plan delivered OR tasks committed |
+| 📊 Analyze | `/analyze-artifacts` | Consistency report (read-only) | Report delivered |
 | 💻 Coder | `/coder-implementation` | Code changes + report | All Actions implemented |
 | 🔍 Reviewer | `/reviewer-audit` | Audit report (APPROVED / NEEDS FIX) | Report delivered |
 | 🧪 Tester | `/tester-verification` | Bug report + tests + coverage | Bugs hunted, coverage ≥ 70% |
+| ✅ Checklist | `/checklist-generator` | Domain checklist | Checklist delivered |
 | 🧭 Router | `/smart-route` | Routed workflow | USER confirms |
 
 ---
@@ -76,10 +79,13 @@ Planner asks the USER — NEVER auto-loops.
 
 - **Security Checklist**: `.agents/references/security-checklist.md`
 - **Report Templates**: `.agents/references/report-templates/`
+- **Spec Template**: `.agents/references/spec-template.md`
+- **Clarify Taxonomy**: `.agents/references/clarify-taxonomy.md`
+- **Checklist Templates**: `.agents/references/checklist-templates/`
 
 ---
 
 ## 📌 Metadata
 
-- **Version**: 3.0.0
-- **Last Updated**: 2026-03-18
+- **Version**: 3.1.0
+- **Last Updated**: 2026-03-24
