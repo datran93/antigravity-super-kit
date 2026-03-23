@@ -20,11 +20,6 @@ Non-negotiable project facts and constraints. Must survive context compaction an
 > the **latest stable version** of each stack component. Always start new projects on the **latest stable release**.
 > Never rely on memorized or training-data versions — they may be outdated.
 
-- **Backend**: Golang (latest stable). Verify at [go.dev/dl](https://go.dev/dl/).
-- **Frontend**: React (latest stable) / Next.js (latest stable) App Router.
-- **Package Manager**: `pnpm` (latest stable). NEVER `npm`.
-- **Database**: PostgreSQL (latest stable major). NEVER MongoDB or MySQL.
-
 ## 🧪 Quality Standards
 
 - **TDD**: Every task Action MUST have a Verification Command. Code is NOT complete without passing verification.
