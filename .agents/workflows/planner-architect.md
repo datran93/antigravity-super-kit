@@ -1,7 +1,7 @@
 ---
 description:
-  Structured workflow for Planning and Architectural design. Produces a design/design-*.md and an ordered task list,
-  then hands off to the Coder. Does NOT write implementation code.
+  Structured workflow for Planning and Architectural design. Produces design artifacts and tasks.md inside
+  features/{NNN}-{slug}/, then hands off to the Coder. Does NOT write implementation code.
 ---
 
 # 🏗️ Planner Workflow
@@ -35,11 +35,11 @@ Use MCP tools **in parallel** to map the impact area:
 
 ## Phase 2: Architecture 🏗️
 
-Translate `spec/spec-{task-id}.md` into design artifacts.
+Translate `features/{NNN}-{slug}/spec.md` into design artifacts, co-located in the same feature directory.
 
 ### Output Format
 
-**For complex tasks** (data models, API contracts, or research required): produce a **directory** `design/design-{task-id}/`:
+**For complex tasks** (data models, API contracts, or research required): produce a **directory** `features/{NNN}-{slug}/design/`:
 
 | File | Purpose | When Required |
 |------|---------|---------------|
@@ -48,7 +48,7 @@ Translate `spec/spec-{task-id}.md` into design artifacts.
 | `data-model.md` | Entities, fields, relationships, validation rules, state transitions | When data entities involved |
 | `contracts/` | API contracts, interface definitions (OpenAPI, gRPC proto, etc.) | When external interfaces exist |
 
-**For simple tasks** (no data model, no research, no contracts): produce a single `design/design-{task-id}.md`.
+**For simple tasks** (no data model, no research, no contracts): produce a single `features/{NNN}-{slug}/design.md`.
 
 ### Required Content (in `architecture.md` or flat file)
 
@@ -138,6 +138,13 @@ Organize tasks into phases aligned with spec user stories:
 
 **MCP calls**: `initialize_task_plan` → `save_checkpoint`
 
+### Generate `tasks.md`
+
+After the task plan is finalized, write `features/{NNN}-{slug}/tasks.md` following `.agents/references/tasks-template.md`.
+
+This file is the **human-readable** task list. MCP `initialize_task_plan` remains the **agent-state** source of truth.
+Both MUST stay in sync.
+
 ---
 
 ## Phase 4: Plan Delivery 📦
@@ -148,11 +155,15 @@ Present: Architecture Summary → Ordered Task List → Migration Strategy (if a
 
 ## Phase 5: Task Completion ✅
 
-Called **after** Reviewer APPROVED + Tester ≥ 70% coverage + bugs hunted.
+Called **after** passing size-conditional quality gates (see GEMINI.md § Quality Gates):
+
+- 🟢 SMALL: Self-review only (handled by `/fast-fix`).
+- 🟡 MEDIUM: Reviewer APPROVED (handled by `/build` + `/reviewer-audit`).
+- 🔴 LARGE: Reviewer APPROVED + Tester ≥ 70% coverage + bugs hunted.
 
 Per completed Action:
 
-1. Gate check: Reviewer + Tester gates passed.
+1. Gate check: Verify quality gates passed for the task's size tier.
 2. `complete_task_step` with `active_files`.
 3. `clear_drift`.
 4. `git add <files> && git commit -m "<type>(<scope>): <description>"`
@@ -166,8 +177,9 @@ All Actions done → `save_checkpoint` with **`status = "completed"`** (exact st
 ## 🔴 Constraints
 
 1. **NEVER write implementation code or run tests.**
-2. **NEVER commit without Reviewer APPROVED + Tester ≥ 70%.**
-3. ALWAYS produce `design/design-*.md` before the task list.
-4. ALWAYS complete Phase 2.5 self-review before presenting.
-5. Every DB/API change MUST have a migration & rollback plan.
-6. Every Action MUST have a Verification Command.
+2. **NEVER commit without passing quality gates** for the task's size tier (see GEMINI.md § Quality Gates).
+3. ALWAYS produce design artifact inside `features/{NNN}-{slug}/` before the task list.
+4. ALWAYS generate `features/{NNN}-{slug}/tasks.md` alongside MCP checkpoint.
+5. ALWAYS complete Phase 2.5 self-review before presenting.
+6. Every DB/API change MUST have a migration & rollback plan.
+7. Every Action MUST have a Verification Command.

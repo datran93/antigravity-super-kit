@@ -15,10 +15,10 @@ description:
 ## Phase 0: Load Artifacts 📖
 
 1. Identify the task: `load_checkpoint` or identify from USER context.
-2. Read all artifacts:
-   - `spec/spec-{task-id}.md` — requirements, user stories, acceptance criteria
-   - `design/design-{task-id}.md` OR `design/design-{task-id}/architecture.md` (detect format)
-   - Task plan from checkpoint or design doc
+2. Read all artifacts from `features/{NNN}-{slug}/`:
+   - `spec.md` — requirements, user stories, acceptance criteria
+   - `design.md` OR `design/architecture.md` (detect format)
+   - `tasks.md` — task plan from Planner
 3. Read `ANCHORS.md` — constraints to validate against.
 4. If any artifact is missing → report which artifact is missing → STOP.
 

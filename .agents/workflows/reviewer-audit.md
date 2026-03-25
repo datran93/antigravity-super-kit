@@ -1,8 +1,8 @@
 ---
 description:
   Structured workflow for Code Review and Quality Audit. Reads the Coder's implementation report and the original
-  design/design-*.md, performs a thorough audit including pattern consistency, security depth review, and performance
-  analysis, and reports findings to the USER. Does NOT fix code, does NOT switch roles.
+  features/{NNN}-{slug}/ artifacts, performs a thorough audit including pattern consistency, security depth review, and
+  performance analysis, and reports findings to the USER. Does NOT fix code, does NOT switch roles.
 ---
 
 # 🔍 Reviewer Workflow
@@ -13,9 +13,9 @@ description:
 
 ## Phase 0: Load Context 📖
 
-1. Read `spec/spec-{task-id}.md` — Acceptance Criteria.
-2. Read `design/design-{task-id}.md` — intended architecture.
-3. Read the Coder's report — files changed, patterns followed, compromises declared.
+1. Read `features/{NNN}-{slug}/spec.md` — Acceptance Criteria.
+2. Read `features/{NNN}-{slug}/design.md` (or `design/architecture.md`) — intended architecture.
+3. Read `features/{NNN}-{slug}/reports/coder-report.md` — files changed, patterns followed, compromises declared.
 4. `load_checkpoint` — confirm completed Actions.
 5. Read `ANCHORS.md` — refresh guardrails.
 
@@ -80,6 +80,8 @@ Per `.agents/references/security-checklist.md` — verify every check with speci
 ## Phase 3: Report 📋
 
 Deliver report per `.agents/references/report-templates/reviewer-report.md`.
+
+Write the report to `features/{NNN}-{slug}/reports/audit-report.md`.
 
 > 🛑 **STOP HERE.** The USER decides: ask Coder to fix, proceed to `/tester-verification`, or accept.
 

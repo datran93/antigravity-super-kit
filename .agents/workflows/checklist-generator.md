@@ -26,8 +26,8 @@ description:
 2. **Load template** for the selected domain.
 
 3. **Load project context** to customize checklist items:
-   - `spec/spec-{task-id}.md` — for requirements-based items (if exists)
-   - `design/design-{task-id}.md` — for technical items (if exists)
+   - `features/{NNN}-{slug}/spec.md` — for requirements-based items (if exists)
+   - `features/{NNN}-{slug}/design.md` — for technical items (if exists)
    - `.agents/rules/ANCHORS.md` — for constraint-based items (always)
    - `load_checkpoint` — for task plan context (if exists)
 
@@ -43,7 +43,7 @@ Using the template as a base, generate a **project-specific** checklist:
    - Remove items that don't apply (e.g., "tenant isolation" if single-tenant)
    - Add ANCHORS-derived items (e.g., "All code in English" from language anchor)
 3. **Add references** to relevant files or sections where applicable:
-   - `→ See: spec/spec-{task-id}.md §3 Key Entities`
+   - `→ See: features/{NNN}-{slug}/spec.md §3 Key Entities`
    - `→ See: .agents/rules/ANCHORS.md §Quality Standards`
 
 ### Item Format
@@ -60,12 +60,12 @@ Group items by categories from the template. Each category should have 3-10 item
 
 ## Phase 3: Write & Deliver 📦
 
-1. Write checklist to `checklists/{domain}-checklist.md`
-2. Create the `checklists/` directory if it doesn't exist
+1. Write checklist to `features/{NNN}-{slug}/checklists/{domain}-checklist.md`
+2. Create the `features/{NNN}-{slug}/checklists/` directory if it doesn't exist
 3. Present summary to USER:
 
 ```
-✅ Generated {domain} checklist: checklists/{domain}-checklist.md
+✅ Generated {domain} checklist: features/{NNN}-{slug}/checklists/{domain}-checklist.md
    Items: N (X categories)
    Context sources: spec, design, ANCHORS
 ```

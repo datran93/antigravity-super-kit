@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.0",
+  "agents": {
+    "agy": {
+      "name": "Antigravity (AGK)",
+      "target_dir": ".agents",
+      "rules": { "dir": "rules", "format": "md", "extension": ".md" },
+      "workflows": { "dir": "workflows", "format": "md", "extension": ".md" },
+      "skills": { "dir": "skills", "format": "skill_folder" },
+      "references": { "dir": "references", "format": "md" },
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": "GEMINI.md",
+      "verbatim": true
+    },
+    "gemini": {
+      "name": "Gemini CLI",
+      "target_dir": ".gemini",
+      "rules": { "dir": "rules", "format": "md", "extension": ".md" },
+      "workflows": { "dir": "commands", "format": "toml", "extension": ".toml" },
+      "skills": { "dir": "skills", "format": "skill_folder" },
+      "args_placeholder": "{{args}}",
+      "instructions_file": "GEMINI.md"
+    },
+    "claude": {
+      "name": "Claude Code",
+      "target_dir": ".claude",
+      "rules": { "dir": ".", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "CLAUDE.md" } },
+      "workflows": { "dir": "commands", "format": "md", "extension": ".md" },
+      "skills": null,
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": "CLAUDE.md"
+    },
+    "cursor": {
+      "name": "Cursor",
+      "target_dir": ".cursor",
+      "rules": { "dir": "rules", "format": "md", "extension": ".mdc" },
+      "workflows": { "dir": "commands", "format": "md", "extension": ".md" },
+      "skills": null,
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": ".cursorrules"
+    },
+    "copilot": {
+      "name": "GitHub Copilot",
+      "target_dir": ".github",
+      "rules": { "dir": ".", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "copilot-instructions.md" } },
+      "workflows": { "dir": "agents", "format": "md", "extension": ".agent.md" },
+      "skills": null,
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": "copilot-instructions.md"
+    },
+    "codex": {
+      "name": "Codex CLI",
+      "target_dir": ".codex",
+      "rules": { "dir": ".", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENTS.md" } },
+      "workflows": { "dir": "skills", "format": "skill_folder" },
+      "skills": { "dir": "skills", "format": "skill_folder" },
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": "AGENTS.md"
+    },
+    "windsurf": {
+      "name": "Windsurf",
+      "target_dir": ".windsurf",
+      "rules": { "dir": "rules", "format": "md", "extension": ".md" },
+      "workflows": { "dir": "workflows", "format": "md", "extension": ".md" },
+      "skills": null,
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": ".windsurfrules"
+    },
+    "opencode": {
+      "name": "opencode",
+      "target_dir": ".opencode",
+      "rules": { "dir": ".", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENT.md" } },
+      "workflows": { "dir": "command", "format": "md", "extension": ".md" },
+      "skills": null,
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": "AGENT.md"
+    },
+    "kiro": {
+      "name": "Kiro CLI",
+      "target_dir": ".kiro",
+      "rules": { "dir": ".", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENT.md" } },
+      "workflows": { "dir": "prompts", "format": "md", "extension": ".md" },
+      "skills": null,
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": "AGENT.md"
+    },
+    "amp": {
+      "name": "Amp",
+      "target_dir": ".amp",
+      "rules": { "dir": "rules", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENTS.md" } },
+      "workflows": { "dir": "commands", "format": "md", "extension": ".md" },
+      "skills": null,
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": "AGENTS.md"
+    },
+    "roo": {
+      "name": "Roo Code",
+      "target_dir": ".roo",
+      "rules": { "dir": "rules", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENT.md" } },
+      "workflows": { "dir": "commands", "format": "md", "extension": ".md" },
+      "skills": null,
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": "AGENT.md"
+    },
+    "qwen": {
+      "name": "Qwen Code",
+      "target_dir": ".qwen",
+      "rules": { "dir": "rules", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENT.md" } },
+      "workflows": { "dir": "commands", "format": "md", "extension": ".md" },
+      "skills": null,
+      "args_placeholder": "$ARGUMENTS",
+      "instructions_file": "AGENT.md"
+    }
+  }
+}

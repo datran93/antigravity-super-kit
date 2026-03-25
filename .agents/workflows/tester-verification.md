@@ -15,8 +15,8 @@ description:
 
 ## Phase 0: Read Context 📖
 
-1. Read `design/design-{task-id}.md` — contracts, boundaries, expected behaviors.
-2. Read the Coder's report — files created/modified.
+1. Read `features/{NNN}-{slug}/design.md` (or `design/architecture.md`) — contracts, boundaries, expected behaviors.
+2. Read `features/{NNN}-{slug}/reports/coder-report.md` — files created/modified.
 3. `load_checkpoint` — confirm completed Actions.
 4. `search_code` — find existing test helpers and fixtures.
 
@@ -95,6 +95,8 @@ Run tests with coverage. Gate: **≥ 70%** or write more tests.
 ## Phase 5: Report 📋
 
 Deliver report per `.agents/references/report-templates/tester-report.md`.
+
+Write the report to `features/{NNN}-{slug}/reports/test-report.md`.
 
 > 🛑 **STOP HERE.** The USER decides the next step.
 

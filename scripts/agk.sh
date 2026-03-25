@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # =============================================================================
-# Antigravity Kit (agk) - AI Agent Management Tool
+# Antigravity Kit (agk) - Multi-Agent AI Management Tool
 # =============================================================================
 
-VERSION="1.4.0"
+VERSION="2.0.0"
 
 # --- Resolve Script Directory ---
 SOURCE="${BASH_SOURCE[0]}"
@@ -15,18 +15,23 @@ while [ -h "$SOURCE" ]; do
 done
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
+# --- Load Libraries ---
+source "$SCRIPT_DIR/lib/agents.sh"
+source "$SCRIPT_DIR/lib/transform.sh"
+
 # --- Configuration ---
 CACHE_DIR="$HOME/.antigravity/cache"
 REPO_URL="git@github.com:datran93/antigravity-super-kit.git"
 REPO_NAME="antigravity-kit"
 SOURCE_AGENT_DIR="$CACHE_DIR/$REPO_NAME/.agents"
-TARGET_AGENT_DIR="./.agents"
+DEFAULT_AGENT="agy"
 
 # Colors
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
 # =============================================================================
@@ -37,6 +42,40 @@ log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_error()   { echo -e "${RED}[ERROR]${NC} $1" >&2; }
 log_warn()    { echo -e "${YELLOW}[WARN]${NC} $1"; }
+
+# =============================================================================
+# Argument Parsing
+# =============================================================================
+
+# Parse --ai flags from arguments. Sets AGENTS array.
+# Usage: parse_ai_args "$@"
+parse_ai_args() {
+    AGENTS=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --ai)
+                shift
+                if [[ -z "$1" || "$1" == --* ]]; then
+                    log_error "Missing agent name after --ai"
+                    exit 1
+                fi
+                if ! validate_agent "$1"; then
+                    log_error "Unknown agent: $1"
+                    echo "  Supported agents:"
+                    list_agents
+                    exit 1
+                fi
+                AGENTS+=("$1")
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+    # Default to agy if no --ai specified
+    [[ ${#AGENTS[@]} -eq 0 ]] && AGENTS=("$DEFAULT_AGENT")
+}
 
 # =============================================================================
 # Core Functions
@@ -76,24 +115,36 @@ sync_repo() {
     log_success "Repository synced."
 }
 
-# Add .agents to git exclude
-add_git_exclude() {
-    [ ! -d ".git" ] && return
-
-    local exclude=".git/info/exclude"
-    grep -q "^\.agents$" "$exclude" 2>/dev/null || echo ".agents" >> "$exclude"
+# Get current source version (git short SHA)
+get_source_version() {
+    if [ -d "$CACHE_DIR/$REPO_NAME/.git" ]; then
+        (cd "$CACHE_DIR/$REPO_NAME" && git rev-parse --short HEAD 2>/dev/null)
+    else
+        echo "unknown"
+    fi
 }
 
-# Remove .agents from git exclude
-remove_git_exclude() {
+# Add a directory to git exclude
+add_git_exclude() {
+    local dir_name="$1"
     [ ! -d ".git" ] && return
 
     local exclude=".git/info/exclude"
-    if [ -f "$exclude" ] && grep -q "^\.agents$" "$exclude"; then
+    mkdir -p ".git/info" 2>/dev/null
+    grep -q "^\\${dir_name}$" "$exclude" 2>/dev/null || echo "$dir_name" >> "$exclude"
+}
+
+# Remove a directory from git exclude
+remove_git_exclude() {
+    local dir_name="$1"
+    [ ! -d ".git" ] && return
+
+    local exclude=".git/info/exclude"
+    if [ -f "$exclude" ] && grep -q "^\\${dir_name}$" "$exclude"; then
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' '/^\.agents$/d' "$exclude"
+            sed -i '' "/^\\${dir_name}$/d" "$exclude"
         else
-            sed -i '/^\.agents$/d' "$exclude"
+            sed -i "/^\\${dir_name}$/d" "$exclude"
         fi
     fi
 }
@@ -103,97 +154,136 @@ remove_git_exclude() {
 # =============================================================================
 
 cmd_install() {
-    if [ -d "$TARGET_AGENT_DIR" ]; then
-        log_error ".agents already exists. Use 'agk update' or remove it first."
-        exit 1
-    fi
-
+    parse_ai_args "$@"
     sync_repo
 
-    log_info "Installing .agents..."
-    cp -R "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR" 2>/dev/null
+    local source_version
+    source_version=$(get_source_version)
 
-    add_git_exclude
-    log_success ".agents installed!"
+    local success_count=0
+    for agent in "${AGENTS[@]}"; do
+        if install_for_agent "$agent" "$SOURCE_AGENT_DIR" "."; then
+            local target_dir_name
+            target_dir_name=$(get_agent_field "$agent" "target_dir")
+            local file_count
+            file_count=$(count_files "./$target_dir_name")
+
+            add_git_exclude "$target_dir_name"
+            write_lock_file "." "$agent" "$source_version" "$file_count"
+            add_git_exclude ".agk.lock.json"
+            log_success "Installed for $(get_agent_field "$agent" "name") → $target_dir_name/ ($file_count files)"
+            ((success_count++))
+        fi
+    done
+
+    if [[ $success_count -eq 0 ]]; then
+        log_error "No agents were installed."
+        exit 1
+    fi
 }
 
 cmd_update() {
+    parse_ai_args "$@"
     sync_repo
 
-    if [ ! -d "$TARGET_AGENT_DIR" ]; then
-        log_info ".agents not found. Installing..."
-        cp -R "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR" 2>/dev/null
-        add_git_exclude
-        log_success ".agents installed!"
-        return
-    fi
+    local source_version
+    source_version=$(get_source_version)
 
-    log_info "Updating .agents..."
-    rm -rf "$TARGET_AGENT_DIR" 2>/dev/null
-    cp -R "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR" 2>/dev/null
-    log_success ".agents updated!"
+    for agent in "${AGENTS[@]}"; do
+        if update_for_agent "$agent" "$SOURCE_AGENT_DIR" "."; then
+            local target_dir_name
+            target_dir_name=$(get_agent_field "$agent" "target_dir")
+            local file_count
+            file_count=$(count_files "./$target_dir_name")
+
+            write_lock_file "." "$agent" "$source_version" "$file_count"
+            log_success "Updated $(get_agent_field "$agent" "name") → $target_dir_name/ ($file_count files)"
+        fi
+    done
 }
 
 cmd_status() {
     sync_repo
 
-    if [ ! -d "$TARGET_AGENT_DIR" ]; then
-        log_error ".agents not found. Run 'agk install'."
+    local lock_file=".agk.lock.json"
+    if [ ! -f "$lock_file" ]; then
+        log_error "No installations found. Run 'agk install --ai <agent>'."
         exit 1
     fi
 
-    local diff_output
-    diff_output=$(diff -r --brief "$SOURCE_AGENT_DIR" "$TARGET_AGENT_DIR" 2>/dev/null | grep -v "\.DS_Store")
+    local source_version
+    source_version=$(get_source_version)
 
-    if [ -z "$diff_output" ]; then
-        log_success ".agents is up to date."
-    else
-        log_info "Updates available. Run 'agk update'."
-    fi
+    echo -e "${CYAN}Antigravity Kit Status${NC}"
+    echo "  Current source: $source_version"
+    echo ""
+    read_lock_file "."
 }
 
 cmd_remove() {
-    if [ ! -d "$TARGET_AGENT_DIR" ]; then
-        log_error ".agents not found."
-        exit 1
-    fi
+    parse_ai_args "$@"
 
-    echo -e "${RED}WARNING: This will delete .agents folder.${NC}"
+    for agent in "${AGENTS[@]}"; do
+        local target_dir_name
+        target_dir_name=$(get_agent_field "$agent" "target_dir")
+
+        echo -e "${RED}WARNING: This will delete $target_dir_name/ for $agent.${NC}"
+    done
+
     read -p "Continue? (y/N): " confirm
     [[ ! "$confirm" =~ ^[Yy]$ ]] && { log_info "Cancelled."; return; }
 
-    rm -rf "$TARGET_AGENT_DIR" 2>/dev/null
-    remove_git_exclude
-    log_success ".agents removed!"
+    for agent in "${AGENTS[@]}"; do
+        if remove_for_agent "$agent" "."; then
+            local target_dir_name
+            target_dir_name=$(get_agent_field "$agent" "target_dir")
+            remove_git_exclude "$target_dir_name"
+            remove_from_lock_file "." "$agent"
+            log_success "Removed $(get_agent_field "$agent" "name") ($target_dir_name/)"
+        fi
+    done
 }
 
-
-cmd_sync_skills() {
-    local sync_script="$SCRIPT_DIR/sync-skills.sh"
-
-    if [ ! -f "$sync_script" ]; then
-        log_error "sync-skills.sh not found at $sync_script"
-        exit 1
-    fi
-
-    log_info "Running sync-skills.sh..."
-    bash "$sync_script" "$@"
+cmd_agents() {
+    echo -e "${CYAN}Supported Agents${NC}"
+    echo ""
+    list_agents
+    echo ""
 }
 
+cmd_info() {
+    echo -e "${CYAN}Installed Agents${NC}"
+    echo ""
+    read_lock_file "."
+    echo ""
+}
 
 show_help() {
     cat << EOF
-Antigravity Kit v$VERSION
+${CYAN}Antigravity Kit v$VERSION${NC}
 
-Usage: agk <command>
+Usage: agk <command> [options]
 
 Commands:
-  install       Install .agents folder
-  update        Update .agents to latest
-  status        Check for updates
-  remove        Remove .agents folder
-  sync-skills   Sync local .agents with awesome-skills repo
-  help          Show this help
+  install [--ai <agent>]   Install agent configuration (default: agy)
+  update  [--ai <agent>]   Update agent to latest version
+  status                   Check installation status
+  remove  [--ai <agent>]   Remove agent configuration
+  agents                   List all supported agents
+  info                     Show current installations
+  help                     Show this help
+
+Options:
+  --ai <agent>             Target agent (can be repeated for multi-install)
+                           Default: agy (Antigravity native)
+
+Examples:
+  agk install                        # Install for Antigravity (default)
+  agk install --ai claude            # Install for Claude Code
+  agk install --ai claude --ai gemini # Install for multiple agents
+  agk update --ai claude             # Update Claude installation
+  agk remove --ai claude             # Remove Claude installation
+  agk agents                         # List all supported agents
 
 EOF
 }
@@ -203,11 +293,12 @@ EOF
 # =============================================================================
 
 case "$1" in
-    install) cmd_install ;;
-    update)  cmd_update ;;
+    install) shift; cmd_install "$@" ;;
+    update)  shift; cmd_update "$@" ;;
     status)  cmd_status ;;
-    remove)  cmd_remove ;;
-    sync-skills) shift; cmd_sync_skills "$@" ;;
+    remove)  shift; cmd_remove "$@" ;;
+    agents)  cmd_agents ;;
+    info)    cmd_info ;;
     help|-h|--help|"") show_help ;;
     *) log_error "Unknown command: $1"; show_help; exit 1 ;;
 esac

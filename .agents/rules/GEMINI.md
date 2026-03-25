@@ -2,12 +2,7 @@
 trigger: always_on
 ---
 
-# GEMINI.md - Antigravity Kit
-
-## 🎯 Initialization
-
-- **Session Start**: Read `@/.agents/rules/GEMINI.md` and `@/.agents/rules/ANCHORS.md` at the beginning of EVERY session.
-- **Proactive MCP**: Use MCP tools for discovery/research **automatically**. NEVER ask permission for read-only tools.
+# Antigravity Kit
 
 ## 🛠️ MCP Priority (Use Over Bash)
 
@@ -19,19 +14,36 @@ trigger: always_on
 
 ---
 
+## 📏 Task Size Tiers
+
+Every task is classified before routing. The Smart Router (`/smart-route`) does this automatically.
+
+| Tier | Criteria | Workflow | Ceremony |
+|------|----------|----------|----------|
+| 🟢 SMALL | < 50 LOC, no new files, no DB/API, no auth/security | `/fast-fix` | Code → Self-Review → Done |
+| 🟡 MEDIUM | 50-300 LOC, new files in existing module, no DB migration | `/build` | Inline Plan → Code → Review → Done |
+| 🔴 LARGE | > 300 LOC, new module, DB migration, public API, auth/security | Full pipeline | Spec → Plan → Code → Review → Test |
+
+> When unsure, classify **one tier up**. The USER can always override by invoking a specific workflow directly.
+
+---
+
 ## 🏛️ Role Architecture
 
 Distinct, non-overlapping roles. Each produces a specific output and **stops**. NEVER self-transition.
 
+**🔴 LARGE pipeline** (full ceremony):
 ```
 [Spec Writer] → [Clarify] → [Planner] → [Analyze] → [Coder] → [Reviewer] → [Tester] → [Planner]
 ```
 
 | Role | Command | Output | Stops When |
 |------|---------|--------|------------|
-| 📝 Spec Writer | `/specifications-writer` | `spec/spec-*.md` | Requirements unambiguous |
+| ⚡ Fast-Fix | `/fast-fix` | Code changes + report (🟢 SMALL) | Fix reported |
+| 🔨 Builder | `/build` | Code changes + report (🟡 MEDIUM) | Build reported |
+| 📝 Spec Writer | `/specifications-writer` | `features/{NNN}-{slug}/spec.md` | Requirements unambiguous |
 | 🔎 Clarify | `/clarify-specification` | Refined spec (≤5 questions) | Ambiguities resolved |
-| 🏗️ Planner | `/planner-architect` | `design/design-*.md` + task plan | Plan delivered OR tasks committed |
+| 🏗️ Planner | `/planner-architect` | `features/{NNN}-{slug}/design.md` + `tasks.md` | Plan delivered OR tasks committed |
 | 📊 Analyze | `/analyze-artifacts` | Consistency report (read-only) | Report delivered |
 | 💻 Coder | `/coder-implementation` | Code changes + report | All Actions implemented |
 | 🔍 Reviewer | `/reviewer-audit` | Audit report (APPROVED / NEEDS FIX) | Report delivered |
@@ -65,21 +77,28 @@ If stuck on the **same issue 3 times consecutively**:
 
 ### Resource Ownership
 
-- **Planner**: Owns `design/design-*.md`, task plan, `git commit`, `complete_task_step`.
+- **Planner**: Owns `features/{NNN}-{slug}/` directory, task plan, `git commit`, `complete_task_step`.
 - **Coder**: Owns source code changes and implementation report.
 - **Reviewer**: Owns the audit report.
 - **Tester**: Owns bug report, test suite, and coverage report.
 
-### Quality Gates (Planner-Enforced)
+### Quality Gates (Size-Conditional)
 
-Both Reviewer (APPROVED) and Tester (≥ 70% coverage + bugs hunted) MUST pass before any commit. If either fails, the
-Planner asks the USER — NEVER auto-loops.
+| Gate | 🟢 SMALL | 🟡 MEDIUM | 🔴 LARGE |
+|------|----------|-----------|----------|
+| Self-Review | ✅ required | ✅ required | ✅ required |
+| Reviewer APPROVED | — | ✅ required | ✅ required |
+| Tester ≥ 70% | — | — optional | ✅ required |
+
+For 🔴 LARGE: both Reviewer and Tester MUST pass before any commit. If either fails, the Planner asks the USER —
+NEVER auto-loops.
 
 ### Shared References
 
 - **Security Checklist**: `.agents/references/security-checklist.md`
 - **Report Templates**: `.agents/references/report-templates/`
 - **Spec Template**: `.agents/references/spec-template.md`
+- **Tasks Template**: `.agents/references/tasks-template.md`
 - **Clarify Taxonomy**: `.agents/references/clarify-taxonomy.md`
 - **Checklist Templates**: `.agents/references/checklist-templates/`
 
@@ -87,5 +106,5 @@ Planner asks the USER — NEVER auto-loops.
 
 ## 📌 Metadata
 
-- **Version**: 3.1.0
-- **Last Updated**: 2026-03-24
+- **Version**: 4.0.0
+- **Last Updated**: 2026-03-25

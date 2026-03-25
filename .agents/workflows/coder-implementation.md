@@ -1,21 +1,25 @@
 ---
 description:
-  Structured workflow for Code Implementation. Reads design/design-*.md and the Planner's task list, executes each task
-  with pattern conformity, performs self-review before reporting. Does NOT commit.
+  Structured workflow for Code Implementation. Reads features/{NNN}-{slug}/ artifacts (design, spec, tasks) and the
+  Planner's task list, executes each task with pattern conformity, performs self-review before reporting. Does NOT commit.
 ---
 
 # 💻 Coder Workflow
 
 > All Universal Protocols from GEMINI.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
+>
+> **Size-aware**: This workflow is for 🔴 LARGE tasks routed through `/planner-architect`.
+> For 🟢 SMALL tasks, use `/fast-fix`. For 🟡 MEDIUM tasks, use `/build`.
 
 ---
 
 ## Phase 0: Read Design & Task List 📖
 
-1. Read `design/design-{task-id}.md` — architecture, data models, constraints, migration strategy.
-2. Read `spec/spec-{task-id}.md` — Acceptance Criteria tests will validate against.
-3. `load_checkpoint` — load the task list.
-4. Confirm scope — identify files to create/modify. Note `⚠️ HIGH-RISK` actions.
+1. Read `features/{NNN}-{slug}/design.md` (or `design/architecture.md`) — architecture, data models, constraints, migration strategy.
+2. Read `features/{NNN}-{slug}/spec.md` — Acceptance Criteria tests will validate against.
+3. Read `features/{NNN}-{slug}/tasks.md` — human-readable task plan.
+4. `load_checkpoint` — load the MCP task list.
+5. Confirm scope — identify files to create/modify. Note `⚠️ HIGH-RISK` actions.
 
 > ❌ NEVER start writing code before completing this phase.
 
@@ -85,6 +89,8 @@ Repeat **Phase 1 → 5** for each remaining Action.
 ## Phase 6: Report 📋
 
 Inject gotchas via `annotate_file`, then deliver report per `.agents/references/report-templates/coder-report.md`.
+
+Write the report to `features/{NNN}-{slug}/reports/coder-report.md`.
 
 > 🛑 **STOP HERE.** The USER decides the next step.
 
