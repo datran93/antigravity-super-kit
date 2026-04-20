@@ -1,21 +1,23 @@
 ---
 description:
   Structured workflow for Code Implementation. Reads features/{NNN}-{slug}/ artifacts (design, spec, tasks) and the
-  Planner's task list, executes each task with pattern conformity, performs self-review before reporting. Does NOT commit.
+  Planner's task list, executes each task with pattern conformity, performs self-review before reporting. Does NOT
+  commit.
 ---
 
 # 💻 Coder Workflow
 
 > All Universal Protocols from GEMINI.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
 >
-> **Size-aware**: This workflow is for 🔴 LARGE tasks routed through `/planner-architect`.
-> For 🟢 SMALL tasks, use `/fast-fix`. For 🟡 MEDIUM tasks, use `/build`.
+> **Size-aware**: This workflow is for 🔴 LARGE tasks routed through `/planner-architect`. For 🟢 SMALL tasks, use
+> `/fast-fix`. For 🟡 MEDIUM tasks, use `/build`.
 
 ---
 
 ## Phase 0: Read Design & Task List 📖
 
-1. Read `features/{NNN}-{slug}/design.md` (or `design/architecture.md`) — architecture, data models, constraints, migration strategy.
+1. Read `features/{NNN}-{slug}/design.md` (or `design/architecture.md`) — architecture, data models, constraints,
+   migration strategy.
 2. Read `features/{NNN}-{slug}/spec.md` — Acceptance Criteria tests will validate against.
 3. Read `features/{NNN}-{slug}/tasks.md` — human-readable task plan.
 4. `load_checkpoint` — load the MCP task list.
@@ -67,7 +69,7 @@ Additional: `search_skills` for best practices · `query-docs` for latest API sp
 **Pattern Conformity**: Error handling matches · Response format matches · Naming matches · Logger matches · File
 placement matches.
 
-**Security**: Per `.agents/references/security-checklist.md`.
+**Security**: Per `**/references/security-checklist.md`.
 
 **Completeness**: All files from design implemented · All ACs addressed.
 
@@ -88,7 +90,7 @@ Repeat **Phase 1 → 5** for each remaining Action.
 
 ## Phase 6: Report 📋
 
-Inject gotchas via `annotate_file`, then deliver report per `.agents/references/report-templates/coder-report.md`.
+Inject gotchas via `annotate_file`, then deliver report per `**/references/report-templates/coder-report.md`.
 
 Write the report to `features/{NNN}-{slug}/reports/coder-report.md`.
 

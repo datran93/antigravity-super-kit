@@ -60,7 +60,7 @@ For each AC → verify corresponding implementation exists. Flag unaddressed ACs
 
 > NEVER reduce this to "any obvious issues". Read the actual code.
 
-Per `.agents/references/security-checklist.md` — verify every check with specific file:line references.
+Per `**/references/security-checklist.md` — verify every check with specific file:line references.
 
 ### Performance Review
 
@@ -79,7 +79,7 @@ Per `.agents/references/security-checklist.md` — verify every check with speci
 
 ## Phase 3: Report 📋
 
-Deliver report per `.agents/references/report-templates/reviewer-report.md`.
+Deliver report per `**/references/report-templates/reviewer-report.md`.
 
 Write the report to `features/{NNN}-{slug}/reports/audit-report.md`.
 

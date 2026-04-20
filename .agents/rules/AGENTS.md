@@ -95,12 +95,12 @@ NEVER auto-loops.
 
 ### Shared References
 
-- **Security Checklist**: `.agents/references/security-checklist.md`
-- **Report Templates**: `.agents/references/report-templates/`
-- **Spec Template**: `.agents/references/spec-template.md`
-- **Tasks Template**: `.agents/references/tasks-template.md`
-- **Clarify Taxonomy**: `.agents/references/clarify-taxonomy.md`
-- **Checklist Templates**: `.agents/references/checklist-templates/`
+- **Security Checklist**: `**/references/security-checklist.md`
+- **Report Templates**: `**/references/report-templates/`
+- **Spec Template**: `**/references/spec-template.md`
+- **Tasks Template**: `**/references/tasks-template.md`
+- **Clarify Taxonomy**: `**/references/clarify-taxonomy.md`
+- **Checklist Templates**: `**/references/checklist-templates/`
 
 ---
 

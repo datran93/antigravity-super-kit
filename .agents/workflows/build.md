@@ -21,9 +21,8 @@ This workflow is for tasks where **ANY** of the following are true:
 
 **Examples**: new utility, add helper function, internal feature, component refactor, new workflow.
 
-> If the task involves DB migration, public API changes, auth/payment, or > 300 LOC → use `/planner-architect`
-> (🔴 LARGE) instead.
-> If the task is < 50 LOC and modifies only existing files → use `/fast-fix` (🟢 SMALL) instead.
+> If the task involves DB migration, public API changes, auth/payment, or > 300 LOC → use `/planner-architect` (🔴
+> LARGE) instead. If the task is < 50 LOC and modifies only existing files → use `/fast-fix` (🟢 SMALL) instead.
 
 ---
 
@@ -82,7 +81,7 @@ For each file group:
 
 **Pattern Conformity**: Error handling matches · Naming matches · File placement matches.
 
-**Security**: Quick check per `.agents/references/security-checklist.md`.
+**Security**: Quick check per `**/references/security-checklist.md`.
 
 **Completeness**: All items from the inline plan addressed.
 

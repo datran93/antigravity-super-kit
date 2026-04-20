@@ -39,14 +39,15 @@ Translate `features/{NNN}-{slug}/spec.md` into design artifacts, co-located in t
 
 ### Output Format
 
-**For complex tasks** (data models, API contracts, or research required): produce a **directory** `features/{NNN}-{slug}/design/`:
+**For complex tasks** (data models, API contracts, or research required): produce a **directory**
+`features/{NNN}-{slug}/design/`:
 
-| File | Purpose | When Required |
-|------|---------|---------------|
-| `architecture.md` | System diagram, module changes, risk analysis, migration strategy | **Always** |
-| `research.md` | Decisions, rationale, alternatives considered | When unknowns exist |
-| `data-model.md` | Entities, fields, relationships, validation rules, state transitions | When data entities involved |
-| `contracts/` | API contracts, interface definitions (OpenAPI, gRPC proto, etc.) | When external interfaces exist |
+| File              | Purpose                                                              | When Required                  |
+| ----------------- | -------------------------------------------------------------------- | ------------------------------ |
+| `architecture.md` | System diagram, module changes, risk analysis, migration strategy    | **Always**                     |
+| `research.md`     | Decisions, rationale, alternatives considered                        | When unknowns exist            |
+| `data-model.md`   | Entities, fields, relationships, validation rules, state transitions | When data entities involved    |
+| `contracts/`      | API contracts, interface definitions (OpenAPI, gRPC proto, etc.)     | When external interfaces exist |
 
 **For simple tasks** (no data model, no research, no contracts): produce a single `features/{NNN}-{slug}/design.md`.
 
@@ -130,6 +131,7 @@ Organize tasks into phases aligned with spec user stories:
 ```
 
 **Key rules**:
+
 - Label MVP scope (typically just Phase 3 / US1)
 - Each story phase has: Goal, Independent Test
 - Tasks trace to stories: `[T003][US1][core]` format when helpful
@@ -140,7 +142,7 @@ Organize tasks into phases aligned with spec user stories:
 
 ### Generate `tasks.md`
 
-After the task plan is finalized, write `features/{NNN}-{slug}/tasks.md` following `.agents/references/tasks-template.md`.
+After the task plan is finalized, write `features/{NNN}-{slug}/tasks.md` following `**/references/tasks-template.md`.
 
 This file is the **human-readable** task list. MCP `initialize_task_plan` remains the **agent-state** source of truth.
 Both MUST stay in sync.
