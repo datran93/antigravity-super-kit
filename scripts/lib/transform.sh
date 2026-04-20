@@ -2,7 +2,7 @@
 
 # =============================================================================
 # transform.sh — Content Transformation Engine
-# Converts canonical .agents/ content to agent-specific formats.
+# Converts canonical **/ content to agent-specific formats.
 # Requires: agents.sh to be sourced first.
 # =============================================================================
 

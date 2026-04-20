@@ -37,18 +37,18 @@ cd my-project && agk install
 
 ### CLI Commands
 
-| Command                | Description                                        |
-| ---------------------- | -------------------------------------------------- |
-| `agk install`          | Install `.agents/` folder (auto-excludes from git) |
-| `agk install --force`  | Overwrite existing installation                    |
-| `agk update`           | Pull latest version                                |
-| `agk update --dry-run` | Preview changes                                    |
-| `agk update --offline` | Update without network                             |
-| `agk status`           | Check for available updates                        |
-| `agk remove`           | Remove `.agents/` (with confirmation)              |
-| `agk version`          | Show version                                       |
+| Command                | Description                                   |
+| ---------------------- | --------------------------------------------- |
+| `agk install`          | Install `**/` folder (auto-excludes from git) |
+| `agk install --force`  | Overwrite existing installation               |
+| `agk update`           | Pull latest version                           |
+| `agk update --dry-run` | Preview changes                               |
+| `agk update --offline` | Update without network                        |
+| `agk status`           | Check for available updates                   |
+| `agk remove`           | Remove `**/` (with confirmation)              |
+| `agk version`          | Show version                                  |
 
-> **Cursor / Windsurf users**: Do NOT add `.agents/` to `.gitignore` — it prevents slash command indexing. Use
+> **Cursor / Windsurf users**: Do NOT add `**/` to `.gitignore` — it prevents slash command indexing. Use
 > `.git/info/exclude` instead.
 
 ---
@@ -183,7 +183,7 @@ Index any project for hybrid semantic + keyword search:
 **Example domains**: Go, TypeScript, React, FastAPI, PostgreSQL, Kubernetes, Terraform, AI/LLM, Security, AWS, Docker,
 Agent Orchestration, and many more.
 
-Skills are stored in `.agents/skills/` and can be invoked explicitly or discovered automatically:
+Skills are stored in `**/skills/` and can be invoked explicitly or discovered automatically:
 
 ```
 @mcp:skill-router search_skills query="Go concurrency patterns" tags_filter="golang"
@@ -229,7 +229,7 @@ CGO_ENABLED=1 go test -tags sqlite_fts5 ./...
 
 ```
 antigravity-kit/
-├── .agents/
+├── **/
 │   ├── rules/
 │   │   ├── GEMINI.md          # Universal agent rules (v2.1.0)
 │   │   └── ANCHORS.md         # Immutable guardrails
@@ -249,7 +249,7 @@ antigravity-kit/
 │   └── mcp-confluence-go/
 ├── DESIGN.md                  # Current sprint architecture
 └── scripts/
-    └── agk                    # CLI for managing .agents/
+    └── agk                    # CLI for managing **/
 ```
 
 ---
