@@ -15,7 +15,7 @@ description:
 - `load_checkpoint` — resume existing task.
 - `find_recent_task` — fuzzy search when USER describes by topic.
 - `delete_task` — only when USER explicitly requests removal.
-- Read `ANCHORS.md` to refresh immutable guardrails.
+- **Context Pruning**: Use `manage_anchors` (action: "list") or `recall_knowledge` to dynamically fetch only the domain-specific constraints relevant to the task (e.g., Auth, DB, UI) instead of loading the entire `ANCHORS.md` file.
 
 ---
 

@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(cp .mcp.json .mcp.json.backup)",
+      "Bash(git filter-branch:*)",
+      "Bash(git push:*)",
+      "mcp__context-manager__initialize_task_plan",
+      "mcp__context-manager__declare_intent"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "context-manager",
+    "codebase-explorer",
+    "skill-router",
+    "doc-researcher",
+    "http-client",
+    "database-inspector",
+    "figma-reader",
+    "github-reader",
+    "gitlab",
+    "confluence"
+  ]
+}

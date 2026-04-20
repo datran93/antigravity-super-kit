@@ -39,6 +39,7 @@ Before routing to a workflow, classify the task size:
 | Git commit, stage changes                                  | `/git-commit`            |
 | Git push, "push to remote"                                 | `/git-push`              |
 | GitLab MR, "fix MR comments", review thread                | `/gitlab-mr-read-fix`    |
+| Symbol lookup, blast radius, "who calls X", dependency graph | `/codebase-graph` |
 | Brownfield, existing codebase, legacy analysis             | `/brownfield-scan`       |
 | Codebase map, visualisation, "show me the structure"       | `/codemap`               |
 | Emergency, production issue, "site is down"                | `/war-room`              |

@@ -33,14 +33,15 @@ For each Action (one at a time, in order):
 
 ---
 
-## Phase 2: Pattern Discovery 🔍
+## Phase 2: AST Pattern & Dependency Discovery 🔍
 
-> You are extending an existing codebase. Your code MUST look like it belongs.
+> You are extending an existing codebase. Your code MUST look like it belongs and you MUST know its blast radius.
 
-1. **Find reference**: `search_code` for ≥ 1 existing file of the same type (handler, service, repository).
-2. **Study**: Error handling, response format, logging, DI pattern, naming conventions.
-3. **Document**: State which pattern you're following before writing code.
-4. **Deviations**: NEVER deviate without documenting WHY.
+1. **360° Context**: Use `context` or `search_symbol` (via `codebase-explorer`) to get an AST-based view of the classes/functions you are modifying. This reveals definitions and related chunks without keyword-guessing.
+2. **Blast Radius**: Use `find_usages` to map out dependencies before modifying shared code.
+3. **Study**: Error handling, response format, logging, DI pattern, naming conventions.
+4. **Document**: State which pattern you're following before writing code.
+5. **Deviations**: NEVER deviate without documenting WHY.
 
 Additional: `search_skills` for best practices · `query-docs` for latest API specs · cross-reference design doc.
 

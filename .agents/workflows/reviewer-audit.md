@@ -7,6 +7,8 @@ description:
 
 # 🔍 Reviewer Workflow
 
+> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
+
 ---
 
 ## Phase 0: Load Context 📖
@@ -15,7 +17,8 @@ description:
 2. Read `features/{NNN}-{slug}/design.md` (or `design/architecture.md`) — intended architecture.
 3. Read `features/{NNN}-{slug}/reports/coder-report.md` — files changed, patterns followed, compromises declared.
 4. `load_checkpoint` — confirm completed Actions.
-5. Read `ANCHORS.md` — refresh guardrails.
+5. **Context Pruning**: Classify task domain (auth/db/api/refactor) then use `manage_anchors(action="list")` to load
+   only the relevant `[domain:X]` anchors. Always include `[domain:quality]`. Do NOT read the full `ANCHORS.md` file.
 
 > ❌ NEVER begin reviewing code before completing this phase.
 
@@ -58,7 +61,7 @@ For each AC → verify corresponding implementation exists. Flag unaddressed ACs
 
 > NEVER reduce this to "any obvious issues". Read the actual code.
 
-Per `**/references/security-checklist.md` — verify every check with specific file:line references.
+Per `.agents/references/security-checklist.md` — verify every check with specific file:line references.
 
 ### Performance Review
 
@@ -77,7 +80,7 @@ Per `**/references/security-checklist.md` — verify every check with specific f
 
 ## Phase 3: Report 📋
 
-Deliver report per `**/references/report-templates/reviewer-report.md`.
+Deliver report per `.agents/references/report-templates/reviewer-report.md`.
 
 Write the report to `features/{NNN}-{slug}/reports/audit-report.md`.
 

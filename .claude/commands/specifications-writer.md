@@ -104,6 +104,14 @@ Write `features/{NNN}-{slug}/spec.md` following the canonical template at `.agen
   - `[NEEDS CLARIFICATION]` — only for scope/security/UX ambiguities where no reasonable default exists
   - These will be resolved by `/clarify-specification`
 
+- **Domain Tags** (MANDATORY — enables Context Pruning):
+  Infer 1–3 domain tags from the user stories and entities. Add to spec frontmatter:
+  ```
+  domains: [ui, db, security, api, refactor, stack]   ← pick relevant ones
+  ```
+  This lets downstream agents (Planner, Coder, Reviewer) load only the matching ANCHORS domains instead of the
+  full file. The `quality` domain is always implied and does NOT need to be listed.
+
 Save state via `save_checkpoint`.
 
 ---

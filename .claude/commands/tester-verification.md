@@ -18,7 +18,8 @@ description:
 1. Read `features/{NNN}-{slug}/design.md` (or `design/architecture.md`) — contracts, boundaries, expected behaviors.
 2. Read `features/{NNN}-{slug}/reports/coder-report.md` — files created/modified.
 3. `load_checkpoint` — confirm completed Actions.
-4. `search_code` — find existing test helpers and fixtures.
+4. **Context Pruning**: Load only relevant domain anchors via `manage_anchors(action="list")`. Always include `[domain:quality]` and `[domain:security]` for testing.
+5. `search_code` — find existing test helpers and fixtures.
 
 > ❌ NEVER write tests before completing this phase.
 

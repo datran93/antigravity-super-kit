@@ -53,13 +53,14 @@ Present to USER for confirmation before proceeding.
 
 ---
 
-## Phase 2: Pattern Discovery 🔍
+## Phase 2: AST Pattern & Dependency Discovery 🔍
 
-> You are extending an existing codebase. Your code MUST look like it belongs.
+> You are extending an existing codebase. Your code MUST look like it belongs and avoid unintended side-effects.
 
-1. `search_code` for ≥ 1 existing file of the same type.
-2. Study: error handling, response format, naming conventions.
-3. State which pattern you're following before writing code.
+1. Use `context` or `search_symbol` (via `codebase-explorer`) for a 360° AST view of target files and dependencies.
+2. Use `find_usages` to understand the blast radius if modifying shared utilities.
+3. Study: error handling, response format, naming conventions.
+4. State which pattern you're following before writing code.
 
 ---
 

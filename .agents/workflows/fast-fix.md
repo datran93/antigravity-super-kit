@@ -29,8 +29,9 @@ This workflow is for tasks where **ALL** of the following are true:
 ## Phase 0: Understand 📖
 
 1. Read the USER's request carefully.
-2. Identify target file(s) — read them before modifying.
-3. Quick pattern scan — note error handling, naming, format conventions.
+2. Identify target file(s). Use `context` or `find_usages` (via `codebase-explorer`) if modifying a shared function to quickly gauge its blast radius.
+3. Read the files before modifying.
+4. Quick pattern scan — note error handling, naming, format conventions.
 
 > ❌ NEVER modify a file without reading it first.
 

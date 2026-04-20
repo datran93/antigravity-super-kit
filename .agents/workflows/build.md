@@ -6,6 +6,8 @@ description:
 
 # 🔨 Build Workflow (🟡 MEDIUM)
 
+> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
+
 ---
 
 ## When to Use
@@ -19,8 +21,9 @@ This workflow is for tasks where **ANY** of the following are true:
 
 **Examples**: new utility, add helper function, internal feature, component refactor, new workflow.
 
-> If the task involves DB migration, public API changes, auth/payment, or > 300 LOC → use `/planner-architect` (🔴
-> LARGE) instead. If the task is < 50 LOC and modifies only existing files → use `/fast-fix` (🟢 SMALL) instead.
+> If the task involves DB migration, public API changes, auth/payment, or > 300 LOC → use `/planner-architect`
+> (🔴 LARGE) instead.
+> If the task is < 50 LOC and modifies only existing files → use `/fast-fix` (🟢 SMALL) instead.
 
 ---
 
@@ -50,13 +53,14 @@ Present to USER for confirmation before proceeding.
 
 ---
 
-## Phase 2: Pattern Discovery 🔍
+## Phase 2: AST Pattern & Dependency Discovery 🔍
 
-> You are extending an existing codebase. Your code MUST look like it belongs.
+> You are extending an existing codebase. Your code MUST look like it belongs and avoid unintended side-effects.
 
-1. `search_code` for ≥ 1 existing file of the same type.
-2. Study: error handling, response format, naming conventions.
-3. State which pattern you're following before writing code.
+1. Use `context` or `search_symbol` (via `codebase-explorer`) for a 360° AST view of target files and dependencies.
+2. Use `find_usages` to understand the blast radius if modifying shared utilities.
+3. Study: error handling, response format, naming conventions.
+4. State which pattern you're following before writing code.
 
 ---
 
@@ -79,7 +83,7 @@ For each file group:
 
 **Pattern Conformity**: Error handling matches · Naming matches · File placement matches.
 
-**Security**: Quick check per `**/references/security-checklist.md`.
+**Security**: Quick check per `.agents/references/security-checklist.md`.
 
 **Completeness**: All items from the inline plan addressed.
 
@@ -97,11 +101,10 @@ For each file group:
 
 ## Phase 6: State Update 📋
 
-Inject gotchas via `annotate_file`. Update the MCP `context-manager` database with your progress and verified test
-results.
+Inject gotchas via `annotate_file`.
+Update the MCP `context-manager` database with your progress and verified test results.
 
-> 🛑 **STOP HERE.** The USER decides: proceed to `/reviewer-audit`, commit directly, or continue (or proceed
-> automatically if in `/auto-pilot` mode).
+> 🛑 **STOP HERE.** The USER decides: proceed to `/reviewer-audit`, commit directly, or continue (or proceed automatically if in `/auto-pilot` mode).
 
 ---
 

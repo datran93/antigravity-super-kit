@@ -17,7 +17,8 @@ description:
 2. Read `features/{NNN}-{slug}/design.md` (or `design/architecture.md`) — intended architecture.
 3. Read `features/{NNN}-{slug}/reports/coder-report.md` — files changed, patterns followed, compromises declared.
 4. `load_checkpoint` — confirm completed Actions.
-5. Read `ANCHORS.md` — refresh guardrails.
+5. **Context Pruning**: Classify task domain (auth/db/api/refactor) then use `manage_anchors(action="list")` to load
+   only the relevant `[domain:X]` anchors. Always include `[domain:quality]`. Do NOT read the full `ANCHORS.md` file.
 
 > ❌ NEVER begin reviewing code before completing this phase.
 
