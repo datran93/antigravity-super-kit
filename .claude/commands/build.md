@@ -6,6 +6,8 @@ description:
 
 # 🔨 Build Workflow (🟡 MEDIUM)
 
+> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
+
 ---
 
 ## When to Use
@@ -19,8 +21,9 @@ This workflow is for tasks where **ANY** of the following are true:
 
 **Examples**: new utility, add helper function, internal feature, component refactor, new workflow.
 
-> If the task involves DB migration, public API changes, auth/payment, or > 300 LOC → use `/planner-architect` (🔴
-> LARGE) instead. If the task is < 50 LOC and modifies only existing files → use `/fast-fix` (🟢 SMALL) instead.
+> If the task involves DB migration, public API changes, auth/payment, or > 300 LOC → use `/planner-architect`
+> (🔴 LARGE) instead.
+> If the task is < 50 LOC and modifies only existing files → use `/fast-fix` (🟢 SMALL) instead.
 
 ---
 
@@ -79,7 +82,7 @@ For each file group:
 
 **Pattern Conformity**: Error handling matches · Naming matches · File placement matches.
 
-**Security**: Quick check per `**/references/security-checklist.md`.
+**Security**: Quick check per `.agents/references/security-checklist.md`.
 
 **Completeness**: All items from the inline plan addressed.
 
@@ -97,11 +100,10 @@ For each file group:
 
 ## Phase 6: State Update 📋
 
-Inject gotchas via `annotate_file`. Update the MCP `context-manager` database with your progress and verified test
-results.
+Inject gotchas via `annotate_file`.
+Update the MCP `context-manager` database with your progress and verified test results.
 
-> 🛑 **STOP HERE.** The USER decides: proceed to `/reviewer-audit`, commit directly, or continue (or proceed
-> automatically if in `/auto-pilot` mode).
+> 🛑 **STOP HERE.** The USER decides: proceed to `/reviewer-audit`, commit directly, or continue (or proceed automatically if in `/auto-pilot` mode).
 
 ---
 

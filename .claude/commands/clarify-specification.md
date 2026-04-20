@@ -1,11 +1,13 @@
 ---
 description:
-  Structured workflow for post-specification ambiguity resolution. Performs a 10-category structured scan, asks ≤5
-  targeted clarification questions with recommendations, and integrates answers back into the spec.
+  Structured workflow for post-specification ambiguity resolution. Performs a 10-category structured scan,
+  asks ≤5 targeted clarification questions with recommendations, and integrates answers back into the spec.
 ---
 
 # 🔎 Clarify Specification
 
+> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
+>
 > **Role**: This is a **Spec Writer sub-role**. It refines specs — it NEVER generates architecture, task plans, or code.
 
 ---
@@ -22,20 +24,19 @@ description:
 
 ## Phase 1: Structured Ambiguity Scan 🔬
 
-Perform a systematic scan using the 10-category taxonomy from `**/references/clarify-taxonomy.md`.
+Perform a systematic scan using the 10-category taxonomy from `.agents/references/clarify-taxonomy.md`.
 
 For each category, mark status:
 
-| Status      | Meaning                                               |
-| ----------- | ----------------------------------------------------- |
-| **Clear**   | Requirements are specific, measurable, and actionable |
-| **Partial** | Some information exists but gaps remain               |
-| **Missing** | No meaningful specification for this category         |
+| Status | Meaning |
+|--------|---------|
+| **Clear** | Requirements are specific, measurable, and actionable |
+| **Partial** | Some information exists but gaps remain |
+| **Missing** | No meaningful specification for this category |
 
 Build an internal coverage map (do NOT output the raw map unless no questions will be asked).
 
 **Skip categories where**:
-
 - Clarification would not materially change implementation or validation strategy
 - Information is better deferred to planning phase (note internally)
 
@@ -46,15 +47,12 @@ Build an internal coverage map (do NOT output the raw map unless no questions wi
 From the coverage map, generate a **prioritized queue** of candidate questions.
 
 **Hard Constraints**:
-
 - **Maximum 5 questions total** across the entire session
 - Each question must be answerable with EITHER:
   - A **multiple-choice selection** (2–5 distinct, mutually exclusive options), OR
   - A **short answer** (≤ 5 words)
-- Only include questions whose answers materially impact: architecture, data modeling, task decomposition, test design,
-  UX behavior, operational readiness, or compliance validation
-- **Category coverage balance**: Cover highest-impact unresolved categories first; avoid two low-impact questions when a
-  high-impact area is unresolved
+- Only include questions whose answers materially impact: architecture, data modeling, task decomposition, test design, UX behavior, operational readiness, or compliance validation
+- **Category coverage balance**: Cover highest-impact unresolved categories first; avoid two low-impact questions when a high-impact area is unresolved
 - Exclude questions already answered in the spec or clarifications section
 - Favor clarifications that **reduce downstream rework risk**
 - If more than 5 categories remain unresolved, select top 5 by **Impact × Uncertainty** heuristic
@@ -76,27 +74,24 @@ Present **EXACTLY ONE question** at a time. Never reveal future queued questions
    - Alignment with explicit project goals or constraints
 
 2. Present your **recommended option prominently**:
-
    ```
    **Recommended:** Option [X] — <reasoning in 1-2 sentences>
    ```
 
 3. Render all options as a Markdown table:
 
-   | Option | Description                                 |
-   | ------ | ------------------------------------------- |
-   | A      | Option A description                        |
-   | B      | Option B description                        |
-   | C      | Option C description                        |
-   | Short  | Provide a different short answer (≤5 words) |
+   | Option | Description |
+   |--------|-------------|
+   | A | Option A description |
+   | B | Option B description |
+   | C | Option C description |
+   | Short | Provide a different short answer (≤5 words) |
 
-4. Add: _"Reply with the option letter (e.g., 'A'), accept the recommendation by saying 'yes', or provide your own short
-   answer."_
+4. Add: _"Reply with the option letter (e.g., 'A'), accept the recommendation by saying 'yes', or provide your own short answer."_
 
 ### For Short-Answer Questions:
 
 1. Provide your **suggested answer** based on best practices:
-
    ```
    **Suggested:** <your proposed answer> — <brief reasoning>
    ```
@@ -128,7 +123,6 @@ After the questioning loop completes:
    - Create `### Session YYYY-MM-DD` subheading for today's date
 
 2. **Record each Q&A**:
-
    ```markdown
    - Q: <question> → A: <final answer>
    ```

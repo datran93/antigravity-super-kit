@@ -7,6 +7,8 @@ description:
 
 # 🧪 Tester Workflow
 
+> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
+>
 > Primary goal: **find bugs**. Coverage ≥ 70% is a byproduct, NOT the target.
 
 ---
@@ -36,7 +38,7 @@ dereference without check.
 ### 🔴 Authorization & Security Bugs
 
 Missing ownership checks (User A → User B's data?) · Tenant isolation violations · Role bypass · Input validation gaps ·
-Sensitive data in responses. Per `**/references/security-checklist.md`.
+Sensitive data in responses. Per `.agents/references/security-checklist.md`.
 
 ### 🔴 State & Concurrency Bugs
 
@@ -67,8 +69,8 @@ For each hypothesis:
    - **P3**: Edge cases (empty, boundary, unicode, large payloads)
 4. **Structure**: Setup (multi-user/multi-tenant) → Action (as WRONG user/role) → Assert (correctly REJECTS).
 
-> 🎯 Test passes + you expected failure → code is correct. Move on. 🐛 Test fails → real bug. Document in report. NEVER
-> fix implementation.
+> 🎯 Test passes + you expected failure → code is correct. Move on.
+> 🐛 Test fails → real bug. Document in report. NEVER fix implementation.
 
 ---
 
@@ -92,7 +94,7 @@ Run tests with coverage. Gate: **≥ 70%** or write more tests.
 
 ## Phase 5: Report 📋
 
-Deliver report per `**/references/report-templates/tester-report.md`.
+Deliver report per `.agents/references/report-templates/tester-report.md`.
 
 Write the report to `features/{NNN}-{slug}/reports/test-report.md`.
 

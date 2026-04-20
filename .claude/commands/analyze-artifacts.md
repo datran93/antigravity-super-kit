@@ -6,6 +6,8 @@ description:
 
 # 📊 Analyze Artifacts
 
+> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
+>
 > **Role**: Standalone utility — **READ-ONLY**. NEVER modifies any artifact files.
 
 ---
@@ -31,7 +33,6 @@ For each artifact, extract an inventory:
 ### Requirements Inventory (from spec)
 
 For each user story and AC:
-
 - Unique ID (AC-1, AC-2, ...)
 - Description / precondition / action / outcome
 - Priority (P1, P2, P3)
@@ -40,7 +41,6 @@ For each user story and AC:
 ### Design Element Inventory (from design)
 
 For each module, component, data model, contract:
-
 - Element name
 - Purpose / responsibility
 - Files involved
@@ -49,7 +49,6 @@ For each module, component, data model, contract:
 ### Task Coverage Map (from task plan)
 
 For each task action:
-
 - Task ID (T001, T002, ...)
 - Type (core, handler, config, etc.)
 - Target files
@@ -110,18 +109,18 @@ Execute 6 detection passes in order:
 
 For each finding, assign severity:
 
-| Severity     | Criteria                                                                      | Action Required                  |
-| ------------ | ----------------------------------------------------------------------------- | -------------------------------- |
-| **CRITICAL** | Violates ANCHORS · Missing core artifact · Zero-coverage blocking requirement | Must fix before implementation   |
-| **HIGH**     | Conflicting requirement · Ambiguous security/performance attribute            | Should fix before implementation |
-| **MEDIUM**   | Terminology drift · Missing NFR task coverage · Minor coverage gap            | Can fix during implementation    |
-| **LOW**      | Style/wording improvement · Redundant task                                    | Defer or accept                  |
+| Severity | Criteria | Action Required |
+|----------|----------|----------------|
+| **CRITICAL** | Violates ANCHORS · Missing core artifact · Zero-coverage blocking requirement | Must fix before implementation |
+| **HIGH** | Conflicting requirement · Ambiguous security/performance attribute | Should fix before implementation |
+| **MEDIUM** | Terminology drift · Missing NFR task coverage · Minor coverage gap | Can fix during implementation |
+| **LOW** | Style/wording improvement · Redundant task | Defer or accept |
 
 ---
 
 ## Phase 4: Report Delivery 📋
 
-Produce report per `**/references/report-templates/analyze-report.md` containing:
+Produce report per `.agents/references/report-templates/analyze-report.md` containing:
 
 1. **Inventory Summary**: Count of items in each artifact
 2. **Coverage Mapping Table**: Requirement → Design → Task traceability
@@ -132,12 +131,9 @@ Produce report per `**/references/report-templates/analyze-report.md` containing
 ### Recommended Next Actions
 
 Based on verdict:
-
 - **CONSISTENT**: _"Safe to proceed to `/coder-implementation`"_
-- **GAPS FOUND**: _"Address CRITICAL/HIGH findings. Run `/clarify-specification` for ambiguities, update design for
-  coverage gaps."_
-- **MISALIGNED**: _"Significant revision needed. Recommend returning to `/specifications-writer` or
-  `/planner-architect`."_
+- **GAPS FOUND**: _"Address CRITICAL/HIGH findings. Run `/clarify-specification` for ambiguities, update design for coverage gaps."_
+- **MISALIGNED**: _"Significant revision needed. Recommend returning to `/specifications-writer` or `/planner-architect`."_
 
 > 🛑 **STOP HERE.** Report delivered. NEVER modify any files.
 
@@ -149,6 +145,5 @@ Based on verdict:
 2. **All three artifacts required**: Abort if any is missing.
 3. **ANCHORS are non-negotiable**: Any ANCHORS violation is automatically CRITICAL.
 4. **No implementation**: NEVER write code, create files, or generate tests.
-5. **Advisory, not gating**: Unlike Reviewer/Tester, this workflow's verdict is recommended but not required before
-   implementation.
+5. **Advisory, not gating**: Unlike Reviewer/Tester, this workflow's verdict is recommended but not required before implementation.
 6. **Objective findings only**: Report facts and specific recommendations. No vague "consider improving" suggestions.

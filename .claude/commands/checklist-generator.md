@@ -1,11 +1,13 @@
 ---
 description:
-  Generate domain-specific checklists from templates and project context. Supports requirements, security, ux,
-  performance, and custom domains.
+  Generate domain-specific checklists from templates and project context.
+  Supports requirements, security, ux, performance, and custom domains.
 ---
 
 # ✅ Checklist Generator
 
+> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
+>
 > **Role**: Utility command — can be invoked at any phase of the pipeline.
 
 ---
@@ -13,11 +15,11 @@ description:
 ## Phase 1: Domain Selection & Context Loading 📖
 
 1. **Identify domain** from USER request. Supported domains:
-   - `requirements` → `**/references/checklist-templates/requirements.md`
-   - `security` → `**/references/checklist-templates/security.md`
-   - `ux` → `**/references/checklist-templates/ux.md`
-   - `performance` → `**/references/checklist-templates/performance.md`
-   - `custom` → `**/references/checklist-templates/custom-template.md`
+   - `requirements` → `.agents/references/checklist-templates/requirements.md`
+   - `security` → `.agents/references/checklist-templates/security.md`
+   - `ux` → `.agents/references/checklist-templates/ux.md`
+   - `performance` → `.agents/references/checklist-templates/performance.md`
+   - `custom` → `.agents/references/checklist-templates/custom-template.md`
 
    If domain is ambiguous → ask USER to choose from the list above.
 
@@ -79,5 +81,4 @@ Group items by categories from the template. Each category should have 3-10 item
 3. **Checklist items are independently verifiable**: Each item is yes/no, never "partially done".
 4. **No implementation**: NEVER write code, run tests, or modify source files.
 5. **Idempotent**: Re-running overwrites the previous checklist for that domain.
-6. **Reference existing security checklist**: Security domain MUST include items from
-   `**/references/security-checklist.md`.
+6. **Reference existing security checklist**: Security domain MUST include items from `.agents/references/security-checklist.md`.

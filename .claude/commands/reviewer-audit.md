@@ -7,6 +7,8 @@ description:
 
 # 🔍 Reviewer Workflow
 
+> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
+
 ---
 
 ## Phase 0: Load Context 📖
@@ -58,7 +60,7 @@ For each AC → verify corresponding implementation exists. Flag unaddressed ACs
 
 > NEVER reduce this to "any obvious issues". Read the actual code.
 
-Per `**/references/security-checklist.md` — verify every check with specific file:line references.
+Per `.agents/references/security-checklist.md` — verify every check with specific file:line references.
 
 ### Performance Review
 
@@ -77,7 +79,7 @@ Per `**/references/security-checklist.md` — verify every check with specific f
 
 ## Phase 3: Report 📋
 
-Deliver report per `**/references/report-templates/reviewer-report.md`.
+Deliver report per `.agents/references/report-templates/reviewer-report.md`.
 
 Write the report to `features/{NNN}-{slug}/reports/audit-report.md`.
 
