@@ -6,8 +6,6 @@ description:
 
 # 🔎 Clarify Specification
 
-> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
->
 > **Role**: This is a **Spec Writer sub-role**. It refines specs — it NEVER generates architecture, task plans, or code.
 
 ---

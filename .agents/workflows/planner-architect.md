@@ -6,8 +6,6 @@ description:
 
 # 🏗️ Planner Workflow
 
-> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
-
 ---
 
 ## Phase 0: Session Bootstrap 🔋
@@ -15,7 +13,8 @@ description:
 - `load_checkpoint` — resume existing task.
 - `find_recent_task` — fuzzy search when USER describes by topic.
 - `delete_task` — only when USER explicitly requests removal.
-- **Context Pruning**: Use `manage_anchors` (action: "list") or `recall_knowledge` to dynamically fetch only the domain-specific constraints relevant to the task (e.g., Auth, DB, UI) instead of loading the entire `ANCHORS.md` file.
+- **Context Pruning**: Use `manage_anchors` (action: "list") or `recall_knowledge` to dynamically fetch only the
+  domain-specific constraints relevant to the task (e.g., Auth, DB, UI) instead of loading the entire `ANCHORS.md` file.
 
 ---
 
@@ -39,14 +38,15 @@ Translate `features/{NNN}-{slug}/spec.md` into design artifacts, co-located in t
 
 ### Output Format
 
-**For complex tasks** (data models, API contracts, or research required): produce a **directory** `features/{NNN}-{slug}/design/`:
+**For complex tasks** (data models, API contracts, or research required): produce a **directory**
+`features/{NNN}-{slug}/design/`:
 
-| File | Purpose | When Required |
-|------|---------|---------------|
-| `architecture.md` | System diagram, module changes, risk analysis, migration strategy | **Always** |
-| `research.md` | Decisions, rationale, alternatives considered | When unknowns exist |
-| `data-model.md` | Entities, fields, relationships, validation rules, state transitions | When data entities involved |
-| `contracts/` | API contracts, interface definitions (OpenAPI, gRPC proto, etc.) | When external interfaces exist |
+| File              | Purpose                                                              | When Required                  |
+| ----------------- | -------------------------------------------------------------------- | ------------------------------ |
+| `architecture.md` | System diagram, module changes, risk analysis, migration strategy    | **Always**                     |
+| `research.md`     | Decisions, rationale, alternatives considered                        | When unknowns exist            |
+| `data-model.md`   | Entities, fields, relationships, validation rules, state transitions | When data entities involved    |
+| `contracts/`      | API contracts, interface definitions (OpenAPI, gRPC proto, etc.)     | When external interfaces exist |
 
 **For simple tasks** (no data model, no research, no contracts): produce a single `features/{NNN}-{slug}/design.md`.
 
@@ -130,6 +130,7 @@ Organize tasks into phases aligned with spec user stories:
 ```
 
 **Key rules**:
+
 - Label MVP scope (typically just Phase 3 / US1)
 - Each story phase has: Goal, Independent Test
 - Tasks trace to stories: `[T003][US1][core]` format when helpful
@@ -137,7 +138,6 @@ Organize tasks into phases aligned with spec user stories:
 - Last phase is always Polish & Cross-Cutting
 
 **MCP calls**: `initialize_task_plan` → `save_checkpoint`
-
 
 ---
 
@@ -173,6 +173,6 @@ All Actions done → `save_checkpoint` with **`status = "completed"`** (exact st
 1. **NEVER write implementation code or run tests.**
 2. **NEVER commit without passing quality gates** for the task's size tier (see CLAUDE.md § Quality Gates).
 3. ALWAYS produce design artifact inside `features/{NNN}-{slug}/` before the task list.
-5. ALWAYS complete Phase 2.5 self-review before presenting.
-6. Every DB/API change MUST have a migration & rollback plan.
-7. Every Action MUST have a Verification Command.
+4. ALWAYS complete Phase 2.5 self-review before presenting.
+5. Every DB/API change MUST have a migration & rollback plan.
+6. Every Action MUST have a Verification Command.

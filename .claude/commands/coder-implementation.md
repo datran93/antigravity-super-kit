@@ -7,8 +7,6 @@ description:
 
 # 💻 Coder Workflow
 
-> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
->
 > **Size-aware**: This workflow is for 🔴 LARGE tasks routed through `/planner-architect`. For 🟢 SMALL tasks, use
 > `/fast-fix`. For 🟡 MEDIUM tasks, use `/build`.
 

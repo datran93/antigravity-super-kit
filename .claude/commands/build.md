@@ -6,8 +6,6 @@ description:
 
 # 🔨 Build Workflow (🟡 MEDIUM)
 
-> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
-
 ---
 
 ## When to Use

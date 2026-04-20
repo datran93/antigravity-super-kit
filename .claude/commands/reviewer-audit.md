@@ -7,8 +7,6 @@ description:
 
 # 🔍 Reviewer Workflow
 
-> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
-
 ---
 
 ## Phase 0: Load Context 📖

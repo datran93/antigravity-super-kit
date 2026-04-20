@@ -7,8 +7,6 @@ description:
 
 # 🧪 Tester Workflow
 
-> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
->
 > Primary goal: **find bugs**. Coverage ≥ 70% is a byproduct, NOT the target.
 
 ---

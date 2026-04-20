@@ -6,8 +6,6 @@ description:
 
 # 📊 Analyze Artifacts
 
-> All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
->
 > **Role**: Standalone utility — **READ-ONLY**. NEVER modifies any artifact files.
 
 ---
