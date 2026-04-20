@@ -168,9 +168,7 @@ cmd_install() {
             local file_count
             file_count=$(count_files "./$target_dir_name")
 
-            add_git_exclude "$target_dir_name"
             write_lock_file "." "$agent" "$source_version" "$file_count"
-            add_git_exclude ".agk.lock.json"
             log_success "Installed for $(get_agent_field "$agent" "name") → $target_dir_name/ ($file_count files)"
             ((success_count++))
         fi
