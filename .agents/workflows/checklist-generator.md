@@ -26,7 +26,7 @@ description:
 3. **Load project context** to customize checklist items:
    - `features/{NNN}-{slug}/spec.md` — for requirements-based items (if exists)
    - `features/{NNN}-{slug}/design.md` — for technical items (if exists)
-   - `.agents/rules/ANCHORS.md` — for constraint-based items (always)
+   - `**/rules/ANCHORS.md` — for constraint-based items (always)
    - `load_checkpoint` — for task plan context (if exists)
 
 ---
@@ -42,7 +42,7 @@ Using the template as a base, generate a **project-specific** checklist:
    - Add ANCHORS-derived items (e.g., "All code in English" from language anchor)
 3. **Add references** to relevant files or sections where applicable:
    - `→ See: features/{NNN}-{slug}/spec.md §3 Key Entities`
-   - `→ See: .agents/rules/ANCHORS.md §Quality Standards`
+   - `→ See: **/rules/ANCHORS.md §Quality Standards`
 
 ### Item Format
 

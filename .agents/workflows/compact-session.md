@@ -34,8 +34,8 @@ Persist the knowledge and prune the context automatically.
   - Reset the `active_files` and update the checkpoint notes with the KI path.
   - Reset the drift failure counter and intent locks.
 - **Mental Flush**: Explicitly state to the USER that context compaction is complete. Actively ignore previous tool
-  outputs (CLI logs, debug traces, test outputs), retaining ONLY the global `.agents/rules/ANCHORS.md` and the objective
-  of the next `Tactic`.
+  outputs (CLI logs, debug traces, test outputs), retaining ONLY the global `**/rules/ANCHORS.md` and the objective of
+  the next `Tactic`.
 
 ## 🔴 Critical Constraints
 

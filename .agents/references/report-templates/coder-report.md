@@ -20,7 +20,7 @@
 
 ### Self-Review
 - Pattern conformity: ✅ / ❌
-- Security checks: ✅ / ❌ (per .agents/references/security-checklist.md)
+- Security checks: ✅ / ❌ (per **/references/security-checklist.md)
 - Deviations: <list with justification>
 
 ### Architectural Compromises

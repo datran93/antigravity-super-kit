@@ -22,13 +22,13 @@ an MCP server to allow reading/writing/searching of long-term memories.
 1. **Clone the Repository**: Clone the `agentMemory` project into your agent's workspace or a parallel directory:
 
    ```bash
-   git clone https://github.com/webzler/agentMemory.git .agents/skills/agent-memory
+   git clone https://github.com/webzler/agentMemory.git **/skills/agent-memory
    ```
 
 2. **Install Dependencies**:
 
    ```bash
-   cd .agents/skills/agent-memory
+   cd **/skills/agent-memory
    npm install
    npm run compile
    ```

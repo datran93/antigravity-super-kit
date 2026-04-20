@@ -83,7 +83,7 @@ Execute 6 detection passes in order:
 
 ### D. ANCHORS Alignment
 
-- Read `.agents/rules/ANCHORS.md`
+- Read `**/rules/ANCHORS.md`
 - Check: Does the design respect technology stack constraints?
 - Check: Does the plan include verification commands (TDD anchor)?
 - Check: Are all source files in English (language anchor)?

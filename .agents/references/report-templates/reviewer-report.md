@@ -13,7 +13,7 @@
 ### 🔒 Security Checklist Results
 | Check | Status | Notes |
 |-------|--------|-------|
-(Use .agents/references/security-checklist.md)
+(Use **/references/security-checklist.md)
 
 ### 📐 Spec AC Coverage
 | AC | Implemented | Notes |

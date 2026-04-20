@@ -23,7 +23,7 @@ Gather undeniable proof of what failed.
 Propose the exact mechanism of failure instead of patching surface symptoms.
 
 - Summarize the gathered evidence in markdown.
-- Formulate a clear hypothesis on why the incident occurred based on system constraints or `.agents/rules/ANCHORS.md`.
+- Formulate a clear hypothesis on why the incident occurred based on system constraints or `**/rules/ANCHORS.md`.
 - E.g., "The logs show a duplicate key error in PostgreSQL, suggesting an atomic constraint was violated during a
   concurrent POST request."
 

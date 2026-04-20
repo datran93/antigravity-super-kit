@@ -1,7 +1,7 @@
 ---
 description:
-  Generate domain-specific checklists from templates and project context.
-  Supports requirements, security, ux, performance, and custom domains.
+  Generate domain-specific checklists from templates and project context. Supports requirements, security, ux,
+  performance, and custom domains.
 ---
 
 # ✅ Checklist Generator
@@ -15,11 +15,11 @@ description:
 ## Phase 1: Domain Selection & Context Loading 📖
 
 1. **Identify domain** from USER request. Supported domains:
-   - `requirements` → `.agents/references/checklist-templates/requirements.md`
-   - `security` → `.agents/references/checklist-templates/security.md`
-   - `ux` → `.agents/references/checklist-templates/ux.md`
-   - `performance` → `.agents/references/checklist-templates/performance.md`
-   - `custom` → `.agents/references/checklist-templates/custom-template.md`
+   - `requirements` → `**/references/checklist-templates/requirements.md`
+   - `security` → `**/references/checklist-templates/security.md`
+   - `ux` → `**/references/checklist-templates/ux.md`
+   - `performance` → `**/references/checklist-templates/performance.md`
+   - `custom` → `**/references/checklist-templates/custom-template.md`
 
    If domain is ambiguous → ask USER to choose from the list above.
 
@@ -28,7 +28,7 @@ description:
 3. **Load project context** to customize checklist items:
    - `features/{NNN}-{slug}/spec.md` — for requirements-based items (if exists)
    - `features/{NNN}-{slug}/design.md` — for technical items (if exists)
-   - `.agents/rules/ANCHORS.md` — for constraint-based items (always)
+   - `**/rules/ANCHORS.md` — for constraint-based items (always)
    - `load_checkpoint` — for task plan context (if exists)
 
 ---
@@ -44,7 +44,7 @@ Using the template as a base, generate a **project-specific** checklist:
    - Add ANCHORS-derived items (e.g., "All code in English" from language anchor)
 3. **Add references** to relevant files or sections where applicable:
    - `→ See: features/{NNN}-{slug}/spec.md §3 Key Entities`
-   - `→ See: .agents/rules/ANCHORS.md §Quality Standards`
+   - `→ See: **/rules/ANCHORS.md §Quality Standards`
 
 ### Item Format
 
@@ -81,4 +81,5 @@ Group items by categories from the template. Each category should have 3-10 item
 3. **Checklist items are independently verifiable**: Each item is yes/no, never "partially done".
 4. **No implementation**: NEVER write code, run tests, or modify source files.
 5. **Idempotent**: Re-running overwrites the previous checklist for that domain.
-6. **Reference existing security checklist**: Security domain MUST include items from `.agents/references/security-checklist.md`.
+6. **Reference existing security checklist**: Security domain MUST include items from
+   `**/references/security-checklist.md`.

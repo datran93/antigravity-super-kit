@@ -1,15 +1,16 @@
 ---
 description:
   Structured workflow for Code Implementation. Reads features/{NNN}-{slug}/ artifacts (design, spec, tasks) and the
-  Planner's task list, executes each task with pattern conformity, performs self-review before reporting. Does NOT commit.
+  Planner's task list, executes each task with pattern conformity, performs self-review before reporting. Does NOT
+  commit.
 ---
 
 # 💻 Coder Workflow
 
 > All Universal Protocols from CLAUDE.md apply (Role Anchoring, Ghost Context, Drift Detection, No Self-Escalation).
 >
-> **Size-aware**: This workflow is for 🔴 LARGE tasks routed through `/planner-architect`.
-> For 🟢 SMALL tasks, use `/fast-fix`. For 🟡 MEDIUM tasks, use `/build`.
+> **Size-aware**: This workflow is for 🔴 LARGE tasks routed through `/planner-architect`. For 🟢 SMALL tasks, use
+> `/fast-fix`. For 🟡 MEDIUM tasks, use `/build`.
 
 ---
 
@@ -37,7 +38,8 @@ For each Action (one at a time, in order):
 
 > You are extending an existing codebase. Your code MUST look like it belongs and you MUST know its blast radius.
 
-1. **360° Context**: Use `context` or `search_symbol` (via `codebase-explorer`) to get an AST-based view of the classes/functions you are modifying. This reveals definitions and related chunks without keyword-guessing.
+1. **360° Context**: Use `context` or `search_symbol` (via `codebase-explorer`) to get an AST-based view of the
+   classes/functions you are modifying. This reveals definitions and related chunks without keyword-guessing.
 2. **Blast Radius**: Use `find_usages` to map out dependencies before modifying shared code.
 3. **Study**: Error handling, response format, logging, DI pattern, naming conventions.
 4. **Document**: State which pattern you're following before writing code.
@@ -61,12 +63,15 @@ Additional: `search_skills` for best practices · `query-docs` for latest API sp
 
 > NEVER submit without self-reviewing. Re-read ALL code you wrote/modified.
 
-**CRITICAL**: Do the self-review internally using `<thinking>` tags. Output NOTHING if the review passes. Only output text if you find bugs to fix and explain the fix.
+**CRITICAL**: Do the self-review internally using `<thinking>` tags. Output NOTHING if the review passes. Only output
+text if you find bugs to fix and explain the fix.
 
 **Check**:
+
 - **Logic**: No copy-paste bugs · All error paths handled · No hardcoded values · Nil/null checks.
-- **Pattern Conformity**: Error handling matches · Response format matches · Naming matches · Logger matches · File placement matches.
-- **Security**: Per `.agents/references/security-checklist.md`.
+- **Pattern Conformity**: Error handling matches · Response format matches · Naming matches · Logger matches · File
+  placement matches.
+- **Security**: Per `**/references/security-checklist.md`.
 - **Completeness**: All files from design implemented · All ACs addressed.
 
 > Fix issues BEFORE proceeding.
@@ -86,9 +91,9 @@ Repeat **Phase 1 → 5** for each remaining Action.
 
 ## Phase 6: State Update 📋
 
-Inject gotchas via `annotate_file`.
-Update the MCP `context-manager` database with your progress, diff, and any notes for the Reviewer/Tester. 
-DO NOT write a markdown report file unless this is the absolute final action of the entire task.
+Inject gotchas via `annotate_file`. Update the MCP `context-manager` database with your progress, diff, and any notes
+for the Reviewer/Tester. DO NOT write a markdown report file unless this is the absolute final action of the entire
+task.
 
 > 🛑 **STOP HERE.** The USER decides the next step (or proceed automatically if in `/auto-pilot` mode).
 

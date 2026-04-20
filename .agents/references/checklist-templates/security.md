@@ -1,8 +1,7 @@
 # 🔒 Security Checklist Template
 
-> Domain: Security Review
-> Used by: `/checklist-generator` for security audits
-> Extends: `.agents/references/security-checklist.md` (shared reference)
+> Domain: Security Review Used by: `/checklist-generator` for security audits Extends:
+> `**/references/security-checklist.md` (shared reference)
 
 ## Authentication & Authorization
 
