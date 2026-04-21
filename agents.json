@@ -42,6 +42,7 @@
       "rules": { "dir": "rules", "format": "md", "extension": ".mdc" },
       "workflows": { "dir": "commands", "format": "md", "extension": ".md" },
       "skills": null,
+      "references": { "dir": "references", "format": "md" },
       "args_placeholder": "$ARGUMENTS",
       "instructions_file": ".cursorrules"
     },
