@@ -24,7 +24,12 @@
     "claude": {
       "name": "Claude Code",
       "target_dir": ".claude",
-      "rules": { "dir": "rules", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "CLAUDE.md", "AGENTS.md": "CLAUDE.md" } },
+      "rules": {
+        "dir": "rules",
+        "format": "md",
+        "extension": ".md",
+        "rename": { "GEMINI.md": "CLAUDE.md", "AGENTS.md": "CLAUDE.md" }
+      },
       "workflows": { "dir": "commands", "format": "md", "extension": ".md" },
       "skills": null,
       "references": { "dir": "references", "format": "md" },
@@ -43,7 +48,12 @@
     "copilot": {
       "name": "GitHub Copilot",
       "target_dir": ".github",
-      "rules": { "dir": ".", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "copilot-instructions.md", "AGENTS.md": "copilot-instructions.md" } },
+      "rules": {
+        "dir": ".",
+        "format": "md",
+        "extension": ".md",
+        "rename": { "GEMINI.md": "copilot-instructions.md", "AGENTS.md": "copilot-instructions.md" }
+      },
       "workflows": { "dir": "agents", "format": "md", "extension": ".agent.md" },
       "skills": null,
       "args_placeholder": "$ARGUMENTS",
@@ -52,7 +62,12 @@
     "codex": {
       "name": "Codex CLI",
       "target_dir": ".codex",
-      "rules": { "dir": "rules", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENTS.md", "AGENTS.md": "AGENTS.md", "ANCHORS.md": "ANCHORS.md" } },
+      "rules": {
+        "dir": "rules",
+        "format": "md",
+        "extension": ".md",
+        "rename": { "GEMINI.md": "AGENTS.md", "AGENTS.md": "AGENTS.md", "ANCHORS.md": "ANCHORS.md" }
+      },
       "workflows": { "dir": "skills", "format": "skill_folder" },
       "skills": { "dir": "skills", "format": "skill_folder" },
       "references": { "dir": "references", "format": "md" },
@@ -71,16 +86,27 @@
     "opencode": {
       "name": "opencode",
       "target_dir": ".opencode",
-      "rules": { "dir": ".", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENT.md", "AGENTS.md": "AGENT.md" } },
+      "rules": {
+        "dir": "rules",
+        "format": "md",
+        "extension": ".md",
+        "rename": { "GEMINI.md": "AGENTS.md", "AGENTS.md": "AGENTS.md" }
+      },
       "workflows": { "dir": "command", "format": "md", "extension": ".md" },
       "skills": null,
+      "references": { "dir": "references", "format": "md" },
       "args_placeholder": "$ARGUMENTS",
       "instructions_file": "AGENT.md"
     },
     "kiro": {
       "name": "Kiro CLI",
       "target_dir": ".kiro",
-      "rules": { "dir": ".", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENT.md", "AGENTS.md": "AGENT.md" } },
+      "rules": {
+        "dir": ".",
+        "format": "md",
+        "extension": ".md",
+        "rename": { "GEMINI.md": "AGENT.md", "AGENTS.md": "AGENT.md" }
+      },
       "workflows": { "dir": "prompts", "format": "md", "extension": ".md" },
       "skills": null,
       "args_placeholder": "$ARGUMENTS",
@@ -89,7 +115,12 @@
     "amp": {
       "name": "Amp",
       "target_dir": ".amp",
-      "rules": { "dir": "rules", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENTS.md", "AGENTS.md": "AGENTS.md" } },
+      "rules": {
+        "dir": "rules",
+        "format": "md",
+        "extension": ".md",
+        "rename": { "GEMINI.md": "AGENTS.md", "AGENTS.md": "AGENTS.md" }
+      },
       "workflows": { "dir": "commands", "format": "md", "extension": ".md" },
       "skills": null,
       "args_placeholder": "$ARGUMENTS",
@@ -98,7 +129,12 @@
     "roo": {
       "name": "Roo Code",
       "target_dir": ".roo",
-      "rules": { "dir": "rules", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENT.md", "AGENTS.md": "AGENT.md" } },
+      "rules": {
+        "dir": "rules",
+        "format": "md",
+        "extension": ".md",
+        "rename": { "GEMINI.md": "AGENT.md", "AGENTS.md": "AGENT.md" }
+      },
       "workflows": { "dir": "commands", "format": "md", "extension": ".md" },
       "skills": null,
       "args_placeholder": "$ARGUMENTS",
@@ -107,7 +143,12 @@
     "qwen": {
       "name": "Qwen Code",
       "target_dir": ".qwen",
-      "rules": { "dir": "rules", "format": "md", "extension": ".md", "rename": { "GEMINI.md": "AGENT.md", "AGENTS.md": "AGENT.md" } },
+      "rules": {
+        "dir": "rules",
+        "format": "md",
+        "extension": ".md",
+        "rename": { "GEMINI.md": "AGENT.md", "AGENTS.md": "AGENT.md" }
+      },
       "workflows": { "dir": "commands", "format": "md", "extension": ".md" },
       "skills": null,
       "args_placeholder": "$ARGUMENTS",
