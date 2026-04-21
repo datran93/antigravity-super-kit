@@ -12,7 +12,8 @@ __pycache__
 test_*.py
 progress.md
 !.agents
-!.claude
+.claude
+.codex
 *.db
 .db/*
 
