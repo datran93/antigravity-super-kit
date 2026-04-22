@@ -12,7 +12,7 @@ description:
 
 ## Phase 0: Load Spec 📖
 
-1. Identify the active spec: `features/{NNN}-{slug}/spec.md`.
+1. Identify the active spec: `features/{slug}/spec.md`.
 2. `load_checkpoint` — load task context if exists.
 3. Read the full spec file. If no spec exists, abort and instruct the USER to run `/specifications-writer` first.
 
@@ -123,7 +123,7 @@ Present **EXACTLY ONE question** at a time. Never reveal future queued questions
 
 After the questioning loop completes:
 
-1. **Ensure structure exists** in `features/{NNN}-{slug}/spec.md`:
+1. **Ensure structure exists** in `features/{slug}/spec.md`:
    - Add `## Clarifications` section if not present (place after the highest-level overview section)
    - Create `### Session YYYY-MM-DD` subheading for today's date
 

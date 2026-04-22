@@ -1,7 +1,7 @@
 ---
 description:
   Standard workflow for 🟡 MEDIUM tasks (new utilities, refactors, internal features). Plans inline, implements with
-  intent locking and pattern discovery, self-reviews, then reports for reviewer. Does NOT commit.
+  intent locking and pattern discovery, self-reviews, then updates state. Does NOT commit.
 ---
 
 # 🔨 Build Workflow (🟡 MEDIUM)
@@ -92,7 +92,7 @@ For each file group:
 
 - Run relevant tests — confirm no regressions.
 - On **fail**: Fix and re-run. After 3 consecutive failures → `record_failure` → STOP → ask USER.
-- On **pass**: Proceed to report.
+- On **pass**: Proceed to state update.
 
 ---
 
@@ -111,7 +111,7 @@ results.
 1. **Read before write**: NEVER modify a file without reading it first.
 2. **Inline plan only**: Do NOT create spec.md, design.md, tasks.md, or feature directories.
 3. **Pattern conformity**: Find and follow existing patterns. Document deviations.
-4. **Self-review before report**: Complete Phase 4 BEFORE Phase 6.
+4. **Self-review before update**: Complete Phase 4 BEFORE Phase 6.
 5. **Intent locking required**: ALWAYS use `declare_intent` before editing.
 6. **No commit**: NEVER commit — the USER or Planner decides.
 7. **Escape hatch**: If scope grows beyond MEDIUM → STOP → recommend `/planner-architect`.

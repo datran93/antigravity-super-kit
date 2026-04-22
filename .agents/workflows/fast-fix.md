@@ -1,7 +1,7 @@
 ---
 description:
   Fast-track workflow for 🟢 SMALL tasks (bug fixes, typos, config tweaks, doc updates, dependency bumps).
-  Single-pass — reads, fixes, self-reviews, reports. No spec, no design, no feature directory. Does NOT commit.
+  Single-pass — reads, fixes, self-reviews, updates state. No spec, no design, no feature directory. Does NOT commit.
 ---
 
 # ⚡ Fast-Fix Workflow (🟢 SMALL)
@@ -61,11 +61,11 @@ Re-read ALL changes. Check:
 
 - If a relevant test suite exists → run it to confirm no regressions.
 - On **fail**: Fix and re-run. After 3 consecutive failures → `record_failure` → STOP → ask USER.
-- On **pass**: Proceed to report.
+- On **pass**: Proceed to state update.
 
 ---
 
-## Phase 4: Report 📋
+## Phase 4: State Update 📋
 
 Present a brief summary:
 

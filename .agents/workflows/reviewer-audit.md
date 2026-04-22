@@ -1,8 +1,5 @@
 ---
-description:
-  Structured workflow for Code Review and Quality Audit. Reads the Coder's implementation report and the original
-  features/{NNN}-{slug}/ artifacts, performs a thorough audit including pattern consistency, security depth review, and
-  performance analysis, and reports findings to the USER. Does NOT fix code, does NOT switch roles.
+description: Structured workflow for Code Review and Quality Audit. Reads the completed actions from MCP context and the original
 ---
 
 # 🔍 Reviewer Workflow
@@ -11,9 +8,9 @@ description:
 
 ## Phase 0: Load Context 📖
 
-1. Read `features/{NNN}-{slug}/spec.md` — Acceptance Criteria.
-2. Read `features/{NNN}-{slug}/design.md` (or `design/architecture.md`) — intended architecture.
-3. Read `features/{NNN}-{slug}/reports/coder-report.md` — files changed, patterns followed, compromises declared.
+1. Read `features/{slug}/spec.md` — Acceptance Criteria.
+2. Read `features/{slug}/design.md` — intended architecture.
+3. Check MCP context for completed actions, files changed, and notes left by the Coder.
 4. `load_checkpoint` — confirm completed Actions.
 5. **Context Pruning**: Classify task domain (auth/db/api/refactor) then use `manage_anchors(action="list")` to load
    only the relevant `[domain:X]` anchors. Always include `[domain:quality]`. Do NOT read the full `ANCHORS.md` file.
@@ -78,9 +75,9 @@ Per `**/references/security-checklist.md` — verify every check with specific f
 
 ## Phase 3: Report 📋
 
-Deliver report per `**/references/report-templates/reviewer-report.md`.
+Deliver report directly to the USER per `**/references/report-templates/reviewer-report.md`.
 
-Write the report to `features/{NNN}-{slug}/reports/audit-report.md`.
+DO NOT write any markdown report files.
 
 > 🛑 **STOP HERE.** The USER decides: ask Coder to fix, proceed to `/tester-verification`, or accept.
 

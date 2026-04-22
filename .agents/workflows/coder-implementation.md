@@ -1,8 +1,7 @@
 ---
 description:
-  Structured workflow for Code Implementation. Reads features/{NNN}-{slug}/ artifacts (design, spec, tasks) and the
-  Planner's task list, executes each task with pattern conformity, performs self-review before reporting. Does NOT
-  commit.
+  Structured workflow for Code Implementation. Reads features/{slug}/ artifacts (design, spec) and the Planner's task
+  list, executes each task with pattern conformity, performs self-review before updating state. Does NOT commit.
 ---
 
 # 💻 Coder Workflow
@@ -38,6 +37,7 @@ For each Action (one at a time, in order):
 
 1. **360° Context**: Use `context` or `search_symbol` (via `codebase-explorer`) to get an AST-based view of the
    classes/functions you are modifying. This reveals definitions and related chunks without keyword-guessing.
+   *Note: Prioritize these AST tools over `view_file` to drastically save input tokens.*
 2. **Blast Radius**: Use `find_usages` to map out dependencies before modifying shared code.
 3. **Study**: Error handling, response format, logging, DI pattern, naming conventions.
 4. **Document**: State which pattern you're following before writing code.
@@ -49,7 +49,7 @@ Additional: `search_skills` for best practices · `query-docs` for latest API sp
 
 ## Phase 3: Execution 🛠️
 
-- **NEVER write blindly**: Read every file before modifying.
+- **NEVER write blindly**: Understand the file structure before modifying. Prioritize AST Context over reading the entire file with `view_file`.
 - Clean Code: clear naming, small focused functions, SOLID.
 - Testable: Dependency Injection, no hardcoded globals.
 - Stay strictly within the locked Bounded Context.
@@ -78,8 +78,8 @@ text if you find bugs to fix and explain the fix.
 
 ## Phase 5: Verification ✅
 
-- Run the **Verification Command** for the current Action.
-- Run the **existing test suite** — confirm no regressions.
+- Run the **Verification Command** for the current Action. **ALWAYS append quiet flags** (e.g., `-short`, `--quiet`, `| grep FAIL`) to reduce terminal noise and save tokens.
+- Run the **existing test suite** — confirm no regressions. Use quiet flags to prevent flooding the context window.
 - On **fail**: Fix and re-run. After 3 consecutive failures → `record_failure` → stop → ask USER.
 - On **pass**: Note result. NEVER commit — committing is the Planner's job.
 
@@ -90,8 +90,7 @@ Repeat **Phase 1 → 5** for each remaining Action.
 ## Phase 6: State Update 📋
 
 Inject gotchas via `annotate_file`. Update the MCP `context-manager` database with your progress, diff, and any notes
-for the Reviewer/Tester. DO NOT write a markdown report file unless this is the absolute final action of the entire
-task.
+for the Reviewer/Tester. DO NOT write any markdown report files.
 
 > 🛑 **STOP HERE.** The USER decides the next step (or proceed automatically if in `/auto-pilot` mode).
 
@@ -99,8 +98,8 @@ task.
 
 ## 🔴 Constraints
 
-1. **Read before write**: NEVER modify a file without reading it first.
+1. **Read before write**: NEVER modify a file without checking its context first. Use AST context over full `view_file` reads.
 2. **Pattern conformity**: Find and follow existing patterns. Document deviations.
-3. **Self-review before report**: Complete Phase 4 BEFORE Phase 6.
+3. **Self-review before update**: Complete Phase 4 BEFORE Phase 6.
 4. **Task order**: Complete Actions in the Planner's order. NEVER skip or reorder.
 5. **Stay in scope**: NEVER refactor outside the current Action's Bounded Context.

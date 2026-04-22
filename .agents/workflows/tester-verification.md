@@ -1,8 +1,5 @@
 ---
-description:
-  Structured workflow for Testing. Reads the Coder's implementation report, performs deep code analysis to find real
-  bugs, writes targeted tests to expose logic errors, security holes, and edge-case failures. Coverage ≥ 70% is a side
-  effect of thorough bug hunting — NOT the primary goal. Does NOT fix implementation code, does NOT switch roles.
+description: Structured workflow for Testing. Reads the completed actions from MCP context, performs deep code analysis to find
 ---
 
 # 🧪 Tester Workflow
@@ -13,8 +10,8 @@ description:
 
 ## Phase 0: Read Context 📖
 
-1. Read `features/{NNN}-{slug}/design.md` (or `design/architecture.md`) — contracts, boundaries, expected behaviors.
-2. Read `features/{NNN}-{slug}/reports/coder-report.md` — files created/modified.
+1. Read `features/{slug}/design.md` — contracts, boundaries, expected behaviors.
+2. Check MCP context for completed actions, files created/modified, and notes.
 3. `load_checkpoint` — confirm completed Actions.
 4. **Context Pruning**: Load only relevant domain anchors via `manage_anchors(action="list")`. Always include
    `[domain:quality]` and `[domain:security]` for testing.
@@ -69,7 +66,7 @@ For each hypothesis:
    - **P3**: Edge cases (empty, boundary, unicode, large payloads)
 4. **Structure**: Setup (multi-user/multi-tenant) → Action (as WRONG user/role) → Assert (correctly REJECTS).
 
-> 🎯 Test passes + you expected failure → code is correct. Move on. 🐛 Test fails → real bug. Document in report. NEVER
+> 🎯 Test passes + you expected failure → code is correct. Move on. 🐛 Test fails → real bug. Document in output. NEVER
 > fix implementation.
 
 ---
@@ -94,9 +91,9 @@ Run tests with coverage. Gate: **≥ 70%** or write more tests.
 
 ## Phase 5: Report 📋
 
-Deliver report per `**/references/report-templates/tester-report.md`.
+Deliver report directly to the USER per `**/references/report-templates/tester-report.md`.
 
-Write the report to `features/{NNN}-{slug}/reports/test-report.md`.
+DO NOT write any markdown report files.
 
 > 🛑 **STOP HERE.** The USER decides the next step.
 

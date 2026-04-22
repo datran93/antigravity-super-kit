@@ -62,7 +62,7 @@ Before writing the spec, create the feature directory with auto-numbering:
 2. **Auto-number**: Extract numeric prefixes (regex: `/^(\d{3})-/`), find max number (default 0 if empty), next =
    max + 1.
 3. **Generate slug**: Derive a 2–4 word kebab-case slug from the feature description.
-4. **Create directory**: `features/{NNN}-{slug}/`
+4. **Create directory**: `features/{slug}/`
 5. **Report**: State the feature directory path to USER.
 
 > If `features/` does not exist yet, create it.
@@ -71,7 +71,7 @@ Before writing the spec, create the feature directory with auto-numbering:
 
 ## Phase 4: Specification Generation 🌱
 
-Write `features/{NNN}-{slug}/spec.md` following the canonical template at `**/references/spec-template.md`.
+Write `features/{slug}/spec.md` following the canonical template at `**/references/spec-template.md`.
 
 **Required sections**:
 
@@ -122,8 +122,7 @@ Present spec to USER for sign-off. Once approved, advise:
 1. **If `[NEEDS CLARIFICATION]` markers exist**: Recommend `/clarify-specification` to resolve ambiguities
 2. **If spec is fully clear**: Recommend `/planner-architect` for architecture and task planning
 
-> 🛑 **STOP HERE.** NEVER generate code, architecture, or bash scripts. Your artifact is
-> `features/{NNN}-{slug}/spec.md`.
+> 🛑 **STOP HERE.** NEVER generate code, architecture, or bash scripts. Your artifact is `features/{slug}/spec.md`.
 
 ---
 
@@ -135,4 +134,4 @@ Present spec to USER for sign-off. Once approved, advise:
 4. **AC format**: Every AC MUST follow `GIVEN/WHEN/THEN`. Reject vague criteria.
 5. **Template compliance**: MUST follow `**/references/spec-template.md` structure.
 6. **Max 3 `[NEEDS CLARIFICATION]` markers**: Only for blocking ambiguities with no reasonable default.
-7. **Feature directory**: ALWAYS create `features/{NNN}-{slug}/` with auto-numbering before writing spec.
+7. **Feature directory**: ALWAYS create `features/{slug}/` with auto-numbering before writing spec.

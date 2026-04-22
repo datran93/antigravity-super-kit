@@ -5,7 +5,7 @@
 
 **Task ID**: {task-id}
 **Date**: {date}
-**Artifacts Analyzed**: features/{NNN}-{slug}/spec.md, design.md, tasks.md
+**Artifacts Analyzed**: features/{slug}/spec.md, design.md, tasks.md
 
 ---
 

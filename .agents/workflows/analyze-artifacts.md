@@ -1,7 +1,5 @@
 ---
-description:
-  Read-only cross-artifact consistency and coverage analysis. Detects duplications, ambiguities, underspecification,
-  coverage gaps, and terminology drift across spec, design, and task plan without modifying any files.
+description: Read-only cross-artifact consistency and coverage analysis. Detects duplications, ambiguities, underspecification,
 ---
 
 # 📊 Analyze Artifacts
@@ -13,10 +11,10 @@ description:
 ## Phase 0: Load Artifacts 📖
 
 1. Identify the task: `load_checkpoint` or identify from USER context.
-2. Read all artifacts from `features/{NNN}-{slug}/`:
+2. Read all artifacts from `features/{slug}/`:
    - `spec.md` — requirements, user stories, acceptance criteria
-   - `design.md` OR `design/architecture.md` (detect format)
-   - `tasks.md` — task plan from Planner
+   - `design.md`
+   - task plan from MCP context
 3. Read `ANCHORS.md` — constraints to validate against.
 4. If any artifact is missing → report which artifact is missing → STOP.
 
@@ -46,7 +44,7 @@ For each module, component, data model, contract:
 - Files involved
 - Related requirements (if stated)
 
-### Task Coverage Map (from task plan)
+### Task Coverage Map (from MCP context)
 
 For each task action:
 
@@ -121,7 +119,7 @@ For each finding, assign severity:
 
 ## Phase 4: Report Delivery 📋
 
-Produce report per `**/references/report-templates/analyze-report.md` containing:
+Present report to the USER per `**/references/report-templates/analyze-report.md` containing:
 
 1. **Inventory Summary**: Count of items in each artifact
 2. **Coverage Mapping Table**: Requirement → Design → Task traceability

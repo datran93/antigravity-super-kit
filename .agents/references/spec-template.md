@@ -1,6 +1,6 @@
 # 📝 Specification Template
 
-> This is the canonical template for `features/{NNN}-{slug}/spec.md`. The Spec Writer MUST follow this structure.
+> This is the canonical template for `features/{slug}/spec.md`. The Spec Writer MUST follow this structure.
 
 ---
 
@@ -12,8 +12,8 @@
 
 ## 2. User Stories (Prioritized)
 
-> List user stories in descending priority (P1 = must-have for MVP, P2 = important, P3 = nice-to-have).
-> Each story MUST include: priority justification, independent testability, and GIVEN/WHEN/THEN acceptance criteria.
+> List user stories in descending priority (P1 = must-have for MVP, P2 = important, P3 = nice-to-have). Each story MUST
+> include: priority justification, independent testability, and GIVEN/WHEN/THEN acceptance criteria.
 
 ### [P1] Story Title
 
@@ -58,8 +58,8 @@ AC-4: GIVEN <precondition>, WHEN <action>, THEN <measurable outcome>
 
 > Data entities that are first-class citizens in this feature. Define them at the spec level.
 
-| Entity | Core Attributes | Relationships | Uniqueness/Identity | State Transitions |
-|--------|----------------|---------------|--------------------|--------------------|
+| Entity | Core Attributes       | Relationships              | Uniqueness/Identity | State Transitions             |
+| ------ | --------------------- | -------------------------- | ------------------- | ----------------------------- |
 | _Name_ | _attr1, attr2, attr3_ | _belongs to X, has many Y_ | _Unique by [field]_ | _created → active → archived_ |
 
 ---
@@ -90,7 +90,8 @@ AC-4: GIVEN <precondition>, WHEN <action>, THEN <measurable outcome>
 
 ## 7. Clarification Markers
 
-> Maximum 3 items that CANNOT proceed without USER input. Only for scope/security/UX ambiguities where no reasonable default exists.
+> Maximum 3 items that CANNOT proceed without USER input. Only for scope/security/UX ambiguities where no reasonable
+> default exists.
 
 - `[NEEDS CLARIFICATION]` _Description of what is ambiguous and why it matters_
 

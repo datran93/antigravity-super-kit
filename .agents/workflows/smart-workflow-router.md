@@ -32,7 +32,7 @@ Before routing to a workflow, classify the task size:
 | Clarify spec, resolve ambiguities, "questions about spec"    | `/clarify-specification` |
 | 🔴 Architecture, design, features/, task list, plan          | `/planner-architect`     |
 | Consistency check, coverage, "analyze artifacts", "verify"   | `/analyze-artifacts`     |
-| 🔴 Implementation of planned tasks (has tasks.md)            | `/coder-implementation`  |
+| 🔴 Implementation of planned tasks (has task plan in MCP)    | `/coder-implementation`  |
 | Code review, audit, quality, "check my code"                 | `/reviewer-audit`        |
 | Tests, coverage, "write tests for", TDD                      | `/tester-verification`   |
 | Checklist, "generate checklist", "security checklist"        | `/checklist-generator`   |

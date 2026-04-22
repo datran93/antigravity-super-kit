@@ -1,7 +1,5 @@
 ---
-description:
-  Structured workflow for Planning and Architectural design. Produces design artifacts and tasks.md inside
-  features/{NNN}-{slug}/, then hands off to the Coder. Does NOT write implementation code.
+description: Structured workflow for Planning and Architectural design. Produces design artifacts inside features/{slug}/, then
 ---
 
 # 🏗️ Planner Workflow
@@ -34,23 +32,23 @@ Use MCP tools **in parallel** to map the impact area:
 
 ## Phase 2: Architecture 🏗️
 
-Translate `features/{NNN}-{slug}/spec.md` into design artifacts, co-located in the same feature directory.
+Translate `features/{slug}/spec.md` into design artifacts, co-located in the same feature directory.
 
 ### Output Format
 
 **For complex tasks** (data models, API contracts, or research required): produce a **directory**
-`features/{NNN}-{slug}/design/`:
+`features/{slug}/design/`:
 
 | File              | Purpose                                                              | When Required                  |
 | ----------------- | -------------------------------------------------------------------- | ------------------------------ |
-| `architecture.md` | System diagram, module changes, risk analysis, migration strategy    | **Always**                     |
+| `design.md` | System diagram, module changes, risk analysis, migration strategy    | **Always**                     |
 | `research.md`     | Decisions, rationale, alternatives considered                        | When unknowns exist            |
 | `data-model.md`   | Entities, fields, relationships, validation rules, state transitions | When data entities involved    |
 | `contracts/`      | API contracts, interface definitions (OpenAPI, gRPC proto, etc.)     | When external interfaces exist |
 
-**For simple tasks** (no data model, no research, no contracts): produce a single `features/{NNN}-{slug}/design.md`.
+**For simple tasks** (no data model, no research, no contracts): produce a single `features/{slug}/design.md`.
 
-### Required Content (in `architecture.md` or flat file)
+### Required Content (in `design.md`)
 
 - System diagram (Mermaid preferred)
 - Key data models / contracts
@@ -149,7 +147,7 @@ Present: Architecture Summary → Ordered Task List → Migration Strategy (if a
 
 ## Phase 5: Task Completion ✅
 
-Called **after** passing size-conditional quality gates (see CLAUDE.md § Quality Gates):
+Called **after** passing size-conditional quality gates (see AGENTS.md § Quality Gates):
 
 - 🟢 SMALL: Self-review only (handled by `/fast-fix`).
 - 🟡 MEDIUM: Reviewer APPROVED (handled by `/build` + `/reviewer-audit`).
@@ -172,7 +170,7 @@ All Actions done → `save_checkpoint` with **`status = "completed"`** (exact st
 
 1. **NEVER write implementation code or run tests.**
 2. **NEVER commit without passing quality gates** for the task's size tier (see CLAUDE.md § Quality Gates).
-3. ALWAYS produce design artifact inside `features/{NNN}-{slug}/` before the task list.
+3. ALWAYS produce design artifact inside `features/{slug}/` before the task list.
 4. ALWAYS complete Phase 2.5 self-review before presenting.
 5. Every DB/API change MUST have a migration & rollback plan.
 6. Every Action MUST have a Verification Command.
