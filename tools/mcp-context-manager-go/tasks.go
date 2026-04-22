@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,17 +10,53 @@ import (
 )
 
 func InitializeTaskPlan(workspacePath, taskID, description string, steps []string) (string, error) {
+	db, err := GetDBConnection(workspacePath)
+	if err != nil {
+		return "", err
+	}
+	defer db.Close()
+
 	initNotes := fmt.Sprintf("[%s] Task started.", time.Now().Format("15:04:05"))
-	return SaveCheckpoint(
-		workspacePath,
-		taskID,
-		description,
-		"in_progress",
-		[]string{},
-		steps,
-		[]string{},
-		initNotes,
-	)
+
+	err = RunInTx(db, func(tx *sql.Tx) error {
+		// Insert into tasks
+		_, err := tx.Exec("INSERT INTO tasks (task_id, description, status, notes) VALUES (?, ?, ?, ?)",
+			taskID, description, "in_progress", initNotes)
+		if err != nil {
+			return fmt.Errorf("insert task: %v", err)
+		}
+
+		// Insert into steps and dependencies
+		for i, stepStr := range steps {
+			info := ParseStep(stepStr)
+			if info.ID == "" {
+				// Fallback if no ID was matched
+				info.ID = fmt.Sprintf("STEP-%03d", i+1)
+			}
+			_, err = tx.Exec("INSERT INTO steps (step_id, task_id, name, status) VALUES (?, ?, ?, ?)",
+				info.ID, taskID, info.Name, "pending")
+			if err != nil {
+				return fmt.Errorf("insert step %s: %v", info.ID, err)
+			}
+			
+			for _, dep := range info.Dependencies {
+				_, err = tx.Exec("INSERT INTO step_dependencies (step_id, depends_on_step_id) VALUES (?, ?)",
+					info.ID, dep)
+				if err != nil {
+					return fmt.Errorf("insert step_dependency %s->%s: %v", info.ID, dep, err)
+				}
+			}
+		}
+		return nil
+	})
+	
+	if err != nil {
+		return "", err
+	}
+	
+	_ = WriteMarkdownProgress(db, workspacePath, taskID)
+	
+	return fmt.Sprintf("✅ Task '%s' initialized with %d steps.", taskID, len(steps)), nil
 }
 
 // GetTaskSummary returns a compact JSON summary of a task's current state.
@@ -31,33 +68,39 @@ func GetTaskSummary(workspacePath, taskID string) (string, error) {
 	}
 	defer db.Close()
 
-	row := db.QueryRow(
-		"SELECT status, updated_at, completed_steps, next_steps FROM checkpoints WHERE task_id = ?",
-		taskID,
-	)
-	var status, updatedAt, completedStepsStr, nextStepsStr string
-	if err := row.Scan(&status, &updatedAt, &completedStepsStr, &nextStepsStr); err != nil {
+	var status, updatedAt string
+	err = db.QueryRow("SELECT status, updated_at FROM tasks WHERE task_id = ?", taskID).Scan(&status, &updatedAt)
+	if err == sql.ErrNoRows {
 		return fmt.Sprintf(`{"error": "task '%s' not found"}`, taskID), nil
+	} else if err != nil {
+		return "", err
 	}
 
-	var comp, nxt []string
-	json.Unmarshal([]byte(completedStepsStr), &comp)
-	json.Unmarshal([]byte(nextStepsStr), &nxt)
+	var compCount, pendingCount int
+	err = db.QueryRow("SELECT COUNT(*) FROM steps WHERE task_id = ? AND status = 'completed'", taskID).Scan(&compCount)
+	if err != nil {
+		return "", err
+	}
+	err = db.QueryRow("SELECT COUNT(*) FROM steps WHERE task_id = ? AND status != 'completed'", taskID).Scan(&pendingCount)
+	if err != nil {
+		return "", err
+	}
 
-	total := len(comp) + len(nxt)
+	total := compCount + pendingCount
 	pct := 0.0
 	if total > 0 {
-		pct = float64(len(comp)) / float64(total) * 100.0
+		pct = float64(compCount) / float64(total) * 100.0
 	}
 
 	nextStep := ""
-	if len(nxt) > 0 {
-		nextStep = nxt[0]
+	err = db.QueryRow("SELECT name FROM steps WHERE task_id = ? AND status = 'pending' ORDER BY created_at ASC LIMIT 1", taskID).Scan(&nextStep)
+	if err != nil && err != sql.ErrNoRows {
+		return "", err
 	}
 
 	return fmt.Sprintf(
 		`{"task_id": %q, "status": %q, "progress": "%d/%d steps (%.0f%%)", "next_step": %q, "last_updated": %q}`,
-		taskID, status, len(comp), total, pct, nextStep, updatedAt,
+		taskID, status, compCount, total, pct, nextStep, updatedAt,
 	), nil
 }
 
@@ -68,75 +111,77 @@ func CompleteTaskStep(workspacePath, taskID, stepName string, activeFiles []stri
 	}
 	defer db.Close()
 
-	row := db.QueryRow(
-		"SELECT description, status, completed_steps, next_steps, active_files, notes, COALESCE(step_timestamps,'{}'), COALESCE(step_drift,'{}') FROM checkpoints WHERE task_id = ?",
-		taskID,
-	)
-	var description, status, completedStepsStr, nextStepsStr, activeFilesStr, currentNotes, stepTimestampsStr, stepDriftStr string
-	if err := row.Scan(&description, &status, &completedStepsStr, &nextStepsStr, &activeFilesStr, &currentNotes, &stepTimestampsStr, &stepDriftStr); err != nil {
-		return fmt.Sprintf("❌ Task '%s' not found.", taskID), nil
-	}
+	info := ParseStep(stepName)
 
-	var comp []string
-	var nxt []string
-	var currActiveFiles []string
-	json.Unmarshal([]byte(completedStepsStr), &comp)
-	json.Unmarshal([]byte(nextStepsStr), &nxt)
-	if activeFilesStr != "" {
-		json.Unmarshal([]byte(activeFilesStr), &currActiveFiles)
-	}
-
-	// Load existing step metadata
-	timestamps := ParseStepTimestamps(stepTimestampsStr)
-	drift := ParseStepDrift(stepDriftStr)
-
-	stepFound := false
-	var newNxt []string
-	for _, s := range nxt {
-		if s == stepName {
-			stepFound = true
-			comp = append(comp, s)
-		} else {
-			newNxt = append(newNxt, s)
+	var msg string
+	err = RunInTx(db, func(tx *sql.Tx) error {
+		// Find the step by exact name or ID
+		var stepID, currentStatus string
+		
+		query := "SELECT step_id, status FROM steps WHERE task_id = ? AND (name = ? OR step_id = ?)"
+		err := tx.QueryRow(query, taskID, stepName, info.ID).Scan(&stepID, &currentStatus)
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("⚠️ Step '%s' not found.", stepName)
+		} else if err != nil {
+			return err
 		}
-	}
 
-	if !stepFound {
-		return fmt.Sprintf("⚠️ Step '%s' not in queue.", stepName), nil
-	}
+		if currentStatus == "completed" {
+			return fmt.Errorf("⚠️ Step '%s' is already completed.", stepName)
+		}
 
-	// Record completion timestamp for velocity calculation
-	timestamps[stepName] = time.Now().Format(time.RFC3339)
+		// Update step status
+		_, err = tx.Exec("UPDATE steps SET status = 'completed' WHERE step_id = ?", stepID)
+		if err != nil {
+			return err
+		}
 
-	stat := "completed"
-	if len(newNxt) > 0 {
-		stat = status
-	}
-
-	endTimeStr := time.Now().Format("15:04:05")
-	log := currentNotes + fmt.Sprintf("\n[%s] ✅ Done: %s", endTimeStr, stepName)
-
-	if len(activeFiles) > 0 {
-		var activeFilesLog []string
+		// Insert active files
 		for _, f := range activeFiles {
-			activeFilesLog = append(activeFilesLog, f)
-			found := false
-			for _, cf := range currActiveFiles {
-				if cf == f {
-					found = true
-					break
-				}
-			}
-			if !found {
-				currActiveFiles = append(currActiveFiles, f)
+			_, err = tx.Exec("INSERT INTO step_files (step_id, file_path, role) VALUES (?, ?, 'coder')", stepID, f)
+			if err != nil {
+				return err
 			}
 		}
-		fromJSON, _ := json.Marshal(activeFilesLog)
-		log += fmt.Sprintf("\n  - Files: %s", string(fromJSON))
-	}
 
-	if notes != "" {
-		log += fmt.Sprintf("\n  - Notes: %s", notes)
+		// Update tasks notes
+		endTimeStr := time.Now().Format("15:04:05")
+		newLog := fmt.Sprintf("\n[%s] ✅ Done: %s", endTimeStr, stepName)
+		if len(activeFiles) > 0 {
+			fromJSON, _ := json.Marshal(activeFiles)
+			newLog += fmt.Sprintf("\n  - Files: %s", string(fromJSON))
+		}
+		if notes != "" {
+			newLog += fmt.Sprintf("\n  - Notes: %s", notes)
+		}
+
+		_, err = tx.Exec("UPDATE tasks SET notes = notes || ? WHERE task_id = ?", newLog, taskID)
+		if err != nil {
+			return err
+		}
+
+		// Check if all steps are completed
+		var pendingCount int
+		err = tx.QueryRow("SELECT COUNT(*) FROM steps WHERE task_id = ? AND status != 'completed'", taskID).Scan(&pendingCount)
+		if err != nil {
+			return err
+		}
+
+		if pendingCount == 0 {
+			_, err = tx.Exec("UPDATE tasks SET status = 'completed' WHERE task_id = ?", taskID)
+			if err != nil {
+				return err
+			}
+			msg = fmt.Sprintf("✅ Task '%s' fully completed! Step '%s' done.", taskID, stepName)
+		} else {
+			msg = fmt.Sprintf("✅ Step '%s' marked completed. %d steps remaining.", stepName, pendingCount)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", err
 	}
 
 	// Improvement #5: auto-annotate active files when notes contain key phrases
@@ -146,20 +191,9 @@ func CompleteTaskStep(workspacePath, taskID, stepName string, activeFiles []stri
 		}
 	}
 
-	// Serialize updated metadata back to JSON
-	timestampsBytes, _ := json.Marshal(timestamps)
-	driftBytes, _ := json.Marshal(drift)
+	_ = WriteMarkdownProgress(db, workspacePath, taskID)
 
-	// Persist step_timestamps + step_drift before the full SaveCheckpoint.
-	// Log on failure (e.g., schema mismatch on old DB) — non-fatal but visible.
-	if _, execErr := db.Exec(
-		"UPDATE checkpoints SET step_timestamps=?, step_drift=? WHERE task_id=?",
-		string(timestampsBytes), string(driftBytes), taskID,
-	); execErr != nil {
-		fmt.Fprintf(os.Stderr, "[context-manager] warning: failed to persist step metadata for task '%s': %v\n", taskID, execErr)
-	}
-
-	return SaveCheckpoint(workspacePath, taskID, description, stat, comp, newNxt, currActiveFiles, log)
+	return msg, nil
 }
 
 // hasGotchaKeyword returns true when the notes string contains known gotcha trigger phrases.
@@ -180,36 +214,65 @@ func AddTaskStep(workspacePath, taskID, newStep string) (string, error) {
 	}
 	defer db.Close()
 
-	row := db.QueryRow("SELECT description, status, completed_steps, next_steps, active_files, notes FROM checkpoints WHERE task_id = ?", taskID)
-	var description, status, completedStepsStr, nextStepsStr, activeFilesStr, currentNotes string
-	if err := row.Scan(&description, &status, &completedStepsStr, &nextStepsStr, &activeFilesStr, &currentNotes); err != nil {
-		return fmt.Sprintf("❌ Task '%s' not found.", taskID), nil
-	}
+	info := ParseStep(newStep)
 
-	var comp []string
-	var nxt []string
-	var currActiveFiles []string
-	json.Unmarshal([]byte(completedStepsStr), &comp)
-	json.Unmarshal([]byte(nextStepsStr), &nxt)
-	if activeFilesStr != "" {
-		json.Unmarshal([]byte(activeFilesStr), &currActiveFiles)
-	}
-
-	for _, s := range nxt {
-		if s == newStep {
-			return fmt.Sprintf("⚠️ Step '%s' already exists in task '%s'.", newStep, taskID), nil
+	var msg string
+	err = RunInTx(db, func(tx *sql.Tx) error {
+		// check if task exists
+		var currentNotes string
+		err := tx.QueryRow("SELECT notes FROM tasks WHERE task_id = ?", taskID).Scan(&currentNotes)
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("❌ Task '%s' not found.", taskID)
+		} else if err != nil {
+			return err
 		}
-	}
-	for _, s := range comp {
-		if s == newStep {
-			return fmt.Sprintf("⚠️ Step '%s' already exists in task '%s'.", newStep, taskID), nil
+
+		if info.ID == "" {
+			info.ID = "STEP-" + time.Now().Format("20060102150405")
 		}
+
+		// check if step exists
+		var exists int
+		err = tx.QueryRow("SELECT COUNT(*) FROM steps WHERE task_id = ? AND step_id = ?", taskID, info.ID).Scan(&exists)
+		if err != nil {
+			return err
+		}
+		if exists > 0 {
+			return fmt.Errorf("⚠️ Step '%s' already exists in task '%s'.", newStep, taskID)
+		}
+
+		// insert step
+		_, err = tx.Exec("INSERT INTO steps (step_id, task_id, name, status) VALUES (?, ?, ?, 'pending')", info.ID, taskID, info.Name)
+		if err != nil {
+			return err
+		}
+
+		// insert dependencies
+		for _, dep := range info.Dependencies {
+			_, err = tx.Exec("INSERT INTO step_dependencies (step_id, depends_on_step_id) VALUES (?, ?)", info.ID, dep)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Update notes
+		newLog := currentNotes + fmt.Sprintf("\n[%s] Added new step: %s", time.Now().Format("15:04:05"), newStep)
+		_, err = tx.Exec("UPDATE tasks SET notes = ? WHERE task_id = ?", newLog, taskID)
+		if err != nil {
+			return err
+		}
+
+		msg = fmt.Sprintf("✅ Step '%s' added to task '%s'.", info.ID, taskID)
+		return nil
+	})
+
+	if err != nil {
+		return "", err
 	}
-
-	nxt = append(nxt, newStep)
-	log := currentNotes + fmt.Sprintf("\n[%s] Added new step: %s", time.Now().Format("15:04:05"), newStep)
-
-	return SaveCheckpoint(workspacePath, taskID, description, status, comp, nxt, currActiveFiles, log)
+	
+	_ = WriteMarkdownProgress(db, workspacePath, taskID)
+	
+	return msg, nil
 }
 
 func LoadCheckpoint(workspacePath, taskID string) (string, error) {
@@ -219,16 +282,33 @@ func LoadCheckpoint(workspacePath, taskID string) (string, error) {
 	}
 	defer db.Close()
 
-	row := db.QueryRow("SELECT status, updated_at, completed_steps, next_steps, notes FROM checkpoints WHERE task_id = ?", taskID)
-	var status, updatedAt, completedStepsStr, nextStepsStr, notes string
-	if err := row.Scan(&status, &updatedAt, &completedStepsStr, &nextStepsStr, &notes); err != nil {
-		return fmt.Sprintf("❌ Checkpoint '%s' not found.", taskID), nil
+	var status, updatedAt, notes string
+	err = db.QueryRow("SELECT status, updated_at, notes FROM tasks WHERE task_id = ?", taskID).Scan(&status, &updatedAt, &notes)
+	if err == sql.ErrNoRows {
+		return fmt.Sprintf("❌ Task '%s' not found.", taskID), nil
+	} else if err != nil {
+		return "", err
 	}
+
+	rows, err := db.Query("SELECT name, status FROM steps WHERE task_id = ? ORDER BY created_at ASC", taskID)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
 
 	var comp []string
 	var nxt []string
-	json.Unmarshal([]byte(completedStepsStr), &comp)
-	json.Unmarshal([]byte(nextStepsStr), &nxt)
+
+	for rows.Next() {
+		var name, stepStatus string
+		if err := rows.Scan(&name, &stepStatus); err == nil {
+			if stepStatus == "completed" {
+				comp = append(comp, name)
+			} else {
+				nxt = append(nxt, name)
+			}
+		}
+	}
 
 	total := len(comp) + len(nxt)
 	pct := float64(0)
@@ -261,7 +341,7 @@ func ListActiveTasks(workspacePath string) (string, error) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT task_id, status, updated_at FROM checkpoints ORDER BY updated_at DESC")
+	rows, err := db.Query("SELECT task_id, status, updated_at FROM tasks ORDER BY updated_at DESC")
 	if err != nil {
 		return "", err
 	}
@@ -299,10 +379,12 @@ func FindRecentTask(workspacePath, keywords string) (string, error) {
 	pattern := "%" + strings.ReplaceAll(keywords, "%", "\\%") + "%"
 
 	rows, err := db.Query(
-		`SELECT task_id, description, status, completed_steps, next_steps, updated_at
-         FROM checkpoints
-         WHERE description LIKE ? ESCAPE '\'
-         ORDER BY updated_at DESC
+		`SELECT t.task_id, t.description, t.status, t.updated_at,
+		 (SELECT COUNT(*) FROM steps WHERE task_id = t.task_id AND status = 'completed') as comp_count,
+		 (SELECT COUNT(*) FROM steps WHERE task_id = t.task_id AND status != 'completed') as pending_count
+         FROM tasks t
+         WHERE t.description LIKE ? ESCAPE '\'
+         ORDER BY t.updated_at DESC
          LIMIT 3`,
 		pattern,
 	)
@@ -316,21 +398,19 @@ func FindRecentTask(workspacePath, keywords string) (string, error) {
 
 	count := 0
 	for rows.Next() {
-		var tID, desc, stat, compStr, nxtStr, updated string
-		if err := rows.Scan(&tID, &desc, &stat, &compStr, &nxtStr, &updated); err != nil {
+		var tID, desc, stat, updated string
+		var compCount, pendingCount int
+		if err := rows.Scan(&tID, &desc, &stat, &updated, &compCount, &pendingCount); err != nil {
 			continue
 		}
-		var comp, nxt []string
-		json.Unmarshal([]byte(compStr), &comp)
-		json.Unmarshal([]byte(nxtStr), &nxt)
-		total := len(comp) + len(nxt)
+		total := compCount + pendingCount
 		pct := 0.0
 		if total > 0 {
-			pct = float64(len(comp)) / float64(total) * 100.0
+			pct = float64(compCount) / float64(total) * 100.0
 		}
 		results = append(results, fmt.Sprintf(
 			"- **%s** [%s] %.0f%% (%d/%d) — %s\n  _Updated: %s_ → `load_checkpoint(task_id=\"%s\")`",
-			tID, strings.ToUpper(stat), pct, len(comp), total, desc, updated, tID,
+			tID, strings.ToUpper(stat), pct, compCount, total, desc, updated, tID,
 		))
 		count++
 	}
@@ -365,12 +445,14 @@ func fetchIdleTasks(workspacePath, currentTaskID string, idleThresholdDays int) 
 	cutoff := time.Now().AddDate(0, 0, -idleThresholdDays).Format(time.RFC3339)
 
 	rows, err := db.Query(`
-		SELECT task_id, description, completed_steps, next_steps, updated_at
-		FROM checkpoints
-		WHERE LOWER(status) = 'in_progress'
-		  AND task_id != ?
-		  AND updated_at < ?
-		ORDER BY updated_at DESC`,
+		SELECT t.task_id, t.description, t.updated_at,
+		 (SELECT COUNT(*) FROM steps WHERE task_id = t.task_id AND status = 'completed') as comp_count,
+		 (SELECT COUNT(*) FROM steps WHERE task_id = t.task_id AND status != 'completed') as pending_count
+		FROM tasks t
+		WHERE LOWER(t.status) = 'in_progress'
+		  AND t.task_id != ?
+		  AND t.updated_at < ?
+		ORDER BY t.updated_at DESC`,
 		currentTaskID, cutoff,
 	)
 	if err != nil {
@@ -380,27 +462,22 @@ func fetchIdleTasks(workspacePath, currentTaskID string, idleThresholdDays int) 
 
 	var results []IdleTask
 	for rows.Next() {
-		var tID, desc, compStr, nxtStr, updatedAt string
-		if err := rows.Scan(&tID, &desc, &compStr, &nxtStr, &updatedAt); err != nil {
+		var tID, desc, updatedAt string
+		var compCount, pendingCount int
+		if err := rows.Scan(&tID, &desc, &updatedAt, &compCount, &pendingCount); err != nil {
 			continue
 		}
 
-		var comp, nxt []string
-		json.Unmarshal([]byte(compStr), &comp)
-		json.Unmarshal([]byte(nxtStr), &nxt)
-
-		// Skip tasks with no remaining work
-		if len(nxt) == 0 {
+		if pendingCount == 0 {
 			continue
 		}
 
-		total := len(comp) + len(nxt)
+		total := compCount + pendingCount
 		pct := 0.0
 		if total > 0 {
-			pct = float64(len(comp)) / float64(total) * 100.0
+			pct = float64(compCount) / float64(total) * 100.0
 		}
 
-		// Compute idle days from updated_at
 		t, err := time.Parse(time.RFC3339, updatedAt)
 		if err != nil {
 			t, _ = time.Parse("2006-01-02T15:04:05Z07:00", updatedAt)
@@ -416,7 +493,7 @@ func fetchIdleTasks(workspacePath, currentTaskID string, idleThresholdDays int) 
 			TaskID:      tID,
 			Description: desc,
 			Progress:    pct,
-			Done:        len(comp),
+			Done:        compCount,
 			Total:       total,
 			IdleDays:    idleDays,
 			LastUpdate:  shortDate,
@@ -437,7 +514,7 @@ func DeleteTask(workspacePath, taskID string) (string, error) {
 
 	// Verify the task exists before deleting
 	var count int
-	if err := db.QueryRow("SELECT COUNT(*) FROM checkpoints WHERE task_id = ?", taskID).Scan(&count); err != nil {
+	if err := db.QueryRow("SELECT COUNT(*) FROM tasks WHERE task_id = ?", taskID).Scan(&count); err != nil {
 		return "", fmt.Errorf("failed to query task '%s': %v", taskID, err)
 	}
 	if count == 0 {
@@ -451,7 +528,7 @@ func DeleteTask(workspacePath, taskID string) (string, error) {
 	}
 
 	// Remove the checkpoint itself
-	res, err := db.Exec("DELETE FROM checkpoints WHERE task_id = ?", taskID)
+	res, err := db.Exec("DELETE FROM tasks WHERE task_id = ?", taskID)
 	if err != nil {
 		return "", fmt.Errorf("failed to delete task '%s': %v", taskID, err)
 	}
@@ -462,8 +539,7 @@ func DeleteTask(workspacePath, taskID string) (string, error) {
 
 	// Refresh progress.md using a sentinel empty state so the deleted task
 	// is no longer rendered (WriteMarkdownProgress queries live DB).
-	_ = WriteMarkdownProgress(db, workspacePath, taskID, "[deleted]", "deleted",
-		nil, nil, nil, "", "", 0)
+	_ = WriteMarkdownProgress(db, workspacePath, taskID)
 
 	return fmt.Sprintf("🗑️ Task '%s' deleted successfully.", taskID), nil
 }

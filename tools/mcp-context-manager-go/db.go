@@ -23,7 +23,7 @@ func GetDBConnection(workspacePath string) (*sql.DB, error) {
 	}
 
 	dbPath := filepath.Join(absPath, "context.db")
-	db, err := sql.Open("sqlite3", dbPath)
+	db, err := sql.Open("sqlite3", dbPath+"?_fk=1")
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %v", err)
 	}
@@ -108,15 +108,37 @@ func tryCreateFTS5(db *sql.DB) error {
 func initializeSchema(db *sql.DB) error {
 	// Initial table creation queries (idempotent with IF NOT EXISTS)
 	createTableQueries := []string{
-		`CREATE TABLE IF NOT EXISTS checkpoints (
+		`CREATE TABLE IF NOT EXISTS tasks (
             task_id TEXT PRIMARY KEY,
-            description TEXT,
-            status TEXT,
-            completed_steps TEXT,
-            next_steps TEXT,
-            active_files TEXT,
+            description TEXT NOT NULL,
+            status TEXT NOT NULL,
             notes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
+		`CREATE TABLE IF NOT EXISTS steps (
+            step_id TEXT PRIMARY KEY,
+            task_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            status TEXT NOT NULL,
+            notes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(task_id) REFERENCES tasks(task_id) ON DELETE CASCADE
+        )`,
+		`CREATE TABLE IF NOT EXISTS step_dependencies (
+            step_id TEXT NOT NULL,
+            depends_on_step_id TEXT NOT NULL,
+            PRIMARY KEY (step_id, depends_on_step_id),
+            FOREIGN KEY(step_id) REFERENCES steps(step_id) ON DELETE CASCADE,
+            FOREIGN KEY(depends_on_step_id) REFERENCES steps(step_id) ON DELETE CASCADE
+        )`,
+		`CREATE TABLE IF NOT EXISTS step_files (
+            step_id TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            role TEXT NOT NULL,
+            PRIMARY KEY (step_id, file_path),
+            FOREIGN KEY(step_id) REFERENCES steps(step_id) ON DELETE CASCADE
         )`,
 		`CREATE TABLE IF NOT EXISTS intents (
             task_id TEXT PRIMARY KEY,
@@ -161,18 +183,6 @@ func initializeSchema(db *sql.DB) error {
 	}
 
 	// Schema migrations for existing tables (v3 changes)
-	// checkpoints: git SHA + burndown columns
-	for _, m := range []struct{ col, def string }{
-		{"git_sha", "TEXT DEFAULT ''"},
-		{"step_timestamps", "TEXT DEFAULT '{}'"},
-		{"step_drift", "TEXT DEFAULT '{}'"},
-		{"step_deps", "TEXT DEFAULT '{}'"},
-	} {
-		if err := addColumnIfNotExist(db, "checkpoints", m.col, m.def); err != nil {
-			return fmt.Errorf("checkpoints.%s migration: %w", m.col, err)
-		}
-	}
-
 	// intents: TTL support (Improvement #2)
 	if err := addColumnIfNotExist(db, "intents", "expires_at", "INTEGER DEFAULT 0"); err != nil {
 		return fmt.Errorf("intents.expires_at migration: %w", err)
@@ -189,4 +199,19 @@ func initializeSchema(db *sql.DB) error {
 	}
 
 	return nil
+}
+
+// RunInTx executes a function within a database transaction.
+func RunInTx(db *sql.DB, fn func(tx *sql.Tx) error) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	if err := fn(tx); err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return fmt.Errorf("tx error: %v, rollback error: %v", err, rbErr)
+		}
+		return err
+	}
+	return tx.Commit()
 }

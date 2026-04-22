@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -27,49 +26,37 @@ func captureGitSHA(workspacePath string) string {
 	return strings.TrimSpace(out.String())
 }
 
-// hasBracketSteps returns true when at least one step starts with '[',
-// indicating that steps use the [T1] / [Px-Ty] label convention.
-func hasBracketSteps(completed, pending []string) bool {
-	for _, s := range completed {
-		if len(s) > 0 && s[0] == '[' {
-			return true
-		}
-	}
-	for _, s := range pending {
-		if len(s) > 0 && s[0] == '[' {
-			return true
-		}
-	}
-	return false
-}
-
-// WriteMarkdownProgress renders progress.md with burndown dashboard, drift heatmap,
-// DAG visualization, and git SHA footer.
-// gitSHA is passed in by SaveCheckpoint (already captured once) to avoid a second
-// subprocess call for the footer line.
-func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID, description, status string, completedSteps, nextSteps, activeFiles []string, notes, gitSHA string, idleThresholdDays int) error {
+// WriteMarkdownProgress renders progress.md.
+func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID string) error {
 	mdPath := filepath.Join(workspacePath, "progress.md")
 
-	// Historical completed tasks (other task_ids)
-	// Use LOWER() for backward-compat with any uppercase status values stored in DB.
-	rows, err := db.Query("SELECT task_id, description FROM checkpoints WHERE LOWER(status) = 'completed' AND task_id != ? ORDER BY updated_at DESC", taskID)
-	var historicalTasks []map[string]string
+	// 1. Fetch Task Info
+	var description, status, notes string
+	err := db.QueryRow("SELECT description, status, notes FROM tasks WHERE task_id = ?", taskID).Scan(&description, &status, &notes)
+	if err == sql.ErrNoRows {
+		// Task deleted or doesn't exist
+		description = "[deleted]"
+		status = "deleted"
+	} else if err != nil {
+		return fmt.Errorf("query task: %v", err)
+	}
+
+	// 2. Fetch Steps
+	var completedSteps, nextSteps []string
+	rows, err := db.Query("SELECT name, status FROM steps WHERE task_id = ? ORDER BY created_at ASC", taskID)
 	if err == nil {
 		defer rows.Close()
 		for rows.Next() {
-			var tID, tDesc string
-			if err := rows.Scan(&tID, &tDesc); err == nil {
-				historicalTasks = append(historicalTasks, map[string]string{"task_id": tID, "description": tDesc})
+			var name, s string
+			if err := rows.Scan(&name, &s); err == nil {
+				if s == "completed" {
+					completedSteps = append(completedSteps, name)
+				} else {
+					nextSteps = append(nextSteps, name)
+				}
 			}
 		}
 	}
-
-	// ── Load step metadata for burndown rendering ──────────────────────────────
-	var stepTimestampsStr, stepDriftStr string
-	db.QueryRow("SELECT COALESCE(step_timestamps,'{}'), COALESCE(step_drift,'{}') FROM checkpoints WHERE task_id=?", taskID).
-		Scan(&stepTimestampsStr, &stepDriftStr) //nolint:errcheck — fallback to empty maps on failure
-	stepTs := ParseStepTimestamps(stepTimestampsStr)
-	stepDrift := ParseStepDrift(stepDriftStr)
 
 	totalSteps := len(completedSteps) + len(nextSteps)
 	progressPct := float64(0)
@@ -85,75 +72,75 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID, description, statu
 		strings.ToUpper(status), bar, progressPct, len(completedSteps), totalSteps)
 	content += fmt.Sprintf("> %s\n\n", description)
 
-	// ── Burndown header (velocity + ETA) ──────────────────────────────────────
-	content += RenderBurndownHeader(taskID, stepTs, len(nextSteps))
-
-	if len(activeFiles) > 0 {
-		content += "### 📁 Active Files\n"
-		for _, f := range activeFiles {
-			content += fmt.Sprintf("- `%s`\n", f)
+	// Fetch intent locks (Active Files)
+	var lockedFilesStr string
+	err = db.QueryRow("SELECT locked_files FROM intents WHERE task_id = ?", taskID).Scan(&lockedFilesStr)
+	if err == nil && lockedFilesStr != "" && lockedFilesStr != "[]" {
+		content += "### 📁 Active Intent Locks\n"
+		// simple parse of stringified JSON array
+		lockedFilesStr = strings.Trim(lockedFilesStr, "[]\"")
+		files := strings.Split(lockedFilesStr, "\",\"")
+		for _, f := range files {
+			if f != "" {
+				content += fmt.Sprintf("- `%s`\n", f)
+			}
 		}
 		content += "\n"
 	}
 
-	// ── Parse DAG deps (opt-in: steps with 'depends:[...]' suffix) ─────────────
-	allRaw := append(append([]string{}, completedSteps...), nextSteps...)
-	_, deps := ParseStepDeps(allRaw)
-	completedSet := BuildCompletedSet(completedSteps)
-
-	// ── Step rendering ─────────────────────────────────────────────────────────
-	if hasBracketSteps(completedSteps, nextSteps) {
-		// Steps use [T1] / [Px-Ty] labels: render under a single flat header.
-		content += "### 📋 Steps Overview\n\n"
-		for _, s := range completedSteps {
-			content += RenderStepWithMeta(s, true, stepTs, stepDrift)
-		}
-		for _, s := range nextSteps {
-			content += RenderStepWithMeta(s, false, stepTs, stepDrift)
-		}
-		content += "\n"
-	} else {
-		// Plain steps (no label prefix): use section-header rendering.
-		content += RenderBurndownSection(completedSteps, nextSteps, stepTs, stepDrift)
+	content += "### 📋 Steps Overview\n\n"
+	for _, s := range completedSteps {
+		content += fmt.Sprintf("- [x] %s\n", s)
 	}
-
-	// ── DAG block (emitted only when steps have 'depends:[...]' declarations) ──
-	if dagBlock := RenderDAGBlock(allRaw, deps, completedSet); dagBlock != "" {
-		content += dagBlock
+	for _, s := range nextSteps {
+		content += fmt.Sprintf("- [ ] %s\n", s)
 	}
+	content += "\n"
 
 	if notes != "" {
 		content += "### 📝 Log & Notes\n"
 		content += fmt.Sprintf("```text\n%s\n```\n\n", notes)
 	}
 
-	if len(historicalTasks) > 0 {
-		content += "---\n### 🏆 Historically Completed Tasks\n"
-		for _, t := range historicalTasks {
-			content += fmt.Sprintf("- **%s**: %s\n", t["task_id"], t["description"])
+	// Historical tasks
+	hRows, err := db.Query("SELECT task_id, description FROM tasks WHERE LOWER(status) = 'completed' AND task_id != ? ORDER BY updated_at DESC", taskID)
+	if err == nil {
+		defer hRows.Close()
+		var historical []string
+		for hRows.Next() {
+			var tID, tDesc string
+			if err := hRows.Scan(&tID, &tDesc); err == nil {
+				historical = append(historical, fmt.Sprintf("- **%s**: %s\n", tID, tDesc))
+			}
+		}
+		if len(historical) > 0 {
+			content += "---\n### 🏆 Historically Completed Tasks\n"
+			for _, h := range historical {
+				content += h
+			}
+			content += "\n"
+		}
+	}
+
+	if idleTasks, err := fetchIdleTasks(workspacePath, taskID, 3); err == nil && len(idleTasks) > 0 {
+		content += "---\n### ⏳ Historically Incomplete Tasks\n"
+		for _, t := range idleTasks {
+			content += fmt.Sprintf("- **%s** [%.0f%%] — %s _(Idle for %d days)_\n", t.TaskID, t.Progress, t.Description, t.IdleDays)
 		}
 		content += "\n"
 	}
 
-	// ── Historically Incomplete Tasks ────────────────────────────────────────
-	if idleThresholdDays > 0 {
-		if idleTasks, err := fetchIdleTasks(workspacePath, taskID, idleThresholdDays); err == nil && len(idleTasks) > 0 {
-			content += RenderHistoricallyIncomplete(idleTasks)
-		}
-	}
-
-	// Footer: timestamp + short git SHA (reuse the SHA already captured by SaveCheckpoint)
+	gitSHA := captureGitSHA(workspacePath)
 	shaStr := ""
 	if gitSHA != "" && len(gitSHA) >= 7 {
 		shaStr = fmt.Sprintf(" | 🔗 Git: `%s`", gitSHA[:7])
 	}
 	content += fmt.Sprintf("---\n*Last sync: %s%s*", time.Now().Format("2006-01-02 15:04:05"), shaStr)
+
 	return os.WriteFile(mdPath, []byte(content), 0644)
 }
 
 // NormalizeStatus converts any completion-alias status to the canonical value
-// "completed" that progress.md SQL queries and the progress renderer rely on.
-// Non-completion statuses (e.g. "in_progress", "blocked") are only lowercased.
 func NormalizeStatus(status string) string {
 	s := strings.ToLower(status)
 	switch s {
@@ -163,6 +150,7 @@ func NormalizeStatus(status string) string {
 	return s
 }
 
+// SaveCheckpoint handles the mcp tool save_checkpoint
 func SaveCheckpoint(workspacePath, taskID, description, status string, completedSteps, nextSteps, activeFiles []string, notes string) (string, error) {
 	db, err := GetDBConnection(workspacePath)
 	if err != nil {
@@ -170,45 +158,46 @@ func SaveCheckpoint(workspacePath, taskID, description, status string, completed
 	}
 	defer db.Close()
 
-	// Normalize status via canonical function (maps aliases like "done", "committed" → "completed")
 	status = NormalizeStatus(status)
-	now := time.Now().Format(time.RFC3339)
 
-	// Capture current git SHA for traceability (empty string if not a git repo)
-	gitSHA := captureGitSHA(workspacePath)
+	err = RunInTx(db, func(tx *sql.Tx) error {
+		// Update tasks
+		_, err := tx.Exec("INSERT INTO tasks (task_id, description, status, notes) VALUES (?, ?, ?, ?) ON CONFLICT(task_id) DO UPDATE SET description=excluded.description, status=excluded.status, notes=excluded.notes, updated_at=CURRENT_TIMESTAMP",
+			taskID, description, status, notes)
+		if err != nil {
+			return err
+		}
 
-	compBytes, _ := json.Marshal(completedSteps)
-	nextBytes, _ := json.Marshal(nextSteps)
-	activeBytes, _ := json.Marshal(activeFiles)
+		// Clear existing steps and insert new ones to reflect the explicit state
+		tx.Exec("DELETE FROM steps WHERE task_id = ?", taskID)
 
-	query := `
-        INSERT INTO checkpoints (task_id, description, status, completed_steps, next_steps, active_files, notes, updated_at, git_sha)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(task_id) DO UPDATE SET
-            description=excluded.description,
-            status=excluded.status,
-            completed_steps=excluded.completed_steps,
-            next_steps=excluded.next_steps,
-            active_files=excluded.active_files,
-            notes=excluded.notes,
-            updated_at=excluded.updated_at,
-            git_sha=excluded.git_sha
-    `
-	_, err = db.Exec(query, taskID, description, status, string(compBytes), string(nextBytes), string(activeBytes), notes, now, gitSHA)
+		for i, s := range completedSteps {
+			info := ParseStep(s)
+			if info.ID == "" {
+				info.ID = fmt.Sprintf("CSTEP-%03d", i+1)
+			}
+			tx.Exec("INSERT INTO steps (step_id, task_id, name, status) VALUES (?, ?, ?, 'completed')", info.ID, taskID, info.Name)
+		}
+
+		for i, s := range nextSteps {
+			info := ParseStep(s)
+			if info.ID == "" {
+				info.ID = fmt.Sprintf("PSTEP-%03d", i+1)
+			}
+			tx.Exec("INSERT INTO steps (step_id, task_id, name, status) VALUES (?, ?, ?, 'pending')", info.ID, taskID, info.Name)
+		}
+		return nil
+	})
+
 	if err != nil {
-		return "", fmt.Errorf("failed to save checkpoint table: %v", err)
+		return "", fmt.Errorf("failed to save checkpoint: %v", err)
 	}
 
-	if err := WriteMarkdownProgress(db, workspacePath, taskID, description, status, completedSteps, nextSteps, activeFiles, notes, gitSHA, 3); err != nil {
+	if err := WriteMarkdownProgress(db, workspacePath, taskID); err != nil {
 		fmt.Fprintf(os.Stderr, "[context-manager] error writing progress.md: %v\n", err)
 	}
 
-	// No per-step-group compact hint needed — steps are sequential, not grouped.
-
 	msg := fmt.Sprintf("✅ Checkpoint '%s' saved.", taskID)
-	if gitSHA != "" {
-		msg += fmt.Sprintf(" [git: %s]", gitSHA[:min(7, len(gitSHA))])
-	}
 	if len(nextSteps) == 0 && len(completedSteps) > 0 {
 		msg += "\n\n🎉 ALL TASKS COMPLETED! Great job."
 	}

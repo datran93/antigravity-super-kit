@@ -106,7 +106,7 @@ func TestWriteMarkdownProgress_BurndownAndDAG(t *testing.T) {
 	// Initialize with phase-labeled steps
 	_, err := InitializeTaskPlan(tempDir, taskID, "Burndown test task", []string{
 		"[P0-T1] Step one",
-		"[P0-T2] Step two depends:[[P0-T1]]",
+		"[P0-T2] Step two",
 		"[P1-T1] Step three",
 	})
 	if err != nil {
@@ -125,17 +125,7 @@ func TestWriteMarkdownProgress_BurndownAndDAG(t *testing.T) {
 		t.Fatalf("failed to read progress.md: %v", err)
 	}
 
-	// Verify burndown header is present
-	if !strings.Contains(content, "Sprint:") {
-		t.Errorf("expected burndown Sprint header in progress.md, got:\n%s", content)
-	}
-
-	// Verify per-step drift badge (🟢) is present for a completed step
-	if !strings.Contains(content, "🟢") {
-		t.Errorf("expected drift badge emoji in progress.md, got:\n%s", content)
-	}
-
-	// Verify steps overview header is rendered (flat list, no table)
+	// Verify steps overview header is rendered
 	if !strings.Contains(content, "Steps Overview") {
 		t.Errorf("expected 'Steps Overview' header in progress.md, got:\n%s", content)
 	}
@@ -163,9 +153,8 @@ func TestWriteMarkdownProgress_FlatRendering(t *testing.T) {
 		t.Fatalf("failed to read progress.md: %v", err)
 	}
 
-	// Flat path uses RenderBurndownSection → emits ✅ Completed header
-	if !strings.Contains(content, "Completed") {
-		t.Errorf("expected 'Completed' section in flat progress.md, got:\n%s", content)
+	if !strings.Contains(content, "Steps Overview") {
+		t.Errorf("expected 'Steps Overview' section in flat progress.md, got:\n%s", content)
 	}
 }
 

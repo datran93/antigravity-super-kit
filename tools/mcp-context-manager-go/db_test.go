@@ -22,7 +22,7 @@ func TestGetDBConnection(t *testing.T) {
 
 	// Verify schema was created
 	var name string
-	err = db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='checkpoints'").Scan(&name)
+	err = db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='tasks'").Scan(&name)
 	if err != nil {
 		t.Fatalf("Table checkpoints not found: %v", err)
 	}
@@ -164,7 +164,7 @@ func TestDeleteTask_EmptyTaskID(t *testing.T) {
 func TestDeleteTask_NotFound(t *testing.T) {
 	// Build a minimal in-memory SQLite DB that only has the checkpoints table
 	// so we can exercise the "task not found" branch without FTS5.
-	import_db_sql := "CREATE TABLE IF NOT EXISTS checkpoints (task_id TEXT PRIMARY KEY, description TEXT, status TEXT, completed_steps TEXT, next_steps TEXT, active_files TEXT, notes TEXT, updated_at TEXT, git_sha TEXT, step_timestamps TEXT, step_drift TEXT, drift_count INTEGER DEFAULT 0)"
+	import_db_sql := "CREATE TABLE IF NOT EXISTS tasks (task_id TEXT PRIMARY KEY, description TEXT, status TEXT, notes TEXT, updated_at TEXT)"
 
 	// Verify the function returns user-friendly message (not internal error) for missing task.
 	// We test via the exported NormalizeStatus path — DeleteTask's "not found" return is
