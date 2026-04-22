@@ -89,8 +89,14 @@ Repeat **Phase 1 → 5** for each remaining Action.
 
 ## Phase 6: State Update 📋
 
-Inject gotchas via `annotate_file`. Update the MCP `context-manager` database with your progress, diff, and any notes
-for the Reviewer/Tester. DO NOT write any markdown report files.
+For **each completed Action**, do the following BEFORE moving to the next Action:
+1. `complete_task_step` with `active_files`.
+2. `clear_drift`.
+
+When **ALL Actions are completed**:
+1. Inject gotchas via `annotate_file`.
+2. Update the MCP `context-manager` database with your progress and any notes for the Reviewer/Tester.
+3. `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants). DO NOT write any markdown report files.
 
 > 🛑 **STOP HERE.** The USER decides the next step (or proceed automatically if in `/auto-pilot` mode).
 

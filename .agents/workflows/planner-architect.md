@@ -160,22 +160,6 @@ Present: Architecture Summary → Ordered Task List → Migration Strategy (if a
 
 ---
 
-## Phase 5: Task Completion ✅
-
-Called **after** passing size-conditional quality gates (see AGENTS.md § Quality Gates):
-
-- 🟢 SMALL: Self-review only (handled by `/fast-fix`).
-- 🟡 MEDIUM: Reviewer APPROVED (handled by `/build` + `/reviewer-audit`).
-- 🔴 LARGE: Reviewer APPROVED + Tester ≥ 70% coverage + bugs hunted.
-
-Per completed Action:
-
-1. Gate check: Verify quality gates passed for the task's size tier.
-2. `complete_task_step` with `active_files`.
-3. `clear_drift`.
-
-All Actions done → `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants).
-
 > 🛑 **STOP** after plan delivery. USER decides when to invoke Coder.
 
 ---
