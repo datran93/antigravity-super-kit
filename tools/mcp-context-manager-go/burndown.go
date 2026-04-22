@@ -119,6 +119,14 @@ func RenderBurndownHeader(taskID string, timestamps StepTimestamps, remainingSte
 // completed=true  →  "- [x] [P0-T1] Step name  (14:32) 🟢"
 // completed=false →  "- [ ] [P1-T1] Step name  🔴 drift:3 BLOCKED"
 func RenderStepWithMeta(step string, completed bool, timestamps StepTimestamps, drift StepDrift) string {
+	trimmed := strings.TrimSpace(step)
+	if strings.HasPrefix(trimmed, "#") || strings.HasPrefix(trimmed, ">") ||
+		strings.HasPrefix(trimmed, "Goal:") || strings.HasPrefix(trimmed, "Entry Criteria:") ||
+		strings.HasPrefix(trimmed, "Exit Criteria:") || strings.HasPrefix(trimmed, "Independent Test:") ||
+		strings.HasPrefix(trimmed, "MVP Scope:") {
+		return step + "\n"
+	}
+
 	driftCount := drift[step]
 	badge := driftIcon(driftCount)
 

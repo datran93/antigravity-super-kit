@@ -44,7 +44,7 @@ Distinct, non-overlapping roles. Each produces a specific output and **stops**. 
 | 🔨 Builder     | `/build`                 | Code changes + report (🟡 MEDIUM)        | Build reported                    |
 | 📝 Spec Writer | `/specifications-writer` | `features/{slug}/spec.md`                | Requirements unambiguous          |
 | 🔎 Clarify     | `/clarify-specification` | Refined spec (≤5 questions)              | Ambiguities resolved              |
-| 🏗️ Planner     | `/planner-architect`     | `features/{slug}/design.md` + `tasks.md` | Plan delivered OR tasks committed |
+| 🏗️ Planner     | `/planner-architect`     | `features/{slug}/design.md` + MCP `progress.md` | Plan delivered |
 | 📊 Analyze     | `/analyze-artifacts`     | Consistency report (read-only)           | Report delivered                  |
 | 💻 Coder       | `/coder-implementation`  | Code changes + report                    | All Actions implemented           |
 | 🔍 Reviewer    | `/reviewer-audit`        | Audit report (APPROVED / NEEDS FIX)      | Report delivered                  |
@@ -78,7 +78,7 @@ If stuck on the **same issue 3 times consecutively**:
 
 ### Resource Ownership
 
-- **Planner**: Owns `features/{slug}/` directory, task plan, `git commit`, `complete_task_step`.
+- **Planner**: Owns `features/{slug}/` directory, task plan, `complete_task_step`.
 - **Coder**: Owns source code changes and implementation report.
 - **Reviewer**: Owns the audit report.
 - **Tester**: Owns bug report, test suite, and coverage report.
@@ -91,7 +91,7 @@ If stuck on the **same issue 3 times consecutively**:
 | Reviewer APPROVED | —           | ✅ required | ✅ required |
 | Tester ≥ 70%      | —           | — optional  | ✅ required |
 
-For 🔴 LARGE: both Reviewer and Tester MUST pass before any commit. If either fails, the Planner asks the USER — NEVER
+For 🔴 LARGE: both Reviewer and Tester MUST pass before the task is considered complete. If either fails, the Planner asks the USER — NEVER
 auto-loops.
 
 ### Shared References
@@ -99,7 +99,6 @@ auto-loops.
 - **Security Checklist**: `**/references/security-checklist.md`
 - **Report Templates**: `**/references/report-templates/`
 - **Spec Template**: `**/references/spec-template.md`
-- **Tasks Template**: `**/references/tasks-template.md`
 - **Clarify Taxonomy**: `**/references/clarify-taxonomy.md`
 - **Checklist Templates**: `**/references/checklist-templates/`
 

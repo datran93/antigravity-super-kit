@@ -18,7 +18,7 @@ type ValidationResult struct {
 // Checks:
 //  1. Stale detection: completed_steps > total (impossible — indicates data corruption)
 //  2. Empty active_files on in_progress task
-//  3. [T1] or legacy [Px-Ty] step label format consistency across all steps
+//  3. [ST01], [T1] or legacy [Px-Ty] step label format consistency across all steps
 //  4. Duplicate step detection (same step in both completed and next_steps)
 //  5. Git SHA present and matches current HEAD
 func ReviewCheckpoint(workspacePath, taskID string) (string, error) {
@@ -188,9 +188,14 @@ func isValidPhaseLabel(s string) bool {
 	if len(s) == 0 {
 		return false
 	}
-	// New format: [T1], [T2], [T10]
-	if s[0] == 'T' {
-		rest := s[1:]
+	// New format: [T1], [T2], [T10] or [ST01], [ST02]
+	if s[0] == 'T' || strings.HasPrefix(s, "ST") {
+		var rest string
+		if s[0] == 'T' {
+			rest = s[1:]
+		} else {
+			rest = s[2:]
+		}
 		if len(rest) == 0 {
 			return false
 		}

@@ -81,7 +81,7 @@ text if you find bugs to fix and explain the fix.
 - Run the **Verification Command** for the current Action. **ALWAYS append quiet flags** (e.g., `-short`, `--quiet`, `| grep FAIL`) to reduce terminal noise and save tokens.
 - Run the **existing test suite** — confirm no regressions. Use quiet flags to prevent flooding the context window.
 - On **fail**: Fix and re-run. After 3 consecutive failures → `record_failure` → stop → ask USER.
-- On **pass**: Note result. NEVER commit — committing is the Planner's job.
+- On **pass**: Note result. NEVER commit — the USER decides when to commit.
 
 Repeat **Phase 1 → 5** for each remaining Action.
 

@@ -260,6 +260,12 @@ func TestIsValidPhaseLabel_NewFormat(t *testing.T) {
 		{"T1", true},
 		{"T2", true},
 		{"T10", true},
+		// STxx format
+		{"ST01", true},
+		{"ST02", true},
+		{"ST10", true},
+		{"ST", false},
+		{"STA1", false},
 		{"T99", true},
 		{"T", false},   // no number
 		{"T0X", false}, // non-digit suffix

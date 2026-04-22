@@ -33,6 +33,12 @@ Use MCP tools **in parallel** to map the impact area:
 ## Phase 2: Architecture 🏗️
 
 Translate `features/{slug}/spec.md` into design artifacts, co-located in the same feature directory.
+**State Machine Enforcement**: You MUST follow this process sequence: 
+`Explore -> Ask Clarifying Questions -> Propose 2-3 Approaches -> Present Section-by-Section -> Adversarial Review -> Task Plan`.
+
+### 1. Section-by-Section Presentation
+Do NOT dump a massive `design.md` file at once. Present foundational decisions (e.g., Data Models, API Contracts) to the USER first. Only proceed to downstream systems (UI, Integrations) after the foundation is locked. 
+For the core problem, ALWAYS **propose 2-3 approaches** with trade-offs before locking the design. Prefer concrete design details (structs, interfaces, data flow) over hand-wavey prose.
 
 ### Output Format
 
@@ -68,21 +74,25 @@ Lock invariants via `manage_anchors`.
 
 ---
 
-## Phase 2.5: Design Self-Review ✅
+## Phase 2.5: Adversarial Design Review 🦹‍♂️
 
-NEVER present to USER without validating:
+NEVER present to USER without performing a hostile self-review. Actively attack your own design:
 
-1. **Blast Radius** — ONLY touches files from Phase 1? Justify new additions.
-2. **ANCHORS.md** — Respects all guardrails?
-3. **Spec AC Coverage** — Every AC has a design element? Flag gaps.
-4. **Pattern Consistency** — Follows existing codebase patterns? Document deviations.
-5. **Migration Safety** — Safe for production?
+1. **Vagueness Attack**: Attack hand-wavey sections, hidden assumptions, and missing concrete details (signatures, algorithms).
+2. **Blast Radius** — ONLY touches files from Phase 1? Justify new additions.
+3. **ANCHORS.md Doctrine** — Attack weak compliance with `ANCHORS.md` guardrails. Are there security or migration gaps?
+4. **Spec AC Coverage** — Every AC has a design element? Flag gaps.
+5. **Verification Weakness** — Are the verification strategies actually provable?
+6. **External Challenge Prompt**: Offer the USER an explicit "External Challenge Prompt" (a list of hard questions they should consider) before proceeding to Phase 3.
 
 ---
 
 ## Phase 3: Task Plan 📋
 
-Produce a **story-grouped task plan** organized by user-story phases. Every Action MUST:
+Produce a **story-grouped task plan** organized by user-story phases.
+**Do NOT create a `tasks.md` file.** The task plan is exclusively managed via the MCP `initialize_task_plan` tool, which automatically tracks state and generates a `progress.md` dashboard.
+
+Every Action MUST:
 
 - Reference specific files
 - Define a **Verification Command**
@@ -90,13 +100,13 @@ Produce a **story-grouped task plan** organized by user-story phases. Every Acti
 
 ### Task Format
 
-**ID format**: `[T001][type]` (3-digit, zero-padded)
+**ID format**: `[ST01][type]` (2-digit, zero-padded)
 
 Types: `[migration]` `[core]` `[handler]` `[config]` `[integration]`
 
 Risk tags: `⚠️ HIGH-RISK` (auth, data mutation, financial) · `⚠️ BREAKING` (API/data contract changes)
 
-Dependencies: `[T003] Build X depends:[T001,T002]`
+Dependencies: `[ST03] Build X depends:[ST01,ST02]`
 
 Parallel marker: `[P]` for tasks within a story that can run simultaneously
 
@@ -106,34 +116,39 @@ Organize tasks into phases aligned with spec user stories:
 
 ```
 ## Phase 1: Setup
-[T001][config] Initialize project structure
+[ST01][config] Initialize project structure
 
 ## Phase 2: Foundation (Blocking prerequisites)
-[T002][core] Create shared utilities — file: pkg/utils/
+[ST02][core] Create shared utilities — file: pkg/utils/
 
 ## Phase 3: User Story 1 — [P1] Story Title
  Goal: <story goal statement>
+ Entry Criteria: <what must be true to start this phase>
+ Exit Criteria: <what must be true to consider this phase complete>
  Independent Test: <how to verify this story works end-to-end>
  MVP Scope: Yes/No
-[T003][core] Create X model — file: internal/models/x.go
-[T004][handler] Create X handler — file: internal/handlers/x.go
+[ST03][core] Create X model — file: internal/models/x.go
+[ST04][handler] Create X handler — file: internal/handlers/x.go
 
 ## Phase 4: User Story 2 — [P2] Story Title
  Goal: <story goal statement>
+ Entry Criteria: <what must be true to start this phase>
+ Exit Criteria: <what must be true to consider this phase complete>
  Independent Test: <how to verify this story works end-to-end>
-[T005][core] Create Y service — file: internal/services/y.go
+[ST05][core] Create Y service — file: internal/services/y.go
 
 ## Phase 5: Polish & Cross-Cutting
-[T006][config] Add middleware / observability
+[ST06][config] Add middleware / observability
+[ST07][config] Update Knowledge Items / Anchors (Memory Sync)
 ```
 
 **Key rules**:
 
 - Label MVP scope (typically just Phase 3 / US1)
-- Each story phase has: Goal, Independent Test
-- Tasks trace to stories: `[T003][US1][core]` format when helpful
+- Each story phase has: Goal, Entry Criteria, Exit Criteria, Independent Test
+- Tasks trace to stories: `[ST03][US1][core]` format when helpful
 - Phase 1 (Setup) and Phase 2 (Foundation) are always present
-- Last phase is always Polish & Cross-Cutting
+- Last phase is always Polish & Cross-Cutting. It MUST include a task to update Knowledge Items / Anchors if architecture or patterns changed.
 
 **MCP calls**: `initialize_task_plan` → `save_checkpoint`
 
@@ -158,7 +173,6 @@ Per completed Action:
 1. Gate check: Verify quality gates passed for the task's size tier.
 2. `complete_task_step` with `active_files`.
 3. `clear_drift`.
-4. `git add <files> && git commit -m "<type>(<scope>): <description>"`
 
 All Actions done → `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants).
 
@@ -169,8 +183,9 @@ All Actions done → `save_checkpoint` with **`status = "completed"`** (exact st
 ## 🔴 Constraints
 
 1. **NEVER write implementation code or run tests.**
-2. **NEVER commit without passing quality gates** for the task's size tier (see CLAUDE.md § Quality Gates).
+2. **NEVER commit code.** The USER decides when to commit.
 3. ALWAYS produce design artifact inside `features/{slug}/` before the task list.
-4. ALWAYS complete Phase 2.5 self-review before presenting.
+4. ALWAYS complete Phase 2.5 Adversarial Review and offer an External Challenge Prompt before presenting the task plan.
 5. Every DB/API change MUST have a migration & rollback plan.
 6. Every Action MUST have a Verification Command.
+7. **Strict State Machine**: You MUST follow: Explore -> Clarify -> Propose Options -> Section Design -> Adversarial Review -> Task Planning. Do not jump straight to dumping the design.
