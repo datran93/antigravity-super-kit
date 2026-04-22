@@ -96,7 +96,15 @@ For **each completed Action**, do the following BEFORE moving to the next Action
 When **ALL Actions are completed**:
 1. Inject gotchas via `annotate_file`.
 2. Update the MCP `context-manager` database with your progress and any notes for the Reviewer/Tester.
-3. `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants). DO NOT write any markdown report files.
+3. `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants).
+
+---
+
+## Phase 7: Report 📋
+
+Deliver report directly to the USER per `**/references/report-templates/coder-report.md`.
+
+DO NOT write any markdown report files.
 
 > 🛑 **STOP HERE.** The USER decides the next step (or proceed automatically if in `/auto-pilot` mode).
 

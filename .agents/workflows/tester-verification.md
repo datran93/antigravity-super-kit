@@ -53,7 +53,22 @@ Missing uniqueness constraints · Orphaned records on delete · Type coercion (s
 
 ---
 
-## Phase 2: Bug-Hunting Tests 🎯
+## Phase 2: Test Case Design & Approval 📝
+
+Based on the Bug Hypothesis List from Phase 1, deeply think through the necessary tests and create a structured **Test Case Table**.
+
+**For each test case, include:**
+- **ID**: (e.g., `TC01`)
+- **Scenario**: What is being tested (e.g., "User A accesses User B's file").
+- **Inputs/State**: Preconditions and input data.
+- **Expected Outcome**: What the test should assert.
+- **Priority**: (P0 to P3).
+
+> 🛑 **STOP HERE.** Present the Test Case Table to the USER and explicitly ask for their approval or modifications before writing ANY test code. Do NOT proceed to Phase 3 until the USER approves.
+
+---
+
+## Phase 3: Bug-Hunting Tests 🎯
 
 For each hypothesis:
 
@@ -71,16 +86,16 @@ For each hypothesis:
 
 ---
 
-## Phase 3: Coverage Completion 📊
+## Phase 4: Coverage Completion 📊
 
-**Only after Phase 2**. If below 70%:
+**Only after Phase 3**. If below 70%:
 
 - Write tests for uncovered paths — but think "what could go wrong", not "what lines to hit".
 - Place tests adjacent to code (`foo_test.go`, `foo.test.ts`).
 
 ---
 
-## Phase 4: Run & Measure ▶️
+## Phase 5: Run & Measure ▶️
 
 Run tests with coverage. Gate: **≥ 70%** or write more tests.
 
@@ -89,7 +104,7 @@ Run tests with coverage. Gate: **≥ 70%** or write more tests.
 
 ---
 
-## Phase 5: Report 📋
+## Phase 6: Report 📋
 
 Deliver report directly to the USER per `**/references/report-templates/tester-report.md`.
 
@@ -101,7 +116,7 @@ DO NOT write any markdown report files.
 
 ## 🔴 Constraints
 
-1. **Bug hunter first, coverage second**: Phases 1-2 MUST complete before Phase 3.
+1. **Bug hunter first, coverage second**: Phases 1-3 MUST complete before Phase 4.
 2. **Read code before writing tests**: NEVER test from function signatures alone.
 3. **Tests only**: NEVER modify implementation code.
 4. **≥ 70% coverage is mandatory**: But high coverage + no bugs found = you didn't look hard enough.
