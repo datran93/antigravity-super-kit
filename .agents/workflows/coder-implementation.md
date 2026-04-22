@@ -1,13 +1,12 @@
 ---
-description:
-  Structured workflow for Code Implementation. Reads features/{slug}/ artifacts (design, spec) and the Planner's task
-  list, executes each task with pattern conformity, performs self-review before updating state. Does NOT commit.
+description: Structured workflow for Code Implementation. Reads features/{slug}/ artifacts (design, spec) and the Planner's task
 ---
 
 # 💻 Coder Workflow
 
-> **Size-aware**: This workflow is for 🔴 LARGE tasks routed through `/planner-architect`. For 🟢 SMALL tasks, use
-> `/fast-fix`. For 🟡 MEDIUM tasks, use `/build`.
+> ⚠️ **Quality Warning**: The Reviewer will review your code and the Tester will test your code, so think carefully and write code carefully.
+
+> **Implementation**: This workflow executes tasks planned by `/planner-architect`.
 
 ---
 
@@ -43,7 +42,7 @@ For each Action (one at a time, in order):
 4. **Document**: State which pattern you're following before writing code.
 5. **Deviations**: NEVER deviate without documenting WHY.
 
-Additional: `search_skills` for best practices · `query-docs` for latest API specs · cross-reference design doc.
+Additional: `query-docs` for latest API specs · cross-reference design doc.
 
 ---
 

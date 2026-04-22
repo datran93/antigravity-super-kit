@@ -14,25 +14,12 @@ trigger: always_on
 
 ---
 
-## 📏 Task Size Tiers
-
-Every task is classified before routing. The Smart Router (`/smart-route`) does this automatically.
-
-| Tier      | Criteria                                                       | Workflow      | Ceremony                           |
-| --------- | -------------------------------------------------------------- | ------------- | ---------------------------------- |
-| 🟢 SMALL  | < 50 LOC, no new files, no DB/API, no auth/security            | `/fast-fix`   | Code → Self-Review → Done          |
-| 🟡 MEDIUM | 50-300 LOC, new files in existing module, no DB migration      | `/build`      | Inline Plan → Code → Review → Done |
-| 🔴 LARGE  | > 300 LOC, new module, DB migration, public API, auth/security | Full pipeline | Spec → Plan → Code → Review → Test |
-
-> When unsure, classify **one tier up**. The USER can always override by invoking a specific workflow directly.
-
----
 
 ## 🏛️ Role Architecture
 
 Distinct, non-overlapping roles. Each produces a specific output and **stops**. NEVER self-transition.
 
-**🔴 LARGE pipeline** (full ceremony):
+**Full pipeline** (full ceremony):
 
 ```
 [Spec Writer] → [Clarify] → [Planner] → [Analyze] → [Coder] → [Reviewer] → [Tester] → [Planner]
@@ -40,8 +27,6 @@ Distinct, non-overlapping roles. Each produces a specific output and **stops**. 
 
 | Role           | Command                  | Output                                   | Stops When                        |
 | -------------- | ------------------------ | ---------------------------------------- | --------------------------------- |
-| ⚡ Fast-Fix    | `/fast-fix`              | Code changes + report (🟢 SMALL)         | Fix reported                      |
-| 🔨 Builder     | `/build`                 | Code changes + report (🟡 MEDIUM)        | Build reported                    |
 | 📝 Spec Writer | `/specifications-writer` | `features/{slug}/spec.md`                | Requirements unambiguous          |
 | 🔎 Clarify     | `/clarify-specification` | Refined spec (≤5 questions)              | Ambiguities resolved              |
 | 🏗️ Planner     | `/planner-architect`     | `features/{slug}/design.md` + MCP `progress.md` | Plan delivered |
@@ -50,7 +35,6 @@ Distinct, non-overlapping roles. Each produces a specific output and **stops**. 
 | 🔍 Reviewer    | `/reviewer-audit`        | Audit report (APPROVED / NEEDS FIX)      | Report delivered                  |
 | 🧪 Tester      | `/tester-verification`   | Bug report + tests + coverage            | Bugs hunted, coverage ≥ 70%       |
 | ✅ Checklist   | `/checklist-generator`   | Domain checklist                         | Checklist delivered               |
-| 🧭 Router      | `/smart-route`           | Routed workflow                          | USER confirms                     |
 
 ---
 
@@ -83,15 +67,15 @@ If stuck on the **same issue 3 times consecutively**:
 - **Reviewer**: Owns the audit report.
 - **Tester**: Owns bug report, test suite, and coverage report.
 
-### Quality Gates (Size-Conditional)
+### Quality Gates
 
-| Gate              | 🟢 SMALL    | 🟡 MEDIUM   | 🔴 LARGE    |
-| ----------------- | ----------- | ----------- | ----------- |
-| Self-Review       | ✅ required | ✅ required | ✅ required |
-| Reviewer APPROVED | —           | ✅ required | ✅ required |
-| Tester ≥ 70%      | —           | — optional  | ✅ required |
+| Gate              | Status      |
+| ----------------- | ----------- |
+| Self-Review       | ✅ required |
+| Reviewer APPROVED | ✅ required |
+| Tester ≥ 70%      | ✅ required |
 
-For 🔴 LARGE: both Reviewer and Tester MUST pass before the task is considered complete. If either fails, the Planner asks the USER — NEVER
+Both Reviewer and Tester MUST pass before the task is considered complete. If either fails, the Planner asks the USER — NEVER
 auto-loops.
 
 ### Shared References

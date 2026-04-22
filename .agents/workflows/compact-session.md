@@ -30,7 +30,7 @@ Persist the knowledge and prune the context automatically.
 
 - Call `@mcp:context-manager` (`compact_memory`) with the `tactic_name`, `summary`, and `decisions` formed from Phase 1.
 - This tool will **automatically**:
-  - Generate the Markdown KI file inside the `knowledge/{slug}/` directory.
+  - Generate the Markdown KI file {slug}.md inside the `knowledge/` directory.
   - Reset the `active_files` and update the checkpoint notes with the KI path.
   - Reset the drift failure counter and intent locks.
 - **Mental Flush**: Explicitly state to the USER that context compaction is complete. Actively ignore previous tool
