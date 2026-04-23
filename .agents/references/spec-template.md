@@ -1,6 +1,6 @@
 # 📝 Specification Template
 
-> This is the canonical template for `features/{slug}/spec.md`. The Spec Writer MUST follow this structure.
+> This is the canonical template for `features/YYYY-MM-DD-{slug}/spec.md`. The Spec Writer MUST follow this structure.
 
 ---
 

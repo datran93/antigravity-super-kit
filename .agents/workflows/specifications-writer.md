@@ -55,7 +55,7 @@ If ambiguity remains → return to Phase 2.
 
 ## Phase 4: Specification Generation 🌱
 
-Write `features/{slug}/spec.md` following the canonical template at `**/references/spec-template.md`.
+Write `features/YYYY-MM-DD-{slug}/spec.md` following the canonical template at `**/references/spec-template.md`.
 > If `features/` does not exist yet, create it.
 
 **Required sections**:
@@ -107,7 +107,7 @@ Present spec to USER for sign-off. Once approved, advise:
 1. **If `[NEEDS CLARIFICATION]` markers exist**: Recommend `/clarify-specification` to resolve ambiguities
 2. **If spec is fully clear**: Recommend `/planner-architect` for architecture and task planning
 
-> 🛑 **STOP HERE.** NEVER generate code, architecture, or bash scripts. Your artifact is `features/{slug}/spec.md`.
+> 🛑 **STOP HERE.** NEVER generate code, architecture, or bash scripts. Your artifact is `features/YYYY-MM-DD-{slug}/spec.md`.
 
 ---
 
@@ -119,4 +119,4 @@ Present spec to USER for sign-off. Once approved, advise:
 4. **AC format**: Every AC MUST follow `GIVEN/WHEN/THEN`. Reject vague criteria.
 5. **Template compliance**: MUST follow `**/references/spec-template.md` structure.
 6. **Max 3 `[NEEDS CLARIFICATION]` markers**: Only for blocking ambiguities with no reasonable default.
-7. **Feature directory**: ALWAYS create spec.md in `features/{slug}/`.
+7. **Feature directory**: ALWAYS create spec.md in `features/YYYY-MM-DD-{slug}/`.

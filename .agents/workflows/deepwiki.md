@@ -32,12 +32,12 @@ and verifiable code citations.
 
 ### Phase 3: Repository Integration 🖇️
 
-- Create a `wiki/{slug}/` directory (where `{slug}` is the specific feature or topic name) to isolate and store all
-  generated markdown pages for this execution.
-- Create a local `wiki/{slug}/index.md` as the landing page for this specific topic.
+- Create a `wiki/YYYY-MM-DD-{slug}/` directory (where `{slug}` is the specific feature or topic name) to isolate and
+  store all generated markdown pages for this execution.
+- Create a local `wiki/YYYY-MM-DD-{slug}/index.md` as the landing page for this specific topic.
 - **Root Index**: Generate or update the repository's root `wiki/index.md` as the master table of contents.
-- **External Linking**: Add a prominent link to the new `wiki/{slug}/index.md` in the root `wiki/index.md` so it can be
-  accessed easily from the outside.
+- **External Linking**: Add a prominent link to the new `wiki/YYYY-MM-DD-{slug}/index.md` in the root `wiki/index.md` so
+  it can be accessed easily from the outside.
 - **Internal Navigation**: Link all generated markdown pages together _within_ the `{slug}` folder for seamless
   cross-navigation (e.g., adding "← Back to Index" or "Next: Component X" at the bottom of pages).
 

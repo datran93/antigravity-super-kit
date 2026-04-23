@@ -10,7 +10,7 @@ description: Structured workflow for Testing. Reads the completed actions from M
 
 ## Phase 0: Read Context 📖
 
-1. Read `features/{slug}/design.md` — contracts, boundaries, expected behaviors.
+1. Read `features/YYYY-MM-DD-{slug}/design.md` — contracts, boundaries, expected behaviors.
 2. Check MCP context for completed actions, files created/modified, and notes.
 3. `load_checkpoint` — confirm completed Actions.
 4. **Context Pruning**: Load only relevant domain anchors via `manage_anchors(action="list")`. Always include

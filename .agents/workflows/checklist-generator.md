@@ -24,8 +24,8 @@ description:
 2. **Load template** for the selected domain.
 
 3. **Load project context** to customize checklist items:
-   - `features/{slug}/spec.md` — for requirements-based items (if exists)
-   - `features/{slug}/design.md` — for technical items (if exists)
+   - `features/YYYY-MM-DD-{slug}/spec.md` — for requirements-based items (if exists)
+   - `features/YYYY-MM-DD-{slug}/design.md` — for technical items (if exists)
    - `**/rules/ANCHORS.md` — for constraint-based items (always)
    - `load_checkpoint` — for task plan context (if exists)
 
@@ -41,7 +41,7 @@ Using the template as a base, generate a **project-specific** checklist:
    - Remove items that don't apply (e.g., "tenant isolation" if single-tenant)
    - Add ANCHORS-derived items (e.g., "All code in English" from language anchor)
 3. **Add references** to relevant files or sections where applicable:
-   - `→ See: features/{slug}/spec.md §3 Key Entities`
+   - `→ See: features/YYYY-MM-DD-{slug}/spec.md §3 Key Entities`
    - `→ See: **/rules/ANCHORS.md §Quality Standards`
 
 ### Item Format
@@ -58,12 +58,12 @@ Group items by categories from the template. Each category should have 3-10 item
 
 ## Phase 3: Write & Deliver 📦
 
-1. Write checklist to `features/{slug}/checklists/{domain}-checklist.md`
-2. Create the `features/{slug}/checklists/` directory if it doesn't exist
+1. Write checklist to `features/YYYY-MM-DD-{slug}/checklists/{domain}-checklist.md`
+2. Create the `features/YYYY-MM-DD-{slug}/checklists/` directory if it doesn't exist
 3. Present summary to USER:
 
 ```
-✅ Generated {domain} checklist: features/{slug}/checklists/{domain}-checklist.md
+✅ Generated {domain} checklist: features/YYYY-MM-DD-{slug}/checklists/{domain}-checklist.md
    Items: N (X categories)
    Context sources: spec, design, ANCHORS
 ```

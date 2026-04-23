@@ -1,5 +1,5 @@
 ---
-description: Structured workflow for Code Implementation. Reads features/{slug}/ artifacts (design, spec) and the Planner's task
+description: Structured workflow for Code Implementation. Reads features/YYYY-MM-DD-{slug}/ artifacts (design, spec) and the Planner's task
 ---
 
 # 💻 Coder Workflow

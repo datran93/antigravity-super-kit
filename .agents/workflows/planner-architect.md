@@ -1,5 +1,5 @@
 ---
-description: Structured workflow for Planning and Architectural design. Produces design artifacts inside features/{slug}/, then
+description: Structured workflow for Planning and Architectural design. Produces design artifacts inside features/YYYY-MM-DD-{slug}/, then
 ---
 
 # 🏗️ Planner Workflow
@@ -32,7 +32,7 @@ Use MCP tools **in parallel** to map the impact area:
 
 ## Phase 2: Architecture 🏗️
 
-Translate `features/{slug}/spec.md` into design artifacts, co-located in the same feature directory.
+Translate `features/YYYY-MM-DD-{slug}/spec.md` into design artifacts, co-located in the same feature directory.
 **State Machine Enforcement**: You MUST follow this process sequence: 
 `Explore -> Ask Clarifying Questions -> Propose 2-3 Approaches -> Present Section-by-Section -> Adversarial Review -> Task Plan`.
 
@@ -43,7 +43,7 @@ For the core problem, ALWAYS **propose 2-3 approaches** with trade-offs before l
 ### Output Format
 
 **For complex tasks** (data models, API contracts, or research required): produce a **directory**
-`features/{slug}/design/`:
+`features/YYYY-MM-DD-{slug}/design/`:
 
 | File              | Purpose                                                              | When Required                  |
 | ----------------- | -------------------------------------------------------------------- | ------------------------------ |
@@ -52,7 +52,7 @@ For the core problem, ALWAYS **propose 2-3 approaches** with trade-offs before l
 | `data-model.md`   | Entities, fields, relationships, validation rules, state transitions | When data entities involved    |
 | `contracts/`      | API contracts, interface definitions (OpenAPI, gRPC proto, etc.)     | When external interfaces exist |
 
-**For simple tasks** (no data model, no research, no contracts): produce a single `features/{slug}/design.md`.
+**For simple tasks** (no data model, no research, no contracts): produce a single `features/YYYY-MM-DD-{slug}/design.md`.
 
 ### Required Content (in `design.md`)
 
@@ -168,7 +168,7 @@ Present: Architecture Summary → Ordered Task List → Migration Strategy (if a
 
 1. **NEVER write implementation code or run tests.**
 2. **NEVER commit code.** The USER decides when to commit.
-3. ALWAYS produce design artifact inside `features/{slug}/` before the task list.
+3. ALWAYS produce design artifact inside `features/YYYY-MM-DD-{slug}/` before the task list.
 4. ALWAYS complete Phase 2.5 Adversarial Review and offer an External Challenge Prompt before presenting the task plan.
 5. Every DB/API change MUST have a migration & rollback plan.
 6. Every Action MUST have a Verification Command.

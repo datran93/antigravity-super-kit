@@ -11,7 +11,7 @@ description: Read-only cross-artifact consistency and coverage analysis. Detects
 ## Phase 0: Load Artifacts 📖
 
 1. Identify the task: `load_checkpoint` or identify from USER context.
-2. Read all artifacts from `features/{slug}/`:
+2. Read all artifacts from `features/YYYY-MM-DD-{slug}/`:
    - `spec.md` — requirements, user stories, acceptance criteria
    - `design.md`
    - task plan from MCP context

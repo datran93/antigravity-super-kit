@@ -8,8 +8,8 @@ description: Structured workflow for Code Review and Quality Audit. Reads the co
 
 ## Phase 0: Load Context 📖
 
-1. Read `features/{slug}/spec.md` — Acceptance Criteria.
-2. Read `features/{slug}/design.md` — intended architecture.
+1. Read `features/YYYY-MM-DD-{slug}/spec.md` — Acceptance Criteria.
+2. Read `features/YYYY-MM-DD-{slug}/design.md` — intended architecture.
 3. Check MCP context for completed actions, files changed, and notes left by the Coder.
 4. `load_checkpoint` — confirm completed Actions.
 5. **Context Pruning**: Classify task domain (auth/db/api/refactor) then use `manage_anchors(action="list")` to load

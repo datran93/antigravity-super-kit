@@ -5,7 +5,7 @@
 
 **Task ID**: {task-id}
 **Date**: {date}
-**Artifacts Analyzed**: features/{slug}/spec.md, design.md, MCP progress.md
+**Artifacts Analyzed**: features/YYYY-MM-DD-{slug}/spec.md, design.md, MCP progress.md
 
 ---
 

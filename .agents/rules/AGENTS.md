@@ -27,9 +27,9 @@ Distinct, non-overlapping roles. Each produces a specific output and **stops**. 
 
 | Role           | Command                  | Output                                   | Stops When                        |
 | -------------- | ------------------------ | ---------------------------------------- | --------------------------------- |
-| 📝 Spec Writer | `/specifications-writer` | `features/{slug}/spec.md`                | Requirements unambiguous          |
+| 📝 Spec Writer | `/specifications-writer` | `features/YYYY-MM-DD-{slug}/spec.md`                | Requirements unambiguous          |
 | 🔎 Clarify     | `/clarify-specification` | Refined spec (≤5 questions)              | Ambiguities resolved              |
-| 🏗️ Planner     | `/planner-architect`     | `features/{slug}/design.md` + MCP `progress.md` | Plan delivered |
+| 🏗️ Planner     | `/planner-architect`     | `features/YYYY-MM-DD-{slug}/design.md` + MCP `progress.md` | Plan delivered |
 | 📊 Analyze     | `/analyze-artifacts`     | Consistency report (read-only)           | Report delivered                  |
 | 💻 Coder       | `/coder-implementation`  | Code changes + report                    | All Actions implemented           |
 | 🔍 Reviewer    | `/reviewer-audit`        | Audit report (APPROVED / NEEDS FIX)      | Report delivered                  |
@@ -62,7 +62,7 @@ If stuck on the **same issue 3 times consecutively**:
 
 ### Resource Ownership
 
-- **Planner**: Owns `features/{slug}/` directory, task plan, `complete_task_step`.
+- **Planner**: Owns `features/YYYY-MM-DD-{slug}/` directory, task plan, `complete_task_step`.
 - **Coder**: Owns source code changes and implementation report.
 - **Reviewer**: Owns the audit report.
 - **Tester**: Owns bug report, test suite, and coverage report.
