@@ -1,11 +1,22 @@
 "use server";
 
-import { getGlobalDb, getWorkspaceDb, Task, Step, KnowledgeItem, AuditLog, ActivityEvent, DocReference } from "@/lib/db";
+import {
+  getGlobalDb,
+  getWorkspaceDb,
+  Task,
+  Step,
+  KnowledgeItem,
+  AuditLog,
+  ActivityEvent,
+  DocReference,
+} from "@/lib/db";
 import type Database from "better-sqlite3";
 
 // Helper: check if table exists before querying
 function tableExists(db: Database.Database, tableName: string): boolean {
-  const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(tableName) as { name: string } | undefined;
+  const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(tableName) as
+    | { name: string }
+    | undefined;
   return !!row;
 }
 
@@ -36,7 +47,11 @@ export async function fetchAuditLogs(limit = 100): Promise<AuditLog[]> {
   const db = getGlobalDb();
   if (!tableExists(db, "audit_logs")) return [];
   try {
-    return db.prepare("SELECT id, timestamp, tool_name, request_payload, response_status, response_error FROM audit_logs ORDER BY timestamp DESC LIMIT ?").all(limit) as AuditLog[];
+    return db
+      .prepare(
+        "SELECT id, timestamp, tool_name, request_payload, response_status, response_error FROM audit_logs ORDER BY timestamp DESC LIMIT ?",
+      )
+      .all(limit) as AuditLog[];
   } catch {
     return [];
   }

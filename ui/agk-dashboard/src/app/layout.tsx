@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AGK Dashboard — Antigravity Kit",
-  description: "Antigravity Kit agent governance dashboard with task tracking, activity feed, knowledge graph, and contextual chat.",
+  description:
+    "Antigravity Kit agent governance dashboard with task tracking, activity feed, knowledge graph, and contextual chat.",
 };
 
 export default function RootLayout({

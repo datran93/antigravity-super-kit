@@ -38,7 +38,11 @@ export default function GraphPage() {
   const edgesRef = useRef<GraphEdge[]>([]);
   const scaleRef = useRef(1);
   const offsetRef = useRef({ x: 0, y: 0 });
-  const draggingRef = useRef<{ node: GraphNode | null; startX: number; startY: number }>({ node: null, startX: 0, startY: 0 });
+  const draggingRef = useRef<{ node: GraphNode | null; startX: number; startY: number }>({
+    node: null,
+    startX: 0,
+    startY: 0,
+  });
   const animRef = useRef<number>(0);
 
   useEffect(() => {
@@ -280,30 +284,39 @@ export default function GraphPage() {
         </h1>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => { scaleRef.current = Math.min(scaleRef.current * 1.2, 3); }}
+            onClick={() => {
+              scaleRef.current = Math.min(scaleRef.current * 1.2, 3);
+            }}
             className="p-1.5 rounded-md bg-gray-900 hover:bg-gray-800 text-gray-500 transition-colors border border-gray-800"
           >
             <ZoomIn size={14} />
           </button>
           <button
-            onClick={() => { scaleRef.current = Math.max(scaleRef.current / 1.2, 0.3); }}
+            onClick={() => {
+              scaleRef.current = Math.max(scaleRef.current / 1.2, 0.3);
+            }}
             className="p-1.5 rounded-md bg-gray-900 hover:bg-gray-800 text-gray-500 transition-colors border border-gray-800"
           >
             <ZoomOut size={14} />
           </button>
           <button
-            onClick={() => { scaleRef.current = 1; offsetRef.current = { x: 0, y: 0 }; }}
+            onClick={() => {
+              scaleRef.current = 1;
+              offsetRef.current = { x: 0, y: 0 };
+            }}
             className="p-1.5 rounded-md bg-gray-900 hover:bg-gray-800 text-gray-500 transition-colors border border-gray-800"
           >
             <RotateCcw size={14} />
           </button>
           <div className="flex items-center gap-3 ml-3 text-[10px] text-gray-600">
-            {Object.entries(TYPE_COLORS).filter(([k]) => k !== "unknown").map(([type, color]) => (
-              <span key={type} className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: color }} />
-                {type}
-              </span>
-            ))}
+            {Object.entries(TYPE_COLORS)
+              .filter(([k]) => k !== "unknown")
+              .map(([type, color]) => (
+                <span key={type} className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: color }} />
+                  {type}
+                </span>
+              ))}
           </div>
         </div>
       </div>

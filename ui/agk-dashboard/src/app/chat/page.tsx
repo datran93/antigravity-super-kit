@@ -114,10 +114,7 @@ export default function ChatPage() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
         {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
+          <div key={msg.id} className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             {msg.role === "assistant" && (
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 mt-1">
                 <Bot size={16} className="text-amber-400" />
@@ -131,9 +128,7 @@ export default function ChatPage() {
               }`}
             >
               {msg.content}
-              <div className="text-xs text-gray-600 mt-2">
-                {msg.timestamp.toLocaleTimeString()}
-              </div>
+              <div className="text-xs text-gray-600 mt-2">{msg.timestamp.toLocaleTimeString()}</div>
             </div>
             {msg.role === "user" && (
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/30 flex items-center justify-center shrink-0 mt-1">

@@ -1,62 +1,34 @@
-package {{package}}
+package
+{{package}}
 
-import (
-	"database/sql"
-	"fmt"
-)
-
-// {{Name}} represents a {{description}} entity.
-type {{Name}} struct {
-	ID        string `json:"id"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	// TODO: add domain fields
-}
-
-// {{Name}}Repository handles {{description}} persistence.
-type {{Name}}Repository struct {
-	db *sql.DB
-}
-
-// New{{Name}}Repository creates a new repository.
-func New{{Name}}Repository(db *sql.DB) *{{Name}}Repository {
-	return &{{Name}}Repository{db: db}
-}
-
-// Create inserts a new {{description}}.
-func (r *{{Name}}Repository) Create(entity *{{Name}}) error {
-	_, err := r.db.Exec(
-		`INSERT INTO {{table}} (id, created_at, updated_at) VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-		entity.ID,
-	)
-	if err != nil {
-		return fmt.Errorf("failed to create {{name}}: %w", err)
-	}
-	return nil
-}
-
-// FindByID retrieves a {{description}} by its ID.
-func (r *{{Name}}Repository) FindByID(id string) (*{{Name}}, error) {
-	var entity {{Name}}
-	err := r.db.QueryRow(
-		`SELECT id, created_at, updated_at FROM {{table}} WHERE id = ?`,
-		id,
-	).Scan(&entity.ID, &entity.CreatedAt, &entity.UpdatedAt)
-	if err != nil {
-		return nil, fmt.Errorf("{{name}} not found: %w", err)
-	}
-	return &entity, nil
-}
-
-// Delete removes a {{description}} by its ID.
-func (r *{{Name}}Repository) Delete(id string) error {
-	result, err := r.db.Exec(`DELETE FROM {{table}} WHERE id = ?`, id)
-	if err != nil {
-		return fmt.Errorf("failed to delete {{name}}: %w", err)
-	}
-	rows, _ := result.RowsAffected()
-	if rows == 0 {
-		return fmt.Errorf("{{name}} not found: %s", id)
-	}
-	return nil
-}
+import ( "database/sql" "fmt" ) //
+{{Name}}
+represents a
+{{description}}
+entity. type
+{{Name}}
+struct { ID string `json:"id"` CreatedAt string `json:"created_at"` UpdatedAt string `json:"updated_at"` // TODO: add
+domain fields } //
+{{Name}}Repository handles
+{{description}}
+persistence. type
+{{Name}}Repository struct { db *sql.DB } // New{{Name}}Repository creates a new repository. func New{{Name}}Repository(db
+*sql.DB) *{{Name}}Repository { return &{{Name}}Repository{db: db} } // Create inserts a new
+{{description}}. func (r *{{Name}}Repository) Create(entity *{{Name}}) error { _, err := r.db.Exec( `INSERT INTO
+{{table}}
+(id, created_at, updated_at) VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, entity.ID, ) if err != nil { return
+fmt.Errorf("failed to create
+{{name}}: %w", err) } return nil } // FindByID retrieves a
+{{description}}
+by its ID. func (r *{{Name}}Repository) FindByID(id string) (*{{Name}}, error) { var entity
+{{Name}}
+err := r.db.QueryRow( `SELECT id, created_at, updated_at FROM
+{{table}}
+WHERE id = ?`, id, ).Scan(&entity.ID, &entity.CreatedAt, &entity.UpdatedAt) if err != nil { return nil, fmt.Errorf("{{name}}
+not found: %w", err) } return &entity, nil } // Delete removes a
+{{description}}
+by its ID. func (r *{{Name}}Repository) Delete(id string) error { result, err := r.db.Exec(`DELETE FROM
+{{table}}
+WHERE id = ?`, id) if err != nil { return fmt.Errorf("failed to delete
+{{name}}: %w", err) } rows, _ := result.RowsAffected() if rows == 0 { return fmt.Errorf("{{name}}
+not found: %s", id) } return nil }

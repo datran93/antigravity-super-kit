@@ -40,8 +40,8 @@ Persist the knowledge and prune the context automatically.
      - Reset the `active_files` and update the checkpoint notes with the KI path.
      - Reset the drift failure counter and intent locks.
 4. **Log Activity**: Call `log_activity` (event_type: "session_compacted") to record the compaction in the audit trail.
-5. **Clear Session Memory**: Call `manage_session_memory` (action: "clear") to flush remaining ephemeral memories for the
-   session.
+5. **Clear Session Memory**: Call `manage_session_memory` (action: "clear") to flush remaining ephemeral memories for
+   the session.
 6. **Mental Flush**: Explicitly state to the USER that context compaction is complete. Actively ignore previous tool
    outputs (CLI logs, debug traces, test outputs), retaining ONLY the global `**/rules/ANCHORS.md` and the objective of
    the next `Tactic`.

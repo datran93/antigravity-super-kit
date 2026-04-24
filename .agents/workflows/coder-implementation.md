@@ -107,8 +107,8 @@ For **each completed Action**, do the following BEFORE moving to the next Action
 
 When **ALL Actions are completed**:
 
-1. **AC Validation**: Cross-reference the task's `acceptance_criteria` against what was implemented. Flag any unaddressed
-   ACs before marking complete.
+1. **AC Validation**: Cross-reference the task's `acceptance_criteria` against what was implemented. Flag any
+   unaddressed ACs before marking complete.
 2. Inject gotchas via `annotate_file`.
 3. Persist ephemeral findings via `manage_session_memory` (action: "add") for the Reviewer/Tester.
 4. `log_activity` (event_type: "task_completed") with a summary of all changes.

@@ -74,6 +74,7 @@ For each file created/modified:
 For each AC → verify corresponding implementation exists. Flag unaddressed ACs.
 
 Cross-reference **both** sources:
+
 - ACs from `features/YYYY-MM-DD-{slug}/spec.md` (original requirements)
 - Structured `acceptance_criteria` field from the task checkpoint (set by Planner via `initialize_task_plan`)
 

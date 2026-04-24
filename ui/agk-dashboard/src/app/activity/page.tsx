@@ -36,7 +36,10 @@ export default function ActivityPage() {
 
     poll();
     const interval = setInterval(poll, 5000);
-    return () => { isMounted = false; clearInterval(interval); };
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const eventTypes = useMemo(() => {
@@ -66,7 +69,10 @@ export default function ActivityPage() {
                 : "text-gray-500 hover:text-gray-300"
             }`}
           >
-            <Zap size={12} /> Events {events.length > 0 && <span className="bg-gray-800 px-1.5 py-0.5 rounded-full text-[10px]">{events.length}</span>}
+            <Zap size={12} /> Events{" "}
+            {events.length > 0 && (
+              <span className="bg-gray-800 px-1.5 py-0.5 rounded-full text-[10px]">{events.length}</span>
+            )}
           </button>
           <button
             onClick={() => setActiveView("audit")}
@@ -76,7 +82,10 @@ export default function ActivityPage() {
                 : "text-gray-500 hover:text-gray-300"
             }`}
           >
-            <Shield size={12} /> Audit {auditLogs.length > 0 && <span className="bg-gray-800 px-1.5 py-0.5 rounded-full text-[10px]">{auditLogs.length}</span>}
+            <Shield size={12} /> Audit{" "}
+            {auditLogs.length > 0 && (
+              <span className="bg-gray-800 px-1.5 py-0.5 rounded-full text-[10px]">{auditLogs.length}</span>
+            )}
           </button>
         </div>
       </div>
@@ -116,16 +125,22 @@ export default function ActivityPage() {
                     const color = EVENT_COLORS[event.event_type] || DEFAULT_COLOR;
                     return (
                       <div key={event.id} className="relative pl-9 pb-4 group">
-                        <div className={`absolute left-1 top-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${color.bg} border border-gray-800 group-hover:scale-110 transition-transform`}>
+                        <div
+                          className={`absolute left-1 top-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${color.bg} border border-gray-800 group-hover:scale-110 transition-transform`}
+                        >
                           {color.icon}
                         </div>
                         <div className="bg-gray-900 border border-gray-800 rounded-lg p-3.5 hover:border-gray-700 transition-colors">
                           <div className="flex items-center justify-between mb-1.5">
                             <div className="flex items-center gap-2">
-                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${color.bg} ${color.text}`}>
+                              <span
+                                className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${color.bg} ${color.text}`}
+                              >
                                 {event.event_type.replace(/_/g, " ")}
                               </span>
-                              {event.task_id && <span className="text-[10px] text-gray-600 font-mono">{event.task_id}</span>}
+                              {event.task_id && (
+                                <span className="text-[10px] text-gray-600 font-mono">{event.task_id}</span>
+                              )}
                             </div>
                             <span className="text-[10px] text-gray-600 flex items-center gap-1">
                               <Clock size={9} />
@@ -182,9 +197,7 @@ export default function ActivityPage() {
                         {log.response_status || "—"}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-gray-600 text-xs max-w-xs truncate">
-                      {log.response_error || "—"}
-                    </td>
+                    <td className="px-6 py-3 text-gray-600 text-xs max-w-xs truncate">{log.response_error || "—"}</td>
                   </tr>
                 ))}
                 {auditLogs.length === 0 && (

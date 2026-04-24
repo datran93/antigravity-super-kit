@@ -17,8 +17,8 @@ description: Structured workflow for Planning and Architectural design. Produces
 - **Auto-Linked Validation**: When loading or reviewing a task, the `context-manager` automatically validates and
   resolves `@task-[ID]`, `@ki/[Name]`, `@anchor/[Key]`, and `@doc/[path]` tags. Utilize these tags when designing tasks
   to enrich the execution context for downstream agents.
-- **Session Memory**: Use `manage_session_memory` (action: "add") to persist ephemeral findings during design.
-  Promote important items to KIs via `manage_session_memory` (action: "promote") before compacting.
+- **Session Memory**: Use `manage_session_memory` (action: "add") to persist ephemeral findings during design. Promote
+  important items to KIs via `manage_session_memory` (action: "promote") before compacting.
 - **Context Retrieval**: Use `retrieve_context` to assemble a unified context pack from KIs, docs, anchors, and tasks.
 
 ---
@@ -166,16 +166,17 @@ Organize tasks into phases aligned with spec user stories:
 - Phase 1 (Setup) and Phase 2 (Foundation) are always present
 - Last phase is always Polish & Cross-Cutting. It MUST include a task to update Knowledge Items / Anchors if
   architecture or patterns changed.
-- **Auto-Linking Context**: When describing tasks via `initialize_task_plan`, inject `@ki:[KI-Name]`,
-  `@task:[Task-ID]`, or `@doc/[path]` into the task description or notes to ensure downstream agents (Coder/Tester)
-  automatically receive the required contextual knowledge at runtime.
+- **Auto-Linking Context**: When describing tasks via `initialize_task_plan`, inject `@ki:[KI-Name]`, `@task:[Task-ID]`,
+  or `@doc/[path]` into the task description or notes to ensure downstream agents (Coder/Tester) automatically receive
+  the required contextual knowledge at runtime.
 - **Structured Docs**: Use `create_doc` to register key design documents as `@doc/` references. This enables automatic
   cross-referencing and validation by the `review_checkpoint` tool.
 
 - **Acceptance Criteria**: When calling `initialize_task_plan`, include the spec's Acceptance Criteria in the task
   `acceptance_criteria` field. This enables the Coder to validate ACs on completion and the Reviewer to cross-reference.
 
-**MCP calls**: `initialize_task_plan` (with `acceptance_criteria`) → `create_doc` (for design artifacts) → `save_checkpoint`
+**MCP calls**: `initialize_task_plan` (with `acceptance_criteria`) → `create_doc` (for design artifacts) →
+`save_checkpoint`
 
 ---
 

@@ -1,24 +1,16 @@
-// {{name}} handles the {{description}} operation.
-package {{package}}
+//
+{{name}}
+handles the
+{{description}}
+operation. package
+{{package}}
 
-import (
-	"fmt"
-	"net/http"
-)
-
-// {{Name}}Handler processes {{description}} requests.
-type {{Name}}Handler struct {
-	// TODO: inject dependencies
-}
-
-// New{{Name}}Handler creates a new {{Name}}Handler.
-func New{{Name}}Handler() *{{Name}}Handler {
-	return &{{Name}}Handler{}
-}
-
-// Handle processes the HTTP request.
-func (h *{{Name}}Handler) Handle(w http.ResponseWriter, r *http.Request) {
-	// TODO: implement {{description}}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"status": "ok"}`)
-}
+import ( "fmt" "net/http" ) //
+{{Name}}Handler processes
+{{description}}
+requests. type
+{{Name}}Handler struct { // TODO: inject dependencies } // New{{Name}}Handler creates a new
+{{Name}}Handler. func New{{Name}}Handler() *{{Name}}Handler { return &{{Name}}Handler{} } // Handle processes the HTTP
+request. func (h *{{Name}}Handler) Handle(w http.ResponseWriter, r *http.Request) { // TODO: implement
+{{description}}
+w.WriteHeader(http.StatusOK) fmt.Fprintf(w, `{"status": "ok"}`) }
