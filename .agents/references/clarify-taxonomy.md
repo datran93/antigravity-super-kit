@@ -84,6 +84,7 @@
 2. **One question at a time** — never reveal future questions
 3. **Prioritize by Impact × Uncertainty** — highest-risk categories first
 4. **Skip clear categories** — do not ask about areas already well-specified
-5. **Only material questions** — must affect architecture, data modeling, task decomposition, test design, UX behavior, operational readiness, or compliance validation
+5. **Only material questions** — must affect architecture, data modeling, task decomposition, test design, UX behavior,
+   operational readiness, or compliance validation
 6. **Category coverage balance** — avoid two low-impact questions when a high-impact area is unresolved
 7. **Favor rework-reduction** — prioritize clarifications that prevent downstream rework or misaligned acceptance tests

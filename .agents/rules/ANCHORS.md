@@ -7,23 +7,24 @@ trigger: always_on
 > **Version**: 2.0.0 | **Last Amended**: 2026-04-20
 >
 > **Amendment Process**: Changes to ANCHORS require:
+>
 > 1. Explicit USER request with rationale
 > 2. Document what changed and why
 > 3. Increment version (MAJOR: new constraint, MINOR: refinement, PATCH: wording)
 
 Non-negotiable project facts and constraints. Must survive context compaction and session restarts.
 
-> **💡 Context Pruning**: Each section is tagged with `[domain:X]`. Agents operating on specific task types
-> ONLY need to load the matching domain(s) via `manage_anchors`. Loading everything is wasteful.
+> **💡 Context Pruning**: Each section is tagged with `[domain:X]`. Agents operating on specific task types ONLY need to
+> load the matching domain(s) via `manage_anchors`. Loading everything is wasteful.
 >
-> | Task Type | Load Domains |
-> |-----------|-------------|
-> | UI/frontend | `stack`, `quality`, `codebase` |
-> | DB / migration | `db`, `quality`, `git`, `security` |
-> | Auth / payment | `security`, `quality`, `git` |
+> | Task Type         | Load Domains                          |
+> | ----------------- | ------------------------------------- |
+> | UI/frontend       | `stack`, `quality`, `codebase`        |
+> | DB / migration    | `db`, `quality`, `git`, `security`    |
+> | Auth / payment    | `security`, `quality`, `git`          |
 > | API / integration | `stack`, `security`, `quality`, `git` |
-> | Code refactor | `codebase`, `quality`, `git` |
-> | Any task | `quality` (always required) |
+> | Code refactor     | `codebase`, `quality`, `git`          |
+> | Any task          | `quality` (always required)           |
 
 ---
 

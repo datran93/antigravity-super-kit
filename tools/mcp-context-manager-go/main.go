@@ -27,7 +27,7 @@ func main() {
 		mcp.WithArray("next_steps", mcp.Items(map[string]interface{}{"type": "string"}), mcp.Description("Next steps array")),
 		mcp.WithArray("active_files", mcp.Items(map[string]interface{}{"type": "string"}), mcp.Description("Active files array")),
 		mcp.WithString("notes", mcp.Required(), mcp.Description("Notes")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("save_checkpoint", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -65,7 +65,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// initialize_task_plan
 	mcpServer.AddTool(mcp.NewTool("initialize_task_plan",
@@ -74,7 +74,7 @@ func main() {
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
 		mcp.WithString("description", mcp.Required(), mcp.Description("Description of the task")),
 		mcp.WithArray("steps", mcp.Items(map[string]interface{}{"type": "string"}), mcp.Description("Steps collection")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("initialize_task_plan", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -93,7 +93,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// complete_task_step
 	mcpServer.AddTool(mcp.NewTool("complete_task_step",
@@ -103,7 +103,7 @@ func main() {
 		mcp.WithString("step_name", mcp.Required(), mcp.Description("Step name")),
 		mcp.WithArray("active_files", mcp.Items(map[string]interface{}{"type": "string"}), mcp.Description("Active files array")),
 		mcp.WithString("notes", mcp.Description("Notes")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("complete_task_step", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -130,7 +130,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// add_task_step
 	mcpServer.AddTool(mcp.NewTool("add_task_step",
@@ -138,7 +138,7 @@ func main() {
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
 		mcp.WithString("new_step", mcp.Required(), mcp.Description("New step")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("add_task_step", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -149,14 +149,14 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// load_checkpoint
 	mcpServer.AddTool(mcp.NewTool("load_checkpoint",
 		mcp.WithDescription("Load a previously saved task checkpoint."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("load_checkpoint", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -166,13 +166,13 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// list_active_tasks
 	mcpServer.AddTool(mcp.NewTool("list_active_tasks",
 		mcp.WithDescription("List all active tasks."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("list_active_tasks", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 
@@ -181,7 +181,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// declare_intent
 	mcpServer.AddTool(mcp.NewTool("declare_intent",
@@ -191,7 +191,7 @@ func main() {
 		mcp.WithString("tactic", mcp.Required(), mcp.Description("Tactic name")),
 		mcp.WithArray("locked_files", mcp.Items(map[string]interface{}{"type": "string"}), mcp.Description("Locked files")),
 		mcp.WithNumber("ttl_minutes", mcp.Description("Lock TTL in minutes. 0=no expiry (default=60)")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("declare_intent", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -217,7 +217,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// check_intent_lock
 	mcpServer.AddTool(mcp.NewTool("check_intent_lock",
@@ -225,7 +225,7 @@ func main() {
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
 		mcp.WithString("file_path", mcp.Required(), mcp.Description("File Path")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("check_intent_lock", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -236,7 +236,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// annotate_file
 	mcpServer.AddTool(mcp.NewTool("annotate_file",
@@ -244,7 +244,7 @@ func main() {
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("file_path", mcp.Required(), mcp.Description("File Path")),
 		mcp.WithString("gotchas", mcp.Required(), mcp.Description("Gotchas context")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("annotate_file", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		filePath, _ := args["file_path"].(string)
@@ -255,7 +255,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// record_failure
 	mcpServer.AddTool(mcp.NewTool("record_failure",
@@ -264,7 +264,7 @@ func main() {
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
 		mcp.WithString("step_name", mcp.Description("Optional: current step name for war-room context")),
 		mcp.WithString("error_context", mcp.Description("Optional: error message or context for war-room KI")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("record_failure", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -282,14 +282,14 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// clear_drift
 	mcpServer.AddTool(mcp.NewTool("clear_drift",
 		mcp.WithDescription("Reset the failure counter after a success or planner intervention."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("clear_drift", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -299,7 +299,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// manage_anchors
 	mcpServer.AddTool(mcp.NewTool("manage_anchors",
@@ -309,7 +309,7 @@ func main() {
 		mcp.WithString("key", mcp.Description("Anchor key")),
 		mcp.WithString("value", mcp.Description("Anchor value")),
 		mcp.WithString("rule", mcp.Description("Anchor rule")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("manage_anchors", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		action, _ := args["action"].(string)
@@ -330,7 +330,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// recall_knowledge
 	mcpServer.AddTool(mcp.NewTool("recall_knowledge",
@@ -338,7 +338,7 @@ func main() {
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("query", mcp.Required(), mcp.Description("Search query")),
 		mcp.WithNumber("top_k", mcp.Description("Top K results")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("recall_knowledge", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		query, _ := args["query"].(string)
@@ -355,7 +355,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// compact_memory
 	mcpServer.AddTool(mcp.NewTool("compact_memory",
@@ -365,7 +365,7 @@ func main() {
 		mcp.WithString("tactic_name", mcp.Required(), mcp.Description("Tactic name")),
 		mcp.WithString("summary", mcp.Required(), mcp.Description("KI summary")),
 		mcp.WithString("decisions", mcp.Required(), mcp.Description("Architecture decisions")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("compact_memory", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -378,14 +378,14 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// find_recent_task (Improvement #4: Smart session continuity)
 	mcpServer.AddTool(mcp.NewTool("find_recent_task",
 		mcp.WithDescription("Fuzzy keyword search across checkpoint descriptions. Returns top 3 matching tasks for smart session continuity."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("keywords", mcp.Required(), mcp.Description("Keywords to search for in task descriptions")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("find_recent_task", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		keywords, _ := args["keywords"].(string)
@@ -395,14 +395,14 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// review_checkpoint (Improvement #9: Checkpoint quality validator)
 	mcpServer.AddTool(mcp.NewTool("review_checkpoint",
 		mcp.WithDescription("Run 5 quality checks on a checkpoint: stale detection, active_files guard, step label format, duplicate steps, git SHA match."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID to validate")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("review_checkpoint", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -412,14 +412,14 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// delete_task
 	mcpServer.AddTool(mcp.NewTool("delete_task",
 		mcp.WithDescription("Permanently delete a task checkpoint and its intent locks from the database. Use when the USER explicitly requests to remove a task. Progress.md is refreshed automatically."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID to delete")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("delete_task", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -429,14 +429,14 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// get_task_summary
 	mcpServer.AddTool(mcp.NewTool("get_task_summary",
 		mcp.WithDescription("Get a compact JSON summary of a task (status, progress%, next step). Cheaper than load_checkpoint when you only need a quick status check."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
 		mcp.WithString("task_id", mcp.Required(), mcp.Description("Task ID")),
-	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	), WithMiddlewares("get_task_summary", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		taskID, _ := args["task_id"].(string)
@@ -446,7 +446,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 		return mcp.NewToolResultText(res), nil
-	})
+	}))
 
 	// Run standard I/O server
 	if err := server.ServeStdio(mcpServer); err != nil {

@@ -1,7 +1,6 @@
 # ⚡ Performance Checklist Template
 
-> Domain: Performance Review
-> Used by: `/checklist-generator` for performance audits
+> Domain: Performance Review Used by: `/checklist-generator` for performance audits
 
 ## Response Time
 

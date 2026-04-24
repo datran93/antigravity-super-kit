@@ -32,7 +32,8 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID string) error {
 
 	// 1. Fetch Task Info
 	var description, status, notes string
-	err := db.QueryRow("SELECT description, status, notes FROM tasks WHERE task_id = ?", taskID).Scan(&description, &status, &notes)
+	var ac sql.NullString
+	err := db.QueryRow("SELECT description, status, notes, acceptance_criteria FROM tasks WHERE task_id = ?", taskID).Scan(&description, &status, &notes, &ac)
 	if err == sql.ErrNoRows {
 		// Task deleted or doesn't exist
 		description = "[deleted]"
@@ -96,6 +97,11 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID string) error {
 		content += fmt.Sprintf("- [ ] %s\n", s)
 	}
 	content += "\n"
+
+	if ac.Valid && ac.String != "" {
+		content += "### 🎯 Acceptance Criteria\n"
+		content += fmt.Sprintf("%s\n\n", ac.String)
+	}
 
 	if notes != "" {
 		content += "### 📝 Log & Notes\n"

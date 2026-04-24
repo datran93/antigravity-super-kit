@@ -1,5 +1,6 @@
 ---
-description: Structured workflow for Code Review and Quality Audit. Reads the completed actions from MCP context and the original
+description:
+  Structured workflow for Code Review and Quality Audit. Reads the completed actions from MCP context and the original
 ---
 
 # 🔍 Reviewer Workflow

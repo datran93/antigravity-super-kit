@@ -256,6 +256,57 @@ cmd_info() {
     echo ""
 }
 
+cmd_ui() {
+    local open_browser=0
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --open) open_browser=1; shift ;;
+            *) shift ;;
+        esac
+    done
+
+    local ui_dir="$SCRIPT_DIR/../ui/agk-dashboard"
+    if [ ! -d "$ui_dir" ]; then
+        log_error "Dashboard directory not found at $ui_dir"
+        exit 1
+    fi
+
+    log_info "Starting Antigravity Kit Dashboard..."
+    cd "$ui_dir" || exit 1
+    
+    if [ ! -d "node_modules" ]; then
+        log_info "Installing dashboard dependencies..."
+        npm install
+    fi
+
+    if [ ! -d ".next" ]; then
+        log_info "Building dashboard..."
+        npm run build
+    fi
+
+    export WORKSPACE_PATH="$PWD/../.."
+    
+    # Run the server in background to open browser if requested
+    if [ "$open_browser" -eq 1 ]; then
+        npm run start &
+        local pid=$!
+        
+        log_info "Waiting for server to start..."
+        sleep 2
+        
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            open "http://localhost:3000"
+        elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            xdg-open "http://localhost:3000" &>/dev/null
+        fi
+        
+        # Bring the server back to foreground
+        wait $pid
+    else
+        npm run start
+    fi
+}
+
 show_help() {
     cat << EOF
 ${CYAN}Antigravity Kit v$VERSION${NC}
@@ -269,6 +320,7 @@ Commands:
   remove  [--ai <agent>]   Remove agent configuration
   agents                   List all supported agents
   info                     Show current installations
+  ui      [--open]         Launch the dashboard UI
   help                     Show this help
 
 Options:
@@ -282,6 +334,7 @@ Examples:
   agk update --ai claude             # Update Claude installation
   agk remove --ai claude             # Remove Claude installation
   agk agents                         # List all supported agents
+  agk ui --open                      # Launch dashboard and open in browser
 
 EOF
 }
@@ -297,6 +350,7 @@ case "$1" in
     remove)  shift; cmd_remove "$@" ;;
     agents)  cmd_agents ;;
     info)    cmd_info ;;
+    ui)      shift; cmd_ui "$@" ;;
     help|-h|--help|"") show_help ;;
     *) log_error "Unknown command: $1"; show_help; exit 1 ;;
 esac

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"regexp"
 	"strings"
 )
@@ -40,4 +41,39 @@ func ParseStep(stepStr string) StepInfo {
 	}
 
 	return info
+}
+
+// ExtractLinks extracts @ki:[id] and @task:[id] from a text.
+func ExtractLinks(text string) (kis []string, tasks []string) {
+	kiRe := regexp.MustCompile(`@ki:\[([^\]]+)\]`)
+	taskRe := regexp.MustCompile(`@task:\[([^\]]+)\]`)
+
+	for _, match := range kiRe.FindAllStringSubmatch(text, -1) {
+		if len(match) > 1 {
+			kis = append(kis, strings.TrimSpace(match[1]))
+		}
+	}
+
+	for _, match := range taskRe.FindAllStringSubmatch(text, -1) {
+		if len(match) > 1 {
+			tasks = append(tasks, strings.TrimSpace(match[1]))
+		}
+	}
+
+	return kis, tasks
+}
+
+// ExtractAcceptanceCriteria parses a spec.md file and extracts the Acceptance Criteria section.
+func ExtractAcceptanceCriteria(specPath string) string {
+	content, err := os.ReadFile(specPath)
+	if err != nil {
+		return ""
+	}
+
+	re := regexp.MustCompile(`(?i)##\s+Acceptance Criteria\s*\n([\s\S]*?)(?:\n##\s+|$)`)
+	matches := re.FindStringSubmatch(string(content))
+	if len(matches) > 1 {
+		return strings.TrimSpace(matches[1])
+	}
+	return ""
 }

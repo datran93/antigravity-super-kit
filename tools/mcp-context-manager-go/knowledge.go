@@ -389,3 +389,38 @@ func CompactMemory(workspacePath, taskID, tacticName, summary, decisions string)
 
 	return fmt.Sprintf("🗜️ Context Compaction successful. Knowledge Item indexed into local RAG and saved to %s. Memory flushed.", kiPath), nil
 }
+
+// FetchAutoLinksContext scans text for @ki and @task tags, fetches their content from DB, and returns a formatted context string.
+func FetchAutoLinksContext(db *sql.DB, text string) string {
+	kis, tasks := ExtractLinks(text)
+	if len(kis) == 0 && len(tasks) == 0 {
+		return ""
+	}
+
+	var ctxBuilder strings.Builder
+	ctxBuilder.WriteString("\n\n---\n### 🔗 Auto-Linked Context\n")
+
+	// Fetch KIs
+	for _, ki := range kis {
+		var tacticName, summary string
+		err := db.QueryRow(`
+			SELECT tactic_name, summary 
+			FROM knowledge_fts 
+			WHERE ki_path LIKE ? OR tactic_name = ?
+			LIMIT 1`, "%"+ki+".md", ki).Scan(&tacticName, &summary)
+		if err == nil {
+			ctxBuilder.WriteString(fmt.Sprintf("- **KI [%s]**: %s\n", tacticName, summary))
+		}
+	}
+
+	// Fetch Tasks
+	for _, task := range tasks {
+		var status, desc string
+		err := db.QueryRow(`SELECT status, description FROM tasks WHERE task_id = ?`, task).Scan(&status, &desc)
+		if err == nil {
+			ctxBuilder.WriteString(fmt.Sprintf("- **Task [%s]** (`%s`): %s\n", task, status, desc))
+		}
+	}
+
+	return ctxBuilder.String()
+}

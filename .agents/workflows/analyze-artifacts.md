@@ -1,5 +1,6 @@
 ---
-description: Read-only cross-artifact consistency and coverage analysis. Detects duplications, ambiguities, underspecification,
+description:
+  Read-only cross-artifact consistency and coverage analysis. Detects duplications, ambiguities, underspecification,
 ---
 
 # 📊 Analyze Artifacts

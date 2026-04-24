@@ -1,5 +1,6 @@
 ---
-description: Structured workflow for Requirements Engineering. Acts as a Socratic Interviewer and Ontologist to eliminate ambiguity
+description:
+  Structured workflow for Requirements Engineering. Acts as a Socratic Interviewer and Ontologist to eliminate ambiguity
 ---
 
 # 📝 Specifications Writer
@@ -56,6 +57,7 @@ If ambiguity remains → return to Phase 2.
 ## Phase 4: Specification Generation 🌱
 
 Write `features/YYYY-MM-DD-{slug}/spec.md` following the canonical template at `**/references/spec-template.md`.
+
 > If `features/` does not exist yet, create it.
 
 **Required sections**:
@@ -90,11 +92,17 @@ Write `features/YYYY-MM-DD-{slug}/spec.md` following the canonical template at `
 
 - **Domain Tags** (MANDATORY — enables Context Pruning): Infer 1–3 domain tags from the user stories and entities. Add
   to spec frontmatter:
+
   ```
   domains: [ui, db, security, api, refactor, stack]   ← pick relevant ones
   ```
+
   This lets downstream agents (Planner, Coder, Reviewer) load only the matching ANCHORS domains instead of the full
   file. The `quality` domain is always implied and does NOT need to be listed.
+
+- **Auto-Linking Context** (MANDATORY): If the feature relates to existing patterns or other tasks, you MUST inject
+  `@ki:[Tên-KI]` or `@task:[Task-ID]` directly into the Description, Notes, or Acceptance Criteria. The
+  `context-manager` will automatically resolve these tags at runtime to inject context for downstream agents.
 
 Save state via `save_checkpoint`.
 
@@ -107,7 +115,8 @@ Present spec to USER for sign-off. Once approved, advise:
 1. **If `[NEEDS CLARIFICATION]` markers exist**: Recommend `/clarify-specification` to resolve ambiguities
 2. **If spec is fully clear**: Recommend `/planner-architect` for architecture and task planning
 
-> 🛑 **STOP HERE.** NEVER generate code, architecture, or bash scripts. Your artifact is `features/YYYY-MM-DD-{slug}/spec.md`.
+> 🛑 **STOP HERE.** NEVER generate code, architecture, or bash scripts. Your artifact is
+> `features/YYYY-MM-DD-{slug}/spec.md`.
 
 ---
 

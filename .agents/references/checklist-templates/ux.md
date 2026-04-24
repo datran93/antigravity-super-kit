@@ -1,7 +1,6 @@
 # 🎨 UX Checklist Template
 
-> Domain: User Experience Validation
-> Used by: `/checklist-generator` for UX audits
+> Domain: User Experience Validation Used by: `/checklist-generator` for UX audits
 
 ## Interaction Design
 

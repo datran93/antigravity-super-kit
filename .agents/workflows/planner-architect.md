@@ -1,5 +1,7 @@
 ---
-description: Structured workflow for Planning and Architectural design. Produces design artifacts inside features/YYYY-MM-DD-{slug}/, then
+description:
+  Structured workflow for Planning and Architectural design. Produces design artifacts inside
+  features/YYYY-MM-DD-{slug}/, then
 ---
 
 # 🏗️ Planner Workflow
@@ -32,27 +34,31 @@ Use MCP tools **in parallel** to map the impact area:
 
 ## Phase 2: Architecture 🏗️
 
-Translate `features/YYYY-MM-DD-{slug}/spec.md` into design artifacts, co-located in the same feature directory.
-**State Machine Enforcement**: You MUST follow this process sequence: 
+Translate `features/YYYY-MM-DD-{slug}/spec.md` into design artifacts, co-located in the same feature directory. **State
+Machine Enforcement**: You MUST follow this process sequence:
 `Explore -> Ask Clarifying Questions -> Propose 2-3 Approaches -> Present Section-by-Section -> Adversarial Review -> Task Plan`.
 
 ### 1. Section-by-Section Presentation
-Do NOT dump a massive `design.md` file at once. Present foundational decisions (e.g., Data Models, API Contracts) to the USER first. Only proceed to downstream systems (UI, Integrations) after the foundation is locked. 
-For the core problem, ALWAYS **propose 2-3 approaches** with trade-offs before locking the design. Prefer concrete design details (structs, interfaces, data flow) over hand-wavey prose.
+
+Do NOT dump a massive `design.md` file at once. Present foundational decisions (e.g., Data Models, API Contracts) to the
+USER first. Only proceed to downstream systems (UI, Integrations) after the foundation is locked. For the core problem,
+ALWAYS **propose 2-3 approaches** with trade-offs before locking the design. Prefer concrete design details (structs,
+interfaces, data flow) over hand-wavey prose.
 
 ### Output Format
 
 **For complex tasks** (data models, API contracts, or research required): produce a **directory**
 `features/YYYY-MM-DD-{slug}/design/`:
 
-| File              | Purpose                                                              | When Required                  |
-| ----------------- | -------------------------------------------------------------------- | ------------------------------ |
-| `design.md` | System diagram, module changes, risk analysis, migration strategy    | **Always**                     |
-| `research.md`     | Decisions, rationale, alternatives considered                        | When unknowns exist            |
-| `data-model.md`   | Entities, fields, relationships, validation rules, state transitions | When data entities involved    |
-| `contracts/`      | API contracts, interface definitions (OpenAPI, gRPC proto, etc.)     | When external interfaces exist |
+| File            | Purpose                                                              | When Required                  |
+| --------------- | -------------------------------------------------------------------- | ------------------------------ |
+| `design.md`     | System diagram, module changes, risk analysis, migration strategy    | **Always**                     |
+| `research.md`   | Decisions, rationale, alternatives considered                        | When unknowns exist            |
+| `data-model.md` | Entities, fields, relationships, validation rules, state transitions | When data entities involved    |
+| `contracts/`    | API contracts, interface definitions (OpenAPI, gRPC proto, etc.)     | When external interfaces exist |
 
-**For simple tasks** (no data model, no research, no contracts): produce a single `features/YYYY-MM-DD-{slug}/design.md`.
+**For simple tasks** (no data model, no research, no contracts): produce a single
+`features/YYYY-MM-DD-{slug}/design.md`.
 
 ### Required Content (in `design.md`)
 
@@ -78,19 +84,22 @@ Lock invariants via `manage_anchors`.
 
 NEVER present to USER without performing a hostile self-review. Actively attack your own design:
 
-1. **Vagueness Attack**: Attack hand-wavey sections, hidden assumptions, and missing concrete details (signatures, algorithms).
+1. **Vagueness Attack**: Attack hand-wavey sections, hidden assumptions, and missing concrete details (signatures,
+   algorithms).
 2. **Blast Radius** — ONLY touches files from Phase 1? Justify new additions.
 3. **ANCHORS.md Doctrine** — Attack weak compliance with `ANCHORS.md` guardrails. Are there security or migration gaps?
 4. **Spec AC Coverage** — Every AC has a design element? Flag gaps.
 5. **Verification Weakness** — Are the verification strategies actually provable?
-6. **External Challenge Prompt**: Offer the USER an explicit "External Challenge Prompt" (a list of hard questions they should consider) before proceeding to Phase 3.
+6. **External Challenge Prompt**: Offer the USER an explicit "External Challenge Prompt" (a list of hard questions they
+   should consider) before proceeding to Phase 3.
 
 ---
 
 ## Phase 3: Task Plan 📋
 
-Produce a **story-grouped task plan** organized by user-story phases.
-**Do NOT create a `tasks.md` file.** The task plan is exclusively managed via the MCP `initialize_task_plan` tool, which automatically tracks state and generates a `progress.md` dashboard.
+Produce a **story-grouped task plan** organized by user-story phases. **Do NOT create a `tasks.md` file.** The task plan
+is exclusively managed via the MCP `initialize_task_plan` tool, which automatically tracks state and generates a
+`progress.md` dashboard.
 
 Every Action MUST:
 
@@ -148,7 +157,11 @@ Organize tasks into phases aligned with spec user stories:
 - Each story phase has: Goal, Entry Criteria, Exit Criteria, Independent Test
 - Tasks trace to stories: `[ST03][US1][core]` format when helpful
 - Phase 1 (Setup) and Phase 2 (Foundation) are always present
-- Last phase is always Polish & Cross-Cutting. It MUST include a task to update Knowledge Items / Anchors if architecture or patterns changed.
+- Last phase is always Polish & Cross-Cutting. It MUST include a task to update Knowledge Items / Anchors if
+  architecture or patterns changed.
+- **Auto-Linking Context**: When describing tasks via `initialize_task_plan`, inject `@ki:[KI-Name]` or
+  `@task:[Task-ID]` into the task description or notes to ensure downstream agents (Coder/Tester) automatically receive
+  the required contextual knowledge at runtime.
 
 **MCP calls**: `initialize_task_plan` → `save_checkpoint`
 
@@ -172,4 +185,5 @@ Present: Architecture Summary → Ordered Task List → Migration Strategy (if a
 4. ALWAYS complete Phase 2.5 Adversarial Review and offer an External Challenge Prompt before presenting the task plan.
 5. Every DB/API change MUST have a migration & rollback plan.
 6. Every Action MUST have a Verification Command.
-7. **Strict State Machine**: You MUST follow: Explore -> Clarify -> Propose Options -> Section Design -> Adversarial Review -> Task Planning. Do not jump straight to dumping the design.
+7. **Strict State Machine**: You MUST follow: Explore -> Clarify -> Propose Options -> Section Design -> Adversarial
+   Review -> Task Planning. Do not jump straight to dumping the design.

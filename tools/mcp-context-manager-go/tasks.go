@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -18,10 +19,13 @@ func InitializeTaskPlan(workspacePath, taskID, description string, steps []strin
 
 	initNotes := fmt.Sprintf("[%s] Task started.", time.Now().Format("15:04:05"))
 
+	specPath := filepath.Join(workspacePath, "features", taskID, "spec.md")
+	ac := ExtractAcceptanceCriteria(specPath)
+
 	err = RunInTx(db, func(tx *sql.Tx) error {
 		// Insert into tasks
-		_, err := tx.Exec("INSERT INTO tasks (task_id, description, status, notes) VALUES (?, ?, ?, ?)",
-			taskID, description, "in_progress", initNotes)
+		_, err := tx.Exec("INSERT INTO tasks (task_id, description, status, notes, acceptance_criteria) VALUES (?, ?, ?, ?, ?)",
+			taskID, description, "in_progress", initNotes, ac)
 		if err != nil {
 			return fmt.Errorf("insert task: %v", err)
 		}
@@ -68,8 +72,8 @@ func GetTaskSummary(workspacePath, taskID string) (string, error) {
 	}
 	defer db.Close()
 
-	var status, updatedAt string
-	err = db.QueryRow("SELECT status, updated_at FROM tasks WHERE task_id = ?", taskID).Scan(&status, &updatedAt)
+	var status, updatedAt, desc, notes string
+	err = db.QueryRow("SELECT status, updated_at, description, notes FROM tasks WHERE task_id = ?", taskID).Scan(&status, &updatedAt, &desc, &notes)
 	if err == sql.ErrNoRows {
 		return fmt.Sprintf(`{"error": "task '%s' not found"}`, taskID), nil
 	} else if err != nil {
@@ -98,9 +102,11 @@ func GetTaskSummary(workspacePath, taskID string) (string, error) {
 		return "", err
 	}
 
+	linkedCtx := FetchAutoLinksContext(db, desc+"\n"+notes)
+
 	return fmt.Sprintf(
-		`{"task_id": %q, "status": %q, "progress": "%d/%d steps (%.0f%%)", "next_step": %q, "last_updated": %q}`,
-		taskID, status, compCount, total, pct, nextStep, updatedAt,
+		`{"task_id": %q, "status": %q, "progress": "%d/%d steps (%.0f%%)", "next_step": %q, "last_updated": %q, "context": %q}`,
+		taskID, status, compCount, total, pct, nextStep, updatedAt, linkedCtx,
 	), nil
 }
 
@@ -282,8 +288,9 @@ func LoadCheckpoint(workspacePath, taskID string) (string, error) {
 	}
 	defer db.Close()
 
-	var status, updatedAt, notes string
-	err = db.QueryRow("SELECT status, updated_at, notes FROM tasks WHERE task_id = ?", taskID).Scan(&status, &updatedAt, &notes)
+	var status, updatedAt, notes, desc string
+	var ac sql.NullString
+	err = db.QueryRow("SELECT status, updated_at, notes, description, acceptance_criteria FROM tasks WHERE task_id = ?", taskID).Scan(&status, &updatedAt, &notes, &desc, &ac)
 	if err == sql.ErrNoRows {
 		return fmt.Sprintf("❌ Task '%s' not found.", taskID), nil
 	} else if err != nil {
@@ -326,7 +333,15 @@ func LoadCheckpoint(workspacePath, taskID string) (string, error) {
 		res += fmt.Sprintf("- [ ] %s\n", s)
 	}
 
+	if ac.Valid && ac.String != "" {
+		res += fmt.Sprintf("\n## 🎯 Acceptance Criteria\n%s\n", ac.String)
+	}
+
 	res += fmt.Sprintf("\n## 📝 Notes\n%s", notes)
+	
+	// Auto-Linked Context
+	res += FetchAutoLinksContext(db, desc+"\n"+notes+"\n"+ac.String)
+
 	return res, nil
 }
 

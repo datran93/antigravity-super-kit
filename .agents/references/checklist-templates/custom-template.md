@@ -1,7 +1,6 @@
 # 📋 Custom Checklist Template
 
-> Domain: {domain-name}
-> Used by: `/checklist-generator` for custom audits
+> Domain: {domain-name} Used by: `/checklist-generator` for custom audits
 
 ## Category 1: {category-name}
 

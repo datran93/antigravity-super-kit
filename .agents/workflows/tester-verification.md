@@ -1,5 +1,6 @@
 ---
-description: Structured workflow for Testing. Reads the completed actions from MCP context, performs deep code analysis to find
+description:
+  Structured workflow for Testing. Reads the completed actions from MCP context, performs deep code analysis to find
 ---
 
 # 🧪 Tester Workflow
@@ -55,16 +56,19 @@ Missing uniqueness constraints · Orphaned records on delete · Type coercion (s
 
 ## Phase 2: Test Case Design & Approval 📝
 
-Based on the Bug Hypothesis List from Phase 1, deeply think through the necessary tests and create a structured **Test Case Table**.
+Based on the Bug Hypothesis List from Phase 1, deeply think through the necessary tests and create a structured **Test
+Case Table**.
 
 **For each test case, include:**
+
 - **ID**: (e.g., `TC01`)
 - **Scenario**: What is being tested (e.g., "User A accesses User B's file").
 - **Inputs/State**: Preconditions and input data.
 - **Expected Outcome**: What the test should assert.
 - **Priority**: (P0 to P3).
 
-> 🛑 **STOP HERE.** Present the Test Case Table to the USER and explicitly ask for their approval or modifications before writing ANY test code. Do NOT proceed to Phase 3 until the USER approves.
+> 🛑 **STOP HERE.** Present the Test Case Table to the USER and explicitly ask for their approval or modifications
+> before writing ANY test code. Do NOT proceed to Phase 3 until the USER approves.
 
 ---
 

@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -113,6 +114,7 @@ func initializeSchema(db *sql.DB) error {
             description TEXT NOT NULL,
             status TEXT NOT NULL,
             notes TEXT,
+            acceptance_criteria TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`,
@@ -188,6 +190,11 @@ func initializeSchema(db *sql.DB) error {
 		return fmt.Errorf("intents.expires_at migration: %w", err)
 	}
 
+	// tasks: acceptance_criteria support (Phase 3 Auto-Linking)
+	if err := addColumnIfNotExist(db, "tasks", "acceptance_criteria", "TEXT"); err != nil {
+		return fmt.Errorf("tasks.acceptance_criteria migration: %w", err)
+	}
+
 	// drift_tracker: per-step war-room context (Improvement #8)
 	for _, m := range []struct{ col, def string }{
 		{"step_name", "TEXT DEFAULT ''"},
@@ -214,4 +221,50 @@ func RunInTx(db *sql.DB, fn func(tx *sql.Tx) error) error {
 		return err
 	}
 	return tx.Commit()
+}
+
+// GetGlobalDBConnection opens a connection to the global SQLite database and initializes its schema.
+func GetGlobalDBConnection() (*sql.DB, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get home directory: %w", err)
+	}
+
+	appDataDir := filepath.Join(homeDir, ".gemini", "antigravity")
+	if err := os.MkdirAll(appDataDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create global app dir: %w", err)
+	}
+
+	dbPath := filepath.Join(appDataDir, "global.db")
+	db, err := sql.Open("sqlite3", dbPath+"?_fk=1")
+	if err != nil {
+		return nil, fmt.Errorf("failed to open global database: %w", err)
+	}
+
+	if err := initializeGlobalSchema(db); err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
+}
+
+func initializeGlobalSchema(db *sql.DB) error {
+	createTableQueries := []string{
+		`CREATE TABLE IF NOT EXISTS audit_logs (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			tool_name TEXT NOT NULL,
+			request_payload TEXT,
+			response_status TEXT,
+			response_error TEXT
+		)`,
+	}
+
+	for _, query := range createTableQueries {
+		if _, err := db.Exec(query); err != nil {
+			return fmt.Errorf("failed to initialize global schema query:\n%s\nerror: %v", query, err)
+		}
+	}
+	return nil
 }

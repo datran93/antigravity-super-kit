@@ -39,8 +39,8 @@ LSP operations to try (in order of precision):
 5. hover             → type signature + docstring
 ```
 
-**LSP is available** when the project has a language server configured (e.g., `gopls` for Go, `tsserver` for
-TypeScript, `pyright` for Python, `rust-analyzer` for Rust). Use the `LSP` tool with the appropriate operation.
+**LSP is available** when the project has a language server configured (e.g., `gopls` for Go, `tsserver` for TypeScript,
+`pyright` for Python, `rust-analyzer` for Rust). Use the `LSP` tool with the appropriate operation.
 
 **How to detect**: Attempt `LSP.hover` at the symbol position. If it returns type info → LSP is active. If it errors
 with "no server" → fall back to MCP.

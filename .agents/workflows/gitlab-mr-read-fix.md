@@ -1,35 +1,38 @@
 ---
 description: Read GitLab Merge Request discussions, analyze requested changes, and apply fixes locally.
 ---
+
 # Read and Fix GitLab MR Discussions Workflow
 
-This workflow automates the first half of addressing a GitLab Merge Request (MR) feedback: reading the reviewer's feedback, analyzing the requested changes, and applying the fixes to the local codebase.
+This workflow automates the first half of addressing a GitLab Merge Request (MR) feedback: reading the reviewer's
+feedback, analyzing the requested changes, and applying the fixes to the local codebase.
 
 ## Requirements
-- The user must provide the Merge Request IID (e.g., `!123` or just `123`) and Project ID (or the Agent should be able to deduce the current MR and Project from the branch context and remote URL).
+
+- The user must provide the Merge Request IID (e.g., `!123` or just `123`) and Project ID (or the Agent should be able
+  to deduce the current MR and Project from the branch context and remote URL).
 - The `@mcp:gitlab-mr-discussions` server must be configured.
 
 ## Workflow Steps
 
-1. **Get Discussions & Notes from the Merge Request**
-   Use the `read_mr_discussions` tool from `@mcp:gitlab-mr-discussions` to fetch the threads.
+1. **Get Discussions & Notes from the Merge Request** Use the `read_mr_discussions` tool from
+   `@mcp:gitlab-mr-discussions` to fetch the threads.
    - You need the project ID (e.g., URL-encoded path) and the `mr_iid`.
-   
-   *Agent Action*: Read through unresolved threads and notes. Identify the specific files and lines of code mentioned by the reviewers and the requested changes.
 
-2. **Analyze and Plan the Fixes**
-   For each piece of feedback:
+   _Agent Action_: Read through unresolved threads and notes. Identify the specific files and lines of code mentioned by
+   the reviewers and the requested changes.
+
+2. **Analyze and Plan the Fixes** For each piece of feedback:
    - Identify the target file.
    - Use `view_file` to read the current state of the code.
    - Plan how to implement the requested change without breaking existing functionality.
 
-3. **Implement Code Changes**
-   Apply the changes to the codebase based on the plan.
+3. **Implement Code Changes** Apply the changes to the codebase based on the plan.
    - Tools: `replace_file_content` or `multi_replace_file_content`
    - Ensure you follow the project's coding standards.
 
-4. **Verify Changes (Lint/Test)**
-   Run local linters or tests to ensure the new code is correct and hasn't introduced regressions.
+4. **Verify Changes (Lint/Test)** Run local linters or tests to ensure the new code is correct and hasn't introduced
+   regressions.
    ```bash
    # Example verification commands (adapt based on project)
    # npm run lint
@@ -38,4 +41,6 @@ This workflow automates the first half of addressing a GitLab Merge Request (MR)
    ```
 
 ## Next Steps
-Once verified, proceed to the `/gitlab-mr-reply-push` workflow to commit, push the changes, and resolve the discussions on GitLab.
+
+Once verified, proceed to the `/gitlab-mr-reply-push` workflow to commit, push the changes, and resolve the discussions
+on GitLab.

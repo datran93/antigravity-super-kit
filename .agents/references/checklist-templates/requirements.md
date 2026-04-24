@@ -1,7 +1,6 @@
 # ✅ Requirements Checklist Template
 
-> Domain: Specification Quality Validation
-> Used by: `/checklist-generator` for requirements audits
+> Domain: Specification Quality Validation Used by: `/checklist-generator` for requirements audits
 
 ## Completeness
 
