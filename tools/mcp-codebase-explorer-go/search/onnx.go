@@ -66,7 +66,8 @@ func NewOnnxEmbedder() (*OnnxEmbedder, error) {
 			return
 		}
 
-		if libPath := os.Getenv("ONNXRUNTIME_LIB"); libPath != "" {
+		libPath := resolveOnnxLibPath()
+		if libPath != "" {
 			ort.SetSharedLibraryPath(libPath)
 		}
 
@@ -296,6 +297,26 @@ func onnxWordpieceWord(vocab map[string]int64, word string, unkID int64) []int64
 	}
 
 	return result
+}
+
+// resolveOnnxLibPath returns the path to the ONNX Runtime shared library.
+// Priority: ONNXRUNTIME_LIB env var → Homebrew (macOS) → common system paths.
+func resolveOnnxLibPath() string {
+	if p := os.Getenv("ONNXRUNTIME_LIB"); p != "" {
+		return p
+	}
+	candidates := []string{
+		"/opt/homebrew/lib/libonnxruntime.dylib",         // Homebrew ARM64
+		"/usr/local/lib/libonnxruntime.dylib",            // Homebrew Intel
+		"/usr/lib/libonnxruntime.so",                     // Linux system
+		"/usr/local/lib/libonnxruntime.so",               // Linux local
+	}
+	for _, c := range candidates {
+		if _, err := os.Stat(c); err == nil {
+			return c
+		}
+	}
+	return ""
 }
 
 // ── Fallback: OpenAI embedding when ONNX is unavailable ─────────────────────

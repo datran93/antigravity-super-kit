@@ -78,8 +78,9 @@ func initONNXSession() (*onnxSession, error) {
 			return
 		}
 
-		// Set shared library path if provided
-		if libPath := os.Getenv("ONNXRUNTIME_LIB"); libPath != "" {
+		// Resolve shared library path (env var → Homebrew → system)
+		libPath := resolveOnnxLibPath()
+		if libPath != "" {
 			ort.SetSharedLibraryPath(libPath)
 		}
 
@@ -341,6 +342,28 @@ func wordpieceWord(vocab map[string]int64, word string, unkID int64) []int64 {
 	}
 
 	return result
+}
+
+// ── Library resolution ──────────────────────────────────────────────────────
+
+// resolveOnnxLibPath returns the path to the ONNX Runtime shared library.
+// Priority: ONNXRUNTIME_LIB env var → Homebrew (macOS) → common system paths.
+func resolveOnnxLibPath() string {
+	if p := os.Getenv("ONNXRUNTIME_LIB"); p != "" {
+		return p
+	}
+	candidates := []string{
+		"/opt/homebrew/lib/libonnxruntime.dylib",         // Homebrew ARM64
+		"/usr/local/lib/libonnxruntime.dylib",            // Homebrew Intel
+		"/usr/lib/libonnxruntime.so",                     // Linux system
+		"/usr/local/lib/libonnxruntime.so",               // Linux local
+	}
+	for _, c := range candidates {
+		if _, err := os.Stat(c); err == nil {
+			return c
+		}
+	}
+	return ""
 }
 
 // ── Compatibility helpers ───────────────────────────────────────────────────
