@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -167,8 +168,20 @@ func ClearDrift(workspacePath, taskID string) (string, error) {
 	return "🧹 Drift counter reset to 0.", nil
 }
 
-func ManageAnchors(workspacePath, action, key, value, rule string) (string, error) {
-	db, err := GetDBConnection(workspacePath)
+func ManageAnchors(workspacePath, scope, action, key, value, rule string) (string, error) {
+	var db *sql.DB
+	var err error
+	tableName := "anchors"
+	scopeName := "PROJECT"
+
+	if scope == "global" {
+		db, err = GetGlobalDBConnection()
+		tableName = "global_anchors"
+		scopeName = "GLOBAL"
+	} else {
+		db, err = GetDBConnection(workspacePath)
+	}
+
 	if err != nil {
 		return "", err
 	}
@@ -179,36 +192,36 @@ func ManageAnchors(workspacePath, action, key, value, rule string) (string, erro
 		if key == "" || value == "" {
 			return "❌ Key and value required for 'set'.", nil
 		}
-		query := `
-            INSERT INTO anchors (key, value, rule)
+		query := fmt.Sprintf(`
+            INSERT INTO %s (key, value, rule)
             VALUES (?, ?, ?)
             ON CONFLICT(key) DO UPDATE SET
                 value=excluded.value,
                 rule=excluded.rule,
                 updated_at=CURRENT_TIMESTAMP
-        `
+        `, tableName)
 		if _, err := db.Exec(query, key, value, rule); err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("⚓ Anchor '%s' secured successfully.", key), nil
+		return fmt.Sprintf("⚓ %s Anchor '%s' secured successfully.", scopeName, key), nil
 
 	case "get":
 		var val, r string
-		err := db.QueryRow("SELECT value, rule FROM anchors WHERE key = ?", key).Scan(&val, &r)
+		err := db.QueryRow(fmt.Sprintf("SELECT value, rule FROM %s WHERE key = ?", tableName), key).Scan(&val, &r)
 		if err != nil {
-			return fmt.Sprintf("⚠️ Anchor '%s' not found.", key), nil
+			return fmt.Sprintf("⚠️ %s Anchor '%s' not found.", scopeName, key), nil
 		}
-		return fmt.Sprintf("⚓ ANCHOR [%s]: %s (Rule: %s)", key, val, r), nil
+		return fmt.Sprintf("⚓ %s ANCHOR [%s]: %s (Rule: %s)", scopeName, key, val, r), nil
 
 	case "list":
-		rows, err := db.Query("SELECT key, value, rule FROM anchors ORDER BY key")
+		rows, err := db.Query(fmt.Sprintf("SELECT key, value, rule FROM %s ORDER BY key", tableName))
 		if err != nil {
 			return "", err
 		}
 		defer rows.Close()
 
 		var res []string
-		res = append(res, "⚓ PROJECT ANCHORS:")
+		res = append(res, fmt.Sprintf("⚓ %s ANCHORS:", scopeName))
 		count := 0
 		for rows.Next() {
 			var k, v, r string

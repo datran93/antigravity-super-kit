@@ -1,7 +1,5 @@
 ---
-description:
-  Structured workflow for Planning and Architectural design. Produces design artifacts inside
-  features/YYYY-MM-DD-{slug}/, then
+description: Structured workflow for Planning and Architectural design. Produces design artifacts inside
 ---
 
 # 🏗️ Planner Workflow
@@ -13,8 +11,12 @@ description:
 - `load_checkpoint` — resume existing task.
 - `find_recent_task` — fuzzy search when USER describes by topic.
 - `delete_task` — only when USER explicitly requests removal.
-- **Context Pruning**: Use `manage_anchors` (action: "list") or `recall_knowledge` to dynamically fetch only the
-  domain-specific constraints relevant to the task (e.g., Auth, DB, UI) instead of loading the entire `ANCHORS.md` file.
+- **Context Pruning**: Use `manage_anchors` (action: "list") or `recall_knowledge` (specifying `scope="global"` or
+  `scope="project"`) to dynamically fetch only the domain-specific constraints relevant to the task (e.g., Auth, DB, UI)
+  instead of loading the entire `ANCHORS.md` file.
+- **Auto-Linked Validation**: When loading or reviewing a task, the `context-manager` automatically validates and
+  resolves `@task-[ID]`, `@ki/[Name]`, and `@anchor/[Key]` tags. Utilize these tags when designing tasks to enrich the
+  execution context for downstream agents.
 
 ---
 
@@ -32,7 +34,7 @@ Use MCP tools **in parallel** to map the impact area:
 
 ---
 
-## Phase 2: Architecture 🏗️
+## Phase 2: Design 🏗️
 
 Translate `features/YYYY-MM-DD-{slug}/spec.md` into design artifacts, co-located in the same feature directory. **State
 Machine Enforcement**: You MUST follow this process sequence:

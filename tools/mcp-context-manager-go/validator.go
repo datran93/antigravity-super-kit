@@ -1,8 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -29,19 +31,46 @@ func ReviewCheckpoint(workspacePath, taskID string) (string, error) {
 	defer db.Close()
 
 	row := db.QueryRow(
-		`SELECT status, completed_steps, next_steps, active_files, git_sha
-         FROM checkpoints WHERE task_id = ?`,
+		`SELECT status, description, notes, acceptance_criteria
+         FROM tasks WHERE task_id = ?`,
 		taskID,
 	)
-	var status, compStr, nxtStr, activeStr, storedSHA string
-	if err := row.Scan(&status, &compStr, &nxtStr, &activeStr, &storedSHA); err != nil {
-		return fmt.Sprintf("❌ Checkpoint '%s' not found.", taskID), nil
+	var status, descStr, notesStr string
+	var ac sql.NullString
+	if err := row.Scan(&status, &descStr, &notesStr, &ac); err != nil {
+		return fmt.Sprintf("❌ Task '%s' not found.", taskID), nil
+	}
+	acStr := ac.String
+
+	sRows, err := db.Query("SELECT name, status, notes FROM steps WHERE task_id = ?", taskID)
+	if err != nil {
+		return "", err
+	}
+	defer sRows.Close()
+
+	var comp, nxt []string
+	var allStepNames []string
+	var allStepNotes []string
+	for sRows.Next() {
+		var name, s string
+		var ns sql.NullString
+		if err := sRows.Scan(&name, &s, &ns); err == nil {
+			allStepNames = append(allStepNames, name)
+			if ns.Valid {
+				allStepNotes = append(allStepNotes, ns.String)
+			}
+			if s == "completed" {
+				comp = append(comp, name)
+			} else {
+				nxt = append(nxt, name)
+			}
+		}
 	}
 
-	var comp, nxt, active []string
-	json.Unmarshal([]byte(compStr), &comp)
-	json.Unmarshal([]byte(nxtStr), &nxt)
-	if activeStr != "" {
+	var activeStr string
+	var active []string
+	_ = db.QueryRow("SELECT locked_files FROM intents WHERE task_id = ?", taskID).Scan(&activeStr)
+	if activeStr != "" && activeStr != "[]" {
 		json.Unmarshal([]byte(activeStr), &active)
 	}
 
@@ -71,7 +100,6 @@ func ReviewCheckpoint(workspacePath, taskID string) (string, error) {
 			Message: "Task is in_progress but active_files is empty. Call declare_intent to set locked files.",
 		})
 	} else {
-		// Contextual success message: completed tasks don't need a file lock.
 		var activeMsg string
 		switch strings.ToLower(status) {
 		case "completed":
@@ -95,7 +123,6 @@ func ReviewCheckpoint(workspacePath, taskID string) (string, error) {
 	for _, s := range allSteps {
 		if strings.HasPrefix(s, "[") {
 			hasPhaseLabels = true
-			// Valid formats (primary): [T1], [T2] — legacy: [P0-T1], [P0], [P1-T2]
 			end := strings.Index(s, "]")
 			if end < 0 {
 				badFormat = append(badFormat, s)
@@ -146,34 +173,52 @@ func ReviewCheckpoint(workspacePath, taskID string) (string, error) {
 		})
 	}
 
-	// ── Check 5: Git SHA present and HEAD match ───────────────────────────────
+	// ── Check 5: Git Context ───────────────────────────────
 	currentSHA := captureGitSHA(workspacePath)
-	if storedSHA == "" {
+	if currentSHA == "" {
 		checks = append(checks, ValidationResult{
 			Check:   "Git SHA Tracking",
 			Passed:  false,
-			Message: "No git_sha stored. Run save_checkpoint to capture the current HEAD.",
-		})
-	} else if currentSHA != "" && storedSHA != currentSHA {
-		checks = append(checks, ValidationResult{
-			Check:  "Git SHA Tracking",
-			Passed: false,
-			Message: fmt.Sprintf(
-				"Checkpoint SHA (%s) differs from HEAD (%s). Run: git log --oneline %s..HEAD",
-				storedSHA[:min(7, len(storedSHA))],
-				currentSHA[:min(7, len(currentSHA))],
-				storedSHA[:min(7, len(storedSHA))],
-			),
+			Message: "Not a git repository or git is unavailable.",
 		})
 	} else {
-		shaLabel := "not a git repo"
-		if storedSHA != "" {
-			shaLabel = storedSHA[:min(7, len(storedSHA))]
-		}
 		checks = append(checks, ValidationResult{
 			Check:   "Git SHA Tracking",
 			Passed:  true,
-			Message: fmt.Sprintf("Git SHA matches HEAD: %s", shaLabel),
+			Message: fmt.Sprintf("Git repository active at HEAD: %s", currentSHA[:min(7, len(currentSHA))]),
+		})
+	}
+
+	// ── Check 6: Broken Link Validator ────────────────────────────────────
+	var fullText strings.Builder
+	fullText.WriteString(descStr + "\n" + notesStr + "\n" + acStr + "\n")
+	for _, n := range allStepNames {
+		fullText.WriteString(n + "\n")
+	}
+	for _, n := range allStepNotes {
+		fullText.WriteString(n + "\n")
+	}
+
+	brokenLinks := validateBrokenLinks(db, fullText.String())
+	if len(brokenLinks) > 0 {
+		uniqueLinks := make(map[string]bool)
+		for _, l := range brokenLinks {
+			uniqueLinks[l] = true
+		}
+		var ul []string
+		for k := range uniqueLinks {
+			ul = append(ul, k)
+		}
+		checks = append(checks, ValidationResult{
+			Check:   "Reference Link Integrity",
+			Passed:  false,
+			Message: fmt.Sprintf("Broken links detected: %s", strings.Join(ul, ", ")),
+		})
+	} else {
+		checks = append(checks, ValidationResult{
+			Check:   "Reference Link Integrity",
+			Passed:  true,
+			Message: "All @task, @ki, and @anchor references are valid.",
 		})
 	}
 
@@ -223,7 +268,6 @@ func isValidPhaseLabel(s string) bool {
 	return len(rest) >= 2 && rest[0] == 'T'
 }
 
-// renderValidationReport formats the list of checks as a markdown report.
 func renderValidationReport(taskID string, checks []ValidationResult) string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("## 🔍 Checkpoint Review: `%s`\n\n", taskID))
@@ -247,4 +291,63 @@ func renderValidationReport(taskID string, checks []ValidationResult) string {
 		sb.WriteString(fmt.Sprintf(" ⚠️ %d issue(s) require attention before proceeding.", total-passed))
 	}
 	return sb.String()
+}
+
+func validateBrokenLinks(db *sql.DB, text string) []string {
+	var brokenLinks []string
+
+	taskRe := regexp.MustCompile(`(?i)@task-([a-zA-Z0-9_-]+)`)
+	for _, m := range taskRe.FindAllStringSubmatch(text, -1) {
+		tagID := m[1]
+		var dummy int
+		if err := db.QueryRow("SELECT 1 FROM tasks WHERE task_id = ?", tagID).Scan(&dummy); err == sql.ErrNoRows {
+			brokenLinks = append(brokenLinks, fmt.Sprintf("@task-%s", tagID))
+		}
+	}
+
+	kiRe := regexp.MustCompile(`(?i)@ki/([a-zA-Z0-9_-]+)`)
+	kiMatches := kiRe.FindAllStringSubmatch(text, -1)
+	if len(kiMatches) > 0 {
+		globalDB, _ := GetGlobalDBConnection()
+		if globalDB != nil {
+			defer globalDB.Close()
+		}
+		for _, m := range kiMatches {
+			tagName := m[1]
+			var dummy int
+			if err := db.QueryRow("SELECT 1 FROM knowledge_fts WHERE tactic_name = ?", tagName).Scan(&dummy); err == sql.ErrNoRows {
+				if globalDB != nil {
+					if err2 := globalDB.QueryRow("SELECT 1 FROM global_knowledge_fts WHERE tactic_name = ?", tagName).Scan(&dummy); err2 == sql.ErrNoRows {
+						brokenLinks = append(brokenLinks, fmt.Sprintf("@ki/%s", tagName))
+					}
+				} else {
+					brokenLinks = append(brokenLinks, fmt.Sprintf("@ki/%s", tagName))
+				}
+			}
+		}
+	}
+
+	anchorRe := regexp.MustCompile(`(?i)@anchor/([a-zA-Z0-9_-]+)`)
+	anchorMatches := anchorRe.FindAllStringSubmatch(text, -1)
+	if len(anchorMatches) > 0 {
+		globalDB, _ := GetGlobalDBConnection()
+		if globalDB != nil {
+			defer globalDB.Close()
+		}
+		for _, m := range anchorMatches {
+			tagName := m[1]
+			var dummy int
+			if err := db.QueryRow("SELECT 1 FROM anchors WHERE key = ?", tagName).Scan(&dummy); err == sql.ErrNoRows {
+				if globalDB != nil {
+					if err2 := globalDB.QueryRow("SELECT 1 FROM global_anchors WHERE key = ?", tagName).Scan(&dummy); err2 == sql.ErrNoRows {
+						brokenLinks = append(brokenLinks, fmt.Sprintf("@anchor/%s", tagName))
+					}
+				} else {
+					brokenLinks = append(brokenLinks, fmt.Sprintf("@anchor/%s", tagName))
+				}
+			}
+		}
+	}
+
+	return brokenLinks
 }

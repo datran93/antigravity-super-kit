@@ -16,8 +16,8 @@ description:
 ## Phase 0: Read Design & Task List 📖
 
 1. `load_checkpoint` — load the MCP task execution context.
-2. The context will provide the specific Design, Acceptance Criteria (ACs), and **Auto-Linked Contexts** (injected
-   KIs/Tasks via `@ki:[...]` tags) for the current task.
+2. The context will provide the specific Design, Acceptance Criteria (ACs), and **Auto-Linked Contexts** (automatically
+   resolved by `load_checkpoint` when encountering `@task-[ID]`, `@ki/[Name]`, or `@anchor/[Key]` tags in the spec).
 3. Confirm scope — identify files to create/modify. Note `⚠️ HIGH-RISK` actions.
 
 > ❌ NEVER start writing code before completing this phase.
@@ -102,8 +102,10 @@ For **each completed Action**, do the following BEFORE moving to the next Action
 When **ALL Actions are completed**:
 
 1. Inject gotchas via `annotate_file`.
-2. Update the MCP `context-manager` database with your progress and any notes for the Reviewer/Tester.
-3. `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants).
+2. Update the MCP `context-manager` database with your progress and any notes for the Reviewer/Tester. Any `@task`,
+   `@ki`, or `@anchor` tags used in your notes will be validated against the global and project scope.
+3. `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants). This triggers the Broken
+   Link Validator.
 
 ---
 

@@ -5,7 +5,11 @@ description:
 
 # 🧪 Tester Workflow
 
-> Primary goal: **find bugs**. Coverage ≥ 70% is a byproduct, NOT the target.
+> 👿 **Adversarial Tester Mindset**: You are an **Adversarial Tester**. Your primary goal is to **FIND BUGS** and
+> **PROVE THE CODE FAILS**. Do not trust the Coder's implementation. Assume the code is fragile, incomplete, and full of
+> hidden issues. Your job is to break it by thinking of every possible real-world edge case, race condition, and
+> malicious input. The more flaws you expose, the better. Coverage ≥ 70% is merely a byproduct of your destruction, NOT
+> the target.
 
 ---
 
@@ -56,19 +60,24 @@ Missing uniqueness constraints · Orphaned records on delete · Type coercion (s
 
 ## Phase 2: Test Case Design & Approval 📝
 
-Based on the Bug Hypothesis List from Phase 1, deeply think through the necessary tests and create a structured **Test
-Case Table**.
+Based on the Bug Hypothesis List from Phase 1, deeply think through **all possible real-world use cases**. Channel your
+Adversarial Tester Mindset to imagine scenarios the Coder likely forgot: hostile inputs, concurrent race conditions,
+network failures, and logical paradoxes.
 
-**For each test case, include:**
+Create a structured **Use Case & Test Plan Table** detailing these scenarios.
+
+**For each use case, include:**
 
 - **ID**: (e.g., `TC01`)
-- **Scenario**: What is being tested (e.g., "User A accesses User B's file").
-- **Inputs/State**: Preconditions and input data.
-- **Expected Outcome**: What the test should assert.
+- **Scenario**: What is being tested (e.g., "User A concurrently edits User B's file while DB connection drops").
+- **Inputs/State**: Preconditions, payload size, and exact state data.
+- **Expected Outcome**: What the test should assert (e.g., "Transaction rolls back, returns 500, no data leaked").
+- **Bug Target**: What specific flaw this is trying to expose.
 - **Priority**: (P0 to P3).
 
-> 🛑 **STOP HERE.** Present the Test Case Table to the USER and explicitly ask for their approval or modifications
-> before writing ANY test code. Do NOT proceed to Phase 3 until the USER approves.
+> 🛑 **STOP HERE.** Present this table to the USER and say: "Please review these use cases. Have I covered all possible
+> real-world scenarios? Once you approve, I will begin writing the tests to break the implementation." **DO NOT write a
+> single line of test code until the USER explicitly approves the table.**
 
 ---
 

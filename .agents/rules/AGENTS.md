@@ -50,6 +50,10 @@ Distinct, non-overlapping roles. Each produces a specific output and **stops**. 
 6. **No Destruction**: NEVER delete existing API contracts, database columns, or core functionality without explicit
    USER confirmation.
 7. **No Assumptions**: If requirements are vague, stop and clarify via Socratic questioning before writing any code.
+8. **Auto-Linking Contexts**: Actively use reference tags (`@task-[task_id]`, `@ki/[ki_name]`, `@anchor/[key]`) in
+   markdown files (spec, design). The `context-manager` automatically injects their content during execution.
+9. **Scope Awareness**: Use `scope="global"` in `manage_anchors` and `recall_knowledge` for cross-project organizational
+   patterns. Use `scope="project"` for project-specific constraints.
 
 ### Drift Detection (Panic Protocol)
 

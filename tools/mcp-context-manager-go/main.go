@@ -305,6 +305,7 @@ func main() {
 	mcpServer.AddTool(mcp.NewTool("manage_anchors",
 		mcp.WithDescription("Manage architectural anchors. Action can be 'set', 'get', or 'list'."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("scope", mcp.Description("Scope: 'project' or 'global' (default 'project')")),
 		mcp.WithString("action", mcp.Required(), mcp.Description("Action (set, get, list)")),
 		mcp.WithString("key", mcp.Description("Anchor key")),
 		mcp.WithString("value", mcp.Description("Anchor value")),
@@ -313,6 +314,13 @@ func main() {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		action, _ := args["action"].(string)
+
+		scope := "project"
+		if val, ok := args["scope"]; ok && val != nil {
+			if str, ok := val.(string); ok && str != "" {
+				scope = str
+			}
+		}
 
 		var key, value, rule string
 		if val, ok := args["key"]; ok && val != nil {
@@ -325,7 +333,7 @@ func main() {
 			rule, _ = val.(string)
 		}
 
-		res, err := ManageAnchors(workspacePath, action, key, value, rule)
+		res, err := ManageAnchors(workspacePath, scope, action, key, value, rule)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
@@ -336,12 +344,20 @@ func main() {
 	mcpServer.AddTool(mcp.NewTool("recall_knowledge",
 		mcp.WithDescription("Recall relevant Knowledge Items (Local RAG) based on a search query using SQLite FTS5."),
 		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("scope", mcp.Description("Scope: 'project' or 'global' (default 'project')")),
 		mcp.WithString("query", mcp.Required(), mcp.Description("Search query")),
 		mcp.WithNumber("top_k", mcp.Description("Top K results")),
 	), WithMiddlewares("recall_knowledge", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.GetArguments()
 		workspacePath, _ := args["workspace_path"].(string)
 		query, _ := args["query"].(string)
+
+		scope := "project"
+		if val, ok := args["scope"]; ok && val != nil {
+			if str, ok := val.(string); ok && str != "" {
+				scope = str
+			}
+		}
 
 		topK := 3
 		if val, ok := args["top_k"]; ok && val != nil {
@@ -350,7 +366,7 @@ func main() {
 			}
 		}
 
-		res, err := RecallKnowledge(workspacePath, query, topK)
+		res, err := RecallKnowledge(workspacePath, scope, query, topK)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}

@@ -12,7 +12,7 @@ func TestManageAnchors_SetGetList(t *testing.T) {
 	tempDir := t.TempDir()
 
 	// Set
-	res, err := ManageAnchors(tempDir, "set", "go_version", "1.25", "Use Go 1.25+ features")
+	res, err := ManageAnchors(tempDir, "project", "set", "go_version", "1.25", "Use Go 1.25+ features")
 	if err != nil {
 		t.Fatalf("ManageAnchors set: %v", err)
 	}
@@ -21,7 +21,7 @@ func TestManageAnchors_SetGetList(t *testing.T) {
 	}
 
 	// Get
-	res, err = ManageAnchors(tempDir, "get", "go_version", "", "")
+	res, err = ManageAnchors(tempDir, "project", "get", "go_version", "", "")
 	if err != nil {
 		t.Fatalf("ManageAnchors get: %v", err)
 	}
@@ -30,7 +30,7 @@ func TestManageAnchors_SetGetList(t *testing.T) {
 	}
 
 	// List
-	res, err = ManageAnchors(tempDir, "list", "", "", "")
+	res, err = ManageAnchors(tempDir, "project", "list", "", "", "")
 	if err != nil {
 		t.Fatalf("ManageAnchors list: %v", err)
 	}
@@ -39,7 +39,7 @@ func TestManageAnchors_SetGetList(t *testing.T) {
 	}
 
 	// Unknown action
-	res, err = ManageAnchors(tempDir, "delete", "go_version", "", "")
+	res, err = ManageAnchors(tempDir, "project", "delete", "go_version", "", "")
 	if err != nil {
 		t.Fatalf("unexpected error on unknown action: %v", err)
 	}
@@ -50,7 +50,7 @@ func TestManageAnchors_SetGetList(t *testing.T) {
 
 func TestManageAnchors_GetMissing(t *testing.T) {
 	tempDir := t.TempDir()
-	res, err := ManageAnchors(tempDir, "get", "nonexistent", "", "")
+	res, err := ManageAnchors(tempDir, "project", "get", "nonexistent", "", "")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -61,7 +61,7 @@ func TestManageAnchors_GetMissing(t *testing.T) {
 
 func TestManageAnchors_EmptyList(t *testing.T) {
 	tempDir := t.TempDir()
-	res, err := ManageAnchors(tempDir, "list", "", "", "")
+	res, err := ManageAnchors(tempDir, "project", "list", "", "", "")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

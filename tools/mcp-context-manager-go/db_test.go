@@ -108,7 +108,7 @@ func TestGovernanceOperations(t *testing.T) {
 	}
 
 	// Manage anchors
-	_, err = ManageAnchors(tempDir, "set", "global_rule", "val", "rule1")
+	_, err = ManageAnchors(tempDir, "project", "set", "global_rule", "val", "rule1")
 	if err != nil {
 		t.Fatalf("Failed to manage anchors")
 	}

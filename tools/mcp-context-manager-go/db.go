@@ -259,12 +259,47 @@ func initializeGlobalSchema(db *sql.DB) error {
 			response_status TEXT,
 			response_error TEXT
 		)`,
+		`CREATE TABLE IF NOT EXISTS global_anchors (
+            key TEXT PRIMARY KEY,
+            value TEXT,
+            rule TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
 	}
 
 	for _, query := range createTableQueries {
 		if _, err := db.Exec(query); err != nil {
 			return fmt.Errorf("failed to initialize global schema query:\n%s\nerror: %v", query, err)
 		}
+	}
+
+	if err := tryCreateGlobalFTS5(db); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// tryCreateGlobalFTS5 creates the global_knowledge_fts virtual table using FTS5.
+func tryCreateGlobalFTS5(db *sql.DB) error {
+	_, err := db.Exec(`CREATE VIRTUAL TABLE IF NOT EXISTS global_knowledge_fts USING fts5(
+		tactic_name,
+		ki_path UNINDEXED,
+		summary,
+		decisions
+	)`)
+	if err == nil {
+		return nil // FTS5 available
+	}
+	// FTS5 unavailable — create equivalent plain table so LIKE queries work.
+	_, plainErr := db.Exec(`CREATE TABLE IF NOT EXISTS global_knowledge_fts (
+		tactic_name TEXT,
+		ki_path     TEXT,
+		summary     TEXT,
+		decisions   TEXT
+	)`)
+	if plainErr != nil {
+		return fmt.Errorf("global_knowledge_fts setup failed (FTS5: %v, plain: %v)", err, plainErr)
 	}
 	return nil
 }

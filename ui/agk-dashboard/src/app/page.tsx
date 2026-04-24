@@ -12,21 +12,50 @@ export default function Dashboard() {
   const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [expandedKiId, setExpandedKiId] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchTasks().then(setTasks);
-    fetchKnowledgeItems().then(setKnowledgeItems);
-    fetchAuditLogs().then(setAuditLogs);
-  }, []);
+    let isMounted = true;
+
+    const pollData = async () => {
+      const newTasks = await fetchTasks();
+      const newKnowledge = await fetchKnowledgeItems();
+      const newLogs = await fetchAuditLogs();
+
+      if (isMounted) {
+        setTasks(newTasks);
+        setKnowledgeItems(newKnowledge);
+        setAuditLogs(newLogs);
+      }
+
+      if (selectedTaskId && isMounted) {
+        const steps = await fetchSteps(selectedTaskId);
+        if (isMounted) {
+          setSelectedTaskSteps(steps);
+        }
+      }
+    };
+
+    pollData(); // initial fetch
+    const interval = setInterval(pollData, 2000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [selectedTaskId]);
 
   const handleTaskClick = async (taskId: string) => {
+    setSelectedTaskId(taskId);
     const steps = await fetchSteps(taskId);
     setSelectedTaskSteps(steps);
   };
 
+  const selectedTask = tasks.find((t) => t.task_id === selectedTaskId);
+
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col font-sans">
-      <header className="border-b border-gray-800 bg-gray-900 p-4">
+    <div className="h-screen bg-gray-950 text-gray-100 flex flex-col font-sans overflow-hidden">
+      <header className="border-b border-gray-800 bg-gray-900 p-4 shrink-0">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
             Antigravity Kit Dashboard
@@ -60,15 +89,15 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-7xl mx-auto w-full p-6">
+      <main className="flex-1 max-w-7xl mx-auto w-full p-6 flex flex-col min-h-0 overflow-hidden">
         {activeTab === "tasks" && (
-          <div className="flex gap-6 h-full">
+          <div className="flex gap-6 h-full min-h-0">
             {/* Task List */}
-            <div className="w-1/3 flex flex-col gap-4">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
+            <div className="w-1/3 flex flex-col gap-4 min-h-0">
+              <h2 className="text-lg font-semibold flex items-center gap-2 shrink-0">
                 <ScrollText size={18} className="text-gray-400" /> All Tasks
               </h2>
-              <div className="flex flex-col gap-3 overflow-y-auto pr-2 pb-10">
+              <div className="flex flex-col gap-3 overflow-y-auto pr-2 pb-10 flex-1">
                 {tasks.map((task) => (
                   <div
                     key={task.task_id}
@@ -97,10 +126,19 @@ export default function Dashboard() {
             </div>
 
             {/* Task Details / Steps Kanban */}
-            <div className="w-2/3 bg-gray-900/50 rounded-xl border border-gray-800 p-6 flex flex-col">
-              {selectedTaskSteps.length > 0 ? (
+            <div className="w-2/3 bg-gray-900/50 rounded-xl border border-gray-800 p-6 flex flex-col min-h-0 overflow-hidden">
+              {selectedTaskId && selectedTask ? (
                 <>
-                  <h2 className="text-lg font-semibold mb-6">Task Steps</h2>
+                  <div className="mb-4 shrink-0">
+                    <h2 className="text-xl font-bold mb-2">{selectedTask.task_id} Details</h2>
+                    {selectedTask.acceptance_criteria && (
+                      <div className="bg-gray-800/50 rounded p-4 border border-gray-700 mt-3">
+                        <h3 className="text-sm font-semibold text-gray-400 uppercase mb-2">Acceptance Criteria</h3>
+                        <p className="text-sm text-gray-300 whitespace-pre-wrap">{selectedTask.acceptance_criteria}</p>
+                      </div>
+                    )}
+                  </div>
+                  <h2 className="text-lg font-semibold mb-4 shrink-0">Task Steps</h2>
                   <div className="grid grid-cols-2 gap-6 flex-1 min-h-0">
                     {/* Pending Column */}
                     <div className="flex flex-col gap-3 overflow-y-auto pr-2 pb-4">
@@ -155,11 +193,11 @@ export default function Dashboard() {
         )}
 
         {activeTab === "knowledge" && (
-          <div className="flex flex-col gap-6">
-            <h2 className="text-lg font-semibold flex items-center gap-2">
+          <div className="flex flex-col gap-6 h-full min-h-0">
+            <h2 className="text-lg font-semibold flex items-center gap-2 shrink-0">
               <Network size={18} className="text-purple-400" /> Knowledge Items
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto flex-1 pb-10 pr-2">
               {knowledgeItems.map((ki) => (
                 <div
                   key={ki.ki_path}
@@ -167,13 +205,15 @@ export default function Dashboard() {
                   className="p-5 rounded-xl bg-gray-900 border border-gray-800 hover:border-purple-500/30 transition-colors cursor-pointer"
                 >
                   <h3 className="font-medium text-purple-300 mb-2">{ki.tactic_name}</h3>
-                  <p className={`text-sm text-gray-400 mb-4 ${expandedKiId === ki.ki_path ? "" : "line-clamp-3"}`}>
+                  <p
+                    className={`text-sm text-gray-400 mb-4 whitespace-pre-wrap break-words ${expandedKiId === ki.ki_path ? "" : "line-clamp-3"}`}
+                  >
                     {ki.summary}
                   </p>
                   {expandedKiId === ki.ki_path && ki.decisions && (
                     <div className="mb-4 p-3 bg-gray-950 rounded border border-gray-800">
                       <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Decisions</h4>
-                      <p className="text-sm text-gray-400">{ki.decisions}</p>
+                      <p className="text-sm text-gray-400 whitespace-pre-wrap break-words">{ki.decisions}</p>
                     </div>
                   )}
                   <div className="text-xs text-gray-500 font-mono bg-gray-950 px-2 py-1 rounded inline-block">
@@ -187,11 +227,11 @@ export default function Dashboard() {
         )}
 
         {activeTab === "audit" && (
-          <div className="flex flex-col gap-6">
-            <h2 className="text-lg font-semibold flex items-center gap-2">
+          <div className="flex flex-col gap-6 h-full min-h-0">
+            <h2 className="text-lg font-semibold flex items-center gap-2 shrink-0">
               <Activity size={18} className="text-emerald-400" /> Global Audit Logs
             </h2>
-            <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+            <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-y-auto flex-1">
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-gray-400 bg-gray-950/50 uppercase border-b border-gray-800">
                   <tr>

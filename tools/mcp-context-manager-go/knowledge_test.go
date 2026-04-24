@@ -86,7 +86,7 @@ func TestRecallKnowledge_FTSOnly(t *testing.T) {
 	}
 
 	// Recall with a related query
-	out, err := RecallKnowledge(dir, "goroutine channel concurrency", 3)
+	out, err := RecallKnowledge(dir, "project", "goroutine channel concurrency", 3)
 	if err != nil {
 		t.Fatalf("RecallKnowledge failed: %v", err)
 	}
@@ -100,7 +100,7 @@ func TestRecallKnowledge_FTSOnly(t *testing.T) {
 
 func TestRecallKnowledge_EmptyQuery(t *testing.T) {
 	dir := t.TempDir()
-	out, err := RecallKnowledge(dir, "!!!###", 3)
+	out, err := RecallKnowledge(dir, "project", "!!!###", 3)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestRecallKnowledge_EmptyQuery(t *testing.T) {
 
 func TestRecallKnowledge_NoResults(t *testing.T) {
 	dir := t.TempDir()
-	out, err := RecallKnowledge(dir, "xyznonexistentquery", 3)
+	out, err := RecallKnowledge(dir, "project", "xyznonexistentquery", 3)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

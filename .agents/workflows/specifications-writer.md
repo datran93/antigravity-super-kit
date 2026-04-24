@@ -100,9 +100,10 @@ Write `features/YYYY-MM-DD-{slug}/spec.md` following the canonical template at `
   This lets downstream agents (Planner, Coder, Reviewer) load only the matching ANCHORS domains instead of the full
   file. The `quality` domain is always implied and does NOT need to be listed.
 
-- **Auto-Linking Context** (MANDATORY): If the feature relates to existing patterns or other tasks, you MUST inject
-  `@ki:[Tên-KI]` or `@task:[Task-ID]` directly into the Description, Notes, or Acceptance Criteria. The
-  `context-manager` will automatically resolve these tags at runtime to inject context for downstream agents.
+- **Auto-Linking Context** (MANDATORY): If the feature relates to existing patterns, other tasks, or specific rules, you
+  MUST inject `@ki/[Name]`, `@task-[ID]`, or `@anchor/[Key]` directly into the Description, Notes, or Acceptance
+  Criteria. The `context-manager` will automatically resolve these tags at runtime to inject context for downstream
+  agents.
 
 Save state via `save_checkpoint`.
 
