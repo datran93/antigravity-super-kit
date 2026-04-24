@@ -17,7 +17,9 @@ description:
    - `design.md`
    - task plan from MCP context
 3. Read `ANCHORS.md` — constraints to validate against.
-4. If any artifact is missing → report which artifact is missing → STOP.
+4. `retrieve_context` — assemble the full context pack (KIs, docs, anchors, tasks) for cross-referencing.
+5. `search_docs` — check for `@doc/` structured documentation related to the task domain.
+6. If any artifact is missing → report which artifact is missing → STOP.
 
 > ❌ NEVER proceed without at least spec + design + task plan.
 

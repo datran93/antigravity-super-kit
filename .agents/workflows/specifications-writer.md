@@ -25,6 +25,8 @@ NEVER plan or write code. Interview the USER first.
 2. `search_code` — find semantically related features.
 3. `list_tables` / `inspect_schema` — understand existing entities.
 4. `recall_knowledge` — retrieve relevant KIs.
+5. `retrieve_context` — assemble a unified context pack (KIs + docs + anchors + tasks) for the domain.
+6. `search_docs` — check for existing `@doc/` structured documentation on the domain.
 
 **Output**: Brief "Existing Landscape" summary: entities, patterns, data models, integration points.
 

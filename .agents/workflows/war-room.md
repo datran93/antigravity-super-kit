@@ -14,9 +14,11 @@ Use this workflow to prevent rushed code changes when a critical bug or producti
 Gather undeniable proof of what failed.
 
 - Acknowledge the incident. Do not guess what the problem is.
+- `retrieve_context` — assemble the full context pack (KIs, docs, anchors, tasks) for the affected domain.
 - Create an **Evidence Checklist** (Logs, DB Queries, Network Traces, Stack Traces, Terminal outputs).
 - Read the necessary log files using `view_file`.
 - Check monitoring/infrastructure tools or databases using `@mcp:database-inspector` or `@mcp:mcp-http-client`.
+- `log_activity` (event_type: "incident_started") to record the incident in the audit trail.
 
 ### Phase 2: Root Cause Formularization 🧪
 
@@ -42,6 +44,7 @@ Once authorized, execute the patch.
 
 - Take on the `[Role: 💻 Coder]` to apply the code fix cleanly. Keep changes scoped exclusively to the Incident
   Resolution.
+- `log_activity` (event_type: "incident_resolved") with a summary of the root cause and fix.
 - After fixing, immediately switch to the `[Role: 🏗️ Planner]` and trigger **Context Compression (KI Generation)**:
   write an incident retrospective in `/knowledge/` containing what broke, why, and how to prevent it in the future.
 

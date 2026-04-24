@@ -14,7 +14,7 @@ var validateCmd = &cobra.Command{
 	Use:   "validate [workspace]",
 	Short: "Validate agent governance files and references",
 	Long: `Scans the workspace for:
-  • AGK.md / AGENTS.md presence and shim integrity
+  • AGENTS.md / ANCHORS.md presence
   • Broken @doc/path references in markdown files
   • Step label format compliance (STXX)
   • Workflow file existence`,
@@ -49,25 +49,12 @@ func runValidate(cmd *cobra.Command, args []string) error {
 	var issues []string
 	var passes []string
 
-	// 1. Check AGK.md exists
-	agkPath := filepath.Join(absPath, ".agents", "rules", "AGK.md")
-	if _, err := os.Stat(agkPath); os.IsNotExist(err) {
-		issues = append(issues, "❌ AGK.md not found at .agents/rules/AGK.md")
-	} else {
-		passes = append(passes, "✅ AGK.md exists")
-	}
-
-	// 2. Check AGENTS.md exists and is a shim
+	// 1. Check AGENTS.md exists (canonical agent governance)
 	agentsPath := filepath.Join(absPath, ".agents", "rules", "AGENTS.md")
 	if _, err := os.Stat(agentsPath); os.IsNotExist(err) {
 		issues = append(issues, "❌ AGENTS.md not found at .agents/rules/AGENTS.md")
 	} else {
-		content, _ := os.ReadFile(agentsPath)
-		if strings.Contains(string(content), "AGK.md") {
-			passes = append(passes, "✅ AGENTS.md is a shim → AGK.md")
-		} else {
-			issues = append(issues, "⚠️  AGENTS.md does not reference AGK.md (should be a shim)")
-		}
+		passes = append(passes, "✅ AGENTS.md exists")
 	}
 
 	// 3. Check workflows directory

@@ -18,6 +18,8 @@ Scan the environment to detect frameworks, structure, and potential risks.
   architecture and locate key definitions.
 - Use `@mcp:codebase-explorer` (`index_codebase` then `search_code`) for semantic discovery — find similar patterns,
   duplicated logic, and hidden coupling that AST alone cannot surface.
+- `retrieve_context` — assemble the full context pack (KIs, docs, anchors, tasks) to understand existing decisions.
+- `search_docs` — check for existing `@doc/` structured documentation on the domain being scanned.
 - Use `find_by_name` and `list_dir` to find configurations (`package.json`, `go.mod`, `pom.xml`, etc.).
 - Identify "**Stale Context**" or "Code smells" (e.g., duplicated logic, deprecated library usage, mixed formatting).
 

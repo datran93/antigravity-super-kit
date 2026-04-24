@@ -28,14 +28,23 @@ Gather all the outputs and knowledge from the recently completed sequence.
 
 Persist the knowledge and prune the context automatically.
 
-- Call `@mcp:context-manager` (`compact_memory`) with the `tactic_name`, `summary`, and `decisions` formed from Phase 1.
-- This tool will **automatically**:
-  - Generate the Markdown KI file {slug}.md inside the `knowledge/` directory.
-  - Reset the `active_files` and update the checkpoint notes with the KI path.
-  - Reset the drift failure counter and intent locks.
-- **Mental Flush**: Explicitly state to the USER that context compaction is complete. Actively ignore previous tool
-  outputs (CLI logs, debug traces, test outputs), retaining ONLY the global `**/rules/ANCHORS.md` and the objective of
-  the next `Tactic`.
+1. **Promote Session Memory**: Review ephemeral session memories via `manage_session_memory` (action: "list"). For
+   findings worth preserving long-term, use `manage_session_memory` (action: "promote") to convert them into permanent
+   Knowledge Items.
+2. **Create Structured Docs**: If any architectural patterns, API contracts, or design decisions emerged during this
+   tactic, register them via `create_doc` so they become `@doc/[path]` references accessible to future agents.
+3. **Compact**: Call `@mcp:context-manager` (`compact_memory`) with the `tactic_name`, `summary`, and `decisions` formed
+   from Phase 1.
+   - This tool will **automatically**:
+     - Generate the Markdown KI file {slug}.md inside the `knowledge/` directory.
+     - Reset the `active_files` and update the checkpoint notes with the KI path.
+     - Reset the drift failure counter and intent locks.
+4. **Log Activity**: Call `log_activity` (event_type: "session_compacted") to record the compaction in the audit trail.
+5. **Clear Session Memory**: Call `manage_session_memory` (action: "clear") to flush remaining ephemeral memories for the
+   session.
+6. **Mental Flush**: Explicitly state to the USER that context compaction is complete. Actively ignore previous tool
+   outputs (CLI logs, debug traces, test outputs), retaining ONLY the global `**/rules/ANCHORS.md` and the objective of
+   the next `Tactic`.
 
 ## 🔴 Critical Constraints
 

@@ -49,6 +49,9 @@ For each Action (one at a time, in order):
 
 Additional: `query-docs` for latest API specs · `search_docs` for `@doc/` references · cross-reference design doc.
 
+6. **Template Check**: Before creating new files (handlers, tests, repositories), check `.agents/templates/` for
+   matching boilerplate templates. Use them as starting points to ensure pattern conformity.
+
 ---
 
 ## Phase 3: Execution 🛠️
@@ -86,6 +89,7 @@ text if you find bugs to fix and explain the fix.
 - Run the **Verification Command** for the current Action. **ALWAYS append quiet flags** (e.g., `-short`, `--quiet`,
   `| grep FAIL`) to reduce terminal noise and save tokens.
 - Run the **existing test suite** — confirm no regressions. Use quiet flags to prevent flooding the context window.
+- Run `agk validate` to check for broken `@doc/path` references, missing governance files, and template integrity.
 - On **fail**: Fix and re-run. After 3 consecutive failures → `record_failure` → stop → ask USER.
 - On **pass**: Note result. NEVER commit — the USER decides when to commit.
 
@@ -98,15 +102,19 @@ Repeat **Phase 1 → 5** for each remaining Action.
 For **each completed Action**, do the following BEFORE moving to the next Action:
 
 1. `complete_task_step` with `active_files`.
-2. `clear_drift`.
+2. `log_activity` (event_type: "step_completed") to record the action in the audit trail.
+3. `clear_drift`.
 
 When **ALL Actions are completed**:
 
-1. Inject gotchas via `annotate_file`.
-2. Persist ephemeral findings via `manage_session_memory` (action: "add") for the Reviewer/Tester.
-3. Update the MCP `context-manager` database with your progress and any notes for the Reviewer/Tester. Any `@task`,
+1. **AC Validation**: Cross-reference the task's `acceptance_criteria` against what was implemented. Flag any unaddressed
+   ACs before marking complete.
+2. Inject gotchas via `annotate_file`.
+3. Persist ephemeral findings via `manage_session_memory` (action: "add") for the Reviewer/Tester.
+4. `log_activity` (event_type: "task_completed") with a summary of all changes.
+5. Update the MCP `context-manager` database with your progress and any notes for the Reviewer/Tester. Any `@task`,
    `@ki`, `@anchor`, or `@doc/` tags used in your notes will be validated against the global and project scope.
-4. `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants). This triggers the Broken
+6. `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants). This triggers the Broken
    Link Validator.
 
 ---

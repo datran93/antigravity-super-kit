@@ -172,7 +172,10 @@ Organize tasks into phases aligned with spec user stories:
 - **Structured Docs**: Use `create_doc` to register key design documents as `@doc/` references. This enables automatic
   cross-referencing and validation by the `review_checkpoint` tool.
 
-**MCP calls**: `initialize_task_plan` → `create_doc` (for design artifacts) → `save_checkpoint`
+- **Acceptance Criteria**: When calling `initialize_task_plan`, include the spec's Acceptance Criteria in the task
+  `acceptance_criteria` field. This enables the Coder to validate ACs on completion and the Reviewer to cross-reference.
+
+**MCP calls**: `initialize_task_plan` (with `acceptance_criteria`) → `create_doc` (for design artifacts) → `save_checkpoint`
 
 ---
 

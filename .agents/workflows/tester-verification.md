@@ -18,9 +18,13 @@ description:
 1. Read `features/YYYY-MM-DD-{slug}/design.md` — contracts, boundaries, expected behaviors.
 2. Check MCP context for completed actions, files created/modified, and notes.
 3. `load_checkpoint` — confirm completed Actions.
-4. **Context Pruning**: Load only relevant domain anchors via `manage_anchors(action="list")`. Always include
+4. `retrieve_context` — assemble a unified context pack (KIs + docs + anchors + tasks) for the domain.
+5. `list_activity` — review the audit trail. Verify all expected steps appear.
+6. `manage_session_memory` (action: "list") — read ephemeral findings, decisions, and gotchas left by the Coder.
+7. **Context Pruning**: Load only relevant domain anchors via `manage_anchors(action="list")`. Always include
    `[domain:quality]` and `[domain:security]` for testing.
-5. `search_code` — find existing test helpers and fixtures.
+8. `search_code` — find existing test helpers and fixtures.
+9. `search_docs` — check for `@doc/` documentation on the domain for additional context.
 
 > ❌ NEVER write tests before completing this phase.
 

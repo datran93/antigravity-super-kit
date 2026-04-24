@@ -4,9 +4,11 @@ trigger: always_on
 
 # AGK — Antigravity Kit Agent Governance
 
-> **Canonical source of truth** for agent behavior. All IDE-specific shims (AGENTS.md, GEMINI.md, CLAUDE.md)
-> should redirect here. ANCHORS.md remains separate — it holds immutable project constraints.
+> \*\*Always prefix shell commands with `rtk` to minimize token consumption.
 
+```bash
+rtk git status
+rtk cargo test
 ---
 
 ## 🛠️ MCP Priority (Use Over Bash)
@@ -15,13 +17,9 @@ trigger: always_on
 2. **State** → `context-manager` (checkpoint, intent, failure, knowledge, anchors, annotate, session_memory, docs)
 3. **Data** → `database-inspector` (tables, schema, queries)
 4. **External** → `gitlab`, `github-reader`, `mcp-http-client`
-5. **Design** → `figma-reader`, `stitch`
-6. Always prefix shell commands with `rtk` to minimize token consumption.
 
-```bash
-rtk git status
-rtk cargo test
 ```
+
 ---
 
 ## 🏛️ Role Architecture
