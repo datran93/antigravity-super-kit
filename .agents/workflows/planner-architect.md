@@ -15,8 +15,11 @@ description: Structured workflow for Planning and Architectural design. Produces
   `scope="project"`) to dynamically fetch only the domain-specific constraints relevant to the task (e.g., Auth, DB, UI)
   instead of loading the entire `ANCHORS.md` file.
 - **Auto-Linked Validation**: When loading or reviewing a task, the `context-manager` automatically validates and
-  resolves `@task-[ID]`, `@ki/[Name]`, and `@anchor/[Key]` tags. Utilize these tags when designing tasks to enrich the
-  execution context for downstream agents.
+  resolves `@task-[ID]`, `@ki/[Name]`, `@anchor/[Key]`, and `@doc/[path]` tags. Utilize these tags when designing tasks
+  to enrich the execution context for downstream agents.
+- **Session Memory**: Use `manage_session_memory` (action: "add") to persist ephemeral findings during design.
+  Promote important items to KIs via `manage_session_memory` (action: "promote") before compacting.
+- **Context Retrieval**: Use `retrieve_context` to assemble a unified context pack from KIs, docs, anchors, and tasks.
 
 ---
 
@@ -26,9 +29,11 @@ Use MCP tools **in parallel** to map the impact area:
 
 - `search_skills` — relevant specialized skills.
 - `recall_knowledge` — past KIs.
+- `retrieve_context` — unified context pack (KIs + docs + anchors + tasks).
 - `get_project_architecture` — existing code boundaries.
 - `search_code` — related implementations.
 - `get_table_sample` — schema formats if relevant.
+- `search_docs` — existing `@doc/` documentation for the domain.
 
 **Output**: Documented **Blast Radius** (affected files and components).
 
@@ -161,11 +166,13 @@ Organize tasks into phases aligned with spec user stories:
 - Phase 1 (Setup) and Phase 2 (Foundation) are always present
 - Last phase is always Polish & Cross-Cutting. It MUST include a task to update Knowledge Items / Anchors if
   architecture or patterns changed.
-- **Auto-Linking Context**: When describing tasks via `initialize_task_plan`, inject `@ki:[KI-Name]` or
-  `@task:[Task-ID]` into the task description or notes to ensure downstream agents (Coder/Tester) automatically receive
-  the required contextual knowledge at runtime.
+- **Auto-Linking Context**: When describing tasks via `initialize_task_plan`, inject `@ki:[KI-Name]`,
+  `@task:[Task-ID]`, or `@doc/[path]` into the task description or notes to ensure downstream agents (Coder/Tester)
+  automatically receive the required contextual knowledge at runtime.
+- **Structured Docs**: Use `create_doc` to register key design documents as `@doc/` references. This enables automatic
+  cross-referencing and validation by the `review_checkpoint` tool.
 
-**MCP calls**: `initialize_task_plan` → `save_checkpoint`
+**MCP calls**: `initialize_task_plan` → `create_doc` (for design artifacts) → `save_checkpoint`
 
 ---
 

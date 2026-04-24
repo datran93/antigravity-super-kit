@@ -42,18 +42,32 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID string) error {
 		return fmt.Errorf("query task: %v", err)
 	}
 
-	// 2. Fetch Steps
-	var completedSteps, nextSteps []string
-	rows, err := db.Query("SELECT name, status FROM steps WHERE task_id = ? ORDER BY created_at ASC", taskID)
+	// 2. Fetch Steps (with time tracking)
+	type stepEntry struct {
+		name      string
+		duration  string // e.g. "2m30s" or ""
+	}
+	var completedSteps, nextSteps []stepEntry
+	rows, err := db.Query("SELECT name, status, started_at, completed_at FROM steps WHERE task_id = ? ORDER BY created_at ASC", taskID)
 	if err == nil {
 		defer rows.Close()
 		for rows.Next() {
 			var name, s string
-			if err := rows.Scan(&name, &s); err == nil {
+			var startedAt, completedAt sql.NullString
+			if err := rows.Scan(&name, &s, &startedAt, &completedAt); err == nil {
+				dur := ""
+				if startedAt.Valid && completedAt.Valid {
+					t1, e1 := time.Parse(time.RFC3339, startedAt.String)
+					t2, e2 := time.Parse(time.RFC3339, completedAt.String)
+					if e1 == nil && e2 == nil {
+						dur = t2.Sub(t1).Truncate(time.Second).String()
+					}
+				}
+				entry := stepEntry{name: name, duration: dur}
 				if s == "completed" {
-					completedSteps = append(completedSteps, name)
+					completedSteps = append(completedSteps, entry)
 				} else {
-					nextSteps = append(nextSteps, name)
+					nextSteps = append(nextSteps, entry)
 				}
 			}
 		}
@@ -91,10 +105,14 @@ func WriteMarkdownProgress(db *sql.DB, workspacePath, taskID string) error {
 
 	content += "### 📋 Steps Overview\n\n"
 	for _, s := range completedSteps {
-		content += fmt.Sprintf("- [x] %s\n", s)
+		if s.duration != "" {
+			content += fmt.Sprintf("- [x] %s ⏱️ %s\n", s.name, s.duration)
+		} else {
+			content += fmt.Sprintf("- [x] %s\n", s.name)
+		}
 	}
 	for _, s := range nextSteps {
-		content += fmt.Sprintf("- [ ] %s\n", s)
+		content += fmt.Sprintf("- [ ] %s\n", s.name)
 	}
 	content += "\n"
 

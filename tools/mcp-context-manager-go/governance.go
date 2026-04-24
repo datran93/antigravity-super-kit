@@ -42,6 +42,9 @@ func DeclareIntent(workspacePath, taskID, tactic string, lockedFiles []string, t
 	if expiresAt > 0 {
 		ttlMsg = fmt.Sprintf("expires in %d min at %s", ttlMinutes, time.Unix(expiresAt, 0).Format("15:04:05"))
 	}
+	// T23: Auto-emit activity event
+	logActivityDB(db, "intent_declared", taskID, fmt.Sprintf("Tactic: %s, Files: %s", tactic, strings.Join(lockedFiles, ", ")))
+
 	return fmt.Sprintf("🔒 Intent declared. Lock applied to files: %s (%s)", strings.Join(lockedFiles, ", "), ttlMsg), nil
 }
 

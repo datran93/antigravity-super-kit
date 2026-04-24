@@ -104,6 +104,9 @@ func GetTaskSummary(workspacePath, taskID string) (string, error) {
 
 	linkedCtx := FetchAutoLinksContext(db, desc+"\n"+notes)
 
+	// T23: Auto-emit activity event
+	logActivityDB(db, "task_initialized", taskID, fmt.Sprintf("Steps: %d", total))
+
 	return fmt.Sprintf(
 		`{"task_id": %q, "status": %q, "progress": "%d/%d steps (%.0f%%)", "next_step": %q, "last_updated": %q, "context": %q}`,
 		taskID, status, compCount, total, pct, nextStep, updatedAt, linkedCtx,
@@ -136,8 +139,11 @@ func CompleteTaskStep(workspacePath, taskID, stepName string, activeFiles []stri
 			return fmt.Errorf("⚠️ Step '%s' is already completed.", stepName)
 		}
 
-		// Update step status
-		_, err = tx.Exec("UPDATE steps SET status = 'completed' WHERE step_id = ?", stepID)
+		// Update step status + time tracking
+		now := time.Now().UTC().Format(time.RFC3339)
+		// Set started_at if not already set (first activity on this step)
+		tx.Exec("UPDATE steps SET started_at = ? WHERE step_id = ? AND started_at IS NULL", now, stepID)
+		_, err = tx.Exec("UPDATE steps SET status = 'completed', completed_at = ? WHERE step_id = ?", now, stepID)
 		if err != nil {
 			return err
 		}
@@ -198,6 +204,9 @@ func CompleteTaskStep(workspacePath, taskID, stepName string, activeFiles []stri
 	}
 
 	_ = WriteMarkdownProgress(db, workspacePath, taskID)
+
+	// T23: Auto-emit activity event
+	logActivityDB(db, "step_completed", taskID, fmt.Sprintf("Step: %s", stepName))
 
 	return msg, nil
 }

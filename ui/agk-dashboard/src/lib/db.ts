@@ -65,12 +65,28 @@ export interface KnowledgeItem {
   decisions: string;
 }
 
+// Matches actual audit_logs schema
 export interface AuditLog {
   id: number;
   timestamp: string;
   tool_name: string;
-  arguments: string;
-  status: string;
-  error_message: string | null;
-  duration_ms: number;
+  request_payload: string;
+  response_status: string;
+  response_error: string | null;
+}
+
+export interface ActivityEvent {
+  id: number;
+  event_type: string;
+  task_id: string;
+  detail: string;
+  created_at: string;
+}
+
+export interface DocReference {
+  source_type: string;
+  source_id: string;
+  target_type: string;
+  target_id: string;
+  relation: string;
 }

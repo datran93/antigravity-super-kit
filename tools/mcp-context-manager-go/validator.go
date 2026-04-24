@@ -218,7 +218,7 @@ func ReviewCheckpoint(workspacePath, taskID string) (string, error) {
 		checks = append(checks, ValidationResult{
 			Check:   "Reference Link Integrity",
 			Passed:  true,
-			Message: "All @task, @ki, and @anchor references are valid.",
+			Message: "All @task, @ki, @anchor, and @doc references are valid.",
 		})
 	}
 
@@ -226,46 +226,18 @@ func ReviewCheckpoint(workspacePath, taskID string) (string, error) {
 	return renderValidationReport(taskID, checks), nil
 }
 
-// isValidPhaseLabel returns true for:
-//   - New format: "T1", "T2", "T10" (simple task IDs)
-//   - Legacy format: "P0", "P1", "P0-T1", "P2-T3"
+// isValidPhaseLabel returns true only for the canonical STXX format:
+//   - "ST01", "ST02", "ST10" (ST prefix followed by digits)
 func isValidPhaseLabel(s string) bool {
-	if len(s) == 0 {
+	if !strings.HasPrefix(s, "ST") || len(s) < 3 {
 		return false
 	}
-	// New format: [T1], [T2], [T10] or [ST01], [ST02]
-	if s[0] == 'T' || strings.HasPrefix(s, "ST") {
-		var rest string
-		if s[0] == 'T' {
-			rest = s[1:]
-		} else {
-			rest = s[2:]
-		}
-		if len(rest) == 0 {
+	for _, c := range s[2:] {
+		if c < '0' || c > '9' {
 			return false
 		}
-		for _, c := range rest {
-			if c < '0' || c > '9' {
-				return false
-			}
-		}
-		return true
 	}
-	// Legacy format: [P0], [P1], [P0-T1], [P2-T3]
-	if s[0] != 'P' {
-		return false
-	}
-	dashIdx := strings.Index(s, "-")
-	if dashIdx < 0 {
-		// "P0", "P1", etc.
-		return len(s) >= 2
-	}
-	// "P0-T1" format
-	if dashIdx < 2 {
-		return false
-	}
-	rest := s[dashIdx+1:]
-	return len(rest) >= 2 && rest[0] == 'T'
+	return true
 }
 
 func renderValidationReport(taskID string, checks []ValidationResult) string {
@@ -296,7 +268,8 @@ func renderValidationReport(taskID string, checks []ValidationResult) string {
 func validateBrokenLinks(db *sql.DB, text string) []string {
 	var brokenLinks []string
 
-	taskRe := regexp.MustCompile(`(?i)@task-([a-zA-Z0-9_-]+)`)
+	// @task-ID or @task-ID{relation} — strip optional {relation} suffix
+	taskRe := regexp.MustCompile(`(?i)@task-([a-zA-Z0-9_-]+)(?:\{[a-zA-Z0-9_-]+\})?`)
 	for _, m := range taskRe.FindAllStringSubmatch(text, -1) {
 		tagID := m[1]
 		var dummy int
@@ -346,6 +319,16 @@ func validateBrokenLinks(db *sql.DB, text string) []string {
 					brokenLinks = append(brokenLinks, fmt.Sprintf("@anchor/%s", tagName))
 				}
 			}
+		}
+	}
+
+	// @doc/path references — validate against docs table
+	docRe := regexp.MustCompile(`(?i)@doc/([a-zA-Z0-9_/.-]+)`)
+	for _, m := range docRe.FindAllStringSubmatch(text, -1) {
+		docPath := m[1]
+		var dummy int
+		if err := db.QueryRow("SELECT 1 FROM docs WHERE doc_path = ?", docPath).Scan(&dummy); err == sql.ErrNoRows {
+			brokenLinks = append(brokenLinks, fmt.Sprintf("@doc/%s", docPath))
 		}
 	}
 

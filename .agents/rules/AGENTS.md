@@ -2,16 +2,26 @@
 trigger: always_on
 ---
 
-# Antigravity Kit
+# AGK — Antigravity Kit Agent Governance
+
+> **Canonical source of truth** for agent behavior. All IDE-specific shims (AGENTS.md, GEMINI.md, CLAUDE.md)
+> should redirect here. ANCHORS.md remains separate — it holds immutable project constraints.
+
+---
 
 ## 🛠️ MCP Priority (Use Over Bash)
 
-1. **Research** → `codebase-explorer` (index, search, architecture), `context7`, `doc-researcher`, `skill-router`
-2. **State** → `context-manager` (checkpoint, intent, failure, knowledge, anchors, annotate)
+1. **Research** → `codebase-explorer` (index, search, architecture), `context7`, `doc-researcher`
+2. **State** → `context-manager` (checkpoint, intent, failure, knowledge, anchors, annotate, session_memory, docs)
 3. **Data** → `database-inspector` (tables, schema, queries)
 4. **External** → `gitlab`, `github-reader`, `mcp-http-client`
 5. **Design** → `figma-reader`, `stitch`
+6. Always prefix shell commands with `rtk` to minimize token consumption.
 
+```bash
+rtk git status
+rtk cargo test
+```
 ---
 
 ## 🏛️ Role Architecture
@@ -50,10 +60,13 @@ Distinct, non-overlapping roles. Each produces a specific output and **stops**. 
 6. **No Destruction**: NEVER delete existing API contracts, database columns, or core functionality without explicit
    USER confirmation.
 7. **No Assumptions**: If requirements are vague, stop and clarify via Socratic questioning before writing any code.
-8. **Auto-Linking Contexts**: Actively use reference tags (`@task-[task_id]`, `@ki/[ki_name]`, `@anchor/[key]`) in
-   markdown files (spec, design). The `context-manager` automatically injects their content during execution.
+8. **Auto-Linking Contexts**: Actively use reference tags (`@task-[task_id]`, `@ki/[ki_name]`, `@anchor/[key]`,
+   `@doc/[path]`) in markdown files (spec, design). The `context-manager` automatically injects their content during
+   execution.
 9. **Scope Awareness**: Use `scope="global"` in `manage_anchors` and `recall_knowledge` for cross-project organizational
    patterns. Use `scope="project"` for project-specific constraints.
+10. **Session Memory**: Use `manage_session_memory` to persist ephemeral findings, decisions, and patterns within a
+    session. Promote important items to KIs before compacting.
 
 ### Drift Detection (Panic Protocol)
 
@@ -93,5 +106,5 @@ NEVER auto-loops.
 
 ## 📌 Metadata
 
-- **Version**: 4.0.0
-- **Last Updated**: 2026-03-25
+- **Version**: 5.0.0
+- **Last Updated**: 2026-04-24

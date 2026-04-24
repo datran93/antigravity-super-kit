@@ -463,6 +463,192 @@ func main() {
 		}
 		return mcp.NewToolResultText(res), nil
 	}))
+	// manage_session_memory (T08: session-scoped ephemeral memory)
+	mcpServer.AddTool(mcp.NewTool("manage_session_memory",
+		mcp.WithDescription("Manage session-scoped ephemeral memory. Actions: add, list, promote, clear."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("action", mcp.Required(), mcp.Description("Action: add, list, promote, clear")),
+		mcp.WithString("session_id", mcp.Description("Session ID for scoping")),
+		mcp.WithString("category", mcp.Description("Category: finding, decision, pattern")),
+		mcp.WithString("content", mcp.Description("Memory content (for add) or memory ID (for promote)")),
+	), WithMiddlewares("manage_session_memory", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		action, _ := args["action"].(string)
+
+		var sessionID, category, content string
+		if val, ok := args["session_id"]; ok && val != nil {
+			sessionID, _ = val.(string)
+		}
+		if val, ok := args["category"]; ok && val != nil {
+			category, _ = val.(string)
+		}
+		if val, ok := args["content"]; ok && val != nil {
+			content, _ = val.(string)
+		}
+
+		res, err := ManageSessionMemory(workspacePath, action, sessionID, category, content)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	}))
+
+	// log_activity (T10: activity event audit trail)
+	mcpServer.AddTool(mcp.NewTool("log_activity",
+		mcp.WithDescription("Record an activity event in the audit trail."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("event_type", mcp.Required(), mcp.Description("Event type (e.g. step_completed, ki_created)")),
+		mcp.WithString("task_id", mcp.Description("Associated task ID")),
+		mcp.WithString("detail", mcp.Description("Event detail text")),
+	), WithMiddlewares("log_activity", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		eventType, _ := args["event_type"].(string)
+
+		var taskID, detail string
+		if val, ok := args["task_id"]; ok && val != nil {
+			taskID, _ = val.(string)
+		}
+		if val, ok := args["detail"]; ok && val != nil {
+			detail, _ = val.(string)
+		}
+
+		res, err := LogActivity(workspacePath, eventType, taskID, detail)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	}))
+
+	// list_activity (T10: query activity events)
+	mcpServer.AddTool(mcp.NewTool("list_activity",
+		mcp.WithDescription("List recent activity events with optional filtering."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("event_type", mcp.Description("Filter by event type")),
+		mcp.WithString("task_id", mcp.Description("Filter by task ID")),
+		mcp.WithNumber("limit", mcp.Description("Max results (default 20)")),
+	), WithMiddlewares("list_activity", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+
+		var eventType, taskID string
+		if val, ok := args["event_type"]; ok && val != nil {
+			eventType, _ = val.(string)
+		}
+		if val, ok := args["task_id"]; ok && val != nil {
+			taskID, _ = val.(string)
+		}
+
+		limit := 20
+		if val, ok := args["limit"]; ok && val != nil {
+			if num, ok2 := val.(float64); ok2 {
+				limit = int(num)
+			}
+		}
+
+		res, err := ListActivity(workspacePath, eventType, taskID, limit)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	}))
+
+	// create_doc (T12: structured documentation)
+	mcpServer.AddTool(mcp.NewTool("create_doc",
+		mcp.WithDescription("Create or update a structured documentation entry."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("doc_path", mcp.Required(), mcp.Description("Doc path (e.g. 'patterns/auth', 'architecture/overview')")),
+		mcp.WithString("title", mcp.Required(), mcp.Description("Document title")),
+		mcp.WithString("content", mcp.Description("Document content in Markdown")),
+	), WithMiddlewares("create_doc", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		docPath, _ := args["doc_path"].(string)
+		title, _ := args["title"].(string)
+
+		var content string
+		if val, ok := args["content"]; ok && val != nil {
+			content, _ = val.(string)
+		}
+
+		res, err := CreateDoc(workspacePath, docPath, title, content)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	}))
+
+	// get_doc (T12)
+	mcpServer.AddTool(mcp.NewTool("get_doc",
+		mcp.WithDescription("Retrieve a structured documentation entry by path."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("doc_path", mcp.Required(), mcp.Description("Doc path to retrieve")),
+	), WithMiddlewares("get_doc", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		docPath, _ := args["doc_path"].(string)
+
+		res, err := GetDoc(workspacePath, docPath)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	}))
+
+	// list_docs (T12)
+	mcpServer.AddTool(mcp.NewTool("list_docs",
+		mcp.WithDescription("List all structured documentation entries."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+	), WithMiddlewares("list_docs", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+
+		res, err := ListDocs(workspacePath)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	}))
+
+	// search_docs (T12)
+	mcpServer.AddTool(mcp.NewTool("search_docs",
+		mcp.WithDescription("Search structured documentation by keyword."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("query", mcp.Required(), mcp.Description("Search query")),
+	), WithMiddlewares("search_docs", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		query, _ := args["query"].(string)
+
+		res, err := SearchDocs(workspacePath, query)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	}))
+	// retrieve_context (T15: unified context assembly)
+	mcpServer.AddTool(mcp.NewTool("retrieve_context",
+		mcp.WithDescription("Assemble a context pack from KIs, docs, anchors, and tasks matching a query."),
+		mcp.WithString("workspace_path", mcp.Required(), mcp.Description("Workspace path")),
+		mcp.WithString("query", mcp.Required(), mcp.Description("Natural language query")),
+		mcp.WithString("scope", mcp.Description("Scope: 'project' or 'global' (default 'project')")),
+	), WithMiddlewares("retrieve_context", func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.GetArguments()
+		workspacePath, _ := args["workspace_path"].(string)
+		query, _ := args["query"].(string)
+
+		scope := "project"
+		if val, ok := args["scope"]; ok && val != nil {
+			scope, _ = val.(string)
+		}
+
+		res, err := RetrieveContext(workspacePath, query, scope)
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
+		return mcp.NewToolResultText(res), nil
+	}))
 
 	// Run standard I/O server
 	if err := server.ServeStdio(mcpServer); err != nil {

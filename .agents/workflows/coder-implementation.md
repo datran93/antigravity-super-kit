@@ -17,8 +17,9 @@ description:
 
 1. `load_checkpoint` — load the MCP task execution context.
 2. The context will provide the specific Design, Acceptance Criteria (ACs), and **Auto-Linked Contexts** (automatically
-   resolved by `load_checkpoint` when encountering `@task-[ID]`, `@ki/[Name]`, or `@anchor/[Key]` tags in the spec).
-3. Confirm scope — identify files to create/modify. Note `⚠️ HIGH-RISK` actions.
+   resolved by `load_checkpoint` when encountering `@task-[ID]`, `@ki/[Name]`, `@anchor/[Key]`, or `@doc/[path]` tags).
+3. `retrieve_context` — assemble a unified context pack for the current task domain.
+4. Confirm scope — identify files to create/modify. Note `⚠️ HIGH-RISK` actions.
 
 > ❌ NEVER start writing code before completing this phase.
 
@@ -46,7 +47,7 @@ For each Action (one at a time, in order):
 4. **Document**: State which pattern you're following before writing code.
 5. **Deviations**: NEVER deviate without documenting WHY.
 
-Additional: `query-docs` for latest API specs · cross-reference design doc.
+Additional: `query-docs` for latest API specs · `search_docs` for `@doc/` references · cross-reference design doc.
 
 ---
 
@@ -102,9 +103,10 @@ For **each completed Action**, do the following BEFORE moving to the next Action
 When **ALL Actions are completed**:
 
 1. Inject gotchas via `annotate_file`.
-2. Update the MCP `context-manager` database with your progress and any notes for the Reviewer/Tester. Any `@task`,
-   `@ki`, or `@anchor` tags used in your notes will be validated against the global and project scope.
-3. `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants). This triggers the Broken
+2. Persist ephemeral findings via `manage_session_memory` (action: "add") for the Reviewer/Tester.
+3. Update the MCP `context-manager` database with your progress and any notes for the Reviewer/Tester. Any `@task`,
+   `@ki`, `@anchor`, or `@doc/` tags used in your notes will be validated against the global and project scope.
+4. `save_checkpoint` with **`status = "completed"`** (exact string — never "done" or variants). This triggers the Broken
    Link Validator.
 
 ---

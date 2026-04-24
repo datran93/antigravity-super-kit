@@ -171,6 +171,39 @@ func initializeSchema(db *sql.DB) error {
             tactic   TEXT NOT NULL,
             embedding TEXT NOT NULL
         )`,
+		// session_memories: ephemeral session-scoped memory, cleaned by session_id
+		`CREATE TABLE IF NOT EXISTS session_memories (
+            id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL,
+            category TEXT,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
+		// activity_events: audit trail for context manager operations
+		`CREATE TABLE IF NOT EXISTS activity_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_type TEXT NOT NULL,
+            task_id TEXT,
+            detail TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
+		// docs: structured documentation layer with @doc/path resolution
+		`CREATE TABLE IF NOT EXISTS docs (
+            doc_path TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            content TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
+		// doc_references: typed bidirectional reference graph
+		`CREATE TABLE IF NOT EXISTS doc_references (
+            source_type TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            target_type TEXT NOT NULL,
+            target_id TEXT NOT NULL,
+            relation TEXT DEFAULT 'references',
+            PRIMARY KEY (source_type, source_id, target_type, target_id)
+        )`,
 	}
 
 	for _, query := range createTableQueries {
@@ -202,6 +235,16 @@ func initializeSchema(db *sql.DB) error {
 	} {
 		if err := addColumnIfNotExist(db, "drift_tracker", m.col, m.def); err != nil {
 			return fmt.Errorf("drift_tracker.%s migration: %w", m.col, err)
+		}
+	}
+
+	// steps: time tracking columns (Knowns-inspired T02)
+	for _, m := range []struct{ col, def string }{
+		{"started_at", "TIMESTAMP"},
+		{"completed_at", "TIMESTAMP"},
+	} {
+		if err := addColumnIfNotExist(db, "steps", m.col, m.def); err != nil {
+			return fmt.Errorf("steps.%s migration: %w", m.col, err)
 		}
 	}
 

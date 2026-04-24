@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -11,8 +10,6 @@ import (
 	"sort"
 	"strings"
 	"unicode"
-
-	openai "github.com/sashabaranov/go-openai"
 )
 
 // cleanQuery removes characters that break FTS5 MATCH syntax.
@@ -45,25 +42,11 @@ func cosineSimKI(a, b []float32) float32 {
 	return dot / denom
 }
 
-// getEmbedding calls OpenAI text-embedding-3-small for a single text.
-// Returns nil (no error) when OPENAI_API_KEY is unset — graceful degradation.
+// getEmbedding uses the ONNX-first → OpenAI-fallback chain from onnx.go.
+// Returns nil (no error) when neither ONNX nor OpenAI is available — graceful degradation.
 func getEmbedding(text string) ([]float32, error) {
-	apiKey := os.Getenv("OPENAI_API_KEY")
-	if apiKey == "" {
-		return nil, nil // degrade gracefully: no embedding, FTS-only
-	}
-	client := openai.NewClient(apiKey)
-	resp, err := client.CreateEmbeddings(context.Background(), openai.EmbeddingRequest{
-		Input: []string{text},
-		Model: openai.SmallEmbedding3,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("embedding API error: %w", err)
-	}
-	if len(resp.Data) == 0 {
-		return nil, fmt.Errorf("empty embedding response")
-	}
-	return resp.Data[0].Embedding, nil
+	emb, _, err := getEmbeddingWithFallback(text)
+	return emb, err
 }
 
 // kiRank holds ranking data for RRF fusion.
@@ -395,6 +378,9 @@ func CompactMemory(workspacePath, taskID, tacticName, summary, decisions string)
 		db.Exec("UPDATE intents SET locked_files='[]' WHERE task_id=?", taskID)
 		db.Exec("UPDATE drift_tracker SET failure_count=0 WHERE task_id=?", taskID)
 	}
+
+	// T23: Auto-emit activity event
+	logActivityDB(db, "ki_created", taskID, fmt.Sprintf("KI: %s → %s", tacticName, kiPath))
 
 	return fmt.Sprintf("🗜️ Context Compaction successful. Knowledge Item indexed into local RAG and saved to %s. Memory flushed.", kiPath), nil
 }
