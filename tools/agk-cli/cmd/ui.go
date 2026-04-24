@@ -14,8 +14,8 @@ import (
 var uiCmd = &cobra.Command{
 	Use:   "ui",
 	Short: "Launch the AGK dashboard UI",
-	Long: `Start the Antigravity Kit dashboard.
-Automatically installs dependencies and builds if needed.
+	Long: `Start the Antigravity Kit dashboard in development mode.
+Automatically installs dependencies if needed.
 
 Examples:
   agk ui           # Start the dashboard
@@ -51,30 +51,18 @@ func runUI(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Build if needed
-	if _, err := os.Stat(filepath.Join(uiDir, ".next")); os.IsNotExist(err) {
-		fmt.Println("🔨 Building dashboard...")
-		npmBuild := exec.Command("npm", "run", "build")
-		npmBuild.Dir = uiDir
-		npmBuild.Stdout = os.Stdout
-		npmBuild.Stderr = os.Stderr
-		if err := npmBuild.Run(); err != nil {
-			return fmt.Errorf("npm build failed: %w", err)
-		}
-	}
+	// Derive workspace root from dashboard dir (ui/agk-dashboard -> repo root)
+	workspaceRoot := filepath.Dir(filepath.Dir(uiDir))
+	os.Setenv("WORKSPACE_PATH", workspaceRoot)
 
-	// Set workspace path
-	cwd, _ := os.Getwd()
-	os.Setenv("WORKSPACE_PATH", cwd)
-
-	// Start the server
-	npmStart := exec.Command("npm", "run", "start")
-	npmStart.Dir = uiDir
-	npmStart.Stdout = os.Stdout
-	npmStart.Stderr = os.Stderr
+	// Use dev mode so source changes are always reflected immediately
+	npmDev := exec.Command("npm", "run", "dev")
+	npmDev.Dir = uiDir
+	npmDev.Stdout = os.Stdout
+	npmDev.Stderr = os.Stderr
 
 	if flagOpen {
-		if err := npmStart.Start(); err != nil {
+		if err := npmDev.Start(); err != nil {
 			return fmt.Errorf("failed to start dashboard: %w", err)
 		}
 
@@ -82,34 +70,38 @@ func runUI(cmd *cobra.Command, args []string) error {
 		time.Sleep(2 * time.Second)
 
 		openBrowser("http://localhost:3000")
-		return npmStart.Wait()
+		return npmDev.Wait()
 	}
 
-	return npmStart.Run()
+	return npmDev.Run()
 }
 
 func findDashboardDir() string {
-	// Try relative to CWD
-	cwd, _ := os.Getwd()
-	candidates := []string{
-		filepath.Join(cwd, "ui", "agk-dashboard"),
-		filepath.Join(cwd, "..", "ui", "agk-dashboard"),
+	// The binary is at antigravity-kit/tools/agk-cli/agk (possibly symlinked).
+	// The dashboard is at antigravity-kit/ui/agk-dashboard.
+	// Resolve the real path of the executable and navigate from there.
+	exePath, err := os.Executable()
+	if err != nil {
+		return ""
 	}
 
-	// Try relative to executable
-	if exePath, err := os.Executable(); err == nil {
-		exeDir := filepath.Dir(exePath)
-		candidates = append(candidates,
-			filepath.Join(exeDir, "..", "ui", "agk-dashboard"),
-			filepath.Join(exeDir, "..", "..", "ui", "agk-dashboard"),
-		)
+	// Follow symlinks to get the real location
+	realPath, err := filepath.EvalSymlinks(exePath)
+	if err != nil {
+		realPath = exePath
 	}
 
-	for _, dir := range candidates {
-		if info, err := os.Stat(dir); err == nil && info.IsDir() {
-			absDir, _ := filepath.Abs(dir)
-			return absDir
-		}
+	// exeDir = antigravity-kit/tools/agk-cli/
+	exeDir := filepath.Dir(realPath)
+	// Go up two levels to antigravity-kit/, then into ui/agk-dashboard
+	candidate := filepath.Join(exeDir, "..", "..", "ui", "agk-dashboard")
+	absDir, err := filepath.Abs(candidate)
+	if err != nil {
+		return ""
+	}
+
+	if info, err := os.Stat(absDir); err == nil && info.IsDir() {
+		return absDir
 	}
 	return ""
 }

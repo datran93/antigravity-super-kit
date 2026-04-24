@@ -20,8 +20,8 @@ export function getGlobalDb(): Database.Database {
   return dbCache[globalPath];
 }
 
-// Helper to get workspace context DB
-export function getWorkspaceDb(): Database.Database {
+// Helper to get workspace context DB (returns null if unavailable)
+export function getWorkspaceDb(): Database.Database | null {
   // Use WORKSPACE_PATH env var, or fallback to current directory if not provided
   const workspacePath = process.env.WORKSPACE_PATH || process.cwd();
   const contextPath = path.join(workspacePath, "context.db");
@@ -29,9 +29,9 @@ export function getWorkspaceDb(): Database.Database {
   if (!dbCache[contextPath]) {
     try {
       dbCache[contextPath] = new Database(contextPath, { readonly: true });
-    } catch (err) {
-      console.error(`Failed to connect to context DB at ${contextPath}:`, err);
-      throw err;
+    } catch {
+      // DB doesn't exist yet — return null so callers can return empty data
+      return null;
     }
   }
   return dbCache[contextPath];
