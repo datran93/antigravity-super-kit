@@ -38,6 +38,7 @@ type SectionSpec struct {
 const DefaultAgentKey = "agy"
 
 // FindAgentsJSON locates agents.json by walking up from the given directory.
+// Falls back to the cached repository if not found locally.
 func FindAgentsJSON(startDir string) (string, error) {
 	dir := startDir
 	for {
@@ -51,7 +52,14 @@ func FindAgentsJSON(startDir string) (string, error) {
 		}
 		dir = parent
 	}
-	return "", fmt.Errorf("agents.json not found (searched from %s)", startDir)
+
+	// Fallback: check the cached repo
+	cached := filepath.Join(DefaultCacheDir(), DefaultRepoName, "agents.json")
+	if _, err := os.Stat(cached); err == nil {
+		return cached, nil
+	}
+
+	return "", fmt.Errorf("agents.json not found (searched from %s and cache)", startDir)
 }
 
 // LoadAgentsFile reads and parses agents.json.

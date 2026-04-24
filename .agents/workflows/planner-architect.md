@@ -27,13 +27,13 @@ description: Structured workflow for Planning and Architectural design. Produces
 
 Use MCP tools **in parallel** to map the impact area:
 
-- `search_skills` — relevant specialized skills.
 - `recall_knowledge` — past KIs.
-- `retrieve_context` — unified context pack (KIs + docs + anchors + tasks).
 - `get_project_architecture` — existing code boundaries.
 - `search_code` — related implementations.
 - `get_table_sample` — schema formats if relevant.
 - `search_docs` — existing `@doc/` documentation for the domain.
+
+Reuse the `retrieve_context` pack from Phase 0 — do NOT call it again.
 
 **Output**: Documented **Blast Radius** (affected files and components).
 

@@ -26,13 +26,14 @@ func init() {
 }
 
 func runUpdate(cmd *cobra.Command, args []string) error {
-	agents, af, err := resolveAgents()
-	if err != nil {
+	// Sync first so the cached agents.json is available as fallback
+	cacheDir := DefaultCacheDir()
+	if err := SyncRepo(DefaultRepoURL, cacheDir, DefaultRepoName); err != nil {
 		return err
 	}
 
-	cacheDir := DefaultCacheDir()
-	if err := SyncRepo(DefaultRepoURL, cacheDir, DefaultRepoName); err != nil {
+	agents, af, err := resolveAgents()
+	if err != nil {
 		return err
 	}
 

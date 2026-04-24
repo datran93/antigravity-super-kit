@@ -102,8 +102,8 @@ Repeat **Phase 1 → 5** for each remaining Action.
 For **each completed Action**, do the following BEFORE moving to the next Action:
 
 1. `complete_task_step` with `active_files`.
-2. `log_activity` (event_type: "step_completed") to record the action in the audit trail.
-3. `clear_drift`.
+2. `clear_drift`.
+3. `log_activity` (event_type: "step_completed") to record the action in the audit trail.
 
 When **ALL Actions are completed**:
 

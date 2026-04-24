@@ -4,21 +4,19 @@ trigger: always_on
 
 # AGK — Antigravity Kit Agent Governance
 
-> \*\*Always prefix shell commands with `rtk` to minimize token consumption.
+> **Canonical source of truth** for agent behavior in this project.
+> ANCHORS.md remains separate — it holds immutable project constraints.
 
-```bash
-rtk git status
-rtk cargo test
 ---
 
 ## 🛠️ MCP Priority (Use Over Bash)
+
+> **Shell Prefix**: Always prefix shell commands with `rtk` to minimize token consumption (e.g., `rtk git status`).
 
 1. **Research** → `codebase-explorer` (index, search, architecture), `context7`, `doc-researcher`
 2. **State** → `context-manager` (checkpoint, intent, failure, knowledge, anchors, annotate, session_memory, docs)
 3. **Data** → `database-inspector` (tables, schema, queries)
 4. **External** → `gitlab`, `github-reader`, `mcp-http-client`
-
-```
 
 ---
 
@@ -53,7 +51,8 @@ Distinct, non-overlapping roles. Each produces a specific output and **stops**. 
    `[Role: 💻 Coder]` / `[Role: 🔍 Reviewer]` / `[Role: 🧪 Tester]`
 2. **Output Contract**: Deliver defined output then **STOP**. NEVER initiate the next role.
 3. **No Self-Escalation**: Hit a blocker? **Stop and ask the USER.** NEVER switch roles autonomously.
-4. **Ghost Context**: Before finishing, ALWAYS use `annotate_file` to inject non-obvious gotchas into affected files.
+4. **Ghost Context**: Before finishing, use `annotate_file` to inject non-obvious gotchas into affected files
+   (**Coder and Planner only** — Reviewer/Tester are read-only roles).
 5. **Skill Transparency**: State which specialized skills are used BEFORE executing.
 6. **No Destruction**: NEVER delete existing API contracts, database columns, or core functionality without explicit
    USER confirmation.
@@ -65,6 +64,10 @@ Distinct, non-overlapping roles. Each produces a specific output and **stops**. 
    patterns. Use `scope="project"` for project-specific constraints.
 10. **Session Memory**: Use `manage_session_memory` to persist ephemeral findings, decisions, and patterns within a
     session. Promote important items to KIs before compacting.
+11. **Activity Logging**: Use `log_activity` to record significant events (step completions, incidents, compactions)
+    in the audit trail. Downstream roles (Reviewer, Tester) consume this via `list_activity`.
+12. **Workspace Integrity**: Run `agk validate` after completing actions to verify governance file presence, `@doc/path`
+    reference integrity, and template completeness.
 
 ### Drift Detection (Panic Protocol)
 
@@ -104,5 +107,5 @@ NEVER auto-loops.
 
 ## 📌 Metadata
 
-- **Version**: 5.0.0
-- **Last Updated**: 2026-04-24
+- **Version**: 5.1.0
+- **Last Updated**: 2026-04-25

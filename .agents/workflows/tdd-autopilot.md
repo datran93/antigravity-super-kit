@@ -7,6 +7,10 @@ description: Structured workflow for Test-Driven Development (TDD) execution loo
 Use this workflow to enforce strict Test-Driven Development loops. It shifts the pipeline from
 `spec -> build -> validate` to `spec -> validate (Red) -> build (Green) -> optimize (Refactor)`.
 
+> ⚠️ **Exemption**: This workflow intentionally permits role self-transitions (Coder → Tester → Reviewer → Coder)
+> within a single execution cycle. This is an explicit exception to AGENTS.md Protocol #2/#3, as the tight
+> Red→Green→Refactor loop is integral to TDD methodology.
+
 ## 🚀 Execution Sequence
 
 ### Phase 1: Test Specification (Red) 🔴
